@@ -1,3 +1,13 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+version = '0.0.1'
+
+# TODOs:
+# - Add the decorators to the main class
+
+# ------------------------------------------
+
 from __init__ import *
 
 import dotenv
@@ -45,20 +55,15 @@ class TlgBotFwk(Application):
             # get the name of current bot
             bot_name = application.bot.username
             
-            host_alias = hostname
-            # if 'host_alias' in current_bot_settings:
-            #     host_alias = current_bot_settings['host_alias']        
+            host_alias = hostname   
             
             start_message = f"""*{application.bot.username} Started!*
-    _Version:_   `{bot_version}`
-    _Host:_     `{hostname}`
-    _Host Alias:_    `{host_alias}`
-
-    _CWD:_ `{os.getcwd()}`
-
-    _Path:_
-    `{main_script_path}`"""    
-
+_Version:_   `{bot_version}`
+_Host:_     `{hostname}`
+_Host Alias:_    `{host_alias}`
+_CWD:_ `{os.getcwd()}`
+_Path:_
+`{main_script_path}`"""    
             logger.info(f"{start_message}")  
 
             current_commands = await application.bot.get_my_commands(scope=BotCommandScopeAllPrivateChats())
@@ -148,7 +153,6 @@ class TlgBotFwk(Application):
             
         await update.message.reply_text(f"_Language code set to:_ `{self.language_code}`")
                 
-    # Global error handler
     @with_writing_action
     @with_log_admin     
     async def error_handler(self, update: Update, context: CallbackContext) -> None:
@@ -214,5 +218,6 @@ class TlgBotFwk(Application):
 
 if __name__ == '__main__':
     
-    app = TlgBotFwk()    
+    app = TlgBotFwk()
+    
     app.run()
