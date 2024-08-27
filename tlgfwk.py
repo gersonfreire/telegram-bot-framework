@@ -18,26 +18,42 @@ class TlgBotFwk(Application):
     
     # ------------------------------------------
     
+    def get_command_handlers(self, *args, **kwargs):
+            
+            try:
+                for handler_group in self.application.handlers.values():                    
+                        for handler in handler_group:
+                            if isinstance(handler, CommandHandler):
+                                yield handler
+            
+            except Exception as e:
+                logger.error(f"Error getting command description: {e}")
+                return f'Sorry, we have a problem getting the command description: {e}'
+    
     async def get_help_text(self, user_language_code = 'en', *args, **kwargs):
         
         try:
-            self.current_commands = await self.application.bot.get_my_commands()
+            self.current_commands = await self.application.bot.get_my_commands(scope=BotCommandScopeDefault())
             
             self.help_text = translations.translations.get_translated_message(user_language_code, 'help_message', 'en', self.application.bot.name)            
             
             for command in self.current_commands:
                 self.help_text += f"/{command.command} - {command.description}{os.linesep}"
                 
-            # append the command handlers that are not in the current commands
-            for handler0 in self.application.handlers.values():
-                if isinstance(handler0, CommandHandler):
-                    if handler0.command not in [command.command for command in self.current_commands]:
-                        self.help_text += f"/{handler0.command} - {handler0.callback.__doc__}{os.linesep}" 
-                elif isinstance(handler0, list):
-                    for handler in handler0:       
+            # append the command handlers that are not in the current commands list
+            for handler_group in self.application.handlers.values():
+                if isinstance(handler_group, CommandHandler):
+                    if handler_group.command not in [command.command for command in self.current_commands]:
+                        command_description = handler_group.callback.__doc__.split("\n")[0] if handler_group.callback.__doc__ else command_name
+                        
+                        self.help_text += f"/{handler_group.command} - {command_description}{os.linesep}"
+                        
+                elif isinstance(handler_group, list):
+                    for handler in handler_group:       
                         if isinstance(handler, CommandHandler):
                             command_name = list(handler.commands)[0]
                             if command_name not in [bot_command.command for bot_command in self.current_commands]:
+                                # TODO : check if command is an admin only command
                                 command_description = handler.callback.__doc__.split("\n")[0] if handler.callback.__doc__ else command_name
                                 self.help_text += f"/{command_name} - {command_description}{os.linesep}"  
                 
@@ -127,16 +143,18 @@ _Path:_
         
         # Adding a simple command handler for the /start command
         start_handler = CommandHandler('start', self.default_start_handler)
-        self.application.add_handler(start_handler)
+        self.application.add_handler(start_handler, group=-1)
           
         help_handler = CommandHandler('help', self.default_help_handler)
-        self.application.add_handler(help_handler) 
+        self.application.add_handler(help_handler, group=-1) 
         
         # Adding a simple command handler for the /set_language_code command
         set_language_code_handler = CommandHandler('lang', self.set_language_code)
-        self.application.add_handler(set_language_code_handler)
+        self.application.add_handler(set_language_code_handler, group=-2)
         
         self.application.add_handler(MessageHandler(filters.COMMAND, self.default_unknown_command))
+      
+    # -------- Default command handlers --------      
         
     @with_writing_action
     @with_log_admin 
