@@ -29,9 +29,6 @@
 - [Usage](#usage)
 - [Getting Started](#getting_started)
 - [Deploying your own bot](#deployment)
-- [Built Using](#built_using)
-- [TODO](../TODO.md)
-- [Contributing](../CONTRIBUTING.md)
 - [Authors](#authors)
 - [Acknowledgments](#acknowledgement)
 
@@ -91,7 +88,6 @@ Install dependencies
 pip -r requirements.txt
 ```
 
-End with an example of getting some data out of the system or using it for a little demo.
 
 ## ✍️ Authors 
 
