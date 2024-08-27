@@ -19,16 +19,22 @@ class TlgBotFwk(Application):
     # ------------------------------------------
     
     def get_command_handlers(self, *args, **kwargs):
+        
+        command_dict = {}
             
-            try:
-                for handler_group in self.application.handlers.values():                    
-                        for handler in handler_group:
-                            if isinstance(handler, CommandHandler):
-                                yield handler
-            
-            except Exception as e:
-                logger.error(f"Error getting command description: {e}")
-                return f'Sorry, we have a problem getting the command description: {e}'
+        try:
+            for handler_group in self.application.handlers.values():                    
+                    for handler in handler_group:
+                        if isinstance(handler, CommandHandler):
+                            command_name = list(handler.commands)[0]
+                            command_description = handler.callback.__doc__.split("\n")[0] if handler.callback.__doc__ else command_name
+                            command_filter = handler.filters
+                            command_dict[command_name] = command_description                               
+                            # yield handler
+        
+        except Exception as e:
+            logger.error(f"Error getting command description: {e}")
+            return f'Sorry, we have a problem getting the command description: {e}'
     
     async def get_help_text(self, user_language_code = 'en', *args, **kwargs):
         
@@ -40,6 +46,9 @@ class TlgBotFwk(Application):
             for command in self.current_commands:
                 self.help_text += f"/{command.command} - {command.description}{os.linesep}"
                 
+            # get a dictionary of command handlers
+            command_dict = self.get_command_handlers()
+            
             # append the command handlers that are not in the current commands list
             for handler_group in self.application.handlers.values():
                 if isinstance(handler_group, CommandHandler):
