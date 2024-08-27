@@ -29,12 +29,17 @@ class TlgBotFwk(Application):
                             command_name = list(handler.commands)[0]
                             command_description = handler.callback.__doc__.split("\n")[0] if handler.callback.__doc__ else command_name
                             command_filter = handler.filters
-                            command_dict[command_name] = command_description                               
+                            user_allowed = list(command_filter.user_ids)[0] if isinstance(command_filter, filters.User) else None
+                            is_admin = True if isinstance(command_filter, filters.User) else False
+                            command_dict[command_name] = {'command_description': command_description, 'is_admin': is_admin, 'user_allowed': user_allowed}
+                            
                             # yield handler
         
         except Exception as e:
             logger.error(f"Error getting command description: {e}")
             return f'Sorry, we have a problem getting the command description: {e}'
+        
+        return command_dict
     
     async def get_help_text(self, user_language_code = 'en', *args, **kwargs):
         
@@ -152,14 +157,14 @@ _Path:_
         
         # Adding a simple command handler for the /start command
         start_handler = CommandHandler('start', self.default_start_handler)
-        self.application.add_handler(start_handler, group=-1)
+        self.application.add_handler(start_handler)
           
         help_handler = CommandHandler('help', self.default_help_handler)
-        self.application.add_handler(help_handler, group=-1) 
+        self.application.add_handler(help_handler) 
         
         # Adding a simple command handler for the /set_language_code command
-        set_language_code_handler = CommandHandler('lang', self.set_language_code)
-        self.application.add_handler(set_language_code_handler, group=-2)
+        set_language_code_handler = CommandHandler('lang', self.set_language_code, filters=filters.User(user_id=self.bot_owner))
+        self.application.add_handler(set_language_code_handler)
         
         self.application.add_handler(MessageHandler(filters.COMMAND, self.default_unknown_command))
       
@@ -201,28 +206,33 @@ _Path:_
     @with_log_admin
     async def default_start_handler(self, update: Update, context: CallbackContext, *args, **kwargs):
         
-        self.current_commands = await self.application.bot.get_my_commands()
-        
-        if self.show_default_start_message: 
+        try:
+            self.current_commands = await self.application.bot.get_my_commands()
             
-            if self.language_code is None:
-                self.language_code = update.effective_user.language_code
-            
-            # Get the default current user´s language code
-            user_language_code = self.language_code.split('-')[0] 
-                       
-            self.default_start_message = translations.translations.get_translated_message(user_language_code, 'start_message', 'en', update.effective_user.full_name, self.application.bot.name, self.application.bot.first_name)
-            
-            if self.bot_owner and update.effective_user.id == bot_user_admin: 
-                     
-                if user_language_code in translations.translations.start_message:
-                     
-                    self.default_start_message += f"{os.linesep}{os.linesep}_You are the bot Owner:_` {self.bot_owner}`"
-                    self.default_start_message += f"{os.linesep}_Language code:_ `{self.language_code}`"
-               
-                self.default_start_message += f"{os.linesep}{await self.get_help_text()}"
+            if self.show_default_start_message: 
                 
-            await update.message.reply_text(self.default_start_message.format(update.effective_user.first_name))
+                if self.language_code is None:
+                    self.language_code = update.effective_user.language_code
+                
+                # Get the default current user´s language code
+                user_language_code = self.language_code.split('-')[0] 
+                           
+                self.default_start_message = translations.translations.get_translated_message(user_language_code, 'start_message', 'en', update.effective_user.full_name, self.application.bot.name, self.application.bot.first_name)
+                
+                if self.bot_owner and update.effective_user.id == bot_user_admin: 
+                         
+                    if user_language_code in translations.translations.start_message:
+                         
+                        self.default_start_message += f"{os.linesep}{os.linesep}_You are the bot Owner:_` {self.bot_owner}`"
+                        self.default_start_message += f"{os.linesep}_Language code:_ `{self.language_code}`"
+                   
+                    self.default_start_message += f"{os.linesep}{await self.get_help_text()}"
+                    
+                await update.message.reply_text(self.default_start_message.format(update.effective_user.first_name))
+                
+        except Exception as e:
+            logger.error(f"Error in default_start_handler: {e}")
+            await update.message.reply_text(f"Sorry, we encountered an error: {e}")
 
     @with_writing_action
     @with_log_admin            
