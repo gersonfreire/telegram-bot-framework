@@ -54,22 +54,11 @@ class TlgBotFwk(Application):
             # get a dictionary of command handlers
             command_dict = self.get_command_handlers()
             
-            # append the command handlers that are not in the current commands list
-            for handler_group in self.application.handlers.values():
-                if isinstance(handler_group, CommandHandler):
-                    if handler_group.command not in [command.command for command in self.current_commands]:
-                        command_description = handler_group.callback.__doc__.split("\n")[0] if handler_group.callback.__doc__ else command_name
-                        
-                        self.help_text += f"/{handler_group.command} - {command_description}{os.linesep}"
-                        
-                elif isinstance(handler_group, list):
-                    for handler in handler_group:       
-                        if isinstance(handler, CommandHandler):
-                            command_name = list(handler.commands)[0]
-                            if command_name not in [bot_command.command for bot_command in self.current_commands]:
-                                # TODO : check if command is an admin only command
-                                command_description = handler.callback.__doc__.split("\n")[0] if handler.callback.__doc__ else command_name
-                                self.help_text += f"/{command_name} - {command_description}{os.linesep}"  
+            # convert the commands dictionary into help text
+            for command_name, command_data in command_dict.items():
+                if command_name not in [bot_command.command for bot_command in self.current_commands]:
+                    command_description = command_data['command_description']
+                    self.help_text += f"/{command_name} - {command_description}{os.linesep}" 
                 
             return self.help_text
         
