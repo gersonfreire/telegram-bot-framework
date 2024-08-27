@@ -62,8 +62,6 @@ logger.debug(f"Log folder: {log_folder}")
 
 # ------------------------------------------
 
-# bot_user_admin = 438429121
-
 hostname = socket.getfqdn()
 
 bot_version = "9.0.0"
