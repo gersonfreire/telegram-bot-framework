@@ -4,7 +4,7 @@
 version = '0.0.1'
 
 # TODOs:
-# - Add the decorators to the main class
+# - Create a filter for admin commands
 
 # ------------------------------------------
 
