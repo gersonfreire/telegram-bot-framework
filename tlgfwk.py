@@ -41,7 +41,7 @@ class TlgBotFwk(Application):
         
         return command_dict
     
-    async def get_help_text(self, user_language_code = 'en', *args, **kwargs):
+    async def get_help_text(self, user_language_code = 'en', current_user_id = None, *args, **kwargs):
         
         try:
             self.current_commands = await self.application.bot.get_my_commands(scope=BotCommandScopeDefault())
@@ -57,8 +57,12 @@ class TlgBotFwk(Application):
             # convert the commands dictionary into help text
             for command_name, command_data in command_dict.items():
                 if command_name not in [bot_command.command for bot_command in self.current_commands]:
-                    command_description = command_data['command_description']
-                    self.help_text += f"/{command_name} - {command_description}{os.linesep}" 
+                    if command_data['is_admin']:
+                        if command_data['user_allowed'] == current_user_id: # self.bot_owner:
+                            self.help_text += f"/{command_name} - {command_data['command_description']}{os.linesep}"
+                    else:
+                        command_description = command_data['command_description']
+                        self.help_text += f"/{command_name} - {command_description}{os.linesep}" 
                 
             return self.help_text
         
@@ -90,17 +94,17 @@ _Path:_
             current_commands = await application.bot.get_my_commands(scope=BotCommandScopeDefault())
             logger.info(f"Get Current commands: {current_commands}") 
             
-            await application.bot.send_message(chat_id=bot_user_admin, text=f"{start_message}", parse_mode=ParseMode.MARKDOWN)
+            await application.bot.send_message(chat_id=self.bot_owner, text=f"{start_message}", parse_mode=ParseMode.MARKDOWN)
             
         except Exception as e:
             logger.error(f"Error: {e}")
 
-    async def post_shutdown(application: Application) -> None:
+    async def post_shutdown(self, application: Application) -> None:
         
         try:
             stop_message = f"_STOPPING bot_ {os.linesep}`{hostname}`{os.linesep}`{__file__}` {bot_version}..."
             logger.info(stop_message)
-            await application.bot.send_message(chat_id=bot_user_admin, text=f"{stop_message}", parse_mode=ParseMode.MARKDOWN)
+            await application.bot.send_message(chat_id=self.bot_owner, text=f"{stop_message}", parse_mode=ParseMode.MARKDOWN)
         except Exception as e:
             logger.error(f"Error: {e}")
                 
@@ -208,14 +212,14 @@ _Path:_
                            
                 self.default_start_message = translations.translations.get_translated_message(user_language_code, 'start_message', 'en', update.effective_user.full_name, self.application.bot.name, self.application.bot.first_name)
                 
-                if self.bot_owner and update.effective_user.id == bot_user_admin: 
+                if self.bot_owner and update.effective_user.id == self.bot_owner: 
                          
                     if user_language_code in translations.translations.start_message:
                          
                         self.default_start_message += f"{os.linesep}{os.linesep}_You are the bot Owner:_` {self.bot_owner}`"
                         self.default_start_message += f"{os.linesep}_Language code:_ `{self.language_code}`"
                    
-                    self.default_start_message += f"{os.linesep}{await self.get_help_text()}"
+                    self.default_start_message += f"{os.linesep}{await self.get_help_text(current_user_id=update.effective_user.id)}"
                     
                 await update.message.reply_text(self.default_start_message.format(update.effective_user.first_name))
                 
@@ -231,7 +235,7 @@ _Path:_
             self.language_code = update.effective_user.language_code
         user_language_code = self.language_code.split('-')[0]
         
-        self.help_text = await self.get_help_text(user_language_code=user_language_code)
+        self.help_text = await self.get_help_text(user_language_code=user_language_code, current_user_id=update.effective_user.id)
         
         self.logger.info(f"Help command received from {update.effective_user.name}")
         
