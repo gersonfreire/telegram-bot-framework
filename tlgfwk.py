@@ -1,13 +1,14 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-version = '0.0.1'
+version = '0.0.2 - validate token against Telegram servers'
 
 # TODOs:
 # - Create a filter for admin commands
 
 # ------------------------------------------
 
+from telegram import Bot
 from __init__ import *
 
 import dotenv
@@ -70,6 +71,25 @@ class TlgBotFwk(Application):
             logger.error(f"Error getting commands: {e}")
             return f'Sorry, we have a problem getting the commands: {e}'
     
+    def validate_token(self, token: str = None, quit_if_error = False, run_sync = False):
+        
+        self.token_validated = False
+        self.bot_info = None
+        
+        try:
+            bot = Bot(token=token)
+            loop = asyncio.get_event_loop()                
+            self.bot_info = loop.run_until_complete(bot.get_me())
+            # loop.close() 
+            self.token_validated = True            
+        
+        except Exception as e:
+            logger.error(f"Error validating token: {e}")
+            if quit_if_error:
+                input_with_timeout("Enter to close: ", 10)
+                quit()
+            return None
+    
     # ------------------------------------------
 
     async def post_init(self, application: Application) -> None:   
@@ -118,10 +138,11 @@ _Path:_
             
             dotenv.load_dotenv(env_file)
                 
-            # https://github.com/python-telegram-bot/python-telegram-bot/wiki/Adding-defaults-to-your-bot
             bot_defaults_build = bot_defaults_build if bot_defaults_build else Defaults(parse_mode=ParseMode.MARKDOWN) 
             
-            self.token = os.environ.get('DEFAULT_BOT_TOKEN', None)
+            self.token = token if token else os.environ.get('DEFAULT_BOT_TOKEN', None)            
+            self.validate_token(self.token, quit_if_error=True, run_sync=True)
+            
             self.bot_name = os.environ.get('DEFAULT_BOT_NAME', None)
             self.bot_owner = int(os.environ.get('DEFAULT_BOT_OWNER', None))
             self.bots_json_file = os.environ.get('DEFAULT_BOTS_JSON_FILE', None)
