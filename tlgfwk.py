@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-version = '0.0.2 - validate token against Telegram servers'
+version = '0.0.3 - can disable default handlers'
 
 # TODOs:
 # - Allow to disable the default start and help messages for the bot owner
@@ -26,15 +26,20 @@ class TlgBotFwk(Application):
         try:
             for handler_group in self.application.handlers.values():                    
                     for handler in handler_group:
-                        if isinstance(handler, CommandHandler):
-                            command_name = list(handler.commands)[0]
-                            command_description = handler.callback.__doc__.split("\n")[0] if handler.callback.__doc__ else command_name
-                            command_filter = handler.filters
-                            user_allowed = list(command_filter.user_ids)[0] if isinstance(command_filter, filters.User) else None
-                            is_admin = True if isinstance(command_filter, filters.User) else False
-                            command_dict[command_name] = {'command_description': command_description, 'is_admin': is_admin, 'user_allowed': user_allowed}
-                            
-                            # yield handler
+                        try:
+                            if isinstance(handler, CommandHandler):
+                                command_name = list(handler.commands)[0]
+                                command_description = handler.callback.__doc__.split("\n")[0] if handler.callback.__doc__ else command_name
+                                command_filter = handler.filters
+                                user_allowed = list(command_filter.user_ids)[0] if isinstance(command_filter, filters.User) else None
+                                is_admin = True if isinstance(command_filter, filters.User) else False
+                                command_dict[command_name] = {'command_description': command_description, 'is_admin': is_admin, 'user_allowed': user_allowed}
+                                
+                                # yield handler
+
+                        except Exception as e:
+                            logger.error(f"Error getting command description: {e}")
+                            continue
         
         except Exception as e:
             logger.error(f"Error getting command description: {e}")
