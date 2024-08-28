@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-version = '0.0.4 - allow each user to set their own language code'
+version = '0.0.5 - allow each user to set their own language code'
 
 # TODOs:
 # - allow each user to set their own language code
@@ -200,7 +200,7 @@ _Path:_
             self.application.add_handler(help_handler) 
             
             # Adding a simple command handler for the /set_language_code command
-            set_language_code_handler = CommandHandler('lang', self.set_default_language_code, filters=filters.User(user_id=self.bot_owner))
+            set_language_code_handler = CommandHandler('lang', self.set_default_language, filters=filters.User(user_id=self.bot_owner))
             self.application.add_handler(set_language_code_handler)
             
             self.application.add_handler(MessageHandler(filters.COMMAND, self.default_unknown_command))
@@ -213,7 +213,7 @@ _Path:_
         
     @with_writing_action
     @with_log_admin 
-    async def set_default_language_code(self, update: Update, context: CallbackContext, *args, **kwargs):
+    async def set_default_language(self, update: Update, context: CallbackContext, *args, **kwargs):
         """Set the language code for the bot
 
         Args:
@@ -225,7 +225,22 @@ _Path:_
             self.default_language_code = update.message.text.split(' ')[1].lower()
             
         await update.message.reply_text(f"_Default language code set to:_ `{self.default_language_code}`")
-                
+
+    @with_writing_action
+    @with_log_admin     
+    async def set_user_language(self, update: Update, context: CallbackContext, *args, **kwargs):
+        """Set the language code for the user
+
+        Args:
+            update (Update): _description_
+            context (CallbackContext): _description_
+        """
+        
+        if len(update.message.text.split(' ')) > 1:            
+            context.user_data['language_code'] = update.message.text.split(' ')[1].lower()
+            
+        await update.message.reply_text(f"_User language code set to:_ `{context.user_data.get('language_code', self.default_language_code)}`")
+             
     @with_writing_action
     @with_log_admin     
     async def error_handler(self, update: Update, context: CallbackContext) -> None:
@@ -255,7 +270,7 @@ _Path:_
                 
                 if self.bot_owner and update.effective_user.id == self.bot_owner:                          
                     self.default_start_message += f"{os.linesep}{os.linesep}_You are the bot Owner:_` {self.bot_owner}`"
-                    self.default_start_message += f"{os.linesep}_User language code:_ `{update.effective_user.language_code}`"
+                    self.default_start_message += f"{os.linesep}_User language code:_ `{context.user_data.get('language_code', self.default_language_code)}`"
                     self.default_start_message += f"{os.linesep}_Default language code:_ `{self.default_language_code}`"
                 
                     self.default_start_message += f"{os.linesep}{await self.get_help_text(update.effective_user.language_code, update.effective_user.id)}"
