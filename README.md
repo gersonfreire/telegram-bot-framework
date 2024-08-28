@@ -121,6 +121,12 @@ Install dependencies
 pip -r requirements.txt
 ```
 
+Run main function of base class
+
+```
+python tlgfwk.py
+```
+
 ## ✍️ Authors
 
 - [@gersonfreire](https://github.com/kylelobo) - Idea & Initial work
