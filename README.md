@@ -18,6 +18,8 @@
     <br> 
 </p>
 
+[Project&#39;s Telegram group](https://t.me/TlgBotFwk)
+
 ## 📝 Table of Contents
 
 - [About](#about)
@@ -82,10 +84,9 @@ Install dependencies
 pip -r requirements.txt
 ```
 
-
-## ✍️ Authors 
+## ✍️ Authors
 
 - [@gersonfreire](https://github.com/kylelobo) - Idea & Initial work
 
-See also the list of contributors who participated in this project.
+Engage yourself entering the  [Project&#39;s Telegram group](https://t.me/TlgBotFwk) and see also the list of contributors who participated in this project
 Please, feel free to join us and let´s build a full and powerfull real framework for bots.
