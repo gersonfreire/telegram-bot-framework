@@ -47,12 +47,49 @@ if __name__ == '__main__':
     app.run()
 ```
 
-Don´t forget to create a .env file, because the framework will load settings like Telegram Token and Admin user Id from it. You will find a sample.env file on project root, with this content:
+Don´t forget to create a .env file, because the framework will load settings like Telegram Token and Admin user Id from it. You will find a sample.env file on project root, with this content, which could be got as explained bellow
 
 ```
-DEFAULT_BOT_TOKEN=8076729431:AAE95s3Q_QKkEtVxnProc5BRxdqxKo_S7w1
-DEFAULT_BOT_OWNER=138429124
+DEFAULT_BOT_TOKEN=<PUT YOUR BOT TOKEN HERE> 
+DEFAULT_BOT_OWNER=<PUT HERE YOUR TELEGRAM ID> 
 ```
+
+To get a Telegram bot token from BotFather to use in a Python bot script, follow these steps:
+
+1. **Start a Chat with BotFather** :
+
+* Open Telegram and search for “BotFather”.
+* Start a conversation by clicking the “Start” button.
+
+1. **Create a New Bot** :
+
+* Type `/newbot` and send the message.
+* BotFather will ask for a name for your bot. Choose a name that ends with “Bot”, like “MyAwesomeBot”.
+
+1. **Choose a Username** :
+
+* After naming the bot, BotFather will ask for a unique username for your bot. It must end in “bot” (e.g., `AwesomeBot` or `MyAwesomeBot_bot`).
+
+1. **Receive the Token** :
+
+* Once you’ve provided a valid username, BotFather will generate a token for your bot.
+* The token will look something like `123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11`.
+
+1. **Save the Token** :
+
+* This token is essential for accessing the Telegram Bot API. Copy and save it somewhere secure, as you’ll need it to authenticate your bot in your Python script.
+
+1. **Using the Token in .env** :
+
+* In your .env file, you can use this token replacing it on `<PUT YOUR BOT TOKEN HERE>`.
+
+To get your telegram Id and replace `<PUT YOUR TELEGRAM ID HERE>`, follow these steps:
+
+ **Start a Chat with a Bot that Reveals User ID** :
+
+* Search for a bot like [userinfobot](https://t.me/userinfobot) or any other similar bot in Telegram.
+* Start the chat by clicking "Start."
+* Get the number after "Id:" and replace it on .env
 
 ## 🏁 Getting Started
 
