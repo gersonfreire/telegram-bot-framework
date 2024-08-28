@@ -132,7 +132,15 @@ _Path:_
 
     # ------------------------------------------    
     
-    def __init__(self, token: str = None, env_file: str = None, bot_name: str = None, bot_owner: str = None, bots_json_file: str = None, bot_defaults_build = None, **kwargs):
+    def __init__(self, 
+                 token: str = None, 
+                 env_file: str = None, 
+                 bot_name: str = None, 
+                 bot_owner: str = None, 
+                 bots_json_file: str = None, 
+                 bot_defaults_build = None, 
+                 disable_default_handlers = False,
+                 **kwargs):
         
         try:
             
@@ -147,6 +155,7 @@ _Path:_
             self.bot_owner = int(os.environ.get('DEFAULT_BOT_OWNER', None))
             self.bots_json_file = os.environ.get('DEFAULT_BOTS_JSON_FILE', None)
             self.bot_defaults_build = bot_defaults_build
+            self.disable_default_handlers = disable_default_handlers
             
             # Create an Application instance using the builder pattern            
             self.application = Application.builder().defaults(bot_defaults_build).token(self.token).post_init(self.post_init).post_shutdown(self.post_shutdown).build()            
@@ -166,21 +175,31 @@ _Path:_
 
     def initialize_handlers(self):
         
-        # handles global errors
-        self.application.add_error_handler(self.error_handler)
-        
-        # Adding a simple command handler for the /start command
-        start_handler = CommandHandler('start', self.default_start_handler)
-        self.application.add_handler(start_handler)
-          
-        help_handler = CommandHandler('help', self.default_help_handler)
-        self.application.add_handler(help_handler) 
-        
-        # Adding a simple command handler for the /set_language_code command
-        set_language_code_handler = CommandHandler('lang', self.set_language_code, filters=filters.User(user_id=self.bot_owner))
-        self.application.add_handler(set_language_code_handler)
-        
-        self.application.add_handler(MessageHandler(filters.COMMAND, self.default_unknown_command))
+        try:
+            # handles global errors
+            self.application.add_error_handler(self.error_handler)
+            
+            if self.disable_default_handlers:
+                self.logger.info("Default handlers disabled")
+                
+                return
+            
+            # Adding a simple command handler for the /start command
+            start_handler = CommandHandler('start', self.default_start_handler)
+            self.application.add_handler(start_handler)
+              
+            help_handler = CommandHandler('help', self.default_help_handler)
+            self.application.add_handler(help_handler) 
+            
+            # Adding a simple command handler for the /set_language_code command
+            set_language_code_handler = CommandHandler('lang', self.set_language_code, filters=filters.User(user_id=self.bot_owner))
+            self.application.add_handler(set_language_code_handler)
+            
+            self.application.add_handler(MessageHandler(filters.COMMAND, self.default_unknown_command))
+            
+        except Exception as e:
+            logger.error(f"Error initializing handlers: {e}")
+            return f'Sorry, we have a problem initializing handlers: {e}'
       
     # -------- Default command handlers --------      
         
