@@ -4,7 +4,7 @@
 version = '0.0.2 - validate token against Telegram servers'
 
 # TODOs:
-# - Create a filter for admin commands
+# - Allow to disable the default start and help messages for the bot owner
 
 # ------------------------------------------
 
