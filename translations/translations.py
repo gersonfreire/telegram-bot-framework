@@ -20,7 +20,10 @@ language_dictionary = {
     }
 }
 
-def get_translated_message(language_code: str, message_key: str, default_language = 'en', *args):
+def get_translated_message(language_code: str, message_key: str, default_language = 'en-US', *args):
+    
+    language_code = language_code.lower().split('-')[0]
+    default_language = default_language.lower().split('-')[0]
     
     if message_key in language_dictionary and language_code in language_dictionary[message_key]:
         
