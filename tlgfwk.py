@@ -239,7 +239,7 @@ _Path:_
         if len(update.message.text.split(' ')) > 1:            
             context.user_data['language_code'] = update.message.text.split(' ')[1].lower()
             
-        await update.message.reply_text(f"_User language code set to:_ `{context.user_data.get('language_code', self.default_language_code)}`")
+        await update.message.reply_text(f"_User language code set to:_ `{context.user_data.get('language_code', update.effective_user.language_code)}`")
              
     @with_writing_action
     @with_log_admin     
@@ -270,7 +270,7 @@ _Path:_
                 
                 if self.bot_owner and update.effective_user.id == self.bot_owner:                          
                     self.default_start_message += f"{os.linesep}{os.linesep}_You are the bot Owner:_` {self.bot_owner}`"
-                    self.default_start_message += f"{os.linesep}_User language code:_ `{context.user_data.get('language_code', self.default_language_code)}`"
+                    self.default_start_message += f"{os.linesep}_User language code:_ `{context.user_data.get('language_code', update.effective_user.language_code)}`"
                     self.default_start_message += f"{os.linesep}_Default language code:_ `{self.default_language_code}`"
                 
                     self.default_start_message += f"{os.linesep}{await self.get_help_text(update.effective_user.language_code, update.effective_user.id)}"
