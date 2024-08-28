@@ -277,7 +277,7 @@ _Path:_
                     self.default_start_message += f"{os.linesep}_User language code:_ `{context.user_data.get('language_code', update.effective_user.language_code)}`"
                     self.default_start_message += f"{os.linesep}_Default language code:_ `{self.default_language_code}`"
                 
-                    self.default_start_message += f"{os.linesep}{await self.get_help_text(update.effective_user.language_code, update.effective_user.id)}"
+                    self.default_start_message += f"{os.linesep}{os.linesep}{await self.get_help_text(update.effective_user.language_code, update.effective_user.id)}"
                     
                 await update.message.reply_text(self.default_start_message.format(update.effective_user.first_name))
                 

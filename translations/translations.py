@@ -1,14 +1,9 @@
 import os, sys
 
-start_message = {
-    'en': f'_Hello_ `%s`!{os.linesep}_Welcome to_ %s{os.linesep}(`%s`).',
-    'pt': f'_Olá_ `%s`!{os.linesep}_Bem vindo ao_ %s{os.linesep}(`%s`).'
-}
-
 language_dictionary = {
     'start_message': {
-        'en': f'_Hello_ `%s`!{os.linesep}_Welcome to_ %s{os.linesep}(`%s`).',
-        'pt': f'_Olá_ `%s`!{os.linesep}_Bem vindo ao_ %s{os.linesep}(`%s`).'    
+        'en': f'_Hello_ `%s`!{os.linesep}_Welcome to_ %s{os.linesep}(`%s`).{os.linesep}{os.linesep}_Please type_ /help _to see the available commands._',
+        'pt': f'_Olá_ `%s`!{os.linesep}_Bem vindo ao_ %s{os.linesep}(`%s`).{os.linesep}{os.linesep}_Por favor digite_ /help _para ver os comandos disponíveis._'    
     },
     'help_message': {
         'en': f"_Commands available for %s:_{os.linesep}",
