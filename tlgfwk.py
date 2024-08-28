@@ -199,9 +199,13 @@ _Path:_
             help_handler = CommandHandler('help', self.default_help_handler)
             self.application.add_handler(help_handler) 
             
-            # Adding a simple command handler for the /set_language_code command
+            # handler for the /lang command to set the default language code
             set_language_code_handler = CommandHandler('lang', self.set_default_language, filters=filters.User(user_id=self.bot_owner))
             self.application.add_handler(set_language_code_handler)
+            
+            # add handler for the /userlang command to set the user language code
+            set_user_language_handler = CommandHandler('userlang', self.set_user_language)
+            self.application.add_handler(set_user_language_handler)
             
             self.application.add_handler(MessageHandler(filters.COMMAND, self.default_unknown_command))
             
