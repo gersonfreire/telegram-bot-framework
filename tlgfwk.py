@@ -131,9 +131,7 @@ class TlgBotFwk(Application):
                 except Exception as e:
                     logger.error(f"Error adding command to menu: {e}")
                     continue
-
-
-            
+                
             # set new commands to telegram bot menu
             await self.application.bot.set_my_commands(self.all_users_commands)
             await self.application.bot.set_my_commands(self.admin_commands, scope={'type': 'chat', 'chat_id': self.bot_owner})    
