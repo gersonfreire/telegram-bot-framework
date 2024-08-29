@@ -187,17 +187,18 @@ _Path:_
             # handles global errors
             self.application.add_error_handler(self.error_handler)
             
-            if self.disable_default_handlers:
-                self.logger.info("Default handlers disabled")
-                
-                return
+            if not self.disable_default_handlers:
+                self.logger.info("Default handlers enabled")
             
-            # Adding a simple command handler for the /start command
-            start_handler = CommandHandler('start', self.default_start_handler)
-            self.application.add_handler(start_handler)
-              
-            help_handler = CommandHandler('help', self.default_help_handler)
-            self.application.add_handler(help_handler) 
+                # Adding a simple command handler for the /start command
+                start_handler = CommandHandler('start', self.default_start_handler)
+                self.application.add_handler(start_handler)
+                
+                help_handler = CommandHandler('help', self.default_help_handler)
+                self.application.add_handler(help_handler) 
+            
+            else:
+                self.logger.info("Default handlers disabled")
             
             # handler for the /lang command to set the default language code
             set_language_code_handler = CommandHandler('lang', self.set_default_language, filters=filters.User(user_id=self.bot_owner))
