@@ -127,6 +127,21 @@ Run main function of base class
 python tlgfwk.py
 ```
 
+## TODOs:
+
+* Last Stable Version: 0.0.7
+* Deploy a demo instance
+* Add a way to get the bot token
+* Add a way to get the bot owner id
+* Add a way to get the bot name
+* Add a way to get the bot version
+* Add a way to get the bot hostname
+* Add a way to get the bot script path
+* Add a way to get the bot main script path
+* Add a way to get the bot log folder
+* Add a way to get the bot log file
+* Add a way to get the bot log level
+
 ## ✍️ Authors
 
 - [@gersonfreire](https://github.com/kylelobo) - Idea & Initial work

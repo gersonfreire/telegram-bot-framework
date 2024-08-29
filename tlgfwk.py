@@ -6,6 +6,8 @@ version = '0.0.7 - fixed post_shutdown error'
 # ------------------------------------------
 
 # TODOs:
+# - Deploy a demo instance
+# - Add a way to get the bot token
 # - Add a way to get the bot owner id
 # - Add a way to get the bot name
 # - Add a way to get the bot version
