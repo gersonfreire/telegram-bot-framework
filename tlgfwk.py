@@ -5,6 +5,11 @@ version = '0.0.6'
 
 # ------------------------------------------
 
+# TODOs:
+# Fix post_shutdown Unknown error in HTTP implementation: RuntimeError('This HTTPXRequest is not initialized!')
+
+# ------------------------------------------
+
 from telegram import Bot
 from __init__ import *
 
