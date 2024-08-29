@@ -131,7 +131,10 @@ python tlgfwk.py
 
 * Last Stable Version: 0.0.7
 * Deploy a demo instance
-* Add a way to get the bot token
+* Add persistence for user and bot data
+* Allow more than one owner
+* Logger to Telegram
+* Add a way to get or change the bot token
 * Add a way to get the bot owner id
 * Add a way to get the bot name
 * Add a way to get the bot version
