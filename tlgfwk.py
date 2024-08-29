@@ -96,7 +96,7 @@ class TlgBotFwk(Application):
                             self.help_text += f"/{command_name} - {command_data['command_description']}{os.linesep}"
                             
                             # add command got from command handler to telegram menu commands only to specific admin user
-                            self.all_users_commands.append(BotCommand(command_name, command_data['command_description']))
+                            self.admin_commands.append(BotCommand(command_name, command_data['command_description']))
                             await self.application.bot.set_my_commands(self.all_users_commands, scope=BotCommandScopeChat(chat_id=current_user_id))
                             
                     else:
