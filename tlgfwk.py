@@ -92,9 +92,18 @@ class TlgBotFwk(Application):
                     if command_data['is_admin']:
                         if current_user_id and (command_data['user_allowed'] == current_user_id): # self.bot_owner:
                             self.help_text += f"/{command_name} - {command_data['command_description']}{os.linesep}"
+                            
+                            # add command got from command handler to telegram menu commands only to specific admin user
+                            self.current_commands.append(BotCommand(command_name, command_data['command_description']))
+                            await self.application.bot.set_my_commands(self.current_commands, scope=BotCommandScopeChat(user_id=current_user_id))
+                            
                     else:
                         command_description = command_data['command_description']
                         self.help_text += f"/{command_name} - {command_description}{os.linesep}" 
+                        
+                        # Add command got from command handler to telegram menu commands
+                        self.current_commands.append(BotCommand(command_name, command_description))
+                        await self.application.bot.set_my_commands(self.current_commands, scope=BotCommandScopeDefault())
                 
             return self.help_text
         
