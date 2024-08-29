@@ -1,5 +1,9 @@
 import sys, os, logging
 
+from telegram import Bot
+import dotenv
+import translations.translations as translations
+
 from handlers import *
 import translations as translations
 

@@ -10,10 +10,7 @@ version = '0.0.6'
 
 # ------------------------------------------
 
-from telegram import Bot
 from __init__ import *
-
-import dotenv
 
 import translations.translations as translations
 
