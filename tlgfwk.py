@@ -74,7 +74,7 @@ class TlgBotFwk(Application):
         
         try:
             # get all commands from bot commands menu
-            self.all_users_commands = await self.application.bot.get_my_commands(scope=BotCommandScopeAllPrivateChats)
+            self.all_users_commands = await self.application.bot.get_my_commands(scope=BotCommandScopeAllPrivateChats())
             self.admin_commands = await self.application.bot.get_my_commands(scope=BotCommandScopeChat(chat_id=current_user_id))
             
             language_code = self.default_language_code if not language_code else language_code
@@ -296,8 +296,8 @@ _Path:_
     async def default_start_handler(self, update: Update, context: CallbackContext, *args, **kwargs):
         
         try:
-            self.all_users_commands = await self.application.bot.get_my_commands()
-            self.admin_commands = await self.application.bot.get_my_commands(scope=BotCommandScopeChat(chat_id=update.effective_user.id))
+            # self.all_users_commands = await self.application.bot.get_my_commands()
+            # self.admin_commands = await self.application.bot.get_my_commands(scope=BotCommandScopeChat(chat_id=update.effective_user.id))
                         
             language_code = context.user_data.get('language_code', update.effective_user.language_code)                           
             self.default_start_message = translations.get_translated_message(language_code, 'start_message', 'en', update.effective_user.full_name, self.application.bot.name, self.application.bot.first_name)
