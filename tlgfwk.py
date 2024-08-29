@@ -93,7 +93,7 @@ class TlgBotFwk(Application):
                 
             # get all commands from bot commands menu
             self.all_users_commands = await self.application.bot.get_my_commands()
-            self.admin_commands = await self.application.bot.get_my_commands(scope={'type': 'chat', 'chat_id': self.bot_owner})
+            self.all_commands = await self.application.bot.get_my_commands(scope={'type': 'chat', 'chat_id': self.bot_owner})
             
             language_code = self.default_language_code if not language_code else language_code
             
@@ -126,6 +126,8 @@ class TlgBotFwk(Application):
                             users_commands_list = list(self.all_users_commands)
                             users_commands_list.append(BotCommand(command_name, command_description))
                             self.all_users_commands = tuple(users_commands_list)
+                        
+                        self.all_commands = tuple(list(self.all_users_commands) + list(self.admin_commands)) 
 
                 except Exception as e:
                     logger.error(f"Error adding command to menu: {e}")
@@ -133,11 +135,13 @@ class TlgBotFwk(Application):
                 
             # set new commands to telegram bot menu
             await self.application.bot.set_my_commands(self.all_users_commands)
-            await self.application.bot.set_my_commands(self.admin_commands, scope={'type': 'chat', 'chat_id': self.bot_owner})    
+            
+            # concatenate tuples of admin and user commands                       
+            await self.application.bot.set_my_commands(self.all_commands, scope={'type': 'chat', 'chat_id': self.bot_owner})    
             
             # double check
             self.all_users_commands = await self.application.bot.get_my_commands()
-            self.admin_commands = await self.application.bot.get_my_commands(scope={'type': 'chat', 'chat_id': self.bot_owner})
+            self.all_commands = await self.application.bot.get_my_commands(scope={'type': 'chat', 'chat_id': self.bot_owner})
                         
             return self.help_text
         
