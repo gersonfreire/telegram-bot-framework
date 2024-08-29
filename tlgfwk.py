@@ -101,7 +101,6 @@ class TlgBotFwk(Application):
                                 admin_commands_list = list(self.admin_commands)
                                 admin_commands_list.append(BotCommand(command_name, command_data['command_description']))
                                 self.admin_commands = tuple(admin_commands_list)
-                                await self.application.bot.set_my_commands(self.all_users_commands, scope=BotCommandScopeChat(chat_id=current_user_id))
                                 
                         else:
                             command_description = command_data['command_description']
@@ -112,14 +111,17 @@ class TlgBotFwk(Application):
                             users_commands_list.append(BotCommand(command_name, command_description))
                             self.all_users_commands = tuple(users_commands_list)
                             await self.application.bot.set_my_commands(self.all_users_commands, scope=BotCommandScopeDefault())
-                            
-                            # set new commands to telegram bot menu
-                            await self.application.bot.set_my_commands(self.all_users_commands)
 
                 except Exception as e:
                     logger.error(f"Error adding command to menu: {e}")
                     continue
-                
+
+
+            
+            # set new commands to telegram bot menu
+            await self.application.bot.set_my_commands(self.all_users_commands)
+            await self.application.bot.set_my_commands(self.admin_commands, scope=BotCommandScopeChat(chat_id=current_user_id))    
+                        
             return self.help_text
         
         except Exception as e:
