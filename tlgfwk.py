@@ -1,12 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-version = '0.0.8'
+version = '0.0.9 - Add a way to save the bot token for next run'
 
 # ------------------------------------------
 
 # TODOs:
 # - Deploy a demo instance - OK
+# - Add a way to save the bot token for next run
 # - Add handlers to telegram menu commands  
 # - Add persistence for user and bot data
 # - Allow more than one owner
