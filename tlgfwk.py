@@ -6,7 +6,8 @@ version = '0.0.8'
 # ------------------------------------------
 
 # TODOs:
-# - Deploy a demo instance
+# - Deploy a demo instance - OK
+# - Add handlers to telegram menu commands  
 # - Add persistence for user and bot data
 # - Allow more than one owner
 # - Logger to Telegram
