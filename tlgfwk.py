@@ -126,7 +126,6 @@ class TlgBotFwk(Application):
                             users_commands_list = list(self.all_users_commands)
                             users_commands_list.append(BotCommand(command_name, command_description))
                             self.all_users_commands = tuple(users_commands_list)
-                            await self.application.bot.set_my_commands(self.all_users_commands, scope=BotCommandScopeDefault())
 
                 except Exception as e:
                     logger.error(f"Error adding command to menu: {e}")
