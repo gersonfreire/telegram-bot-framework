@@ -73,13 +73,14 @@ class TlgBotFwk(Application):
         """
         
         try:
-            self.current_commands = await self.application.bot.get_my_commands(scope=BotCommandScopeDefault())
+            self.all_users_commands = await self.application.bot.get_my_commands(scope=BotCommandScopeDefault())
+            self.admin_commands = await self.application.bot.get_my_commands(scope=BotCommandScopeChat(user_id=current_user_id))
             
             language_code = self.default_language_code if not language_code else language_code
             
             self.help_text = translations.get_translated_message(language_code, 'help_message', self.default_language_code, self.application.bot.name)            
             
-            for command in self.current_commands:
+            for command in self.all_users_commands:
                 self.help_text += f"/{command.command} - {command.description}{os.linesep}"
                 
             # get a dictionary of command handlers
@@ -88,22 +89,22 @@ class TlgBotFwk(Application):
             # convert the commands dictionary into help text
             # TODO: Add command from command handler to telegram menu commands
             for command_name, command_data in command_dict.items():
-                if command_name not in [bot_command.command for bot_command in self.current_commands]:
+                if command_name not in [bot_command.command for bot_command in self.all_users_commands]:
                     if command_data['is_admin']:
                         if current_user_id and (command_data['user_allowed'] == current_user_id): # self.bot_owner:
                             self.help_text += f"/{command_name} - {command_data['command_description']}{os.linesep}"
                             
                             # add command got from command handler to telegram menu commands only to specific admin user
-                            self.current_commands.append(BotCommand(command_name, command_data['command_description']))
-                            await self.application.bot.set_my_commands(self.current_commands, scope=BotCommandScopeChat(user_id=current_user_id))
+                            self.all_users_commands.append(BotCommand(command_name, command_data['command_description']))
+                            await self.application.bot.set_my_commands(self.all_users_commands, scope=BotCommandScopeChat(user_id=current_user_id))
                             
                     else:
                         command_description = command_data['command_description']
                         self.help_text += f"/{command_name} - {command_description}{os.linesep}" 
                         
                         # Add command got from command handler to telegram menu commands
-                        self.current_commands.append(BotCommand(command_name, command_description))
-                        await self.application.bot.set_my_commands(self.current_commands, scope=BotCommandScopeDefault())
+                        self.all_users_commands.append(BotCommand(command_name, command_description))
+                        await self.application.bot.set_my_commands(self.all_users_commands, scope=BotCommandScopeDefault())
                 
             return self.help_text
         
@@ -294,7 +295,7 @@ _Path:_
     async def default_start_handler(self, update: Update, context: CallbackContext, *args, **kwargs):
         
         try:
-            self.current_commands = await self.application.bot.get_my_commands()
+            self.all_users_commands = await self.application.bot.get_my_commands()
                         
             language_code = context.user_data.get('language_code', update.effective_user.language_code)                           
             self.default_start_message = translations.get_translated_message(language_code, 'start_message', 'en', update.effective_user.full_name, self.application.bot.name, self.application.bot.first_name)
