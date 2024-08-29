@@ -13,7 +13,7 @@ from __init__ import *
 
 import dotenv
 
-import translations.translations
+import translations.translations as translations
 
 class TlgBotFwk(Application):
     
@@ -54,7 +54,7 @@ class TlgBotFwk(Application):
             
             language_code = self.default_language_code if not language_code else language_code
             
-            self.help_text = translations.translations.get_translated_message(language_code, 'help_message', self.default_language_code, self.application.bot.name)            
+            self.help_text = translations.get_translated_message(language_code, 'help_message', self.default_language_code, self.application.bot.name)            
             
             for command in self.current_commands:
                 self.help_text += f"/{command.command} - {command.description}{os.linesep}"
@@ -257,7 +257,8 @@ _Path:_
         
         self.logger.info(f"Unknown command received from {update.effective_user.name}")
         
-        reply_message = translations.translations.get_translated_message(update.effective_user.language_code, 'command_not_implemented', 'en', update.message.text)   
+        language_code = context.user_data.get('language_code', update.effective_user.language_code)
+        reply_message = translations.get_translated_message(language_code, 'command_not_implemented', 'en', update.message.text)   
         
         await update.message.reply_text(reply_message)
 
@@ -269,15 +270,17 @@ _Path:_
             self.current_commands = await self.application.bot.get_my_commands()
             
             if self.show_default_start_message: 
-                           
-                self.default_start_message = translations.translations.get_translated_message(update.effective_user.language_code, 'start_message', 'en', update.effective_user.full_name, self.application.bot.name, self.application.bot.first_name)
+                        
+                language_code = context.user_data.get('language_code', update.effective_user.language_code)                           
+                self.default_start_message = translations.get_translated_message(language_code, 'start_message', 'en', update.effective_user.full_name, self.application.bot.name, self.application.bot.first_name)
                 
                 if self.bot_owner and update.effective_user.id == self.bot_owner:                          
                     self.default_start_message += f"{os.linesep}{os.linesep}_You are the bot Owner:_` {self.bot_owner}`"
                     self.default_start_message += f"{os.linesep}_User language code:_ `{context.user_data.get('language_code', update.effective_user.language_code)}`"
                     self.default_start_message += f"{os.linesep}_Default language code:_ `{self.default_language_code}`"
                 
-                    self.default_start_message += f"{os.linesep}{os.linesep}{await self.get_help_text(update.effective_user.language_code, update.effective_user.id)}"
+                    language_code = context.user_data.get('language_code', update.effective_user.language_code)
+                    self.default_start_message += f"{os.linesep}{os.linesep}{await self.get_help_text(language_code, update.effective_user.id)}"
                     
                 await update.message.reply_text(self.default_start_message.format(update.effective_user.first_name))
                 
@@ -289,7 +292,8 @@ _Path:_
     @with_log_admin            
     async def default_help_handler(self, update: Update, context: CallbackContext, *args, **kwargs):        
         
-        self.help_text = await self.get_help_text(update.effective_user.language_code, update.effective_user.id)
+        language_code = context.user_data.get('language_code', update.effective_user.language_code)
+        self.help_text = await self.get_help_text(language_code, update.effective_user.id)
         
         self.logger.info(f"Help command received from {update.effective_user.name}")
         
