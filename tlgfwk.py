@@ -1,16 +1,16 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-version = '0.0.9 - Add a way to save the bot token for next run'
+version = '0.1.0 - Add a way to save the bot token for next run'
 
 # ------------------------------------------
 
 # TODOs:
 # - Deploy a demo instance - OK
+# - Add handlers to telegram menu commands 
 # - Auto-update by git pull 
 # - Encrypt/decrypt the bot token from/to .env file
-# - Add a way to save the bot token for next run
-# - Add handlers to telegram menu commands  
+# - Add a way to save the bot token for next run 
 # - Add persistence for user and bot data
 # - Allow more than one owner
 # - Logger to Telegram
@@ -89,8 +89,7 @@ class TlgBotFwk(Application):
             # get a dictionary of command handlers
             command_dict = self.get_command_handlers()
             
-            # convert the commands dictionary into help text
-            # TODO: Add command from command handler to telegram menu commands
+            # convert the commands dictionary into help text and update command menu
             for command_name, command_data in command_dict.items():
                 try:
                     if command_name not in [bot_command.command for bot_command in self.all_users_commands]:
@@ -113,6 +112,9 @@ class TlgBotFwk(Application):
                             users_commands_list.append(BotCommand(command_name, command_description))
                             self.all_users_commands = tuple(users_commands_list)
                             await self.application.bot.set_my_commands(self.all_users_commands, scope=BotCommandScopeDefault())
+                            
+                            # set new commands to telegram bot menu
+                            await self.application.bot.set_my_commands(self.all_users_commands)
 
                 except Exception as e:
                     logger.error(f"Error adding command to menu: {e}")
