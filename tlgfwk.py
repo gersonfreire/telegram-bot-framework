@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-version = '0.1.0 - Add a way to save the bot token for next run'
+version = '0.1.0'
 
 # ------------------------------------------
 
