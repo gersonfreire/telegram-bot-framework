@@ -73,8 +73,8 @@ class TlgBotFwk(Application):
         """
         
         try:
-            self.all_users_commands = await self.application.bot.get_my_commands(scope=BotCommandScopeDefault())
-            self.admin_commands = await self.application.bot.get_my_commands(scope=BotCommandScopeChat(user_id=current_user_id))
+            self.all_users_commands = await self.application.bot.get_my_commands()
+            self.admin_commands = await self.application.bot.get_my_commands(scope=BotCommandScopeChat(chat_id=current_user_id))
             
             language_code = self.default_language_code if not language_code else language_code
             
@@ -96,7 +96,7 @@ class TlgBotFwk(Application):
                             
                             # add command got from command handler to telegram menu commands only to specific admin user
                             self.all_users_commands.append(BotCommand(command_name, command_data['command_description']))
-                            await self.application.bot.set_my_commands(self.all_users_commands, scope=BotCommandScopeChat(user_id=current_user_id))
+                            await self.application.bot.set_my_commands(self.all_users_commands, scope=BotCommandScopeChat(chat_id=current_user_id))
                             
                     else:
                         command_description = command_data['command_description']
