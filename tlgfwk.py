@@ -86,6 +86,7 @@ class TlgBotFwk(Application):
             command_dict = self.get_command_handlers()
             
             # convert the commands dictionary into help text
+            # TODO: Add command from command handler to telegram menu commands
             for command_name, command_data in command_dict.items():
                 if command_name not in [bot_command.command for bot_command in self.current_commands]:
                     if command_data['is_admin']:
