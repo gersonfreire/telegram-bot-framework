@@ -86,6 +86,10 @@ class TlgBotFwk(Application):
 
             # # Get the commands for the specific user
             # user_commands = await self.application.bot.get_my_commands(scope={'type': 'chat', 'chat_id': self.bot_owner})
+            
+            # first, delete all remaining old commands from previous runs
+            # await self.application.bot.set_my_commands([], scope=BotCommandScopeDefault())
+            await self.application.bot.set_my_commands([], scope={'type': 'chat', 'chat_id': self.bot_owner})
                 
             # get all commands from bot commands menu
             self.all_users_commands = await self.application.bot.get_my_commands()
