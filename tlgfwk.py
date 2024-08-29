@@ -62,6 +62,15 @@ class TlgBotFwk(Application):
         return command_dict
     
     async def get_help_text(self, language_code = None, current_user_id = None, *args, **kwargs):
+        """Generates a help text from bot commands already set and the command handlers
+
+        Args:
+            language_code (_type_, optional): _description_. Defaults to None.
+            current_user_id (_type_, optional): _description_. Defaults to None.
+
+        Returns:
+            _type_: _description_
+        """
         
         try:
             self.current_commands = await self.application.bot.get_my_commands(scope=BotCommandScopeDefault())
