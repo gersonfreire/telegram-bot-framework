@@ -75,6 +75,18 @@ class TlgBotFwk(Application):
         """
         
         try:
+            # Define the commands you want to set for the user
+            commands = [
+                BotCommand(command='ok', description='Start the bot'),
+                BotCommand(command='ok2', description='Get help')
+            ]
+
+            # Set the commands for the specific user
+            await self.application.bot.set_my_commands(commands=commands, scope={'type': 'chat', 'chat_id': self.bot_owner})
+
+            # Get the commands for the specific user
+            user_commands = await self.application.bot.get_my_commands(scope={'type': 'chat', 'chat_id': self.bot_owner})
+                
             # get all commands from bot commands menu
             self.all_users_commands = await self.application.bot.get_my_commands()
             self.admin_commands = await self.application.bot.get_my_commands(scope=BotCommandScopeChat(chat_id=self.bot_owner))
