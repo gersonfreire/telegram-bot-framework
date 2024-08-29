@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-version = '0.0.5 - allow each user to set their own language code'
-
-# TODOs:
-# - allow each user to set their own language code
+version = '0.0.6'
 
 # ------------------------------------------
 
@@ -78,7 +75,7 @@ class TlgBotFwk(Application):
             logger.error(f"Error getting commands: {e}")
             return f'Sorry, we have a problem getting the commands: {e}'
     
-    def validate_token(self, token: str = None, quit_if_error = False, run_sync = False):
+    def validate_token(self, token: str = None, quit_if_error = True):
         
         self.token_validated = False
         self.bot_info = None
@@ -140,39 +137,35 @@ _Path:_
     # ------------------------------------------    
     
     def __init__(self, 
-                 token: str = None, 
-                 env_file: str = None, 
-                 bot_name: str = None, 
-                 bot_owner: str = None, 
-                 bots_json_file: str = None, 
-                 bot_defaults_build = None, 
-                 disable_default_handlers = False,
-                 default_language_code = None,
-                 **kwargs):
+        token: str = None,
+        validate_token = True,
+        quit_if_error = True,
+        env_file: str = None, 
+        bot_owner: str = None, 
+        bot_defaults_build = None, 
+        disable_default_handlers = False,
+        default_language_code = None):
         
-        try:
+        try: 
+            self.logger = logger 
             
             dotenv.load_dotenv(env_file)
                 
             bot_defaults_build = bot_defaults_build if bot_defaults_build else Defaults(parse_mode=ParseMode.MARKDOWN) 
             
-            self.token = token if token else os.environ.get('DEFAULT_BOT_TOKEN', None)            
-            self.validate_token(self.token, quit_if_error=True, run_sync=True)
+            self.token = os.environ.get('DEFAULT_BOT_TOKEN', None) if not token else token
+            if validate_token:            
+                self.validate_token(self.token, quit_if_error)
             
-            self.bot_name = bot_name if bot_name else os.environ.get('DEFAULT_BOT_NAME', None)
-            self.bot_owner = bot_owner if bot_owner else int(os.environ.get('DEFAULT_BOT_OWNER', None))
-            self.bots_json_file = bots_json_file if bots_json_file else os.environ.get('DEFAULT_BOTS_JSON_FILE', None)
-            self.default_language_code = default_language_code if default_language_code else os.environ.get('DEFAULT_BOTS_JSON_FILE', 'en-US')
+            self.bot_owner = int(os.environ.get('DEFAULT_BOT_OWNER', None)) if not bot_owner else int(bot_owner)
+            self.default_language_code = os.environ.get('DEFAULT_LANGUAGE_CODE', 'en-US') if not default_language_code else default_language_code
+            
+            self.disable_default_handlers = os.environ.get('DISABLE_DEFAUL_HANDLERS', False) if not disable_default_handlers else disable_default_handlers
             
             self.bot_defaults_build = bot_defaults_build
-            self.disable_default_handlers = disable_default_handlers
             
             # Create an Application instance using the builder pattern            
-            self.application = Application.builder().defaults(bot_defaults_build).token(self.token).post_init(self.post_init).post_shutdown(self.post_shutdown).build()            
-            
-            self.logger = logger
-            
-            self.show_default_start_message = True
+            self.application = Application.builder().defaults(bot_defaults_build).token(self.token).post_init(self.post_init).post_shutdown(self.post_shutdown).build()               
             
             self.initialize_handlers()
             
@@ -269,21 +262,19 @@ _Path:_
         
         try:
             self.current_commands = await self.application.bot.get_my_commands()
-            
-            if self.show_default_start_message: 
                         
-                language_code = context.user_data.get('language_code', update.effective_user.language_code)                           
-                self.default_start_message = translations.get_translated_message(language_code, 'start_message', 'en', update.effective_user.full_name, self.application.bot.name, self.application.bot.first_name)
+            language_code = context.user_data.get('language_code', update.effective_user.language_code)                           
+            self.default_start_message = translations.get_translated_message(language_code, 'start_message', 'en', update.effective_user.full_name, self.application.bot.name, self.application.bot.first_name)
+            
+            if self.bot_owner and update.effective_user.id == self.bot_owner:                          
+                self.default_start_message += f"{os.linesep}{os.linesep}_You are the bot Owner:_` {self.bot_owner}`"
+                self.default_start_message += f"{os.linesep}_User language code:_ `{context.user_data.get('language_code', update.effective_user.language_code)}`"
+                self.default_start_message += f"{os.linesep}_Default language code:_ `{self.default_language_code}`"
+            
+                language_code = context.user_data.get('language_code', update.effective_user.language_code)
+                self.default_start_message += f"{os.linesep}{os.linesep}{await self.get_help_text(language_code, update.effective_user.id)}"
                 
-                if self.bot_owner and update.effective_user.id == self.bot_owner:                          
-                    self.default_start_message += f"{os.linesep}{os.linesep}_You are the bot Owner:_` {self.bot_owner}`"
-                    self.default_start_message += f"{os.linesep}_User language code:_ `{context.user_data.get('language_code', update.effective_user.language_code)}`"
-                    self.default_start_message += f"{os.linesep}_Default language code:_ `{self.default_language_code}`"
-                
-                    language_code = context.user_data.get('language_code', update.effective_user.language_code)
-                    self.default_start_message += f"{os.linesep}{os.linesep}{await self.get_help_text(language_code, update.effective_user.id)}"
-                    
-                await update.message.reply_text(self.default_start_message.format(update.effective_user.first_name))
+            await update.message.reply_text(self.default_start_message.format(update.effective_user.first_name))
                 
         except Exception as e:
             logger.error(f"Error in default_start_handler: {e}")
