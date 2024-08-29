@@ -1,12 +1,20 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-version = '0.0.6'
+version = '0.0.7 - fixed post_shutdown error'
 
 # ------------------------------------------
 
 # TODOs:
-# Fix post_shutdown Unknown error in HTTP implementation: RuntimeError('This HTTPXRequest is not initialized!')
+# - Add a way to get the bot owner id
+# - Add a way to get the bot name
+# - Add a way to get the bot version
+# - Add a way to get the bot hostname
+# - Add a way to get the bot script path
+# - Add a way to get the bot main script path
+# - Add a way to get the bot log folder
+# - Add a way to get the bot log file
+# - Add a way to get the bot log level
 
 # ------------------------------------------
 
@@ -160,12 +168,12 @@ _Path:_
             self.bot_owner = int(os.environ.get('DEFAULT_BOT_OWNER', None)) if not bot_owner else int(bot_owner)
             self.default_language_code = os.environ.get('DEFAULT_LANGUAGE_CODE', 'en-US') if not default_language_code else default_language_code
             
-            self.disable_default_handlers = os.environ.get('DISABLE_DEFAUL_HANDLERS', False) if not disable_default_handlers else disable_default_handlers
+            self.disable_default_handlers = os.environ.get('DISABLE_DEFAULT_HANDLERS', False) if not disable_default_handlers else disable_default_handlers
             
             self.bot_defaults_build = bot_defaults_build
             
             # Create an Application instance using the builder pattern            
-            self.application = Application.builder().defaults(bot_defaults_build).token(self.token).post_init(self.post_init).post_shutdown(self.post_shutdown).build()               
+            self.application = Application.builder().defaults(bot_defaults_build).token(self.token).post_init(self.post_init).post_stop(self.post_shutdown).build()               
             
             self.initialize_handlers()
             
