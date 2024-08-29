@@ -7,7 +7,10 @@ version = '0.0.7 - fixed post_shutdown error'
 
 # TODOs:
 # - Deploy a demo instance
-# - Add a way to get the bot token
+# - Add persistence for user and bot data
+# - Allow more than one owner
+# - Logger to Telegram
+# - Add a way to get or change the bot token
 # - Add a way to get the bot owner id
 # - Add a way to get the bot name
 # - Add a way to get the bot version
@@ -110,12 +113,10 @@ class TlgBotFwk(Application):
 
     async def post_init(self, application: Application) -> None:   
 
-        global version
-
         try:
             self.bot_name = application.bot.username
             
-            start_message = f"""*{self.bot_name} Started!*
+            start_message = f"""@{self.bot_name} *Started!*
 _Version:_   `{version}`
 _Host:_     `{hostname}`
 _CWD:_ `{os.getcwd()}`
