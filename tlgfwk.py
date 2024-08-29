@@ -100,16 +100,14 @@ class TlgBotFwk(Application):
 
     async def post_init(self, application: Application) -> None:   
 
+        global version
+
         try:
-            # get the name of current bot
-            bot_name = application.bot.username
+            self.bot_name = application.bot.username
             
-            host_alias = hostname   
-            
-            start_message = f"""*{application.bot.username} Started!*
-_Version:_   `{bot_version}`
+            start_message = f"""*{self.bot_name} Started!*
+_Version:_   `{version}`
 _Host:_     `{hostname}`
-_Host Alias:_    `{host_alias}`
 _CWD:_ `{os.getcwd()}`
 _Path:_
 `{main_script_path}`"""    
