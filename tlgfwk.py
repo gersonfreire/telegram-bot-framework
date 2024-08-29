@@ -90,26 +90,31 @@ class TlgBotFwk(Application):
             # convert the commands dictionary into help text
             # TODO: Add command from command handler to telegram menu commands
             for command_name, command_data in command_dict.items():
-                if command_name not in [bot_command.command for bot_command in self.all_users_commands]:
-                    if command_data['is_admin']:
-                        if current_user_id and (command_data['user_allowed'] == current_user_id): # self.bot_owner:
-                            self.help_text += f"/{command_name} - {command_data['command_description']}{os.linesep}"
+                try:
+                    if command_name not in [bot_command.command for bot_command in self.all_users_commands]:
+                        if command_data['is_admin']:
+                            if current_user_id and (command_data['user_allowed'] == current_user_id): # self.bot_owner:
+                                self.help_text += f"/{command_name} - {command_data['command_description']}{os.linesep}"
+                                
+                                # add command got from command handler to telegram menu commands only to specific admin user
+                                admin_commands_list = list(self.admin_commands)
+                                admin_commands_list.append(BotCommand(command_name, command_data['command_description']))
+                                self.admin_commands = tuple(admin_commands_list)
+                                await self.application.bot.set_my_commands(self.all_users_commands, scope=BotCommandScopeChat(chat_id=current_user_id))
+                                
+                        else:
+                            command_description = command_data['command_description']
+                            self.help_text += f"/{command_name} - {command_description}{os.linesep}" 
                             
-                            # add command got from command handler to telegram menu commands only to specific admin user
-                            admin_commands_list = list(self.admin_commands)
-                            admin_commands_list.append(BotCommand(command_name, command_data['command_description']))
-                            self.admin_commands = tuple(admin_commands_list)
-                            await self.application.bot.set_my_commands(self.all_users_commands, scope=BotCommandScopeChat(chat_id=current_user_id))
-                            
-                    else:
-                        command_description = command_data['command_description']
-                        self.help_text += f"/{command_name} - {command_description}{os.linesep}" 
-                        
-                        # Add command got from command handler to telegram menu commands
-                        users_commands_list = list(self.all_users_commands)
-                        users_commands_list.append(BotCommand(command_name, command_description))
-                        self.all_users_commands = tuple(users_commands_list)
-                        await self.application.bot.set_my_commands(self.all_users_commands, scope=BotCommandScopeDefault())
+                            # Add command got from command handler to telegram menu commands
+                            users_commands_list = list(self.all_users_commands)
+                            users_commands_list.append(BotCommand(command_name, command_description))
+                            self.all_users_commands = tuple(users_commands_list)
+                            await self.application.bot.set_my_commands(self.all_users_commands, scope=BotCommandScopeDefault())
+
+                except Exception as e:
+                    logger.error(f"Error adding command to menu: {e}")
+                    continue
                 
             return self.help_text
         
