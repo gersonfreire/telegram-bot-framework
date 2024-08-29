@@ -73,7 +73,8 @@ class TlgBotFwk(Application):
         """
         
         try:
-            self.all_users_commands = await self.application.bot.get_my_commands()
+            # get all commands from bot commands menu
+            self.all_users_commands = await self.application.bot.get_my_commands(scope=BotCommandScopeAllPrivateChats)
             self.admin_commands = await self.application.bot.get_my_commands(scope=BotCommandScopeChat(chat_id=current_user_id))
             
             language_code = self.default_language_code if not language_code else language_code
