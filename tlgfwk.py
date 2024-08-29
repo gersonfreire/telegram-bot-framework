@@ -77,7 +77,7 @@ class TlgBotFwk(Application):
         try:
             # get all commands from bot commands menu
             self.all_users_commands = await self.application.bot.get_my_commands()
-            self.admin_commands = await self.application.bot.get_my_commands(scope=BotCommandScopeChat(chat_id=current_user_id))
+            self.admin_commands = await self.application.bot.get_my_commands(scope=BotCommandScopeChat(chat_id=self.bot_owner))
             
             language_code = self.default_language_code if not language_code else language_code
             
@@ -120,7 +120,7 @@ class TlgBotFwk(Application):
             
             # set new commands to telegram bot menu
             await self.application.bot.set_my_commands(self.all_users_commands)
-            await self.application.bot.set_my_commands(self.admin_commands, scope=BotCommandScopeChat(chat_id=current_user_id))    
+            await self.application.bot.set_my_commands(self.admin_commands, scope=BotCommandScopeChat(chat_id=self.bot_owner))    
                         
             return self.help_text
         
