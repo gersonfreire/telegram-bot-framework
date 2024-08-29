@@ -96,7 +96,9 @@ class TlgBotFwk(Application):
                             self.help_text += f"/{command_name} - {command_data['command_description']}{os.linesep}"
                             
                             # add command got from command handler to telegram menu commands only to specific admin user
-                            self.admin_commands.append(BotCommand(command_name, command_data['command_description']))
+                            admin_commands_list = list(self.admin_commands)
+                            admin_commands_list.append(BotCommand(command_name, command_data['command_description']))
+                            self.admin_commands = tuple(admin_commands_list)
                             await self.application.bot.set_my_commands(self.all_users_commands, scope=BotCommandScopeChat(chat_id=current_user_id))
                             
                     else:
@@ -104,7 +106,9 @@ class TlgBotFwk(Application):
                         self.help_text += f"/{command_name} - {command_description}{os.linesep}" 
                         
                         # Add command got from command handler to telegram menu commands
-                        self.all_users_commands.append(BotCommand(command_name, command_description))
+                        users_commands_list = list(self.all_users_commands)
+                        users_commands_list.append(BotCommand(command_name, command_description))
+                        self.all_users_commands = tuple(users_commands_list)
                         await self.application.bot.set_my_commands(self.all_users_commands, scope=BotCommandScopeDefault())
                 
             return self.help_text
