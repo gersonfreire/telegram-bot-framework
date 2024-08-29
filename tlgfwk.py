@@ -8,6 +8,7 @@ version = '0.0.9 - Add a way to save the bot token for next run'
 # TODOs:
 # - Deploy a demo instance - OK
 # - Auto-update by git pull 
+# - Encrypt/decrypt the bot token from/to .env file
 # - Add a way to save the bot token for next run
 # - Add handlers to telegram menu commands  
 # - Add persistence for user and bot data
