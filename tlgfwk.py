@@ -92,14 +92,15 @@ class TlgBotFwk(Application):
             await self.application.bot.set_my_commands([], scope={'type': 'chat', 'chat_id': self.bot_owner})
                 
             # get all commands from bot commands menu
-            self.all_users_commands = await self.application.bot.get_my_commands()
+            self.common_users_commands = await self.application.bot.get_my_commands()
             self.all_commands = await self.application.bot.get_my_commands(scope={'type': 'chat', 'chat_id': self.bot_owner})
+            self.admin_commands = tuple()
             
             language_code = self.default_language_code if not language_code else language_code
             
             self.help_text = translations.get_translated_message(language_code, 'help_message', self.default_language_code, self.application.bot.name)            
             
-            for command in self.all_users_commands:
+            for command in self.common_users_commands:
                 self.help_text += f"/{command.command} - {command.description}{os.linesep}"
                 
             # get a dictionary of command handlers
@@ -108,7 +109,7 @@ class TlgBotFwk(Application):
             # convert the commands dictionary into help text and update command menu
             for command_name, command_data in command_dict.items():
                 try:
-                    if command_name not in [bot_command.command for bot_command in self.all_users_commands]:
+                    if command_name not in [bot_command.command for bot_command in self.common_users_commands]:
                         if command_data['is_admin']:
                             if current_user_id and (command_data['user_allowed'] == current_user_id): # self.bot_owner:
                                 self.help_text += f"/{command_name} - {command_data['command_description']}{os.linesep}"
@@ -123,24 +124,24 @@ class TlgBotFwk(Application):
                             self.help_text += f"/{command_name} - {command_description}{os.linesep}" 
                             
                             # Add command got from command handler to telegram menu commands
-                            users_commands_list = list(self.all_users_commands)
+                            users_commands_list = list(self.common_users_commands)
                             users_commands_list.append(BotCommand(command_name, command_description))
-                            self.all_users_commands = tuple(users_commands_list)
+                            self.common_users_commands = tuple(users_commands_list)
                         
-                        self.all_commands = tuple(list(self.all_users_commands) + list(self.admin_commands)) 
+                        self.all_commands = tuple(list(self.common_users_commands) + list(self.admin_commands)) 
 
                 except Exception as e:
                     logger.error(f"Error adding command to menu: {e}")
                     continue
                 
             # set new commands to telegram bot menu
-            await self.application.bot.set_my_commands(self.all_users_commands)
+            await self.application.bot.set_my_commands(self.common_users_commands)
             
             # concatenate tuples of admin and user commands                       
             await self.application.bot.set_my_commands(self.all_commands, scope={'type': 'chat', 'chat_id': self.bot_owner})    
             
             # double check
-            self.all_users_commands = await self.application.bot.get_my_commands()
+            self.common_users_commands = await self.application.bot.get_my_commands()
             self.all_commands = await self.application.bot.get_my_commands(scope={'type': 'chat', 'chat_id': self.bot_owner})
                         
             return self.help_text
