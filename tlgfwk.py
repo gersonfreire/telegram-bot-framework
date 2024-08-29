@@ -133,12 +133,13 @@ _Path:_
         except Exception as e:
             logger.error(f"Error: {e}")
 
-    async def post_shutdown(self, application: Application) -> None:
+    async def post_stop(self, application: Application) -> None:
         
         try:
-            stop_message = f"_STOPPING bot_ {os.linesep}`{hostname}`{os.linesep}`{__file__}` {bot_version}..."
+            stop_message = f"_STOPPING_ @{self.bot_name} {os.linesep}`{hostname}`{os.linesep}`{__file__}` {bot_version}..."
             logger.info(stop_message)
             await application.bot.send_message(chat_id=self.bot_owner, text=f"{stop_message}", parse_mode=ParseMode.MARKDOWN)
+            
         except Exception as e:
             logger.error(f"Error: {e}")
                 
@@ -175,7 +176,7 @@ _Path:_
             self.bot_defaults_build = bot_defaults_build
             
             # Create an Application instance using the builder pattern            
-            self.application = Application.builder().defaults(bot_defaults_build).token(self.token).post_init(self.post_init).post_stop(self.post_shutdown).build()               
+            self.application = Application.builder().defaults(bot_defaults_build).token(self.token).post_init(self.post_init).post_stop(self.post_stop).build()               
             
             self.initialize_handlers()
             
