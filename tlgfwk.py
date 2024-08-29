@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-version = '0.0.7 - fixed post_shutdown error'
+version = '0.0.8'
 
 # ------------------------------------------
 
