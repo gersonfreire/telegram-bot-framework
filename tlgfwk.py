@@ -371,7 +371,6 @@ _Path:_
         await update.message.reply_text(self.help_text)                        
 
     @with_writing_action
-    @validate_user
     @with_log_admin
     async def cmd_git(self, update: Update, context: CallbackContext):
         """Update the bot's version from a git repository"""
