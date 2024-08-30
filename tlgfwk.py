@@ -259,6 +259,10 @@ _Path:_
             restart_handler = CommandHandler('restart', self.restart_bot, filters=filters.User(user_id=self.bot_owner))
             self.application.add_handler(restart_handler)
             
+            # add handler for the /stop command to stop the bot
+            stop_handler = CommandHandler('stop', self.stop_bot, filters=filters.User(user_id=self.bot_owner))
+            self.application.add_handler(stop_handler)
+            
             self.application.add_handler(MessageHandler(filters.COMMAND, self.default_unknown_command))
             
         except Exception as e:
@@ -400,7 +404,21 @@ _Path:_
         except Exception as e:
             logger.error(f"Error restarting bot: {e}")
             await update.message.reply_text(f"An error occurred while restarting the bot: {e}")
+       
+    @with_writing_action
+    @with_log_admin            
+    async def stop_bot(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         
+        await update.message.reply_text(f"*{update._bot.username} STOPPED!*", parse_mode=ParseMode.MARKDOWN)
+
+        args = sys.argv[:]
+        # args.append('stop')
+        # args = ['stop']
+        args.insert(0, 'stop')
+        args=None
+        os.chdir(os.getcwd())
+        # os.execv(sys.executable, args) 
+        os.abort()        
     # ------------------------------------------
 
     def run(self):
