@@ -135,6 +135,7 @@ python tlgfwk.py
 * [X] Deploy a demo instance - Bot running on [Demo Bot](https://t.me/TecVitoriaBot)
 * [X] Add handlers to telegram menu commands -
 * [X] Auto-update by git pull
+* [ ] Command to restart the bot
 * [ ] Encrypt/decrypt the bot token from/to .env file
 * [ ] Add a way to save the bot token for next run
 * [ ] Add persistence for user and bot data

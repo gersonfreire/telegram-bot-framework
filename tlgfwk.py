@@ -1,30 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-version = '0.1.1'
-
-# ------------------------------------------
-
-# TODOs:
-# - Deploy a demo instance - OK
-# - Add handlers to telegram menu commands - OK 
-# - Auto-update by git pull - OK  
-# - admin command to show Telegram menu commands 
-# - Encrypt/decrypt the bot token from/to .env file
-# - Add a way to save the bot token for next run 
-# - Add persistence for user and bot data
-# - Allow more than one owner
-# - Logger to Telegram
-# - Add a way to get or change the bot token
-# - Add a way to get the bot owner id
-# - Add a way to get the bot name
-# - Add a way to get the bot version
-# - Add a way to get the bot hostname
-# - Add a way to get the bot script path
-# - Add a way to get the bot main script path
-# - Add a way to get the bot log folder
-# - Add a way to get the bot log file
-# - Add a way to get the bot log level
+version = '0.1.2 - command to restart the bot'
 
 # ------------------------------------------
 
