@@ -167,7 +167,7 @@ class TlgBotFwk(Application):
             # # Encrypt the string
             # encrypted_string = fernet.encrypt(original_string.encode()) 
             # encrypted_token = f.encrypt(decrypted_token.encode()).decode()
-            encrypted_token = f.encrypt(decrypted_token).encode()
+            encrypted_token = f.encrypt(decrypted_token.encode())
             return encrypted_token
         
         self.encrypt_ascii_key = os.environ.get('ENCRYPT_KEY', None) if not decrypt_key else decrypt_key 
@@ -182,7 +182,7 @@ class TlgBotFwk(Application):
             self.encrypt_ascii_key =  base64.urlsafe_b64encode(self.encrypt_byte_key).decode()     
             
             # update the .env file with the encrypted token
-            os.environ['DEFAULT_BOT_TOKEN'] = encrypt(self.token, self.encrypt_ascii_key)
+            os.environ['DEFAULT_BOT_TOKEN'] = encrypt(self.token, self.encrypt_byte_key)
             dotenv.set_key('.env', 'DEFAULT_BOT_TOKEN', os.environ['DEFAULT_BOT_TOKEN']) 
             
             # update the .env file with the encrypted bot owner and the key
