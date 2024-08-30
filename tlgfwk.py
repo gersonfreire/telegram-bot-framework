@@ -187,7 +187,10 @@ class TlgBotFwk(Application):
             
             # update the .env file with the encrypted bot owner and the key
             self.encrypted_bot_owner = encrypt(str(self.bot_owner), self.encrypt_byte_key).decode()
-            dotenv.set_key('.env', 'ENCRYPTED_BOT_OWNER', self.encrypted_bot_owner)    
+            dotenv.set_key('.env', 'ENCRYPTED_BOT_OWNER', self.encrypted_bot_owner) 
+            
+            # save the new encryption key to the .env file
+            dotenv.set_key('.env', 'ENCRYPT_KEY', self.encrypt_ascii_key)   
             
         else: 
             
@@ -253,7 +256,7 @@ _Path:_
             
             dotenv.load_dotenv(env_file)
             
-            # If there is a crypto key, uncrypt the token got from the .env file
+            # If there is a crypto key, decrypt the token and the bot_owner got from the .env file
             self.check_encrypt(token, bot_owner, decrypt_key)
                 
             bot_defaults_build = bot_defaults_build if bot_defaults_build else Defaults(parse_mode=ParseMode.MARKDOWN) 
