@@ -147,48 +147,62 @@ class TlgBotFwk(Application):
                 quit()
             return None
     
-    def check_encrypt(self, token: str = None, bot_owner: str = None, decrypt_key = None):
-        
-        self.decrypt_key = os.environ.get('ENCRYPT_KEY', None) if not decrypt_key else decrypt_key
+    def check_encrypt(self, token: str = None, bot_owner: str = None, decrypt_key = None):             
             
-        def decrypt(token, key):
-            key = base64.urlsafe_b64decode(key.encode())
+        def decrypt(encrypted_token, key):
             f = Fernet(key)
-            decrypted_token = f.decrypt(token.encode()).decode()
+            # key = base64.urlsafe_b64decode(key.encode()).decode()
+            # key = key.encode()
+            # # Decrypt the string
+            # decrypted_string = fernet.decrypt(encrypted_string).decode()
+            # decrypted_token = f.decrypt(token.encode()).decode()
+            decrypted_token = f.decrypt(encrypted_token).decode()
             return decrypted_token
         
         # encrypt the token and store it in the .env file
-        def encrypt(token, key):
-            # Fernet key must be 32 url-safe base64-encoded bytes.
-            key = base64.urlsafe_b64decode(key.encode())
+        def encrypt(decrypted_token, key):           
             f = Fernet(key)
-            encrypted_token = f.encrypt(token.encode()).decode()
+            # Fernet key must be 32 url-safe base64-encoded bytes.
+            # key = base64.urlsafe_b64decode(key.encode())
+            # # Encrypt the string
+            # encrypted_string = fernet.encrypt(original_string.encode()) 
+            # encrypted_token = f.encrypt(decrypted_token.encode()).decode()
+            encrypted_token = f.encrypt(decrypted_token).encode()
             return encrypted_token
         
-        # If there is a crypto key, uncrypt the token got from the .env file
-        if self.decrypt_key:
+        self.encrypt_ascii_key = os.environ.get('ENCRYPT_KEY', None) if not decrypt_key else decrypt_key 
             
-            self.token = decrypt(os.environ.get('DEFAULT_BOT_TOKEN', None), self.decrypt_key)
+        # If there is not a crypto key, generate it and encrypt the token and save back to the .env file
+        if not self.encrypt_ascii_key:
+            
+            self.token = decrypt(os.environ.get('DEFAULT_BOT_TOKEN', None), self.encrypt_ascii_key)
             self.bot_owner = int(os.environ.get('DEFAULT_BOT_OWNER', None))
+                        
+            self.encrypt_byte_key = Fernet.generate_key()
+            self.encrypt_ascii_key =  base64.urlsafe_b64encode(self.encrypt_byte_key).decode()  
             
-        else:
-            
-            if not self.decrypt_key:
-                key =  Fernet.generate_key().decode()
-                self.decrypt_key = os.environ.get('ENCRYPT_KEY', key) if not decrypt_key else decrypt_key
-                os.environ['ENCRYPT_KEY'] = self.decrypt_key
-                dotenv.set_key('.env', 'ENCRYPT_KEY', os.environ['ENCRYPT_KEY']) 
-            
-            self.token = os.environ.get('DEFAULT_BOT_TOKEN', None) if not token else token
-            self.bot_owner = int(os.environ.get('DEFAULT_BOT_OWNER', None)) if not bot_owner else int(bot_owner)   
+            # Convert the string back to bytes
+            self.encrypt_byte_key = base64.urlsafe_b64decode(self.encrypt_ascii_key.encode())
+                
+            # Convert the byte key to a string
+            key_str = base64.urlsafe_b64encode(self.encrypt_byte_key).decode()    
             
             # update the .env file with the encrypted token
-            os.environ['DEFAULT_BOT_TOKEN'] = encrypt(self.token, self.decrypt_key)
+            os.environ['DEFAULT_BOT_TOKEN'] = encrypt(self.token, self.encrypt_ascii_key)
             dotenv.set_key('.env', 'DEFAULT_BOT_TOKEN', os.environ['DEFAULT_BOT_TOKEN']) 
             
             # update the .env file with the encrypted bot owner and the key
-            os.environ['DEFAULT_BOT_OWNER'] = encrypt(str(self.bot_owner), self.decrypt_key)
-            dotenv.set_key('.env', 'DEFAULT_BOT_OWNER', os.environ['DEFAULT_BOT_OWNER'])  
+            os.environ['DEFAULT_BOT_OWNER'] = encrypt(str(self.bot_owner), self.encrypt_ascii_key)
+            dotenv.set_key('.env', 'DEFAULT_BOT_OWNER', os.environ['DEFAULT_BOT_OWNER'])    
+            
+        else: 
+            
+            self.token = os.environ.get('DEFAULT_BOT_TOKEN', None) if not token else token
+            self.bot_owner = int(os.environ.get('DEFAULT_BOT_OWNER', None)) if not bot_owner else int(bot_owner)  
+            
+            # Decrypt the token got from the .env file
+            self.token = decrypt(self.token, self.encrypt_byte_key)
+            self.bot_owner = int(decrypt(str(self.bot_owner), self.encrypt_byte_key)) 
     
     # ------------------------------------------
 
