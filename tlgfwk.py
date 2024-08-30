@@ -172,20 +172,14 @@ class TlgBotFwk(Application):
         
         self.encrypt_ascii_key = os.environ.get('ENCRYPT_KEY', None) if not decrypt_key else decrypt_key 
             
-        # If there is not a crypto key, generate it and encrypt the token and save back to the .env file
+        # First time, if there is not a crypto key yet, generate it and encrypt the token and save back to the .env file
         if not self.encrypt_ascii_key:
             
-            self.token = decrypt(os.environ.get('DEFAULT_BOT_TOKEN', None), self.encrypt_ascii_key)
-            self.bot_owner = int(os.environ.get('DEFAULT_BOT_OWNER', None))
+            self.token = os.environ.get('DEFAULT_BOT_TOKEN', None) if not token else token
+            self.bot_owner = int(os.environ.get('DEFAULT_BOT_OWNER', None)) if not bot_owner else int(bot_owner)
                         
             self.encrypt_byte_key = Fernet.generate_key()
-            self.encrypt_ascii_key =  base64.urlsafe_b64encode(self.encrypt_byte_key).decode()  
-            
-            # Convert the string back to bytes
-            self.encrypt_byte_key = base64.urlsafe_b64decode(self.encrypt_ascii_key.encode())
-                
-            # Convert the byte key to a string
-            key_str = base64.urlsafe_b64encode(self.encrypt_byte_key).decode()    
+            self.encrypt_ascii_key =  base64.urlsafe_b64encode(self.encrypt_byte_key).decode()     
             
             # update the .env file with the encrypted token
             os.environ['DEFAULT_BOT_TOKEN'] = encrypt(self.token, self.encrypt_ascii_key)
