@@ -174,7 +174,7 @@ class TlgBotFwk(Application):
         else:
             
             if not self.decrypt_key:
-                key =  base64.urlsafe_b64encode(Fernet.generate_key())
+                key =  base64.urlsafe_b64decode(Fernet.generate_key())
                 self.decrypt_key = os.environ.get('ENCRYPT_KEY', key) if not decrypt_key else decrypt_key
             
             self.token = os.environ.get('DEFAULT_BOT_TOKEN', None) if not token else token
