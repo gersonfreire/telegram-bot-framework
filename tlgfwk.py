@@ -267,11 +267,11 @@ _Path:_
                 
             bot_defaults_build = bot_defaults_build if bot_defaults_build else Defaults(parse_mode=ParseMode.MARKDOWN) 
             
-            self.token = os.environ.get('DEFAULT_BOT_TOKEN', None) if not token else token
+            # self.token = os.environ.get('DEFAULT_BOT_TOKEN', None) if not token else token
+            # self.bot_owner = int(os.environ.get('DEFAULT_BOT_OWNER', None)) if not bot_owner else int(bot_owner)
             if validate_token:            
-                self.validate_token(self.token, quit_if_error)
+                self.validate_token(self.token, quit_if_error)           
             
-            self.bot_owner = int(os.environ.get('DEFAULT_BOT_OWNER', None)) if not bot_owner else int(bot_owner)
             self.default_language_code = os.environ.get('DEFAULT_LANGUAGE_CODE', 'en-US') if not default_language_code else default_language_code
             
             self.disable_default_handlers = os.environ.get('DISABLE_DEFAULT_HANDLERS', False) if not disable_default_handlers else disable_default_handlers
@@ -279,7 +279,10 @@ _Path:_
             self.bot_defaults_build = bot_defaults_build
             
             # Create an Application instance using the builder pattern            
-            self.application = Application.builder().defaults(bot_defaults_build).token(self.token).post_init(self.post_init).post_stop(self.post_stop).build()               
+            self.application = Application.builder().defaults(bot_defaults_build).token(self.token).post_init(self.post_init).post_stop(self.post_stop).build() 
+            
+            # save botname to .env file
+            dotenv.set_key('.env', 'BOT_NAME', self.bot_info.username)                       
             
             self.initialize_handlers()
             
