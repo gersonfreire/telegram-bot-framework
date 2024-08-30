@@ -147,7 +147,7 @@ class TlgBotFwk(Application):
                 quit()
             return None
     
-    def check_encrypt(self, token: str = None, bot_owner: str = None, decrypt_key = None):             
+    def check_encrypt(self, decrypted_token: str = None, decrypted_bot_owner: str = None, decrypt_key = None, encrypted_token: str = None, encrypted_bot_owner: str = None):             
             
         def decrypt(encrypted_token, key):
             f = Fernet(key)
@@ -175,8 +175,8 @@ class TlgBotFwk(Application):
         # First time, if there is not a crypto key yet, generate it and encrypt the token and save back to the .env file
         if not self.encrypt_ascii_key:
             
-            self.token = os.environ.get('DEFAULT_BOT_TOKEN', None) if not token else token
-            self.bot_owner = int(os.environ.get('DEFAULT_BOT_OWNER', None)) if not bot_owner else int(bot_owner)
+            self.token = os.environ.get('DEFAULT_BOT_TOKEN', None) if not decrypted_token else decrypted_token
+            self.bot_owner = int(os.environ.get('DEFAULT_BOT_OWNER', None)) if not decrypted_bot_owner else int(decrypted_bot_owner)
                         
             self.encrypt_byte_key = Fernet.generate_key()
             self.encrypt_ascii_key =  base64.urlsafe_b64encode(self.encrypt_byte_key).decode()     
@@ -194,12 +194,13 @@ class TlgBotFwk(Application):
             
         else: 
             
-            self.token = os.environ.get('DEFAULT_BOT_TOKEN', None) if not token else token
-            self.bot_owner = int(os.environ.get('DEFAULT_BOT_OWNER', None)) if not bot_owner else int(bot_owner)  
+            self.encrypted_token = os.environ.get('ENCRYPTED_BOT_TOKEN', None) if not encrypted_token else encrypted_token
+            self.encrypted_bot_owner = os.environ.get('ENCRYPTED_BOT_OWNER', None) if not encrypted_bot_owner else int(decrypted_bot_owner)  
             
             # Decrypt the token got from the .env file
-            self.token = decrypt(self.token, self.encrypt_byte_key)
-            self.bot_owner = int(decrypt(str(self.bot_owner), self.encrypt_byte_key)) 
+            self.encrypt_byte_key = base64.urlsafe_b64decode(self.encrypt_ascii_key.encode())
+            self.token = decrypt(self.encrypted_token, self.encrypt_byte_key)
+            self.bot_owner = int(decrypt(str(self.encrypted_bot_owner), self.encrypt_byte_key)) 
     
     # ------------------------------------------
 
