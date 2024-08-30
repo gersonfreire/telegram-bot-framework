@@ -190,7 +190,11 @@ class TlgBotFwk(Application):
             dotenv.set_key('.env', 'ENCRYPTED_BOT_OWNER', self.encrypted_bot_owner) 
             
             # save the new encryption key to the .env file
-            dotenv.set_key('.env', 'ENCRYPT_KEY', self.encrypt_ascii_key)   
+            dotenv.set_key('.env', 'ENCRYPT_KEY', self.encrypt_ascii_key) 
+            
+            # remove the decrypted token and the bot owner from the .env file
+            dotenv.set_key('.env', 'DEFAULT_BOT_TOKEN', None)
+            dotenv.set_key('.env', 'DEFAULT_BOT_OWNER', None)  
             
         else: 
             
@@ -202,10 +206,6 @@ class TlgBotFwk(Application):
             # Decrypt the token got from the .env file
             self.token = decrypt(self.encrypted_token, self.encrypt_byte_key)
             self.bot_owner = int(decrypt(str(self.encrypted_bot_owner), self.encrypt_byte_key)) 
-            
-            # remove the decrypted token and the bot owner from the .env file
-            dotenv.set_key('.env', 'DEFAULT_BOT_TOKEN', '<ENCRYPTED>')
-            dotenv.set_key('.env', 'DEFAULT_BOT_OWNER', '<ENCRYPTED>')
     
     # ------------------------------------------
 
