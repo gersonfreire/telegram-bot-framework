@@ -174,8 +174,10 @@ class TlgBotFwk(Application):
         else:
             
             if not self.decrypt_key:
-                key =  base64.urlsafe_b64decode(Fernet.generate_key())
+                key =  Fernet.generate_key().decode()
                 self.decrypt_key = os.environ.get('ENCRYPT_KEY', key) if not decrypt_key else decrypt_key
+                os.environ['ENCRYPT_KEY'] = self.decrypt_key
+                dotenv.set_key('.env', 'ENCRYPT_KEY', os.environ['ENCRYPT_KEY']) 
             
             self.token = os.environ.get('DEFAULT_BOT_TOKEN', None) if not token else token
             self.bot_owner = int(os.environ.get('DEFAULT_BOT_OWNER', None)) if not bot_owner else int(bot_owner)   
@@ -186,11 +188,7 @@ class TlgBotFwk(Application):
             
             # update the .env file with the encrypted bot owner and the key
             os.environ['DEFAULT_BOT_OWNER'] = encrypt(str(self.bot_owner), self.decrypt_key)
-            dotenv.set_key('.env', 'DEFAULT_BOT_OWNER', os.environ['DEFAULT_BOT_OWNER'])
-            # now update the key in the .env file
-            decrypt_key = base64.urlsafe_b64encode(key.encode())
-            os.environ['ENCRYPT_KEY'] = decrypt_key
-            dotenv.set_key('.env', 'ENCRYPT_KEY', os.environ['ENCRYPT_KEY'])   
+            dotenv.set_key('.env', 'DEFAULT_BOT_OWNER', os.environ['DEFAULT_BOT_OWNER'])  
     
     # ------------------------------------------
 
