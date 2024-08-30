@@ -255,6 +255,10 @@ _Path:_
             git_handler = CommandHandler('git', self.cmd_git, filters=filters.User(user_id=self.bot_owner))
             self.application.add_handler(git_handler)
             
+            # add handler for the /restart command to restart the bot
+            restart_handler = CommandHandler('restart', self.restart_bot, filters=filters.User(user_id=self.bot_owner))
+            self.application.add_handler(restart_handler)
+            
             self.application.add_handler(MessageHandler(filters.COMMAND, self.default_unknown_command))
             
         except Exception as e:
@@ -381,6 +385,22 @@ _Path:_
             logger.error(f"Error: {e}")
             await update.message.reply_text(f"An error occurred: {e}")
 
+    # https://github.com/python-telegram-bot/python-telegram-bot/issues/3718
+    # https://github.com/python-telegram-bot/python-telegram-bot/wiki/Code-snippets#simple-way-of-restarting-the-bot
+    @with_writing_action
+    @with_log_admin
+    async def restart_bot(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+        try:
+            await update.message.reply_text("_Restarting..._", parse_mode=ParseMode.MARKDOWN)
+            args = sys.argv[:]
+            args.insert(0, sys.executable)
+            os.chdir(os.getcwd())
+            os.execv(sys.executable, args)
+            
+        except Exception as e:
+            logger.error(f"Error restarting bot: {e}")
+            await update.message.reply_text(f"An error occurred while restarting the bot: {e}")
+        
     # ------------------------------------------
 
     def run(self):
