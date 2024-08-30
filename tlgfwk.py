@@ -405,10 +405,6 @@ _Path:_
             logger.error(f"Error: {e}")
             await update.message.reply_text(f"An error occurred: {e}")
 
-        def run(self):
-            # Run the bot using the run_polling method
-            self.application.run_polling()
-
     # ------------------------------------------
 
     def run(self):
