@@ -8,7 +8,7 @@ version = '0.1.1'
 # TODOs:
 # - Deploy a demo instance - OK
 # - Add handlers to telegram menu commands - OK 
-# - Auto-update by git pull  
+# - Auto-update by git pull - OK  
 # - admin command to show Telegram menu commands 
 # - Encrypt/decrypt the bot token from/to .env file
 # - Add a way to save the bot token for next run 
