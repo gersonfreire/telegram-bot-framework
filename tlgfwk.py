@@ -494,6 +494,6 @@ _Path:_
         
 if __name__ == '__main__':
     
-    app = TlgBotFwk(env_file='my.env')
+    app = TlgBotFwk()
     
     app.run()
