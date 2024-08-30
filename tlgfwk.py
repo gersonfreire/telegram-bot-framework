@@ -246,7 +246,7 @@ _Path:_
             dotenv.load_dotenv(env_file)
             
             # If there is a crypto key, uncrypt the token got from the .env file
-            self.check_encrypt(token, bot_owner, decrypt_key)
+            # self.check_encrypt(token, bot_owner, decrypt_key)
                 
             bot_defaults_build = bot_defaults_build if bot_defaults_build else Defaults(parse_mode=ParseMode.MARKDOWN) 
             
