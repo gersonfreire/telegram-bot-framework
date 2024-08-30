@@ -197,8 +197,9 @@ class TlgBotFwk(Application):
             self.encrypted_token = os.environ.get('ENCRYPTED_BOT_TOKEN', None) if not encrypted_token else encrypted_token
             self.encrypted_bot_owner = os.environ.get('ENCRYPTED_BOT_OWNER', None) if not encrypted_bot_owner else int(decrypted_bot_owner)  
             
-            # Decrypt the token got from the .env file
             self.encrypt_byte_key = base64.urlsafe_b64decode(self.encrypt_ascii_key.encode())
+            
+            # Decrypt the token got from the .env file
             self.token = decrypt(self.encrypted_token, self.encrypt_byte_key)
             self.bot_owner = int(decrypt(str(self.encrypted_bot_owner), self.encrypt_byte_key)) 
     
