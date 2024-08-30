@@ -137,6 +137,7 @@ python tlgfwk.py
 * [X] Auto-update by git pull
 * [X] Command to restart the bot
 * [X] Encrypt/decrypt the bot token from/to .env file
+* [ ] Ask the owner for a decrypt key
 * [ ] Create a command to encrypt and decrypt strings
 * [ ] Add a way to save the bot token for next run
 * [ ] Add persistence for user and bot data
