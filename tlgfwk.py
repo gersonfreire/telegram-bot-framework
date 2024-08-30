@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-version = '0.1.2 - command to restart the bot'
+version = '0.1.3 - Encrypt/decrypt the bot token from/to .env file'
 
 # ------------------------------------------
 
