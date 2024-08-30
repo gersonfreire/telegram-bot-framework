@@ -182,12 +182,12 @@ class TlgBotFwk(Application):
             self.encrypt_ascii_key =  base64.urlsafe_b64encode(self.encrypt_byte_key).decode()     
             
             # update the .env file with the encrypted token
-            os.environ['DEFAULT_BOT_TOKEN'] = encrypt(self.token, self.encrypt_byte_key)
-            dotenv.set_key('.env', 'DEFAULT_BOT_TOKEN', os.environ['DEFAULT_BOT_TOKEN']) 
+            self.encrypted_token = encrypt(self.token, self.encrypt_byte_key).decode()
+            dotenv.set_key('.env', 'ENCRYPTED_BOT_TOKEN', self.encrypted_token) 
             
             # update the .env file with the encrypted bot owner and the key
-            os.environ['DEFAULT_BOT_OWNER'] = encrypt(str(self.bot_owner), self.encrypt_ascii_key)
-            dotenv.set_key('.env', 'DEFAULT_BOT_OWNER', os.environ['DEFAULT_BOT_OWNER'])    
+            self.encrypted_bot_owner = encrypt(str(self.bot_owner), self.encrypt_byte_key).decode()
+            dotenv.set_key('.env', 'ENCRYPTED_BOT_OWNER', self.encrypted_bot_owner)    
             
         else: 
             
