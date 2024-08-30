@@ -1,14 +1,15 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-version = '0.1.0'
+version = '0.1.1'
 
 # ------------------------------------------
 
 # TODOs:
 # - Deploy a demo instance - OK
-# - Add handlers to telegram menu commands 
-# - Auto-update by git pull 
+# - Add handlers to telegram menu commands - OK 
+# - Auto-update by git pull  
+# - admin command to show Telegram menu commands 
 # - Encrypt/decrypt the bot token from/to .env file
 # - Add a way to save the bot token for next run 
 # - Add persistence for user and bot data
@@ -273,6 +274,10 @@ _Path:_
             set_user_language_handler = CommandHandler('userlang', self.set_user_language)
             self.application.add_handler(set_user_language_handler)
             
+            # add handler for the /git command to update the bot's code from a git repository
+            git_handler = CommandHandler('git', self.cmd_git, filters=filters.User(user_id=self.bot_owner))
+            self.application.add_handler(git_handler)
+            
             self.application.add_handler(MessageHandler(filters.COMMAND, self.default_unknown_command))
             
         except Exception as e:
@@ -365,10 +370,51 @@ _Path:_
         # A simple start command response
         await update.message.reply_text(self.help_text)                        
 
+    @with_writing_action
+    @validate_user
+    @with_log_admin
+    async def cmd_git(self, update: Update, context: CallbackContext):
+        """Update the bot's version from a git repository"""
+        
+        try:
+            # get the branch name from the message
+            # branch_name = update.message.text.split(' ')[1]
+            message = f"_Updating the bot's code from the branch..._" # `{branch_name}`"
+            logger.info(message)
+            await update.message.reply_text(message, parse_mode=ParseMode.MARKDOWN)
+            
+            # update the bot's code
+            # command = f"git fetch origin {branch_name} && git reset --hard origin/{branch_name}"
+            command = "git status"
+            
+            if len(update.effective_message.text.split(' ')) > 1:
+                git_command = update.effective_message.text.split(' ')[1]
+                logger.info(f"git command: {command}")
+                command = f"git {git_command}"
+            
+            # execute system command and return the result
+            # os.system(command=command)
+            result = os.popen(command).read()
+            self.logger.info(f"Result: {result}")
+            
+            result = f"_Result:_ `{result}`"
+            
+            await update.message.reply_text(result, parse_mode=ParseMode.MARKDOWN)
+            
+        except Exception as e:
+            logger.error(f"Error: {e}")
+            await update.message.reply_text(f"An error occurred: {e}")
+
+        def run(self):
+            # Run the bot using the run_polling method
+            self.application.run_polling()
+
+    # ------------------------------------------
+
     def run(self):
         # Run the bot using the run_polling method
         self.application.run_polling()
-
+        
 if __name__ == '__main__':
     
     app = TlgBotFwk()
