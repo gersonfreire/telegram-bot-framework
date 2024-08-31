@@ -518,6 +518,6 @@ _Path:_
         
 if __name__ == '__main__':
     
-    app = TlgBotFwk()
+    app = TlgBotFwk(disable_encryption=True)
     
     app.run()
