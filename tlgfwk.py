@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-version = '0.1.4 - Optional disable_encryption parameter on class creation to Encrypt/decrypt .env file'
+version = '0.1.5 - Ask the bot owner to input a token in case the token is not valid'
 
 # ------------------------------------------
 
@@ -128,7 +128,7 @@ class TlgBotFwk(Application):
             logger.error(f"Error getting commands: {e}")
             return f'Sorry, we have a problem getting the commands: {e}'
     
-    def validate_token(self, token: str = None, quit_if_error = True):
+    def validate_token(self, token: str = None, quit_if_error = True, input_token = True):
         
         self.token_validated = False
         self.bot_info = None
@@ -138,13 +138,28 @@ class TlgBotFwk(Application):
             loop = asyncio.get_event_loop()                
             self.bot_info = loop.run_until_complete(bot.get_me())
             # loop.close() 
-            self.token_validated = True            
+            self.token_validated = True  
+            
+            return True          
         
         except Exception as e:
             logger.error(f"Error validating token: {e}")
+            
+            if input_token:
+                token = input_with_timeout("Enter the bot token: ", 10)
+                self.bot_owner = input_with_timeout("Enter the bot owner id: ", 10)
+                if self.validate_token(token, quit_if_error, False):
+                    self.token = token
+                    # clear entire .env file
+                    dotenv.clear()
+                    dotenv.set_key('.env', 'DEFAULT_BOT_TOKEN', self.token)
+                    dotenv.set_key('.env', 'DEFAULT_BOT_OWNER', self.bot_owner)                    
+                    return True
+                
             if quit_if_error:
                 input_with_timeout("Enter to close: ", 10)
                 quit()
+                
             return None
     
     def check_encrypt(self, decrypted_token: str = None, decrypted_bot_owner: str = None, decrypt_key = None, encrypted_token: str = None, encrypted_bot_owner: str = None):             
@@ -291,8 +306,6 @@ _Path:_
             
             bot_defaults_build = bot_defaults_build if bot_defaults_build else Defaults(parse_mode=ParseMode.MARKDOWN) 
             
-            # self.token = os.environ.get('DEFAULT_BOT_TOKEN', None) if not token else token
-            # self.bot_owner = int(os.environ.get('DEFAULT_BOT_OWNER', None)) if not bot_owner else int(bot_owner)
             if validate_token:            
                 self.validate_token(self.token, quit_if_error)           
             
