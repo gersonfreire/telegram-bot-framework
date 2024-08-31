@@ -178,10 +178,6 @@ class TlgBotFwk(Application):
             # Define a literal string
             literal_string = "mysecretpassword1234567890123456"  # Must be 32 characters
 
-            # Ensure the literal string is exactly 32 characters
-            if len(literal_string) != 32:
-                raise ValueError("The literal string must be exactly 32 characters long.")
-
             # Convert the literal string to bytes
             key_bytes = literal_string.encode()
 
