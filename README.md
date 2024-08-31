@@ -138,7 +138,8 @@ python tlgfwk.py
 * [X] Command to restart the bot ✓
 * [X] Encrypt/decrypt the bot token from/to .env file ✓
 * [X] Optional disable_encryption parameter on class creation to Encrypt/decrypt .env file ✓
-* [ ] Ask the bot owner to input a token in case the token is not valid
+* [X] Ask the bot owner to input a token in case the token is not valid ✓
+* [X] Create an empty .env file at run time if it does not exist ✓
 * [ ] Ask the owner for a decrypt key
 * [ ] Create a command to encrypt and decrypt strings
 * [ ] Add a way to save the bot token for next run

@@ -133,7 +133,8 @@ class TlgBotFwk(Application):
         self.token_validated = False
         self.bot_info = None
         
-        try:
+        try:           
+            
             bot = Bot(token=token)
             loop = asyncio.get_event_loop()                
             self.bot_info = loop.run_until_complete(bot.get_me())
@@ -146,14 +147,18 @@ class TlgBotFwk(Application):
             logger.error(f"Error validating token: {e}")
             
             if input_token:
-                token = input_with_timeout("Enter the bot token: ", 10)
+                token = input_with_timeout("You have 30 sec. to enter the bot token: ", 30)
                 if self.validate_token(token, quit_if_error, False):
-                    self.bot_owner = input_with_timeout("Enter the bot owner id: ", 10)
                     self.token = token
+                    self.bot_owner = int(input_with_timeout("You have 30 sec. to enter the bot owner id: ", 30))
                     # clear entire .env file
-                    dotenv.clear()
+                    os.remove('.env')
+                    open('.env', 'w').close()
                     dotenv.set_key('.env', 'DEFAULT_BOT_TOKEN', self.token)
-                    dotenv.set_key('.env', 'DEFAULT_BOT_OWNER', self.bot_owner)                    
+                    dotenv.set_key('.env', 'DEFAULT_BOT_OWNER', str(self.bot_owner)) 
+                    
+                    dotenv.load_dotenv('.env')
+                                       
                     return True
                 
             if quit_if_error:
@@ -294,20 +299,31 @@ _Path:_
         
         try: 
             self.logger = logger 
+            self.token = token if token else ''
+            self.bot_owner = bot_owner if bot_owner else ''
+
+            # Create an empty .env file at run time if it does not exist
+            if not os.path.exists('.env'):
+                open('.env', 'w').close() 
+                # and add en empty line with token and bot owner
+                dotenv.set_key('.env', 'DEFAULT_BOT_TOKEN',self.token)
+                dotenv.set_key('.env', 'DEFAULT_BOT_OWNER',self.bot_owner)            
             
-            dotenv.load_dotenv(env_file)
+            dotenv.load_dotenv('.env')
+            self.token = os.environ.get('DEFAULT_BOT_TOKEN', None) if not self.token else self.token
+            self.bot_owner = int(os.environ.get('DEFAULT_BOT_OWNER', None)) if not self.bot_owner else 1234567890           
+            
+            if validate_token:            
+                self.validate_token(self.token, quit_if_error)  
             
             if not disable_encryption:
                 # If there is a crypto key, decrypt the token and the bot_owner got from the .env file
                 self.check_encrypt(token, bot_owner, decrypt_key)
             else:
-                self.token = os.environ.get('DEFAULT_BOT_TOKEN', None) if not token else token
-                self.bot_owner = int(os.environ.get('DEFAULT_BOT_OWNER', None)) if not bot_owner else int(bot_owner)
+                self.token = os.environ.get('DEFAULT_BOT_TOKEN', None) if not self.token else self.token
+                self.bot_owner = int(os.environ.get('DEFAULT_BOT_OWNER', None)) if not self.bot_owner else int(self.bot_owner)
             
-            bot_defaults_build = bot_defaults_build if bot_defaults_build else Defaults(parse_mode=ParseMode.MARKDOWN) 
-            
-            if validate_token:            
-                self.validate_token(self.token, quit_if_error)           
+            bot_defaults_build = bot_defaults_build if bot_defaults_build else Defaults(parse_mode=ParseMode.MARKDOWN)          
             
             self.default_language_code = os.environ.get('DEFAULT_LANGUAGE_CODE', 'en-US') if not default_language_code else default_language_code
             
