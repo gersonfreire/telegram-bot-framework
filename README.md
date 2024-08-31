@@ -20,6 +20,8 @@
 
 [Project&#39;s Telegram group](https://t.me/TlgBotFwk)
 
+[Demo Bot](https://t.me/TecVitoriaBot)
+
 ## 📝 Table of Contents
 
 - [About](#about)
@@ -129,21 +131,28 @@ python tlgfwk.py
 
 ## TODOs:
 
-* Last Stable Version: 0.0.7
-* Deploy a demo instance
-* Add persistence for user and bot data
-* Allow more than one owner
-* Logger to Telegram
-* Add a way to get or change the bot token
-* Add a way to get the bot owner id
-* Add a way to get the bot name
-* Add a way to get the bot version
-* Add a way to get the bot hostname
-* Add a way to get the bot script path
-* Add a way to get the bot main script path
-* Add a way to get the bot log folder
-* Add a way to get the bot log file
-* Add a way to get the bot log level
+* [X] Last Stable Version: 0.1.3
+* [X] Deploy a demo instance - Bot running on [Demo Bot](https://t.me/TecVitoriaBot)
+* [X] Add handlers to telegram menu commands -
+* [X] Auto-update by git pull
+* [X] Command to restart the bot
+* [X] Encrypt/decrypt the bot token from/to .env file
+* [ ] Ask the owner for a decrypt key
+* [ ] Create a command to encrypt and decrypt strings
+* [ ] Add a way to save the bot token for next run
+* [ ] Add persistence for user and bot data
+* [ ] Allow more than one owner
+* [ ] Logger to Telegram
+* [ ] Add a way to get or change the bot token
+* [ ] Add a way to get the bot owner id
+* [ ] Add a way to get the bot name
+* [ ] Add a way to get the bot version
+* [ ] Add a way to get the bot hostname
+* [ ] Add a way to get the bot script path
+* [ ] Add a way to get the bot main script path
+* [ ] Add a way to get the bot log folder
+* [ ] Add a way to get the bot log file
+* [ ] Add a way to get the bot log level
 
 ## ✍️ Authors
 

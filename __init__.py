@@ -1,4 +1,5 @@
 import sys, os, logging
+import base64
 
 from telegram import Bot
 import dotenv
@@ -6,6 +7,8 @@ import translations.translations as translations
 
 from handlers import *
 import translations as translations
+
+from cryptography.fernet import Fernet
 
 # ------------------------------------------
 script_path = os.path.dirname(os.path.realpath(__file__))
