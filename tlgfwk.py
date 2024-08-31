@@ -1,25 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-version = '0.0.7 - fixed post_shutdown error'
-
-# ------------------------------------------
-
-# TODOs:
-# - Deploy a demo instance
-# - Add persistence for user and bot data
-# - Allow more than one owner
-# - Logger to Telegram
-# - Add a way to get or change the bot token
-# - Add a way to get the bot owner id
-# - Add a way to get the bot name
-# - Add a way to get the bot version
-# - Add a way to get the bot hostname
-# - Add a way to get the bot script path
-# - Add a way to get the bot main script path
-# - Add a way to get the bot log folder
-# - Add a way to get the bot log file
-# - Add a way to get the bot log level
+version = '0.1.3 - Encrypt/decrypt the bot token from/to .env file'
 
 # ------------------------------------------
 
@@ -60,30 +42,86 @@ class TlgBotFwk(Application):
         return command_dict
     
     async def get_help_text(self, language_code = None, current_user_id = None, *args, **kwargs):
+        """Generates a help text from bot commands already set and the command handlers
+
+        Args:
+            language_code (_type_, optional): _description_. Defaults to None.
+            current_user_id (_type_, optional): _description_. Defaults to None.
+
+        Returns:
+            _type_: _description_
+        """
         
         try:
-            self.current_commands = await self.application.bot.get_my_commands(scope=BotCommandScopeDefault())
+            # Define the commands you want to set for the user
+            # commands = [
+            #     BotCommand(command='ok', description='Start the bot'),
+            #     BotCommand(command='ok2', description='Get help')
+            # ]
+
+            # # Set the commands for the specific user
+            # await self.application.bot.set_my_commands(commands=commands, scope={'type': 'chat', 'chat_id': self.bot_owner})
+
+            # # Get the commands for the specific user
+            # user_commands = await self.application.bot.get_my_commands(scope={'type': 'chat', 'chat_id': self.bot_owner})
+            
+            # first, delete all remaining old commands from previous runs
+            # await self.application.bot.set_my_commands([], scope=BotCommandScopeDefault())
+            await self.application.bot.set_my_commands([], scope={'type': 'chat', 'chat_id': self.bot_owner})
+                
+            # get all commands from bot commands menu
+            self.common_users_commands = await self.application.bot.get_my_commands()
+            self.all_commands = await self.application.bot.get_my_commands(scope={'type': 'chat', 'chat_id': self.bot_owner})
+            self.admin_commands = tuple()
             
             language_code = self.default_language_code if not language_code else language_code
             
             self.help_text = translations.get_translated_message(language_code, 'help_message', self.default_language_code, self.application.bot.name)            
             
-            for command in self.current_commands:
+            for command in self.common_users_commands:
                 self.help_text += f"/{command.command} - {command.description}{os.linesep}"
                 
             # get a dictionary of command handlers
             command_dict = self.get_command_handlers()
             
-            # convert the commands dictionary into help text
+            # convert the commands dictionary into help text and update command menu
             for command_name, command_data in command_dict.items():
-                if command_name not in [bot_command.command for bot_command in self.current_commands]:
-                    if command_data['is_admin']:
-                        if current_user_id and (command_data['user_allowed'] == current_user_id): # self.bot_owner:
-                            self.help_text += f"/{command_name} - {command_data['command_description']}{os.linesep}"
-                    else:
-                        command_description = command_data['command_description']
-                        self.help_text += f"/{command_name} - {command_description}{os.linesep}" 
+                try:
+                    if command_name not in [bot_command.command for bot_command in self.common_users_commands]:
+                        if command_data['is_admin']:
+                            if current_user_id and (command_data['user_allowed'] == current_user_id): # self.bot_owner:
+                                self.help_text += f"/{command_name} - {command_data['command_description']}{os.linesep}"
+                                
+                                # add command got from command handler to telegram menu commands only to specific admin user
+                                admin_commands_list = list(self.admin_commands)
+                                admin_commands_list.append(BotCommand(command_name, command_data['command_description']))
+                                self.admin_commands = tuple(admin_commands_list)
+                                
+                        else:
+                            command_description = command_data['command_description']
+                            self.help_text += f"/{command_name} - {command_description}{os.linesep}" 
+                            
+                            # Add command got from command handler to telegram menu commands
+                            users_commands_list = list(self.common_users_commands)
+                            users_commands_list.append(BotCommand(command_name, command_description))
+                            self.common_users_commands = tuple(users_commands_list)
+                        
+                        self.all_commands = tuple(list(self.common_users_commands) + list(self.admin_commands)) 
+
+                except Exception as e:
+                    logger.error(f"Error adding command to menu: {e}")
+                    continue
                 
+            # set new commands to telegram bot menu
+            await self.application.bot.set_my_commands(self.common_users_commands)
+            
+            # concatenate tuples of admin and user commands                       
+            await self.application.bot.set_my_commands(self.all_commands, scope={'type': 'chat', 'chat_id': self.bot_owner})    
+            
+            # double check
+            self.common_users_commands = await self.application.bot.get_my_commands()
+            self.all_commands = await self.application.bot.get_my_commands(scope={'type': 'chat', 'chat_id': self.bot_owner})
+                        
             return self.help_text
         
         except Exception as e:
@@ -108,6 +146,66 @@ class TlgBotFwk(Application):
                 input_with_timeout("Enter to close: ", 10)
                 quit()
             return None
+    
+    def check_encrypt(self, decrypted_token: str = None, decrypted_bot_owner: str = None, decrypt_key = None, encrypted_token: str = None, encrypted_bot_owner: str = None):             
+            
+        def decrypt(encrypted_token, key):
+            f = Fernet(key)
+            # key = base64.urlsafe_b64decode(key.encode()).decode()
+            # key = key.encode()
+            # # Decrypt the string
+            # decrypted_string = fernet.decrypt(encrypted_string).decode()
+            # decrypted_token = f.decrypt(token.encode()).decode()
+            decrypted_token = f.decrypt(encrypted_token).decode()
+            return decrypted_token
+        
+        # encrypt the token and store it in the .env file
+        def encrypt(decrypted_token, key):           
+            f = Fernet(key)
+            # Fernet key must be 32 url-safe base64-encoded bytes.
+            # key = base64.urlsafe_b64decode(key.encode())
+            # # Encrypt the string
+            # encrypted_string = fernet.encrypt(original_string.encode()) 
+            # encrypted_token = f.encrypt(decrypted_token.encode()).decode()
+            encrypted_token = f.encrypt(decrypted_token.encode())
+            return encrypted_token
+        
+        self.encrypt_ascii_key = os.environ.get('ENCRYPT_KEY', None) if not decrypt_key else decrypt_key 
+            
+        # First time, if there is not a crypto key yet, generate it and encrypt the token and save back to the .env file
+        if not self.encrypt_ascii_key:
+            
+            self.token = os.environ.get('DEFAULT_BOT_TOKEN', None) if not decrypted_token else decrypted_token
+            self.bot_owner = int(os.environ.get('DEFAULT_BOT_OWNER', None)) if not decrypted_bot_owner else int(decrypted_bot_owner)
+                        
+            self.encrypt_byte_key = Fernet.generate_key()
+            self.encrypt_ascii_key =  base64.urlsafe_b64encode(self.encrypt_byte_key).decode()     
+            
+            # update the .env file with the encrypted token
+            self.encrypted_token = encrypt(self.token, self.encrypt_byte_key).decode()
+            dotenv.set_key('.env', 'ENCRYPTED_BOT_TOKEN', self.encrypted_token) 
+            
+            # update the .env file with the encrypted bot owner and the key
+            self.encrypted_bot_owner = encrypt(str(self.bot_owner), self.encrypt_byte_key).decode()
+            dotenv.set_key('.env', 'ENCRYPTED_BOT_OWNER', self.encrypted_bot_owner) 
+            
+            # save the new encryption key to the .env file
+            dotenv.set_key('.env', 'ENCRYPT_KEY', self.encrypt_ascii_key) 
+            
+            # remove the decrypted token and the bot owner from the .env file
+            dotenv.unset_key('.env', 'DEFAULT_BOT_TOKEN')
+            dotenv.unset_key('.env', 'DEFAULT_BOT_OWNER')  
+            
+        else: 
+            
+            self.encrypted_token = os.environ.get('ENCRYPTED_BOT_TOKEN', None) if not encrypted_token else encrypted_token
+            self.encrypted_bot_owner = os.environ.get('ENCRYPTED_BOT_OWNER', None) if not encrypted_bot_owner else int(decrypted_bot_owner)  
+            
+            self.encrypt_byte_key = base64.urlsafe_b64decode(self.encrypt_ascii_key.encode())
+            
+            # Decrypt the token got from the .env file
+            self.token = decrypt(self.encrypted_token, self.encrypt_byte_key)
+            self.bot_owner = int(decrypt(str(self.encrypted_bot_owner), self.encrypt_byte_key)) 
     
     # ------------------------------------------
 
@@ -156,20 +254,24 @@ _Path:_
         bot_owner: str = None, 
         bot_defaults_build = None, 
         disable_default_handlers = False,
-        default_language_code = None):
+        default_language_code = None,
+        decrypt_key = None):
         
         try: 
             self.logger = logger 
             
             dotenv.load_dotenv(env_file)
+            
+            # If there is a crypto key, decrypt the token and the bot_owner got from the .env file
+            self.check_encrypt(token, bot_owner, decrypt_key)
                 
             bot_defaults_build = bot_defaults_build if bot_defaults_build else Defaults(parse_mode=ParseMode.MARKDOWN) 
             
-            self.token = os.environ.get('DEFAULT_BOT_TOKEN', None) if not token else token
+            # self.token = os.environ.get('DEFAULT_BOT_TOKEN', None) if not token else token
+            # self.bot_owner = int(os.environ.get('DEFAULT_BOT_OWNER', None)) if not bot_owner else int(bot_owner)
             if validate_token:            
-                self.validate_token(self.token, quit_if_error)
+                self.validate_token(self.token, quit_if_error)           
             
-            self.bot_owner = int(os.environ.get('DEFAULT_BOT_OWNER', None)) if not bot_owner else int(bot_owner)
             self.default_language_code = os.environ.get('DEFAULT_LANGUAGE_CODE', 'en-US') if not default_language_code else default_language_code
             
             self.disable_default_handlers = os.environ.get('DISABLE_DEFAULT_HANDLERS', False) if not disable_default_handlers else disable_default_handlers
@@ -177,7 +279,10 @@ _Path:_
             self.bot_defaults_build = bot_defaults_build
             
             # Create an Application instance using the builder pattern            
-            self.application = Application.builder().defaults(bot_defaults_build).token(self.token).post_init(self.post_init).post_stop(self.post_stop).build()               
+            self.application = Application.builder().defaults(bot_defaults_build).token(self.token).post_init(self.post_init).post_stop(self.post_stop).build() 
+            
+            # save botname to .env file
+            dotenv.set_key('.env', 'BOT_NAME', self.bot_info.username)                       
             
             self.initialize_handlers()
             
@@ -212,6 +317,18 @@ _Path:_
             # add handler for the /userlang command to set the user language code
             set_user_language_handler = CommandHandler('userlang', self.set_user_language)
             self.application.add_handler(set_user_language_handler)
+            
+            # add handler for the /git command to update the bot's code from a git repository
+            git_handler = CommandHandler('git', self.cmd_git, filters=filters.User(user_id=self.bot_owner))
+            self.application.add_handler(git_handler)
+            
+            # add handler for the /restart command to restart the bot
+            restart_handler = CommandHandler('restart', self.restart_bot, filters=filters.User(user_id=self.bot_owner))
+            self.application.add_handler(restart_handler)
+            
+            # add handler for the /stop command to stop the bot
+            stop_handler = CommandHandler('stop', self.stop_bot, filters=filters.User(user_id=self.bot_owner))
+            self.application.add_handler(stop_handler)
             
             self.application.add_handler(MessageHandler(filters.COMMAND, self.default_unknown_command))
             
@@ -273,7 +390,8 @@ _Path:_
     async def default_start_handler(self, update: Update, context: CallbackContext, *args, **kwargs):
         
         try:
-            self.current_commands = await self.application.bot.get_my_commands()
+            # self.all_users_commands = await self.application.bot.get_my_commands()
+            # self.admin_commands = await self.application.bot.get_my_commands(scope=BotCommandScopeChat(chat_id=update.effective_user.id))
                         
             language_code = context.user_data.get('language_code', update.effective_user.language_code)                           
             self.default_start_message = translations.get_translated_message(language_code, 'start_message', 'en', update.effective_user.full_name, self.application.bot.name, self.application.bot.first_name)
@@ -304,10 +422,76 @@ _Path:_
         # A simple start command response
         await update.message.reply_text(self.help_text)                        
 
+    @with_writing_action
+    @with_log_admin
+    async def cmd_git(self, update: Update, context: CallbackContext):
+        """Update the bot's version from a git repository"""
+        
+        try:
+            # get the branch name from the message
+            # branch_name = update.message.text.split(' ')[1]
+            message = f"_Updating the bot's code from the branch..._" # `{branch_name}`"
+            logger.info(message)
+            await update.message.reply_text(message, parse_mode=ParseMode.MARKDOWN)
+            
+            # update the bot's code
+            # command = f"git fetch origin {branch_name} && git reset --hard origin/{branch_name}"
+            command = "git status"
+            
+            if len(update.effective_message.text.split(' ')) > 1:
+                git_command = update.effective_message.text.split(' ')[1]
+                logger.info(f"git command: {command}")
+                command = f"git {git_command}"
+            
+            # execute system command and return the result
+            # os.system(command=command)
+            result = os.popen(command).read()
+            self.logger.info(f"Result: {result}")
+            
+            result = f"_Result:_ `{result}`"
+            
+            await update.message.reply_text(result, parse_mode=ParseMode.MARKDOWN)
+            
+        except Exception as e:
+            logger.error(f"Error: {e}")
+            await update.message.reply_text(f"An error occurred: {e}")
+
+    # https://github.com/python-telegram-bot/python-telegram-bot/issues/3718
+    # https://github.com/python-telegram-bot/python-telegram-bot/wiki/Code-snippets#simple-way-of-restarting-the-bot
+    @with_writing_action
+    @with_log_admin
+    async def restart_bot(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+        try:
+            await update.message.reply_text("_Restarting..._", parse_mode=ParseMode.MARKDOWN)
+            args = sys.argv[:]
+            args.insert(0, sys.executable)
+            os.chdir(os.getcwd())
+            os.execv(sys.executable, args)
+            
+        except Exception as e:
+            logger.error(f"Error restarting bot: {e}")
+            await update.message.reply_text(f"An error occurred while restarting the bot: {e}")
+       
+    @with_writing_action
+    @with_log_admin            
+    async def stop_bot(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+        
+        await update.message.reply_text(f"*{update._bot.username} STOPPED!*", parse_mode=ParseMode.MARKDOWN)
+
+        args = sys.argv[:]
+        # args.append('stop')
+        # args = ['stop']
+        args.insert(0, 'stop')
+        args=None
+        os.chdir(os.getcwd())
+        # os.execv(sys.executable, args) 
+        os.abort()        
+    # ------------------------------------------
+
     def run(self):
         # Run the bot using the run_polling method
         self.application.run_polling()
-
+        
 if __name__ == '__main__':
     
     app = TlgBotFwk()
