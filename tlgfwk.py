@@ -175,6 +175,24 @@ class TlgBotFwk(Application):
         # First time, if there is not a crypto key yet, generate it and encrypt the token and save back to the .env file
         if not self.encrypt_ascii_key:
             
+            # Define a literal string
+            literal_string = "mysecretpassword1234567890123456"  # Must be 32 characters
+
+            # Ensure the literal string is exactly 32 characters
+            if len(literal_string) != 32:
+                raise ValueError("The literal string must be exactly 32 characters long.")
+
+            # Convert the literal string to bytes
+            key_bytes = literal_string.encode()
+
+            # Encode the byte string in URL-safe base64 format
+            key = base64.urlsafe_b64encode(key_bytes)
+
+            # Encrypt a string
+            fernet = Fernet(key) 
+            
+            # ------------------------------           
+            
             self.token = os.environ.get('DEFAULT_BOT_TOKEN', None) if not decrypted_token else decrypted_token
             self.bot_owner = int(os.environ.get('DEFAULT_BOT_OWNER', None)) if not decrypted_bot_owner else int(decrypted_bot_owner)
                         
