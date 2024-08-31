@@ -313,7 +313,11 @@ help_text = (
     f"/pay - Pay $1 and add to user balance{os.linesep}"
 )
 
-bot_user_admin = int(os.environ.get('DEFAULT_BOT_OWNER', None))
+try:
+    bot_user_admin = int(os.environ.get('DEFAULT_BOT_OWNER', None))
+except Exception as e:
+    logger.error(f"Error: {e}")
+    bot_user_admin = None
 
 # function to return current bot version        
 async def version_command2(update, context) -> None:
