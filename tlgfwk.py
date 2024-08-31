@@ -147,8 +147,8 @@ class TlgBotFwk(Application):
             
             if input_token:
                 token = input_with_timeout("Enter the bot token: ", 10)
-                self.bot_owner = input_with_timeout("Enter the bot owner id: ", 10)
                 if self.validate_token(token, quit_if_error, False):
+                    self.bot_owner = input_with_timeout("Enter the bot owner id: ", 10)
                     self.token = token
                     # clear entire .env file
                     dotenv.clear()
