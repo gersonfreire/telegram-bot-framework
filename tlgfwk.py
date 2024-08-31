@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-version = '0.1.3 - Encrypt/decrypt the bot token from/to .env file'
+version = '0.1.4 - Optional disable_encryption parameter on class creation to Encrypt/decrypt .env file'
 
 # ------------------------------------------
 
@@ -175,10 +175,27 @@ class TlgBotFwk(Application):
         # First time, if there is not a crypto key yet, generate it and encrypt the token and save back to the .env file
         if not self.encrypt_ascii_key:
             
+            # Define a literal string
+            literal_string = "mysecretpassword1234567890123456"  # Must be 32 characters
+
+            # Convert the literal string to bytes
+            key_bytes = literal_string.encode()
+
+            # Encode the byte string in URL-safe base64 format
+            key = base64.urlsafe_b64encode(key_bytes)
+                        
+            # Convert key_bytes back to string literal
+            key_string_literal = key_bytes.decode('utf-8')            
+
+            # Encrypt a string
+            fernet = Fernet(key) 
+            
+            # ------------------------------           
+            
             self.token = os.environ.get('DEFAULT_BOT_TOKEN', None) if not decrypted_token else decrypted_token
             self.bot_owner = int(os.environ.get('DEFAULT_BOT_OWNER', None)) if not decrypted_bot_owner else int(decrypted_bot_owner)
                         
-            self.encrypt_byte_key = Fernet.generate_key()
+            self.encrypt_byte_key = key # Fernet.generate_key() # key 
             self.encrypt_ascii_key =  base64.urlsafe_b64encode(self.encrypt_byte_key).decode()     
             
             # update the .env file with the encrypted token
@@ -199,9 +216,11 @@ class TlgBotFwk(Application):
         else: 
             
             self.encrypted_token = os.environ.get('ENCRYPTED_BOT_TOKEN', None) if not encrypted_token else encrypted_token
-            self.encrypted_bot_owner = os.environ.get('ENCRYPTED_BOT_OWNER', None) if not encrypted_bot_owner else int(decrypted_bot_owner)  
+            self.encrypted_bot_owner = os.environ.get('ENCRYPTED_BOT_OWNER', None) if not encrypted_bot_owner else int(decrypted_bot_owner)              
             
             self.encrypt_byte_key = base64.urlsafe_b64decode(self.encrypt_ascii_key.encode())
+            
+            # key_string_literal = key_bytes.decode('utf-8')  
             
             # Decrypt the token got from the .env file
             self.token = decrypt(self.encrypted_token, self.encrypt_byte_key)
@@ -255,16 +274,21 @@ _Path:_
         bot_defaults_build = None, 
         disable_default_handlers = False,
         default_language_code = None,
-        decrypt_key = None):
+        decrypt_key = None,
+        disable_encryption = False):
         
         try: 
             self.logger = logger 
             
             dotenv.load_dotenv(env_file)
             
-            # If there is a crypto key, decrypt the token and the bot_owner got from the .env file
-            self.check_encrypt(token, bot_owner, decrypt_key)
-                
+            if not disable_encryption:
+                # If there is a crypto key, decrypt the token and the bot_owner got from the .env file
+                self.check_encrypt(token, bot_owner, decrypt_key)
+            else:
+                self.token = os.environ.get('DEFAULT_BOT_TOKEN', None) if not token else token
+                self.bot_owner = int(os.environ.get('DEFAULT_BOT_OWNER', None)) if not bot_owner else int(bot_owner)
+            
             bot_defaults_build = bot_defaults_build if bot_defaults_build else Defaults(parse_mode=ParseMode.MARKDOWN) 
             
             # self.token = os.environ.get('DEFAULT_BOT_TOKEN', None) if not token else token
