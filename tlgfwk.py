@@ -220,6 +220,8 @@ class TlgBotFwk(Application):
             
             self.encrypt_byte_key = base64.urlsafe_b64decode(self.encrypt_ascii_key.encode())
             
+            # key_string_literal = key_bytes.decode('utf-8')  
+            
             # Decrypt the token got from the .env file
             self.token = decrypt(self.encrypted_token, self.encrypt_byte_key)
             self.bot_owner = int(decrypt(str(self.encrypted_bot_owner), self.encrypt_byte_key)) 
