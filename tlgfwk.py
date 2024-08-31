@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-version = '0.1.3 - Encrypt/decrypt the bot token from/to .env file'
+version = '0.1.4 - Optional disable_encryption parameter on class creation to Encrypt/decrypt .env file'
 
 # ------------------------------------------
 
@@ -285,6 +285,9 @@ _Path:_
             if not disable_encryption:
                 # If there is a crypto key, decrypt the token and the bot_owner got from the .env file
                 self.check_encrypt(token, bot_owner, decrypt_key)
+            else:
+                self.token = os.environ.get('DEFAULT_BOT_TOKEN', None) if not token else token
+                self.bot_owner = int(os.environ.get('DEFAULT_BOT_OWNER', None)) if not bot_owner else int(bot_owner)
             
             bot_defaults_build = bot_defaults_build if bot_defaults_build else Defaults(parse_mode=ParseMode.MARKDOWN) 
             
