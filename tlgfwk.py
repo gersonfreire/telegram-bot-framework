@@ -274,16 +274,18 @@ _Path:_
         bot_defaults_build = None, 
         disable_default_handlers = False,
         default_language_code = None,
-        decrypt_key = None):
+        decrypt_key = None,
+        disable_encryption = False):
         
         try: 
             self.logger = logger 
             
             dotenv.load_dotenv(env_file)
             
-            # If there is a crypto key, decrypt the token and the bot_owner got from the .env file
-            self.check_encrypt(token, bot_owner, decrypt_key)
-                
+            if not disable_encryption:
+                # If there is a crypto key, decrypt the token and the bot_owner got from the .env file
+                self.check_encrypt(token, bot_owner, decrypt_key)
+            
             bot_defaults_build = bot_defaults_build if bot_defaults_build else Defaults(parse_mode=ParseMode.MARKDOWN) 
             
             # self.token = os.environ.get('DEFAULT_BOT_TOKEN', None) if not token else token
