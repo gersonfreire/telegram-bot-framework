@@ -183,6 +183,9 @@ class TlgBotFwk(Application):
 
             # Encode the byte string in URL-safe base64 format
             key = base64.urlsafe_b64encode(key_bytes)
+                        
+            # Convert key_bytes back to string literal
+            key_string_literal = key_bytes.decode('utf-8')            
 
             # Encrypt a string
             fernet = Fernet(key) 
@@ -192,7 +195,7 @@ class TlgBotFwk(Application):
             self.token = os.environ.get('DEFAULT_BOT_TOKEN', None) if not decrypted_token else decrypted_token
             self.bot_owner = int(os.environ.get('DEFAULT_BOT_OWNER', None)) if not decrypted_bot_owner else int(decrypted_bot_owner)
                         
-            self.encrypt_byte_key = Fernet.generate_key()
+            self.encrypt_byte_key = key # Fernet.generate_key() # key 
             self.encrypt_ascii_key =  base64.urlsafe_b64encode(self.encrypt_byte_key).decode()     
             
             # update the .env file with the encrypted token
