@@ -13,6 +13,31 @@ class TlgBotFwk(Application):
     
     # ------------------------------------------
     
+    # Function to add or update a setting in the .env file
+    def add_or_update_env_setting(self, key, value, env_file='.env'):
+        # Read the existing .env file
+        if os.path.exists(env_file):
+            with open(env_file, 'r') as file:
+                lines = file.readlines()
+        else:
+            lines = []
+
+        # Check if the key already exists
+        key_exists = False
+        for i, line in enumerate(lines):
+            if line.startswith(f"{key}="):
+                lines[i] = f"{key}={value}\n"
+                key_exists = True
+                break
+
+        # If the key does not exist, add it
+        if not key_exists:
+            lines.append(f"{key}={value}\n")
+
+        # Write the updated content back to the .env file
+        with open(env_file, 'w') as file:
+            file.writelines(lines)    
+    
     def get_command_handlers(self, *args, **kwargs):
         
         command_dict = {}
@@ -150,12 +175,14 @@ class TlgBotFwk(Application):
                 token = input_with_timeout("You have 30 sec. to enter the bot token: ", 30)
                 if self.validate_token(token, quit_if_error, False):
                     self.token = token
+                    # self.bot_owner = int(input_with_timeout("You have 30 sec. to enter the bot owner id: ", 30))
                     self.bot_owner = int(input_with_timeout("You have 30 sec. to enter the bot owner id: ", 30))
                     # clear entire .env file
                     os.remove('.env')
                     open('.env', 'w').close()
                     dotenv.set_key('.env', 'DEFAULT_BOT_TOKEN', self.token)
-                    dotenv.set_key('.env', 'DEFAULT_BOT_OWNER', int(self.bot_owner)) 
+                    # dotenv.set_key('.env', 'DEFAULT_BOT_OWNER', int(self.bot_owner)) 
+                    self.add_or_update_env_setting('DEFAULT_BOT_OWNER', self.bot_owner)
                     
                     dotenv.load_dotenv('.env')
                                        
@@ -311,7 +338,7 @@ _Path:_
             
             dotenv.load_dotenv('.env')
             self.token = os.environ.get('DEFAULT_BOT_TOKEN', None) if not self.token else self.token
-            self.bot_owner = int(os.environ.get('DEFAULT_BOT_OWNER', int(999999))) if not self.bot_owner else self.bot_ownser           
+            self.bot_owner = int(os.environ.get('DEFAULT_BOT_OWNER', 999999)) if not self.bot_owner else self.bot_owner           
             
             if validate_token:            
                 self.validate_token(self.token, quit_if_error)  
