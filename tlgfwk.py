@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-version = '0.1.5 - Ask the bot owner to input a token in case the token is not valid'
+version = '0.1.6 - Ask the bot owner to input a token in case the token is not valid'
 
 # ------------------------------------------
 
@@ -155,7 +155,7 @@ class TlgBotFwk(Application):
                     os.remove('.env')
                     open('.env', 'w').close()
                     dotenv.set_key('.env', 'DEFAULT_BOT_TOKEN', self.token)
-                    dotenv.set_key('.env', 'DEFAULT_BOT_OWNER', str(self.bot_owner)) 
+                    dotenv.set_key('.env', 'DEFAULT_BOT_OWNER', int(self.bot_owner)) 
                     
                     dotenv.load_dotenv('.env')
                                        
@@ -307,11 +307,11 @@ _Path:_
                 open('.env', 'w').close() 
                 # and add en empty line with token and bot owner
                 dotenv.set_key('.env', 'DEFAULT_BOT_TOKEN',self.token)
-                dotenv.set_key('.env', 'DEFAULT_BOT_OWNER',self.bot_owner)            
+                # dotenv.set_key('.env', 'DEFAULT_BOT_OWNER',self.bot_owner)            
             
             dotenv.load_dotenv('.env')
             self.token = os.environ.get('DEFAULT_BOT_TOKEN', None) if not self.token else self.token
-            self.bot_owner = int(os.environ.get('DEFAULT_BOT_OWNER', None)) if not self.bot_owner else 1234567890           
+            self.bot_owner = int(os.environ.get('DEFAULT_BOT_OWNER', int(999999))) if not self.bot_owner else self.bot_ownser           
             
             if validate_token:            
                 self.validate_token(self.token, quit_if_error)  
