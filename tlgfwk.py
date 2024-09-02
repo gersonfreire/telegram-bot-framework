@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-version = '0.1.4 - Optional disable_encryption parameter on class creation to Encrypt/decrypt .env file'
+version = '0.1.6 - Ask the bot owner to input a token in case the token is not valid'
 
 # ------------------------------------------
 
@@ -12,6 +12,31 @@ import translations.translations as translations
 class TlgBotFwk(Application):
     
     # ------------------------------------------
+    
+    # Function to add or update a setting in the .env file
+    def add_or_update_env_setting(self, key, value, env_file='.env'):
+        # Read the existing .env file
+        if os.path.exists(env_file):
+            with open(env_file, 'r') as file:
+                lines = file.readlines()
+        else:
+            lines = []
+
+        # Check if the key already exists
+        key_exists = False
+        for i, line in enumerate(lines):
+            if line.startswith(f"{key}="):
+                lines[i] = f"{key}={value}\n"
+                key_exists = True
+                break
+
+        # If the key does not exist, add it
+        if not key_exists:
+            lines.append(f"{key}={value}\n")
+
+        # Write the updated content back to the .env file
+        with open(env_file, 'w') as file:
+            file.writelines(lines)    
     
     def get_command_handlers(self, *args, **kwargs):
         
@@ -128,23 +153,45 @@ class TlgBotFwk(Application):
             logger.error(f"Error getting commands: {e}")
             return f'Sorry, we have a problem getting the commands: {e}'
     
-    def validate_token(self, token: str = None, quit_if_error = True):
+    def validate_token(self, token: str = None, quit_if_error = True, input_token = True):
         
         self.token_validated = False
         self.bot_info = None
         
-        try:
+        try:           
+            
             bot = Bot(token=token)
             loop = asyncio.get_event_loop()                
             self.bot_info = loop.run_until_complete(bot.get_me())
             # loop.close() 
-            self.token_validated = True            
+            self.token_validated = True  
+            
+            return True          
         
         except Exception as e:
             logger.error(f"Error validating token: {e}")
+            
+            if input_token:
+                token = input_with_timeout("You have 30 sec. to enter the bot token: ", 30)
+                if self.validate_token(token, quit_if_error, False):
+                    self.token = token
+                    # self.bot_owner = int(input_with_timeout("You have 30 sec. to enter the bot owner id: ", 30))
+                    self.bot_owner = int(input_with_timeout("You have 30 sec. to enter the bot owner id: ", 30))
+                    # clear entire .env file
+                    os.remove('.env')
+                    open('.env', 'w').close()
+                    dotenv.set_key('.env', 'DEFAULT_BOT_TOKEN', self.token)
+                    # dotenv.set_key('.env', 'DEFAULT_BOT_OWNER', int(self.bot_owner)) 
+                    self.add_or_update_env_setting('DEFAULT_BOT_OWNER', self.bot_owner)
+                    
+                    dotenv.load_dotenv('.env')
+                                       
+                    return True
+                
             if quit_if_error:
                 input_with_timeout("Enter to close: ", 10)
                 quit()
+                
             return None
     
     def check_encrypt(self, decrypted_token: str = None, decrypted_bot_owner: str = None, decrypt_key = None, encrypted_token: str = None, encrypted_bot_owner: str = None):             
@@ -279,22 +326,31 @@ _Path:_
         
         try: 
             self.logger = logger 
+            self.token = token if token else ''
+            self.bot_owner = bot_owner if bot_owner else ''
+
+            # Create an empty .env file at run time if it does not exist
+            if not os.path.exists('.env'):
+                open('.env', 'w').close() 
+                # and add en empty line with token and bot owner
+                dotenv.set_key('.env', 'DEFAULT_BOT_TOKEN',self.token)
+                # dotenv.set_key('.env', 'DEFAULT_BOT_OWNER',self.bot_owner)            
             
-            dotenv.load_dotenv(env_file)
+            dotenv.load_dotenv('.env')
+            self.token = os.environ.get('DEFAULT_BOT_TOKEN', None) if not self.token else self.token
+            self.bot_owner = int(os.environ.get('DEFAULT_BOT_OWNER', 999999)) if not self.bot_owner else self.bot_owner           
+            
+            if validate_token:            
+                self.validate_token(self.token, quit_if_error)  
             
             if not disable_encryption:
                 # If there is a crypto key, decrypt the token and the bot_owner got from the .env file
                 self.check_encrypt(token, bot_owner, decrypt_key)
             else:
-                self.token = os.environ.get('DEFAULT_BOT_TOKEN', None) if not token else token
-                self.bot_owner = int(os.environ.get('DEFAULT_BOT_OWNER', None)) if not bot_owner else int(bot_owner)
+                self.token = os.environ.get('DEFAULT_BOT_TOKEN', None) if not self.token else self.token
+                self.bot_owner = int(os.environ.get('DEFAULT_BOT_OWNER', None)) if not self.bot_owner else int(self.bot_owner)
             
-            bot_defaults_build = bot_defaults_build if bot_defaults_build else Defaults(parse_mode=ParseMode.MARKDOWN) 
-            
-            # self.token = os.environ.get('DEFAULT_BOT_TOKEN', None) if not token else token
-            # self.bot_owner = int(os.environ.get('DEFAULT_BOT_OWNER', None)) if not bot_owner else int(bot_owner)
-            if validate_token:            
-                self.validate_token(self.token, quit_if_error)           
+            bot_defaults_build = bot_defaults_build if bot_defaults_build else Defaults(parse_mode=ParseMode.MARKDOWN)          
             
             self.default_language_code = os.environ.get('DEFAULT_LANGUAGE_CODE', 'en-US') if not default_language_code else default_language_code
             
