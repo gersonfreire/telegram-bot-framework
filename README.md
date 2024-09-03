@@ -140,6 +140,7 @@ python tlgfwk.py
 * [X] Optional disable_encryption parameter on class creation to Encrypt/decrypt .env file ✓
 * [X] Create an empty .env file at run time if it does not exist ✓
 * [X] Ask the bot owner to input a token in case the token is not valid ✓
+* [ ] Show embedded help html page
 * [ ] Ask the owner for a decrypt key
 * [ ] Create a command to encrypt and decrypt strings
 * [ ] Add a way to save the bot token for next run
@@ -156,6 +157,10 @@ python tlgfwk.py
 * [ ] Add a way to get the bot log folder
 * [ ] Add a way to get the bot log file
 * [ ] Add a way to get the bot log level
+
+# TODO: Show ebedded help html page
+
+# TODO: Show ebedded help html page
 
 ## ✍️ Authors
 

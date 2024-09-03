@@ -494,6 +494,9 @@ _Path:_
     @with_log_admin            
     async def default_help_handler(self, update: Update, context: CallbackContext, *args, **kwargs):        
         
+        # TODO: Show embedded help html page
+        # append_buttons.append([InlineKeyboardButton('📖 Docs', url="https://telegra.ph/tlgfwk_help"),]) 
+        
         language_code = context.user_data.get('language_code', update.effective_user.language_code)
         self.help_text = await self.get_help_text(language_code, update.effective_user.id)
         
