@@ -14,10 +14,10 @@ class TlgBotFwk(Application):
     # ------------------------------------------
     
     # Function to add or update a setting in the .env file
-    def add_or_update_env_setting(self, key, value, env_file='.env'):
+    def add_or_update_env_setting(self, key, value):
         # Read the existing .env file
-        if os.path.exists(env_file):
-            with open(env_file, 'r') as file:
+        if os.path.exists(self.env_file):
+            with open(self.env_file, 'r') as file:
                 lines = file.readlines()
         else:
             lines = []
@@ -35,7 +35,7 @@ class TlgBotFwk(Application):
             lines.append(f"{key}={value}\n")
 
         # Write the updated content back to the .env file
-        with open(env_file, 'w') as file:
+        with open(self.env_file, 'w') as file:
             file.writelines(lines)    
     
     def get_command_handlers(self, *args, **kwargs):
@@ -325,6 +325,7 @@ _Path:_
         disable_encryption = True):
         
         try: 
+            self.env_file = env_file if env_file else '.env'
             self.logger = logger 
             self.token = token if token else ''
             self.bot_owner = bot_owner if bot_owner else ''
