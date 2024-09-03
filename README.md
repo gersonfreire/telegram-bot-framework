@@ -131,7 +131,7 @@ python tlgfwk.py
 
 ## TODOs:
 
-* [X] Last Stable Version: 0.1.5 *✓*
+* [X] Last Stable Version: 0.1.6 *✓*
 * [X] Deploy a demo instance - Bot running on [Demo Bot](https://t.me/TecVitoriaBot) ✓
 * [X] Add handlers to telegram menu commands ✓
 * [X] Auto-update by git pull ✓
@@ -140,8 +140,8 @@ python tlgfwk.py
 * [X] Optional disable_encryption parameter on class creation to Encrypt/decrypt .env file ✓
 * [X] Create an empty .env file at run time if it does not exist ✓
 * [X] Ask the bot owner to input a token in case the token is not valid ✓
+* [ ] Encrypt .env fixed
 * [ ] Show embedded help html page
-* [ ] Ask the owner for a decrypt key
 * [ ] Create a command to encrypt and decrypt strings
 * [ ] Add a way to save the bot token for next run
 * [ ] Add persistence for user and bot data

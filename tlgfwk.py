@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-version = '0.1.6 - Ask the bot owner to input a token in case the token is not valid'
+version = '0.1.7 '
 
 # ------------------------------------------
 
