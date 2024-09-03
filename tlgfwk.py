@@ -13,6 +13,39 @@ class TlgBotFwk(Application):
     
     # ------------------------------------------
     
+    async def cmd_show_config(self, update: Update, context: CallbackContext, *args, **kwargs):
+        """Show the bot configuration settings
+
+        Args:
+            update (Update): _description_
+            context (CallbackContext): _description_
+        """
+        
+        try:
+            # self.bot_name = self.application.bot.username
+            # self.bot_owner = int(os.environ.get('DEFAULT_BOT_OWNER', None))
+            # self.default_language_code = os.environ.get('DEFAULT_LANGUAGE_CODE', 'en-US')
+            # self.encrypt_ascii_key = os.environ.get('ENCRYPT_KEY', None)
+            # self.encrypt_byte_key = base64.urlsafe_b64decode(self.encrypt_ascii_key.encode())
+            # self.encrypted_token = os.environ.get('ENCRYPTED_BOT_TOKEN', None)
+            # self.encrypted_bot_owner = os.environ.get('ENCRYPTED_BOT_OWNER', None)
+            # self.token = self.check_encrypt(self.encrypted_token, self.encrypted_bot_owner, self.encrypt_byte_key)
+            
+            self.show_config_message = f"""*Bot Configuration Settings*{os.linesep}
+_Bot Name:_ `{self.bot_name}`
+_Bot Owner:_ `{self.bot_owner}`
+_Default Language Code:_ `{self.default_language_code}`
+_Encryption Key:_ `{self.encrypt_ascii_key}`
+_Encrypted Token:_ `{self.encrypted_token}`
+_Encrypted Bot Owner:_ `{self.encrypted_bot_owner}`
+_Decrypted Token:_ `{self.token}`"""
+
+            await update.message.reply_text(self.show_config_message, parse_mode=ParseMode.MARKDOWN)
+            
+        except Exception as e:
+            logger.error(f"Error in cmd_show_config: {e}")
+            await update.message.reply_text(f"Sorry, we encountered an error: {e}")
+    
     # Function to add or update a setting in the .env file
     def add_or_update_env_setting(self, key, value):
         # Read the existing .env file
