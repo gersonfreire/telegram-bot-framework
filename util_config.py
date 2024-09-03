@@ -143,7 +143,7 @@ from dotenv import load_dotenv
 def load_env_settings():
 
   try:
-    env_path = os.path.join(os.path.dirname(__file__), '.env')
+    env_path = os.path.join(os.path.dirname(__file__), self.env_file)
     if os.path.exists(env_path):
         # if we see the .env file, load it
         load_dotenv()

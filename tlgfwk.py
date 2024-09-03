@@ -178,13 +178,13 @@ class TlgBotFwk(Application):
                     # self.bot_owner = int(input_with_timeout("You have 30 sec. to enter the bot owner id: ", 30))
                     self.bot_owner = int(input_with_timeout("You have 30 sec. to enter the bot owner id: ", 30))
                     # clear entire .env file
-                    os.remove('.env')
-                    open('.env', 'w').close()
-                    dotenv.set_key('.env', 'DEFAULT_BOT_TOKEN', self.token)
-                    # dotenv.set_key('.env', 'DEFAULT_BOT_OWNER', int(self.bot_owner)) 
+                    os.remove(self.env_file)
+                    open(self.env_file, 'w').close()
+                    dotenv.set_key(self.env_file, 'DEFAULT_BOT_TOKEN', self.token)
+                    # dotenv.set_key(self.env_file, 'DEFAULT_BOT_OWNER', int(self.bot_owner)) 
                     self.add_or_update_env_setting('DEFAULT_BOT_OWNER', self.bot_owner)
                     
-                    dotenv.load_dotenv('.env')
+                    dotenv.load_dotenv(self.env_file)
                                        
                     return True
                 
@@ -247,18 +247,18 @@ class TlgBotFwk(Application):
             
             # update the .env file with the encrypted token
             self.encrypted_token = encrypt(self.token, self.encrypt_byte_key).decode()
-            dotenv.set_key('.env', 'ENCRYPTED_BOT_TOKEN', self.encrypted_token) 
+            dotenv.set_key(self.env_file, 'ENCRYPTED_BOT_TOKEN', self.encrypted_token) 
             
             # update the .env file with the encrypted bot owner and the key
             self.encrypted_bot_owner = encrypt(str(self.bot_owner), self.encrypt_byte_key).decode()
-            dotenv.set_key('.env', 'ENCRYPTED_BOT_OWNER', self.encrypted_bot_owner) 
+            dotenv.set_key(self.env_file, 'ENCRYPTED_BOT_OWNER', self.encrypted_bot_owner) 
             
             # save the new encryption key to the .env file
-            dotenv.set_key('.env', 'ENCRYPT_KEY', self.encrypt_ascii_key) 
+            dotenv.set_key(self.env_file, 'ENCRYPT_KEY', self.encrypt_ascii_key) 
             
             # remove the decrypted token and the bot owner from the .env file
-            dotenv.unset_key('.env', 'DEFAULT_BOT_TOKEN')
-            dotenv.unset_key('.env', 'DEFAULT_BOT_OWNER')  
+            dotenv.unset_key(self.env_file, 'DEFAULT_BOT_TOKEN')
+            dotenv.unset_key(self.env_file, 'DEFAULT_BOT_OWNER')  
             
         else: 
             
@@ -316,7 +316,7 @@ _Path:_
         token: str = None,
         validate_token = True,
         quit_if_error = True,
-        env_file: str = None, 
+        env_file: str = '.env', 
         bot_owner: str = None, 
         bot_defaults_build = None, 
         disable_default_handlers = False,
@@ -325,19 +325,19 @@ _Path:_
         disable_encryption = True):
         
         try: 
-            self.env_file = env_file if env_file else '.env'
+            self.env_file = env_file 
             self.logger = logger 
             self.token = token if token else ''
             self.bot_owner = bot_owner if bot_owner else ''
 
             # Create an empty .env file at run time if it does not exist
-            if not os.path.exists('.env'):
-                open('.env', 'w').close() 
+            if not os.path.exists(self.env_file):
+                open(self.env_file, 'w').close() 
                 # and add en empty line with token and bot owner
-                dotenv.set_key('.env', 'DEFAULT_BOT_TOKEN',self.token)
-                # dotenv.set_key('.env', 'DEFAULT_BOT_OWNER',self.bot_owner)            
+                dotenv.set_key(self.env_file, 'DEFAULT_BOT_TOKEN',self.token)
+                # dotenv.set_key(self.env_file, 'DEFAULT_BOT_OWNER',self.bot_owner)            
             
-            dotenv.load_dotenv('.env')
+            dotenv.load_dotenv(self.env_file)
             self.token = os.environ.get('DEFAULT_BOT_TOKEN', None) if not self.token else self.token
             self.bot_owner = int(os.environ.get('DEFAULT_BOT_OWNER', 999999)) if not self.bot_owner else self.bot_owner           
             
@@ -363,7 +363,7 @@ _Path:_
             self.application = Application.builder().defaults(bot_defaults_build).token(self.token).post_init(self.post_init).post_stop(self.post_stop).build() 
             
             # save botname to .env file
-            dotenv.set_key('.env', 'BOT_NAME', self.bot_info.username)                       
+            dotenv.set_key(self.env_file, 'BOT_NAME', self.bot_info.username)                       
             
             self.initialize_handlers()
             
