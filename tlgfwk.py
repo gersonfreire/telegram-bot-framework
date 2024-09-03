@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-version = '0.1.9 * Create a show bot configuration command'
+version = '0.2.0'
 
 # ------------------------------------------
 
