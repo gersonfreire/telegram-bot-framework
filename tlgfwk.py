@@ -322,7 +322,7 @@ _Path:_
         disable_default_handlers = False,
         default_language_code = None,
         decrypt_key = None,
-        disable_encryption = False):
+        disable_encryption = True):
         
         try: 
             self.logger = logger 
@@ -577,6 +577,5 @@ _Path:_
         
 if __name__ == '__main__':
     
-    app = TlgBotFwk(disable_encryption=True)
-    
+    app = TlgBotFwk()    
     app.run()
