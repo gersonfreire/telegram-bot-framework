@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-version = '0.1.7 '
+version = '0.1.8 create encrypted .env file'
 
 # ------------------------------------------
 
