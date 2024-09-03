@@ -158,10 +158,6 @@ python tlgfwk.py
 * [ ] Add a way to get the bot log file
 * [ ] Add a way to get the bot log level
 
-# TODO: Show ebedded help html page
-
-# TODO: Show ebedded help html page
-
 ## ✍️ Authors
 
 - [@gersonfreire](https://github.com/kylelobo) - Idea & Initial work
