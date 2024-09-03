@@ -444,6 +444,10 @@ _Path:_
             stop_handler = CommandHandler('stop', self.stop_bot, filters=filters.User(user_id=self.bot_owner))
             self.application.add_handler(stop_handler)
             
+            # add handler for the /showconfig command to show the bot configuration settings
+            show_config_handler = CommandHandler('showconfig', self.cmd_show_config, filters=filters.User(user_id=self.bot_owner))
+            self.application.add_handler(show_config_handler)
+            
             self.application.add_handler(MessageHandler(filters.COMMAND, self.default_unknown_command))
             
         except Exception as e:
