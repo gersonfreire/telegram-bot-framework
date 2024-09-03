@@ -35,10 +35,9 @@ class TlgBotFwk(Application):
 _Bot Name:_ `{self.bot_name}`
 _Bot Owner:_ `{self.bot_owner}`
 _Default Language Code:_ `{self.default_language_code}`
-_Encryption Key:_ `{self.encrypt_ascii_key}`
-_Encrypted Token:_ `{self.encrypted_token}`
-_Encrypted Bot Owner:_ `{self.encrypted_bot_owner}`
 _Decrypted Token:_ `{self.token}`"""
+# _Encrypted Token:_ `{self.encrypted_token}`
+# _Encrypted Bot Owner:_ `{self.encrypted_bot_owner}`
 
             await update.message.reply_text(self.show_config_message, parse_mode=ParseMode.MARKDOWN)
             
