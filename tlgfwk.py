@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-version = '0.2.1 List of admin users ids with same owner privileges'
+version = '0.2.2 Version command'
 
 # ------------------------------------------
 

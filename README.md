@@ -131,7 +131,7 @@ python tlgfwk.py
 
 ## TODOs:
 
-* [X] Last Stable Version: 0.2.0 *✓*
+* [X] Last Stable Version: 0.2.1 *✓*
 * [X] Deploy a demo instance - Bot running on [Demo Bot](https://t.me/TecVitoriaBot) ✓
 * [X] Add handlers to telegram menu commands ✓
 * [X] Auto-update by git pull ✓
@@ -143,6 +143,7 @@ python tlgfwk.py
 * [X] Encrypt .env fixed ✓
 * [X] Show start message at bot start to owner ✓
 * [X] Create a show bot configuration command ✓
+* [X] Version command ✓
 * [ ] List of admin users ids with same owner privileges
 * [ ] Show embedded help html page
 * [ ] Create a command to encrypt and decrypt strings
