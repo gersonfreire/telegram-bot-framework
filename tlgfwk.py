@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-version = '0.2.2 Version command'
+version = '0.2.3 Add admin users manage commands'
 
 # ------------------------------------------
 

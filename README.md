@@ -144,6 +144,7 @@ python tlgfwk.py
 * [X] Show start message at bot start to owner ✓
 * [X] Create a show bot configuration command ✓
 * [X] Version command ✓
+* [ ] Add admin users manage commands
 * [ ] List of admin users ids with same owner privileges
 * [ ] Show embedded help html page
 * [ ] Create a command to encrypt and decrypt strings
