@@ -141,6 +141,7 @@ python tlgfwk.py
 * [X] Create an empty .env file at run time if it does not exist ✓
 * [X] Ask the bot owner to input a token in case the token is not valid ✓
 * [X] Encrypt .env fixed ✓
+* [X] Show start message at bot start to owner ✓
 * [X] Create a show bot configuration command ✓
 * [ ] List of admin users ids with same owner privileges
 * [ ] Show embedded help html page

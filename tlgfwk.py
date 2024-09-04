@@ -13,6 +13,41 @@ class TlgBotFwk(Application):
     
     # ------------------------------------------
     
+    async def set_start_message(self, language_code:str, full_name:str, user_id:int): #, update, context):
+        try:
+            # language_code = context.user_data.get('language_code', update.effective_user.language_code)                           
+            self.default_start_message = translations.get_translated_message(language_code, 'start_message', 'en', full_name, self.application.bot.name, self.application.bot.first_name)
+            
+            if self.bot_owner and user_id == self.bot_owner:                          
+                self.default_start_message += f"{os.linesep}{os.linesep}_You are the bot Owner:_` {self.bot_owner}`"
+                self.default_start_message += f"{os.linesep}_User language code:_ `{language_code}`"
+                self.default_start_message += f"{os.linesep}_Default language code:_ `{self.default_language_code}`"
+            
+                # language_code = context.user_data.get('language_code', update.effective_user.language_code)
+                self.default_start_message += f"{os.linesep}{os.linesep}{await self.get_help_text(language_code, user_id)}"
+        
+        except Exception as e:
+            logger.error(f"Error in set_start_message: {e}")
+            return f'Sorry, we encountered an error: {e}'            
+    
+    async def set_admin_commands(self):
+        """Set the admin commands to the bot menu
+
+        Args:
+            bot (_type_): _description_
+            admin_id_list (_type_): _description_
+            admin_commands (_type_): _description_
+        """
+        
+        try:
+            # for all admin users set the scope of the commands to chat_id
+            for admin_id in self.admin_id_list:
+                await self.application.bot.set_my_commands(self.all_commands, scope={'type': 'chat', 'chat_id': admin_id})
+                
+        except Exception as e:
+            logger.error(f"Error setting admin commands: {e}")
+            return f'Sorry, we have a problem setting admin commands: {e}'
+    
     async def send_admins_message(self, message: str, *args, **kwargs):
         """Send a message to all admin users
 
@@ -22,7 +57,7 @@ class TlgBotFwk(Application):
         
         try:
             # send message to all admin users
-            for admin_id in self.admin_id_list:
+            for admin_id in self.admins_owner:
                 await self.application.bot.send_message(chat_id=admin_id, text=message)
             
         except Exception as e:
@@ -117,11 +152,10 @@ _Decrypted Token:_ `{self.token}`"""
             _type_: _description_
         """
         
-        try:            
-            await self.application.bot.set_my_commands([], scope={'type': 'chat', 'chat_id': self.bot_owner})
-            
-            # for all admin users set the scope of the commands to chat_id
-            await self.send_admins_message(self, self.application.bot, self.admin_id_list, self.bot_owner, self.admin_commands)
+        try: 
+            # clear admin commands           
+            await self.application.bot.set_my_commands([], scope={'type': 'chat', 'chat_id': self.bot_owner})            
+            await self.set_admin_commands()
                 
             # get all commands from bot commands menu scope=BotCommandScopeDefault()
             self.common_users_commands = await self.application.bot.get_my_commands()
@@ -170,10 +204,10 @@ _Decrypted Token:_ `{self.token}`"""
             await self.application.bot.set_my_commands(self.common_users_commands)
             
             # concatenate tuples of admin and user commands                       
-            await self.application.bot.set_my_commands(self.all_commands, scope={'type': 'chat', 'chat_id': self.bot_owner}) 
+            await self.application.bot.set_my_commands(self.all_commands, scope={'type': 'chat', 'chat_id': self.bot_owner})
             
             # for all admin users set the scope of the commands to chat_id
-            await self.send_admins_message(self, self.application.bot, self.admin_id_list, self.bot_owner, self.admin_commands)  
+            await self.set_admin_commands()
             
             # double check
             self.common_users_commands = await self.application.bot.get_my_commands()
@@ -312,23 +346,24 @@ _Decrypted Token:_ `{self.token}`"""
         try:
             self.bot_name = application.bot.username
             
-            start_message = f"""@{self.bot_name} *Started!*
+            post_init_message = f"""@{self.bot_name} *Started!*
 _Version:_   `{version}`
 _Host:_     `{hostname}`
 _CWD:_ `{os.getcwd()}`
 _Path:_
 `{main_script_path}`"""    
-            logger.info(f"{start_message}")  
+            logger.info(f"{post_init_message}")  
+            
+            await self.set_start_message(self.default_language_code, 'Admin', self.admins_owner[0])
+            post_init_message += f"{os.linesep}{os.linesep}{self.default_start_message}"
 
             current_commands = await application.bot.get_my_commands(scope=BotCommandScopeAllPrivateChats())
             logger.info(f"Get Current commands: {current_commands}")    
             current_commands = await application.bot.get_my_commands(scope=BotCommandScopeDefault())
             logger.info(f"Get Current commands: {current_commands}") 
             
-            await application.bot.send_message(chat_id=self.bot_owner, text=f"{start_message}", parse_mode=ParseMode.MARKDOWN)
-            
             # for all admin users set the scope of the commands to chat_id
-            await self.send_admins_message(self, self.application.bot, self.admin_id_list, self.bot_owner, self.admin_commands)
+            await self.send_admins_message(message=post_init_message)
             
         except Exception as e:
             logger.error(f"Error: {e}")
@@ -339,6 +374,8 @@ _Path:_
             stop_message = f"_STOPPING_ @{self.bot_name} {os.linesep}`{hostname}`{os.linesep}`{__file__}` {bot_version}..."
             logger.info(stop_message)
             await application.bot.send_message(chat_id=self.bot_owner, text=f"{stop_message}", parse_mode=ParseMode.MARKDOWN)
+            
+            await self.send_admins_message(message=stop_message)
             
         except Exception as e:
             logger.error(f"Error: {e}")
@@ -376,7 +413,10 @@ _Path:_
             
             dotenv.load_dotenv(self.env_file)
             self.token = os.environ.get('DEFAULT_BOT_TOKEN', None) if not self.token else self.token
-            self.bot_owner = int(os.environ.get('DEFAULT_BOT_OWNER', 999999)) if not self.bot_owner else self.bot_owner           
+            self.bot_owner = int(os.environ.get('DEFAULT_BOT_OWNER', 999999)) if not self.bot_owner else self.bot_owner 
+            
+            # Set attribute of main class with a concatenated list of bot owner and admin users
+            self.admins_owner = [self.bot_owner] + self.admin_id_list                      
             
             if validate_token:            
                 self.validate_token(self.token, quit_if_error)  
@@ -429,7 +469,7 @@ _Path:_
                 self.logger.info("Default handlers disabled")
             
             # handler for the /lang command to set the default language code
-            set_language_code_handler = CommandHandler('lang', self.set_default_language, filters=filters.User(user_id=self.bot_owner))
+            set_language_code_handler = CommandHandler('lang', self.set_default_language, filters=filters.User(user_id=self.admins_owner))
             self.application.add_handler(set_language_code_handler)
             
             # add handler for the /userlang command to set the user language code
@@ -437,19 +477,19 @@ _Path:_
             self.application.add_handler(set_user_language_handler)
             
             # add handler for the /git command to update the bot's code from a git repository
-            git_handler = CommandHandler('git', self.cmd_git, filters=filters.User(user_id=self.bot_owner))
+            git_handler = CommandHandler('git', self.cmd_git, filters=filters.User(user_id=self.admins_owner))
             self.application.add_handler(git_handler)
             
             # add handler for the /restart command to restart the bot
-            restart_handler = CommandHandler('restart', self.restart_bot, filters=filters.User(user_id=self.bot_owner))
+            restart_handler = CommandHandler('restart', self.restart_bot, filters=filters.User(user_id=self.admins_owner))
             self.application.add_handler(restart_handler)
             
             # add handler for the /stop command to stop the bot
-            stop_handler = CommandHandler('stop', self.stop_bot, filters=filters.User(user_id=self.bot_owner))
+            stop_handler = CommandHandler('stop', self.stop_bot, filters=filters.User(user_id=self.admins_owner))
             self.application.add_handler(stop_handler)
             
             # add handler for the /showconfig command to show the bot configuration settings
-            show_config_handler = CommandHandler('showconfig', self.cmd_show_config, filters=filters.User(user_id=self.bot_owner))
+            show_config_handler = CommandHandler('showconfig', self.cmd_show_config, filters=filters.User(user_id=self.admins_owner))
             self.application.add_handler(show_config_handler)
             
             self.application.add_handler(MessageHandler(filters.COMMAND, self.default_unknown_command))
@@ -511,20 +551,19 @@ _Path:_
     @with_log_admin
     async def default_start_handler(self, update: Update, context: CallbackContext, *args, **kwargs):
         
-        try:
-            # self.all_users_commands = await self.application.bot.get_my_commands()
-            # self.admin_commands = await self.application.bot.get_my_commands(scope=BotCommandScopeChat(chat_id=update.effective_user.id))
-                        
-            language_code = context.user_data.get('language_code', update.effective_user.language_code)                           
-            self.default_start_message = translations.get_translated_message(language_code, 'start_message', 'en', update.effective_user.full_name, self.application.bot.name, self.application.bot.first_name)
+        try:                        
+            # language_code = context.user_data.get('language_code', update.effective_user.language_code)                           
+            # self.default_start_message = translations.get_translated_message(language_code, 'start_message', 'en', update.effective_user.full_name, self.application.bot.name, self.application.bot.first_name)
             
-            if self.bot_owner and update.effective_user.id == self.bot_owner:                          
-                self.default_start_message += f"{os.linesep}{os.linesep}_You are the bot Owner:_` {self.bot_owner}`"
-                self.default_start_message += f"{os.linesep}_User language code:_ `{context.user_data.get('language_code', update.effective_user.language_code)}`"
-                self.default_start_message += f"{os.linesep}_Default language code:_ `{self.default_language_code}`"
+            # if self.bot_owner and update.effective_user.id == self.bot_owner:                          
+            #     self.default_start_message += f"{os.linesep}{os.linesep}_You are the bot Owner:_` {self.bot_owner}`"
+            #     self.default_start_message += f"{os.linesep}_User language code:_ `{context.user_data.get('language_code', update.effective_user.language_code)}`"
+            #     self.default_start_message += f"{os.linesep}_Default language code:_ `{self.default_language_code}`"
             
-                language_code = context.user_data.get('language_code', update.effective_user.language_code)
-                self.default_start_message += f"{os.linesep}{os.linesep}{await self.get_help_text(language_code, update.effective_user.id)}"
+            #     language_code = context.user_data.get('language_code', update.effective_user.language_code)
+            #     self.default_start_message += f"{os.linesep}{os.linesep}{await self.get_help_text(language_code, update.effective_user.id)}"
+            
+            await self.set_start_message(update.effective_user.language_code, update.effective_user.full_name, update.effective_user.id)
                 
             await update.message.reply_text(self.default_start_message.format(update.effective_user.first_name))
                 
