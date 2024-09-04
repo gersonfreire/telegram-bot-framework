@@ -508,7 +508,7 @@ _Decrypted Token:_ `{self.token}`"""
             self.application.add_handler(version_handler)
             
             # add admin manage command handler
-            admin_manage_handler = CommandHandler('admin', self.cmd_admin_manage, filters=filters.User(user_id=self.admins_owner))
+            admin_manage_handler = CommandHandler('admin', self.cmd_manage_admin, filters=filters.User(user_id=self.admins_owner))
             self.application.add_handler(admin_manage_handler)
             
             self.application.add_handler(MessageHandler(filters.COMMAND, self.default_unknown_command))
@@ -521,7 +521,7 @@ _Decrypted Token:_ `{self.token}`"""
     
     @with_writing_action
     @with_log_admin
-    async def cmd_admin_manage(self, update: Update, context: CallbackContext, *args, **kwargs):
+    async def cmd_manage_admin(self, update: Update, context: CallbackContext, *args, **kwargs):
         """Manage the admin users of the bot
 
         Args:
@@ -539,6 +539,10 @@ _Decrypted Token:_ `{self.token}`"""
                     await update.message.reply_text(f"_Admin user added:_ `{admin_user_id}`")
                 else:
                     await update.message.reply_text(f"_Admin user already exists:_ `{admin_user_id}`")
+                    
+            else:
+                await update.message.reply_text(f"_Admin users:_ `{self.admin_id_list}`")        
+            
             
         except Exception as e:
             logger.error(f"Error: {e}")
