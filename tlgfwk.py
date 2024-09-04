@@ -507,13 +507,42 @@ _Decrypted Token:_ `{self.token}`"""
             version_handler = CommandHandler('version', self.cmd_version_handler, filters=filters.User(user_id=self.admins_owner))
             self.application.add_handler(version_handler)
             
+            # add admin manage command handler
+            admin_manage_handler = CommandHandler('admin', self.cmd_admin_manage, filters=filters.User(user_id=self.admins_owner))
+            self.application.add_handler(admin_manage_handler)
+            
             self.application.add_handler(MessageHandler(filters.COMMAND, self.default_unknown_command))
             
         except Exception as e:
             logger.error(f"Error initializing handlers: {e}")
             return f'Sorry, we have a problem initializing handlers: {e}'
       
-    # -------- Default command handlers --------   
+    # -------- Default command handlers -------- 
+    
+    @with_writing_action
+    @with_log_admin
+    async def cmd_admin_manage(self, update: Update, context: CallbackContext, *args, **kwargs):
+        """Manage the admin users of the bot
+
+        Args:
+            update (Update): _description_
+            context (CallbackContext): _description_
+        """
+        
+        try:
+            if len(update.message.text.split(' ')) > 1:
+                admin_user_id = int(update.message.text.split(' ')[1])
+                
+                if admin_user_id not in self.admin_id_list:
+                    self.admin_id_list.append(admin_user_id)
+                    await self.set_admin_commands()
+                    await update.message.reply_text(f"_Admin user added:_ `{admin_user_id}`")
+                else:
+                    await update.message.reply_text(f"_Admin user already exists:_ `{admin_user_id}`")
+            
+        except Exception as e:
+            logger.error(f"Error: {e}")
+            await update.message.reply_text(f"An error occurred: {e}")  
     
     @with_writing_action
     @with_log_admin
