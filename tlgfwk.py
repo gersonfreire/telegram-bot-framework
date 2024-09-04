@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-version = '0.2.0'
+version = '0.2.1 List of admin users ids with same owner privileges'
 
 # ------------------------------------------
 
@@ -13,6 +13,22 @@ class TlgBotFwk(Application):
     
     # ------------------------------------------
     
+    async def send_admins_message(self, message: str, *args, **kwargs):
+        """Send a message to all admin users
+
+        Args:
+            message (str): _description_
+        """
+        
+        try:
+            # send message to all admin users
+            for admin_id in self.admin_id_list:
+                await self.application.bot.send_message(chat_id=admin_id, text=message)
+            
+        except Exception as e:
+            logger.error(f"Error sending message to admin users: {e}")
+            return f'Sorry, we have a problem sending message to admin users: {e}'
+    
     async def cmd_show_config(self, update: Update, context: CallbackContext, *args, **kwargs):
         """Show the bot configuration settings
 
@@ -21,19 +37,11 @@ class TlgBotFwk(Application):
             context (CallbackContext): _description_
         """
         
-        try:
-            # self.bot_name = self.application.bot.username
-            # self.bot_owner = int(os.environ.get('DEFAULT_BOT_OWNER', None))
-            # self.default_language_code = os.environ.get('DEFAULT_LANGUAGE_CODE', 'en-US')
-            # self.encrypt_ascii_key = os.environ.get('ENCRYPT_KEY', None)
-            # self.encrypt_byte_key = base64.urlsafe_b64decode(self.encrypt_ascii_key.encode())
-            # self.encrypted_token = os.environ.get('ENCRYPTED_BOT_TOKEN', None)
-            # self.encrypted_bot_owner = os.environ.get('ENCRYPTED_BOT_OWNER', None)
-            # self.token = self.check_encrypt(self.encrypted_token, self.encrypted_bot_owner, self.encrypt_byte_key)
-            
+        try:            
             self.show_config_message = f"""*Bot Configuration Settings*{os.linesep}
 _Bot Name:_ `{self.bot_name}`
 _Bot Owner:_ `{self.bot_owner}`
+_Bot Admins:_ `{self.admin_id_list if self.admin_id_list else ''}`
 _Default Language Code:_ `{self.default_language_code}`
 _Decrypted Token:_ `{self.token}`"""
 # _Encrypted Token:_ `{self.encrypted_token}`
@@ -109,24 +117,13 @@ _Decrypted Token:_ `{self.token}`"""
             _type_: _description_
         """
         
-        try:
-            # Define the commands you want to set for the user
-            # commands = [
-            #     BotCommand(command='ok', description='Start the bot'),
-            #     BotCommand(command='ok2', description='Get help')
-            # ]
-
-            # # Set the commands for the specific user
-            # await self.application.bot.set_my_commands(commands=commands, scope={'type': 'chat', 'chat_id': self.bot_owner})
-
-            # # Get the commands for the specific user
-            # user_commands = await self.application.bot.get_my_commands(scope={'type': 'chat', 'chat_id': self.bot_owner})
-            
-            # first, delete all remaining old commands from previous runs
-            # await self.application.bot.set_my_commands([], scope=BotCommandScopeDefault())
+        try:            
             await self.application.bot.set_my_commands([], scope={'type': 'chat', 'chat_id': self.bot_owner})
+            
+            # for all admin users set the scope of the commands to chat_id
+            await self.send_admins_message(self, self.application.bot, self.admin_id_list, self.bot_owner, self.admin_commands)
                 
-            # get all commands from bot commands menu
+            # get all commands from bot commands menu scope=BotCommandScopeDefault()
             self.common_users_commands = await self.application.bot.get_my_commands()
             self.all_commands = await self.application.bot.get_my_commands(scope={'type': 'chat', 'chat_id': self.bot_owner})
             self.admin_commands = tuple()
@@ -173,7 +170,10 @@ _Decrypted Token:_ `{self.token}`"""
             await self.application.bot.set_my_commands(self.common_users_commands)
             
             # concatenate tuples of admin and user commands                       
-            await self.application.bot.set_my_commands(self.all_commands, scope={'type': 'chat', 'chat_id': self.bot_owner})    
+            await self.application.bot.set_my_commands(self.all_commands, scope={'type': 'chat', 'chat_id': self.bot_owner}) 
+            
+            # for all admin users set the scope of the commands to chat_id
+            await self.send_admins_message(self, self.application.bot, self.admin_id_list, self.bot_owner, self.admin_commands)  
             
             # double check
             self.common_users_commands = await self.application.bot.get_my_commands()
@@ -327,6 +327,9 @@ _Path:_
             
             await application.bot.send_message(chat_id=self.bot_owner, text=f"{start_message}", parse_mode=ParseMode.MARKDOWN)
             
+            # for all admin users set the scope of the commands to chat_id
+            await self.send_admins_message(self, self.application.bot, self.admin_id_list, self.bot_owner, self.admin_commands)
+            
         except Exception as e:
             logger.error(f"Error: {e}")
 
@@ -354,13 +357,15 @@ _Path:_
         disable_default_handlers = False,
         default_language_code = None,
         decrypt_key = None,
-        disable_encryption = True):
+        disable_encryption = True,
+        admin_id_list: list[int] = None):
         
         try: 
             self.env_file = env_file 
             self.logger = logger 
             self.token = token if token else ''
             self.bot_owner = bot_owner if bot_owner else ''
+            self.admin_id_list = admin_id_list if admin_id_list else []
 
             # Create an empty .env file at run time if it does not exist
             if not os.path.exists(self.env_file):

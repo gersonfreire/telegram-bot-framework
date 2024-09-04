@@ -131,7 +131,7 @@ python tlgfwk.py
 
 ## TODOs:
 
-* [X] Last Stable Version: 0.1.9 *✓*
+* [X] Last Stable Version: 0.2.0 *✓*
 * [X] Deploy a demo instance - Bot running on [Demo Bot](https://t.me/TecVitoriaBot) ✓
 * [X] Add handlers to telegram menu commands ✓
 * [X] Auto-update by git pull ✓
@@ -141,7 +141,8 @@ python tlgfwk.py
 * [X] Create an empty .env file at run time if it does not exist ✓
 * [X] Ask the bot owner to input a token in case the token is not valid ✓
 * [X] Encrypt .env fixed ✓
-* [ ] Create a show bot configuration command
+* [X] Create a show bot configuration command ✓
+* [ ] List of admin users ids with same owner privileges
 * [ ] Show embedded help html page
 * [ ] Create a command to encrypt and decrypt strings
 * [ ] Add a way to save the bot token for next run
