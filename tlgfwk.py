@@ -57,7 +57,7 @@ _Path:_
         
         try:
             # for all admin users set the scope of the commands to chat_id
-            for admin_id in self.admin_id_list:
+            for admin_id in self.admins_owner:
                 await self.application.bot.set_my_commands(self.all_commands, scope={'type': 'chat', 'chat_id': admin_id})
                 
         except Exception as e:
@@ -531,17 +531,17 @@ _Decrypted Token:_ `{self.token}`"""
         
         try:
             if len(update.message.text.split(' ')) > 1:
-                admin_user_id = int(update.message.text.split(' ')[1])
+                owner_list = int(update.message.text.split(' ')[1])
                 
-                if admin_user_id not in self.admin_id_list:
-                    self.admin_id_list.append(admin_user_id)
+                if owner_list not in self.admins_owner:
+                    self.admins_owner.append(owner_list)
                     await self.set_admin_commands()
-                    await update.message.reply_text(f"_Admin user added:_ `{admin_user_id}`")
+                    await update.message.reply_text(f"_Admin user added:_ `{owner_list}`")
                 else:
-                    await update.message.reply_text(f"_Admin user already exists:_ `{admin_user_id}`")
+                    await update.message.reply_text(f"_Admin user already exists:_ `{owner_list}`")
                     
             else:
-                await update.message.reply_text(f"_Admin users:_ `{self.admin_id_list}`")        
+                await update.message.reply_text(f"_Admin users:_ `{self.admins_owner}`")        
             
             
         except Exception as e:
