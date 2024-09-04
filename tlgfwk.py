@@ -615,17 +615,7 @@ _Decrypted Token:_ `{self.token}`"""
     @with_log_admin
     async def default_start_handler(self, update: Update, context: CallbackContext, *args, **kwargs):
         
-        try:                        
-            # language_code = context.user_data.get('language_code', update.effective_user.language_code)                           
-            # self.default_start_message = translations.get_translated_message(language_code, 'start_message', 'en', update.effective_user.full_name, self.application.bot.name, self.application.bot.first_name)
-            
-            # if self.bot_owner and update.effective_user.id == self.bot_owner:                          
-            #     self.default_start_message += f"{os.linesep}{os.linesep}_You are the bot Owner:_` {self.bot_owner}`"
-            #     self.default_start_message += f"{os.linesep}_User language code:_ `{context.user_data.get('language_code', update.effective_user.language_code)}`"
-            #     self.default_start_message += f"{os.linesep}_Default language code:_ `{self.default_language_code}`"
-            
-            #     language_code = context.user_data.get('language_code', update.effective_user.language_code)
-            #     self.default_start_message += f"{os.linesep}{os.linesep}{await self.get_help_text(language_code, update.effective_user.id)}"
+        try:              
             
             await self.set_start_message(update.effective_user.language_code, update.effective_user.full_name, update.effective_user.id)
                 
