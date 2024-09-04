@@ -11,7 +11,23 @@ import translations.translations as translations
 
 class TlgBotFwk(Application):
     
-    # ------------------------------------------
+    # ------------- util functions ------------------
+    
+    async def get_init_message(self): 
+        try:
+            post_init_message = f"""@{self.bot_name} *Started!*
+_Version:_   `{version}`
+_Host:_     `{hostname}`
+_CWD:_ `{os.getcwd()}`
+_Path:_
+`{main_script_path}`"""    
+            logger.info(f"{post_init_message}")  
+            
+            return post_init_message
+
+        except Exception as e:
+            logger.error(f"Error in get_init_message: {e}")
+            return f'Sorry, we encountered an error: {e}'
     
     async def set_start_message(self, language_code:str, full_name:str, user_id:int): #, update, context):
         try:
@@ -339,22 +355,18 @@ _Decrypted Token:_ `{self.token}`"""
             self.token = decrypt(self.encrypted_token, self.encrypt_byte_key)
             self.bot_owner = int(decrypt(str(self.encrypted_bot_owner), self.encrypt_byte_key)) 
     
-    # ------------------------------------------
+    # --------------- Init stop bot event handlers--------------------
 
     async def post_init(self, application: Application) -> None:   
 
         try:
             self.bot_name = application.bot.username
             
-            post_init_message = f"""@{self.bot_name} *Started!*
-_Version:_   `{version}`
-_Host:_     `{hostname}`
-_CWD:_ `{os.getcwd()}`
-_Path:_
-`{main_script_path}`"""    
-            logger.info(f"{post_init_message}")  
+            post_init_message = await self.get_init_message() 
+            logger.info(f"{post_init_message}") 
             
             await self.set_start_message(self.default_language_code, 'Admin', self.admins_owner[0])
+            
             post_init_message += f"{os.linesep}{os.linesep}{self.default_start_message}"
 
             current_commands = await application.bot.get_my_commands(scope=BotCommandScopeAllPrivateChats())
@@ -373,8 +385,7 @@ _Path:_
         try:
             stop_message = f"_STOPPING_ @{self.bot_name} {os.linesep}`{hostname}`{os.linesep}`{__file__}` {bot_version}..."
             logger.info(stop_message)
-            await application.bot.send_message(chat_id=self.bot_owner, text=f"{stop_message}", parse_mode=ParseMode.MARKDOWN)
-            
+                     
             await self.send_admins_message(message=stop_message)
             
         except Exception as e:
@@ -382,7 +393,7 @@ _Path:_
                 
         sys.exit(0)
 
-    # ------------------------------------------    
+    # ---------------- Bot constructor and initializers -------    
     
     def __init__(self, 
         token: str = None,
@@ -492,13 +503,33 @@ _Path:_
             show_config_handler = CommandHandler('showconfig', self.cmd_show_config, filters=filters.User(user_id=self.admins_owner))
             self.application.add_handler(show_config_handler)
             
+            # add version command handler
+            version_handler = CommandHandler('version', self.cmd_version_handler, filters=filters.User(user_id=self.admins_owner))
+            self.application.add_handler(version_handler)
+            
             self.application.add_handler(MessageHandler(filters.COMMAND, self.default_unknown_command))
             
         except Exception as e:
             logger.error(f"Error initializing handlers: {e}")
             return f'Sorry, we have a problem initializing handlers: {e}'
       
-    # -------- Default command handlers --------      
+    # -------- Default command handlers --------   
+    
+    @with_writing_action
+    @with_log_admin
+    async def cmd_version_handler(self, update: Update, context: CallbackContext, *args, **kwargs):
+        """Show the bot version
+
+        Args:
+            update (Update): _description_
+            context (CallbackContext): _description_
+        """
+        
+        try:
+            init_message = await self.get_init_message()
+            await update.message.reply_text(init_message)
+        except Exception as e:
+            logger.error(f"Error: {e}")
         
     @with_writing_action
     @with_log_admin 
