@@ -34,8 +34,9 @@ _Path:_
             # language_code = context.user_data.get('language_code', update.effective_user.language_code)                           
             self.default_start_message = translations.get_translated_message(language_code, 'start_message', 'en', full_name, self.application.bot.name, self.application.bot.first_name)
             
-            if self.bot_owner and user_id == self.bot_owner:                          
-                self.default_start_message += f"{os.linesep}{os.linesep}_You are the bot Owner:_` {self.bot_owner}`"
+            # if self.bot_owner and user_id == self.bot_owner:                          
+            if user_id in self.admins_owner:                          
+                self.default_start_message += f"{os.linesep}{os.linesep}_You are one of the bot admins:_` {self.admins_owner}`"
                 self.default_start_message += f"{os.linesep}_User language code:_ `{language_code}`"
                 self.default_start_message += f"{os.linesep}_Default language code:_ `{self.default_language_code}`"
             
