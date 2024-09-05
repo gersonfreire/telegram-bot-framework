@@ -428,7 +428,11 @@ _Decrypted Token:_ `{self.token}`"""
             self.bot_owner = int(os.environ.get('DEFAULT_BOT_OWNER', 999999)) if not self.bot_owner else self.bot_owner 
             
             # Set attribute of main class with a concatenated list of bot owner and admin users
-            self.admins_owner = [self.bot_owner] + self.admin_id_list                      
+            # self.admins_owner = [self.bot_owner] + self.admin_id_list        
+            # read list of admin users from the .env file
+            default_list = [self.bot_owner] + self.admin_id_list
+            default_str = ','.join(map(str, default_list))
+            self.admins_owner = [int(admin_id) for admin_id in os.environ.get('ADMIN_ID_LIST', default_str).split(',')]
             
             if validate_token:            
                 self.validate_token(self.token, quit_if_error)  
@@ -545,11 +549,12 @@ _Decrypted Token:_ `{self.token}`"""
                         self.admins_owner.remove(owner_list)
                         await self.set_admin_commands()
                         await update.message.reply_text(f"_Admin user removed:_ `{owner_list}`")
-                    # await update.message.reply_text(f"_Admin user already exists:_ `{owner_list}`")
-                    
+
+                # dotenv.set_key(self.env_file, 'ADMIN_ID_LIST', self.admins_owner)
+                dotenv.set_key(self.env_file, 'ADMIN_ID_LIST', ','.join(map(str, self.admins_owner)))
+                                    
             else:
-                await update.message.reply_text(f"_Admin users:_ `{self.admins_owner}`")        
-            
+                await update.message.reply_text(f"_Admin users:_ `{self.admins_owner}`")                  
             
         except Exception as e:
             logger.error(f"Error: {e}")
