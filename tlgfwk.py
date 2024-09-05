@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-version = '0.2.3 Add admin users manage commands'
+version = '0.2.4 Delete admin users'
 
 # ------------------------------------------
 
@@ -539,7 +539,13 @@ _Decrypted Token:_ `{self.token}`"""
                     await self.set_admin_commands()
                     await update.message.reply_text(f"_Admin user added:_ `{owner_list}`")
                 else:
-                    await update.message.reply_text(f"_Admin user already exists:_ `{owner_list}`")
+                    if owner_list == self.bot_owner:
+                        await update.message.reply_text(f"_Bot owner cannot be removed:_ `{owner_list}`")
+                    else:
+                        self.admins_owner.remove(owner_list)
+                        await self.set_admin_commands()
+                        await update.message.reply_text(f"_Admin user removed:_ `{owner_list}`")
+                    # await update.message.reply_text(f"_Admin user already exists:_ `{owner_list}`")
                     
             else:
                 await update.message.reply_text(f"_Admin users:_ `{self.admins_owner}`")        
