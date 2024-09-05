@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-version = '0.2.6 Save admin list to .env'
+version = '0.2.7 TODO: Add command to list useful links as Github repository of Bot'
 
 # ------------------------------------------
 
