@@ -407,7 +407,8 @@ _Decrypted Token:_ `{self.token}`"""
         default_language_code = None,
         decrypt_key = None,
         disable_encryption = True,
-        admin_id_list: list[int] = None):
+        admin_id_list: list[int] = None,
+        links: list[str] = None):
         
         try: 
             self.env_file = env_file 
@@ -426,9 +427,7 @@ _Decrypted Token:_ `{self.token}`"""
             dotenv.load_dotenv(self.env_file)
             self.token = os.environ.get('DEFAULT_BOT_TOKEN', None) if not self.token else self.token
             self.bot_owner = int(os.environ.get('DEFAULT_BOT_OWNER', 999999)) if not self.bot_owner else self.bot_owner 
-            
-            # Set attribute of main class with a concatenated list of bot owner and admin users
-            # self.admins_owner = [self.bot_owner] + self.admin_id_list        
+                 
             # read list of admin users from the .env file
             default_list = [self.bot_owner] + self.admin_id_list
             default_str = ','.join(map(str, default_list))
@@ -449,6 +448,10 @@ _Decrypted Token:_ `{self.token}`"""
             self.default_language_code = os.environ.get('DEFAULT_LANGUAGE_CODE', 'en-US') if not default_language_code else default_language_code
             
             self.disable_default_handlers = os.environ.get('DISABLE_DEFAULT_HANDLERS', False) if not disable_default_handlers else disable_default_handlers
+            
+            default_list=[] if not links else links
+            self.useful_links = os.environ.get('USEFUL_LINKS', None)
+            self.useful_links = self.useful_links.split(',') if self.useful_links else default_list 
             
             self.bot_defaults_build = bot_defaults_build
             
@@ -516,13 +519,47 @@ _Decrypted Token:_ `{self.token}`"""
             admin_manage_handler = CommandHandler('admin', self.cmd_manage_admin, filters=filters.User(user_id=self.admins_owner))
             self.application.add_handler(admin_manage_handler)
             
+            # add useful links command handler
+            useful_links_handler = CommandHandler('links', self.cmd_manage_links, filters=filters.User(user_id=self.admins_owner))
+            self.application.add_handler(useful_links_handler)
+            
             self.application.add_handler(MessageHandler(filters.COMMAND, self.default_unknown_command))
             
         except Exception as e:
             logger.error(f"Error initializing handlers: {e}")
             return f'Sorry, we have a problem initializing handlers: {e}'
       
-    # -------- Default command handlers -------- 
+    # -------- Default command handlers --------
+    
+    @with_writing_action
+    @with_log_admin
+    async def cmd_manage_links(self, update: Update, context: CallbackContext) :
+        """Manage the useful links of the bot
+
+        Args:
+            update (Update): _description_
+            context (CallbackContext): _description_
+        """
+        
+        try:
+            if len(update.message.text.split(' ')) > 1:
+                link = update.message.text.split(' ')[1]
+                
+                if link not in self.useful_links:
+                    self.useful_links.append(link)
+                    await update.message.reply_text(f"_Link added:_ `{link}`")
+                else:
+                    self.useful_links.remove(link)
+                    await update.message.reply_text(f"_Link removed:_ `{link}`")
+                
+                dotenv.set_key(self.env_file, 'USEFUL_LINKS', ','.join(self.useful_links))
+                
+            else:
+                await update.message.reply_text(f"_Useful links:_ `{self.useful_links}`")
+            
+        except Exception as e:
+            logger.error(f"Error: {e}")
+            await update.message.reply_text(f"An error occurred: {e}")
     
     @with_writing_action
     @with_log_admin
