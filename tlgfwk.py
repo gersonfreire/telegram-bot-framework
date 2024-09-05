@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-version = '0.2.4 Delete admin users'
+version = '0.2.5 Save admin list to .env'
 
 # ------------------------------------------
 

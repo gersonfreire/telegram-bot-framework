@@ -146,6 +146,7 @@ python tlgfwk.py
 * [X] Version command ✓
 * [X] Add admin users manage commands ✓
 * [X] Delete admin users ✓
+* [ ] Save admin list to .env
 * [ ] List of admin users ids with same owner privileges
 * [ ] Show embedded help html page
 * [ ] Create a command to encrypt and decrypt strings
