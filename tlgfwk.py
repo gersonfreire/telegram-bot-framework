@@ -170,14 +170,13 @@ _Decrypted Token:_ `{self.token}`"""
         """
         
         try: 
-            # clear admin commands           
-            await self.application.bot.set_my_commands([], scope={'type': 'chat', 'chat_id': self.bot_owner})            
+            # set admin commands        
             await self.set_admin_commands()
                 
             # get all commands from bot commands menu scope=BotCommandScopeDefault()
             self.common_users_commands = await self.application.bot.get_my_commands()
-            self.all_commands = await self.application.bot.get_my_commands(scope={'type': 'chat', 'chat_id': self.bot_owner})
-            self.admin_commands = tuple()
+            self.admin_commands = await self.application.bot.get_my_commands(scope={'type': 'chat', 'chat_id': self.admins_owner[0]}) if self.admins_owner else []
+            self.all_commands = tuple(list(self.common_users_commands) + list(self.admin_commands))
             
             language_code = self.default_language_code if not language_code else language_code
             
@@ -194,7 +193,7 @@ _Decrypted Token:_ `{self.token}`"""
                 try:
                     if command_name not in [bot_command.command for bot_command in self.common_users_commands]:
                         if command_data['is_admin']:
-                            if current_user_id and (command_data['user_allowed'] == current_user_id): # self.bot_owner:
+                            if current_user_id in self.admins_owner:
                                 self.help_text += f"/{command_name} - {command_data['command_description']}{os.linesep}"
                                 
                                 # add command got from command handler to telegram menu commands only to specific admin user
@@ -239,7 +238,7 @@ _Decrypted Token:_ `{self.token}`"""
     def validate_token(self, token: str = None, quit_if_error = True, input_token = True):
         
         self.token_validated = False
-        self.bot_info = None
+        self.bot_info = None       
         
         try:           
             
@@ -369,11 +368,13 @@ _Decrypted Token:_ `{self.token}`"""
             await self.set_start_message(self.default_language_code, 'Admin', self.admins_owner[0])
             
             post_init_message += f"{os.linesep}{os.linesep}{self.default_start_message}"
-
-            current_commands = await application.bot.get_my_commands(scope=BotCommandScopeAllPrivateChats())
-            logger.info(f"Get Current commands: {current_commands}")    
-            current_commands = await application.bot.get_my_commands(scope=BotCommandScopeDefault())
-            logger.info(f"Get Current commands: {current_commands}") 
+             
+            self.common_users_commands = await application.bot.get_my_commands(scope=BotCommandScopeDefault())            
+            logger.info(f"Get Current commands: {self.common_users_commands}")
+            
+            self.admin_commands = await application.bot.get_my_commands(scope={'type': 'chat', 'chat_id': self.admins_owner[0]}) if self.admins_owner else []
+            
+            self.all_commands = tuple(list(self.common_users_commands) + list(self.admin_commands))
             
             # for all admin users set the scope of the commands to chat_id
             await self.send_admins_message(message=post_init_message)
@@ -402,13 +403,13 @@ _Decrypted Token:_ `{self.token}`"""
         quit_if_error = True,
         env_file: str = '.env', 
         bot_owner: str = None, 
-        bot_defaults_build = None, 
+        bot_defaults_build = Defaults(parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True), 
         disable_default_handlers = False,
         default_language_code = None,
         decrypt_key = None,
         disable_encryption = True,
         admin_id_list: list[int] = None,
-        links: list[str] = None):
+        links: list[str] = ['https://github.com/gersonfreire/telegram-bot-framework']):
         
         try: 
             self.env_file = env_file 
@@ -416,6 +417,7 @@ _Decrypted Token:_ `{self.token}`"""
             self.token = token if token else ''
             self.bot_owner = bot_owner if bot_owner else ''
             self.admin_id_list = admin_id_list if admin_id_list else []
+            self.all_commands = []
 
             # Create an empty .env file at run time if it does not exist
             if not os.path.exists(self.env_file):
@@ -442,9 +444,7 @@ _Decrypted Token:_ `{self.token}`"""
             else:
                 self.token = os.environ.get('DEFAULT_BOT_TOKEN', None) if not self.token else self.token
                 self.bot_owner = int(os.environ.get('DEFAULT_BOT_OWNER', None)) if not self.bot_owner else int(self.bot_owner)
-            
-            bot_defaults_build = bot_defaults_build if bot_defaults_build else Defaults(parse_mode=ParseMode.MARKDOWN)          
-            
+                               
             self.default_language_code = os.environ.get('DEFAULT_LANGUAGE_CODE', 'en-US') if not default_language_code else default_language_code
             
             self.disable_default_handlers = os.environ.get('DISABLE_DEFAULT_HANDLERS', False) if not disable_default_handlers else disable_default_handlers
@@ -453,7 +453,7 @@ _Decrypted Token:_ `{self.token}`"""
             self.useful_links = os.environ.get('USEFUL_LINKS', None)
             self.useful_links = self.useful_links.split(',') if self.useful_links else default_list 
             
-            self.bot_defaults_build = bot_defaults_build
+            self.bot_defaults_build = bot_defaults_build 
             
             # Create an Application instance using the builder pattern            
             self.application = Application.builder().defaults(bot_defaults_build).token(self.token).post_init(self.post_init).post_stop(self.post_stop).build() 
@@ -520,7 +520,7 @@ _Decrypted Token:_ `{self.token}`"""
             self.application.add_handler(admin_manage_handler)
             
             # add useful links command handler
-            useful_links_handler = CommandHandler('links', self.cmd_manage_links, filters=filters.User(user_id=self.admins_owner))
+            useful_links_handler = CommandHandler('links', self.cmd_manage_links)
             self.application.add_handler(useful_links_handler)
             
             self.application.add_handler(MessageHandler(filters.COMMAND, self.default_unknown_command))
@@ -542,20 +542,23 @@ _Decrypted Token:_ `{self.token}`"""
         """
         
         try:
-            if len(update.message.text.split(' ')) > 1:
+            # command with parameters is only allowed to admin users
+            if len(update.message.text.split(' ')) > 1 and update.effective_user.id in self.admins_owner:
                 link = update.message.text.split(' ')[1]
                 
                 if link not in self.useful_links:
                     self.useful_links.append(link)
-                    await update.message.reply_text(f"_Link added:_ `{link}`")
+                    await update.message.reply_text(f"_Link added:_ {os.linesep}{link}")
                 else:
                     self.useful_links.remove(link)
-                    await update.message.reply_text(f"_Link removed:_ `{link}`")
+                    await update.message.reply_text(f"_Link removed:_ {link}")
                 
+                #  save the new list of useful links to the .env file
                 dotenv.set_key(self.env_file, 'USEFUL_LINKS', ','.join(self.useful_links))
-                
-            else:
-                await update.message.reply_text(f"_Useful links:_ `{self.useful_links}`")
+            
+            # convert the list of useful links to a line feeded string          
+            useful_links_str = os.linesep.join(self.useful_links)
+            await update.message.reply_text(f"_Useful links:_ {os.linesep}{useful_links_str}")
             
         except Exception as e:
             logger.error(f"Error: {e}")
