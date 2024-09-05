@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-version = '0.2.7 TODO: Add command to list useful links as Github repository of Bot'
+version = '0.2.7 Added command to manage useful links like the Github repository of Bot'
 
 # ------------------------------------------
 
