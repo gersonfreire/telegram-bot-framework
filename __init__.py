@@ -42,7 +42,7 @@ logger.debug(f"Log folder: {log_folder}")
 # ------------------------------------------
 
 from util_decorators import *
-from util_config import * # logger
+# from util_config import * # logger
 from util_telegram import *
 from util_console import *
 
