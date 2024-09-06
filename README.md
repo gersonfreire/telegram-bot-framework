@@ -25,7 +25,7 @@
 ## 📝 Table of Contents
 
 - [About](#about)
-- [How it works](#working)
+- [How it works](#how-it-works)
 - [Usage](#usage)
 - [Getting Started](#getting_started)
 - [TODOs](#todos)
@@ -94,7 +94,7 @@ To get your telegram Id and replace `<PUT YOUR TELEGRAM ID HERE>`, follow these 
 * Start the chat by clicking "Start."
 * Get the number after "Id:" and replace it on .env
 
-## 🏁 Getting Started
+## Getting Started
 
 These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See [deployment](#deployment) for notes on how to deploy the project on a live system.
 
