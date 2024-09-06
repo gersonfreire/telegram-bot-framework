@@ -773,9 +773,10 @@ if __name__ == '__main__':
     
     # ----- How to´s -----
     
-    # How to send a direct, synchronously message without start the bot
-    # TODO: Create a direct, no-running, synchronous send message method with an optional telegram bot token
-    result = app.loop.run_until_complete(app.application.bot.send_message(chat_id=app.admins_owner[0], text=f"Bot started: {app.bot_name}"))
+    # if first command line argument is "howto" execute the howto´s before starting the bot
+    if len(sys.argv) > 1 and sys.argv[1] == 'howto':
+        # How to send a direct, synchronously message without start the bot
+        result = app.loop.run_until_complete(app.application.bot.send_message(chat_id=app.admins_owner[0], text=f"Bot started: {app.bot_name}"))
     
     # ----- Run the bot -----    
     app.run()
