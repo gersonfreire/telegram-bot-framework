@@ -24,7 +24,7 @@
 
 ## 📝 Table of Contents
 
-- [About](#about)
+- [🧐About](#about)
 - [How it works](#how-it-works)
 - [Usage](#usage)
 - [Getting Started](#getting_started)
@@ -109,8 +109,6 @@ What things you need to install the software and how to install them.
 ```
 
 ### Installing
-
-A step by step series of examples that tell you how to get a development env running.
 
 Clone this entire repository
 
