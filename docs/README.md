@@ -170,7 +170,7 @@ python tlgfwk.py
 * [ ] Add a way to get the bot log file
 * [ ] Add a way to get the bot log level
 
-## ✍️ Authors
+## Authors
 
 - [@gersonfreire](https://github.com/kylelobo) - Idea & Initial work
 
