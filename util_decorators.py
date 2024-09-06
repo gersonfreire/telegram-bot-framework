@@ -14,7 +14,7 @@ from functools import wraps
 from telegram import InlineKeyboardButton, Update
 from telegram.ext import CallbackContext
 
-from util_config import * # logger
+# from util_config import * # logger
 
 from util_telegram import *
 
@@ -23,16 +23,17 @@ def with_writing_action(handler):
     async def wrapper(self, update: Update, context: CallbackContext, *args, **kwargs):
         try:                
             await context.bot.send_chat_action(chat_id=update.effective_chat.id, action=ChatAction.TYPING)
+            self.logger.debug(f"Typing action sent to chat_id: {update.effective_chat.id}")
             return await handler(self, update, context, *args, **kwargs)
         except Exception as e:
-            logger.error(f"Error: {e}")
+            self.logger.error(f"Error: {e}")
             return await handler(self, update, context, *args, **kwargs)
         
     return wrapper
 
 def with_waiting_action(handler):
     @wraps(handler)
-    async def wrapper(update: Update, context: CallbackContext):
+    async def wrapper(self, update: Update, context: CallbackContext):
         
         try:             
             wait_message = "_Executando, aguarde um momento, por favor..._"   
@@ -42,7 +43,7 @@ def with_waiting_action(handler):
             
             return await handler(update, context)
         except Exception as e:
-            logger.error(f"Error: {e}")
+            self.logger.error(f"Error: {e}")
             return await handler(update, context)
         
     return wrapper
@@ -50,7 +51,7 @@ def with_waiting_action(handler):
 # Define the decorator to check if the user is already registered
 def validate_user(handler):
     @wraps(handler)
-    async def wrapper(update: Update, context: CallbackContext):
+    async def wrapper(self, update: Update, context: CallbackContext):
         try:
             # Load all users data
             # all_users_data = db.load_all_users_data()
@@ -72,7 +73,7 @@ def validate_user(handler):
 # Define the decorator to check if the user is already registered
 def check_user_allowed(handler):
     @wraps(handler)
-    async def wrapper(update: Update, context: CallbackContext):
+    async def wrapper(self, update: Update, context: CallbackContext):
         
         try:
             contabo = None
@@ -97,36 +98,42 @@ def with_log_admin(handler):
     async def wrapper(self, update: Update, context: CallbackContext, *args, **kwargs):
         try:
             try:
-                if update.effective_user.id != bot_user_admin:
+                if update.effective_user.id not in self.admins_owner:
                     await context.bot.send_chat_action(chat_id=update.effective_chat.id, action=ChatAction.TYPING)      
-                    await context.bot.send_message(chat_id=bot_user_admin, text=f"_{update.effective_message.text} - {update.effective_user.full_name} - from {update.effective_message.from_user.id} {update.effective_user.full_name}_", parse_mode=ParseMode.MARKDOWN)
+                    await context.bot.send_message(chat_id=self.admins_owner[0], text=f"_{update.effective_message.text} - {update.effective_user.full_name} - from {update.effective_message.from_user.id} {update.effective_user.full_name}_", parse_mode=ParseMode.MARKDOWN)
+                    
             except Exception as e:
-                logger.error(f"Error: {e}")
+                self.logger.error(f"Error: {e}")
+                
             return await handler(self, update, context, *args, **kwargs)
+        
         except Exception as e:
-            logger.error(f"Error: {e}")
+            self.logger.error(f"Error: {e}")
             return await handler(self, update, context,  *args, **kwargs)
+        
     return wrapper
 
 # Define the decorator to send the start menu after the command
 def with_start_menu(handler):
     @wraps(handler)
-    async def wrapper(update: Update, context: CallbackContext):
+    async def wrapper(self, update: Update, context: CallbackContext):
         try:
             await handler(update, context)
             # return await cmd_start(update, context)
+            
         except Exception as e:
-            logger.error(f"Error: {e}")
+            self.logger.error(f"Error: {e}")
             return await handler(update, context)
+        
     return wrapper
 
 # Define the decorator that get user language and set the bot language
 def with_set_language(handler):
     @wraps(handler)
-    async def wrapper(update: Update, context: CallbackContext):
+    async def wrapper(self, update: Update, context: CallbackContext):
         try:
-            if update.effective_user.language_code not in supported_languages:
-                context.user_data['language'] = default_language
+            if update.effective_user.language_code not in self.default_language_code:
+                context.user_data['language'] = self.default_language_code
             else:
                 context.user_data['language'] = update.effective_user.language_code
                 
@@ -134,7 +141,7 @@ def with_set_language(handler):
             return await handler(update, context)
         
         except Exception as e:
-            logger.error(f"Error: {e}")
+            self.logger.error(f"Error: {e}")
             return await handler(update, context)
     
     return wrapper
