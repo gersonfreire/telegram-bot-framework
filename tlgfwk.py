@@ -414,6 +414,7 @@ _Decrypted Token:_ `{self.token}`"""
         try: 
             self.hostname = socket.getfqdn()
             self.main_script_path = sys.argv[0]
+            self.bot_name = None
              
             self.env_file = env_file 
             self.logger = logger 
@@ -767,5 +768,14 @@ _Decrypted Token:_ `{self.token}`"""
         
 if __name__ == '__main__':
     
-    app = TlgBotFwk()    
+    # Instantiate the bot
+    app = TlgBotFwk() 
+    
+    # ----- How to´s -----
+    
+    # How to send a direct message without start the bot
+    # TODO: add optional telegram bot token
+    result = app.application.bot.send_message(chat_id=app.admins_owner[0], text=f"Bot started: {app.bot_name}")
+    
+    # ----- Run the bot -----    
     app.run()
