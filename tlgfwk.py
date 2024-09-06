@@ -17,10 +17,10 @@ class TlgBotFwk(Application):
         try:
             post_init_message = f"""@{self.bot_name} *Started!*
 _Version:_   `{version}`
-_Host:_     `{hostname}`
+_Host:_     `{self.hostname}`
 _CWD:_ `{os.getcwd()}`
 _Path:_
-`{main_script_path}`"""    
+`{self.main_script_path}`"""    
             logger.info(f"{post_init_message}")  
             
             return post_init_message
@@ -412,6 +412,9 @@ _Decrypted Token:_ `{self.token}`"""
         links: list[str] = ['https://github.com/gersonfreire/telegram-bot-framework']):
         
         try: 
+            self.hostname = socket.getfqdn()
+            self.main_script_path = sys.argv[0]
+             
             self.env_file = env_file 
             self.logger = logger 
             self.token = token if token else ''
