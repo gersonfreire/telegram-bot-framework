@@ -28,7 +28,7 @@
 - [How it works](#working)
 - [Usage](#usage)
 - [Getting Started](#getting_started)
-- [Authors](#authors)
+- [Authors](#✍️-authors)
 
 ## 🧐 About
 

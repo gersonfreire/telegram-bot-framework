@@ -29,8 +29,6 @@
 - [Usage](#usage)
 - [Getting Started](#getting_started)
 - [Authors](#authors)
-- [Installation Guide](#installation-guide)
-- [Usage](#usage)
 
 ## 🧐 About
 
@@ -177,12 +175,3 @@ python tlgfwk.py
 Engage yourself entering the  [Project&#39;s Telegram group](https://t.me/TlgBotFwk) and see also the list of contributors who participated in this project
 Please, feel free to join us and let´s build a full and powerfull real framework for bots.
 
-
-
-## Installation Guide
-
-Here are the steps to install the project.
-
-## Usage
-
-Instructions on how to use the project.
