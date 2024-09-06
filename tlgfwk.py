@@ -93,7 +93,7 @@ _Path:_
         try:           
             
             self.useful_links = os.environ.get('USEFUL_LINKS', [])
-            useful_links = self.useful_links.split(',') if self.useful_links else default_list             
+            useful_links_str = os.linesep.join(self.useful_links)            
              
             self.show_config_message = f"""*Bot Configuration Settings*{os.linesep}
 _Bot Name:_ `{self.bot_name}`
@@ -101,7 +101,7 @@ _Bot Owner:_ `{self.bot_owner}`
 _Bot Admins:_ `{self.admin_id_list if self.admin_id_list else ''}`
 _Default Language Code:_ `{self.default_language_code}`
 _Decrypted Token:_ `{self.token}`
-_Links:_ `{useful_links}`"""
+_Links:_ `{useful_links_str}`"""
 # _Encrypted Token:_ `{self.encrypted_token}`
 # _Encrypted Bot Owner:_ `{self.encrypted_bot_owner}`
 
