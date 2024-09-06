@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-version = '0.2.7 Added command to manage useful links like the Github repository of Bot'
+version = '0.2.8 Create a direct, no-running, synchronous send message method with an optional telegram bot token'
 
 # ------------------------------------------
 
