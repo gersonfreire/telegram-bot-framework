@@ -537,6 +537,25 @@ _Decrypted Token:_ `{self.token}`"""
     
     @with_writing_action
     @with_log_admin
+    def send_message_sync(self, chat_id: int, message: str, *args, **kwargs):
+        """Send a message synchronously
+
+        Args:
+            chat_id (int): _description_
+            message (str): _description_
+        """
+        
+        try:
+            result = app.loop.run_until_complete(app.application.bot.send_message(chat_id=chat_id, text=message))
+                        
+            return result
+        
+        except Exception as e:
+            logger.error(f"Error sending message: {e}")
+            return f'Sorry, we have a problem sending message: {e}'
+    
+    @with_writing_action
+    @with_log_admin
     async def cmd_manage_links(self, update: Update, context: CallbackContext) :
         """Manage the useful links of the bot
 
@@ -760,6 +779,7 @@ _Decrypted Token:_ `{self.token}`"""
         os.chdir(os.getcwd())
         # os.execv(sys.executable, args) 
         os.abort()        
+    
     # ------------------------------------------
 
     def run(self):
