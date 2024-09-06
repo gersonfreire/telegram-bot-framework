@@ -243,8 +243,8 @@ _Decrypted Token:_ `{self.token}`"""
         try:           
             
             bot = Bot(token=token)
-            loop = asyncio.get_event_loop()                
-            self.bot_info = loop.run_until_complete(bot.get_me())
+            self.loop = asyncio.get_event_loop()                
+            self.bot_info = self.loop.run_until_complete(bot.get_me())
             # loop.close() 
             self.token_validated = True  
             
@@ -773,9 +773,9 @@ if __name__ == '__main__':
     
     # ----- How to´s -----
     
-    # How to send a direct message without start the bot
+    # How to send a direct, synchronously message without start the bot
     # TODO: add optional telegram bot token
-    result = app.application.bot.send_message(chat_id=app.admins_owner[0], text=f"Bot started: {app.bot_name}")
+    result = app.loop.run_until_complete(app.application.bot.send_message(chat_id=app.admins_owner[0], text=f"Bot started: {app.bot_name}"))
     
     # ----- Run the bot -----    
     app.run()
