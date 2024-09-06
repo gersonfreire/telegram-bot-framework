@@ -459,9 +459,8 @@ _Links:_ `{useful_links_str}`"""
             
             self.disable_default_handlers = os.environ.get('DISABLE_DEFAULT_HANDLERS', False) if not disable_default_handlers else disable_default_handlers
             
-            default_list=[] if not links else links
-            self.useful_links = os.environ.get('USEFUL_LINKS', None)
-            self.useful_links = self.useful_links.split(',') if self.useful_links else default_list 
+            self.links_list=os.environ.get('USEFUL_LINKS', []) if not links else links
+            self.useful_links = self.links_list.split(',') if self.links_list else '' 
             
             self.bot_defaults_build = bot_defaults_build 
             
