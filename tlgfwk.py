@@ -797,7 +797,7 @@ if __name__ == '__main__':
     if len(sys.argv) > 1 and sys.argv[1] == 'howto':
         
         # How to send a direct, synchronously message without start the bot
-        result = app.send_message_sync(app.admins_owner[0], f"Bot started: {app.bot_name}")
+        result = app.send_message_sync(app.admins_owner[0], f"_This was sent by a direct, synchronously message without start the bot as a how-to example_")
     
     # ----- Run the bot -----    
     app.run()
