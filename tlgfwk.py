@@ -415,7 +415,7 @@ _Links:_ `{useful_links_str}`"""
         decrypt_key = None,
         disable_encryption = True,
         admin_id_list: list[int] = None,
-        links: list[str] = ['https://github.com/gersonfreire/telegram-bot-framework']):
+        links: list[str] = []):
         
         try: 
             self.hostname = socket.getfqdn()
@@ -459,7 +459,7 @@ _Links:_ `{useful_links_str}`"""
             
             self.disable_default_handlers = os.environ.get('DISABLE_DEFAULT_HANDLERS', False) if not disable_default_handlers else disable_default_handlers
             
-            self.links_string=os.environ.get('USEFUL_LINKS', '') if not links else os.linesep.join(links)
+            self.links_string=links if links else os.environ.get('USEFUL_LINKS', []) 
             self.links_list = self.links_string.split(',') if self.links_string else [] 
             
             self.bot_defaults_build = bot_defaults_build 
@@ -796,7 +796,7 @@ _Links:_ `{useful_links_str}`"""
 if __name__ == '__main__':
     
     # Instantiate the bot
-    app = TlgBotFwk() 
+    app = TlgBotFwk(links=['https://github.com/gersonfreire/telegram-bot-framework']) 
     
     # ----- How to´s -----
     
