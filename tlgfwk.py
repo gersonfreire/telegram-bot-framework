@@ -96,7 +96,8 @@ _Bot Name:_ `{self.bot_name}`
 _Bot Owner:_ `{self.bot_owner}`
 _Bot Admins:_ `{self.admin_id_list if self.admin_id_list else ''}`
 _Default Language Code:_ `{self.default_language_code}`
-_Decrypted Token:_ `{self.token}`"""
+_Decrypted Token:_ `{self.token}`
+_Links:_ `{self.useful_links}`"""
 # _Encrypted Token:_ `{self.encrypted_token}`
 # _Encrypted Bot Owner:_ `{self.encrypted_bot_owner}`
 
