@@ -535,9 +535,9 @@ _Decrypted Token:_ `{self.token}`"""
       
     # -------- Default command handlers --------
     
-    @with_writing_action
-    @with_log_admin
-    def send_message_sync(self, chat_id: int, message: str, *args, **kwargs):
+    # @with_writing_action
+    # @with_log_admin
+    def send_message_sync(self, chat_id: int, message: str):
         """Send a message synchronously
 
         Args:
@@ -797,8 +797,6 @@ if __name__ == '__main__':
     if len(sys.argv) > 1 and sys.argv[1] == 'howto':
         
         # How to send a direct, synchronously message without start the bot
-        result = app.loop.run_until_complete(app.application.bot.send_message(chat_id=app.admins_owner[0], text=f"Bot started: {app.bot_name}"))
-        
         result = app.send_message_sync(app.admins_owner[0], f"Bot started: {app.bot_name}")
     
     # ----- Run the bot -----    
