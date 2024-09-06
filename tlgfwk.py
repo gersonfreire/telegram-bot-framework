@@ -92,8 +92,8 @@ _Path:_
         
         try:           
             
-            self.useful_links = os.environ.get('USEFUL_LINKS', [])
-            useful_links_str = os.linesep.join(self.useful_links)            
+            self.links_list = os.environ.get('USEFUL_LINKS', [])
+            useful_links_str = os.linesep.join(self.links_list)            
              
             self.show_config_message = f"""*Bot Configuration Settings*{os.linesep}
 _Bot Name:_ `{self.bot_name}`
@@ -459,8 +459,8 @@ _Links:_ `{useful_links_str}`"""
             
             self.disable_default_handlers = os.environ.get('DISABLE_DEFAULT_HANDLERS', False) if not disable_default_handlers else disable_default_handlers
             
-            self.links_list=os.environ.get('USEFUL_LINKS', []) if not links else links
-            self.useful_links = self.links_list.split(',') if self.links_list else '' 
+            self.links_string=os.environ.get('USEFUL_LINKS', '') if not links else os.linesep.join(links)
+            self.links_list = self.links_string.split(',') if self.links_string else [] 
             
             self.bot_defaults_build = bot_defaults_build 
             
@@ -574,18 +574,18 @@ _Links:_ `{useful_links_str}`"""
             if len(update.message.text.split(' ')) > 1 and update.effective_user.id in self.admins_owner:
                 link = update.message.text.split(' ')[1]
                 
-                if link not in self.useful_links:
-                    self.useful_links.append(link)
+                if link not in self.links_list:
+                    self.links_list.append(link)
                     await update.message.reply_text(f"_Link added:_ {os.linesep}{link}")
                 else:
-                    self.useful_links.remove(link)
+                    self.links_list.remove(link)
                     await update.message.reply_text(f"_Link removed:_ {link}")
                 
                 #  save the new list of useful links to the .env file
-                dotenv.set_key(self.env_file, 'USEFUL_LINKS', ','.join(self.useful_links))
+                dotenv.set_key(self.env_file, 'USEFUL_LINKS', ','.join(self.links_list))
             
             # convert the list of useful links to a line feeded string          
-            useful_links_str = os.linesep.join(self.useful_links)
+            useful_links_str = os.linesep.join(self.links_list)
             await update.message.reply_text(f"_Useful links:_ {os.linesep}{useful_links_str}")
             
         except Exception as e:
