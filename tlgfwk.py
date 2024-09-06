@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-version = '0.2.8 Refactored to eliminate dependency on util_config.py'
+version = '0.2.7 Added command to manage useful links like the Github repository of Bot'
 
 # ------------------------------------------
 
@@ -243,8 +243,8 @@ _Decrypted Token:_ `{self.token}`"""
         try:           
             
             bot = Bot(token=token)
-            loop = asyncio.get_event_loop()                
-            self.bot_info = loop.run_until_complete(bot.get_me())
+            self.loop = asyncio.get_event_loop()                
+            self.bot_info = self.loop.run_until_complete(bot.get_me())
             # loop.close() 
             self.token_validated = True  
             
@@ -414,6 +414,7 @@ _Decrypted Token:_ `{self.token}`"""
         try: 
             self.hostname = socket.getfqdn()
             self.main_script_path = sys.argv[0]
+            self.bot_name = None
              
             self.env_file = env_file 
             self.logger = logger 
@@ -767,5 +768,15 @@ _Decrypted Token:_ `{self.token}`"""
         
 if __name__ == '__main__':
     
-    app = TlgBotFwk()    
+    # Instantiate the bot
+    app = TlgBotFwk() 
+    
+    # ----- How to´s -----
+    
+    # if first command line argument is "howto" execute the howto´s before starting the bot
+    if len(sys.argv) > 1 and sys.argv[1] == 'howto':
+        # How to send a direct, synchronously message without start the bot
+        result = app.loop.run_until_complete(app.application.bot.send_message(chat_id=app.admins_owner[0], text=f"Bot started: {app.bot_name}"))
+    
+    # ----- Run the bot -----    
     app.run()
