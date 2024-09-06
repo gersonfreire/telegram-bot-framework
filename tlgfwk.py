@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-version = '0.2.9 moved util modules to internal folders ✓'
+version = '0.3.0 fixed /link ✓'
 
 # ------------------------------------------
 
@@ -459,8 +459,9 @@ _Links:_ `{useful_links_str}`"""
             
             self.disable_default_handlers = os.environ.get('DISABLE_DEFAULT_HANDLERS', False) if not disable_default_handlers else disable_default_handlers
             
-            self.links_string=links if links else os.environ.get('USEFUL_LINKS', []) 
+            self.links_string=os.linesep.join(links) if links else os.environ.get('USEFUL_LINKS', '') 
             self.links_list = self.links_string.split(',') if self.links_string else [] 
+            dotenv.set_key(dotenv_path=self.env_file, key_to_set='USEFUL_LINKS', value_to_set=self.links_string)
             
             self.bot_defaults_build = bot_defaults_build 
             
@@ -582,6 +583,7 @@ _Links:_ `{useful_links_str}`"""
                     await update.message.reply_text(f"_Link removed:_ {link}")
                 
                 #  save the new list of useful links to the .env file
+                self.links_string = ','.join(self.links_list)
                 dotenv.set_key(self.env_file, 'USEFUL_LINKS', ','.join(self.links_list))
             
             # convert the list of useful links to a line feeded string          
@@ -795,16 +797,19 @@ _Links:_ `{useful_links_str}`"""
         
 if __name__ == '__main__':
     
-    # Instantiate the bot
-    app = TlgBotFwk(links=['https://github.com/gersonfreire/telegram-bot-framework']) 
-    
-    # ----- How to´s -----
-    
     # if first command line argument is "howto" execute the howto´s before starting the bot
     if len(sys.argv) > 1 and sys.argv[1] == 'howto':
         
+        # Instantiate the bot with an optional list of useful links
+        app = TlgBotFwk(links=['https://github.com/gersonfreire/telegram-bot-framework']) 
+        
         # How to send a direct, synchronously message without start the bot
         result = app.send_message_sync(app.admins_owner[0], f"_This was sent by a direct, synchronously message without start the bot as a how-to example_")
+    
+    else:    
+        app = TlgBotFwk() 
+    
+    # ----- How to´s -----
     
     # ----- Run the bot -----    
     app.run()
