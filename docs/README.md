@@ -28,7 +28,7 @@
 - [How it works](#working)
 - [Usage](#usage)
 - [Getting Started](#getting_started)
-- [Authors](#authors)
+- [Authors](#✍️-authors)
 
 ## 🧐 About
 
@@ -168,10 +168,9 @@ python tlgfwk.py
 * [ ] Add a way to get the bot log file
 * [ ] Add a way to get the bot log level
 
-## Authors
+## ✍️ Authors
 
 - [@gersonfreire](https://github.com/kylelobo) - Idea & Initial work
 
 Engage yourself entering the  [Project&#39;s Telegram group](https://t.me/TlgBotFwk) and see also the list of contributors who participated in this project
 Please, feel free to join us and let´s build a full and powerfull real framework for bots.
-
