@@ -14,8 +14,6 @@ from functools import wraps
 from telegram import InlineKeyboardButton, Update
 from telegram.ext import CallbackContext
 
-# from util_config import * # logger
-
 from util_telegram import *
 
 def with_writing_action(handler):

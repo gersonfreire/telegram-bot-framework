@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-version = '0.2.7 Added command to manage useful links like the Github repository of Bot'
+version = '0.2.8 Create a direct, no-running, synchronous send message method with an optional telegram bot token ✓'
 
 # ------------------------------------------
 
@@ -535,6 +535,25 @@ _Decrypted Token:_ `{self.token}`"""
       
     # -------- Default command handlers --------
     
+    # @with_writing_action
+    # @with_log_admin
+    def send_message_sync(self, chat_id: int, message: str):
+        """Send a message synchronously
+
+        Args:
+            chat_id (int): _description_
+            message (str): _description_
+        """
+        
+        try:
+            result = app.loop.run_until_complete(app.application.bot.send_message(chat_id=chat_id, text=message))
+                        
+            return result
+        
+        except Exception as e:
+            logger.error(f"Error sending message: {e}")
+            return f'Sorry, we have a problem sending message: {e}'
+    
     @with_writing_action
     @with_log_admin
     async def cmd_manage_links(self, update: Update, context: CallbackContext) :
@@ -760,6 +779,7 @@ _Decrypted Token:_ `{self.token}`"""
         os.chdir(os.getcwd())
         # os.execv(sys.executable, args) 
         os.abort()        
+    
     # ------------------------------------------
 
     def run(self):
@@ -775,8 +795,9 @@ if __name__ == '__main__':
     
     # if first command line argument is "howto" execute the howto´s before starting the bot
     if len(sys.argv) > 1 and sys.argv[1] == 'howto':
+        
         # How to send a direct, synchronously message without start the bot
-        result = app.loop.run_until_complete(app.application.bot.send_message(chat_id=app.admins_owner[0], text=f"Bot started: {app.bot_name}"))
+        result = app.send_message_sync(app.admins_owner[0], f"_This was sent by a direct, synchronously message without start the bot as a how-to example_")
     
     # ----- Run the bot -----    
     app.run()

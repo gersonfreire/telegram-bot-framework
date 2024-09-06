@@ -131,7 +131,7 @@ python tlgfwk.py
 
 ## TODOs:
 
-* [X] Last Stable Version: 0.2.7 *✓*
+* [X] Last Stable Version: 0.2.8 *✓*
 * [X] Deploy a demo instance - Bot running on [Demo Bot](https://t.me/TecVitoriaBot) ✓
 * [X] Add handlers to telegram menu commands ✓
 * [X] Auto-update by git pull ✓
@@ -147,7 +147,7 @@ python tlgfwk.py
 * [X] Add admin users manage commands ✓
 * [X] Delete admin users ✓
 * [X] Added command to manage useful links like the Github repository of Bot ✓
-* [ ] Create a direct, no-running, synchronous send message method with an optional telegram bot token
+* [X] Create a direct, no-running, synchronous send message method with an optional telegram bot token ✓
 * [ ] Save admin list to .env
 * [ ] List of admin users ids with same owner privileges
 * [ ] Show embedded help html page
