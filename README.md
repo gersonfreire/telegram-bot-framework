@@ -28,17 +28,17 @@
 - [How it works](#working)
 - [Usage](#usage)
 - [Getting Started](#getting_started)
-- [Authors](#✍️-authors)
+- [Authors](#authors)
 
-## 🧐 About
+## About
 
 You can find many libraries and modules ready to build bots on Telegram, but none of them cover the basic functionalities that are almost indispensable, such as creating a help menu automatically from commands, registering users, generating a log in the Telegram administrator and others. The purpose of this library is to fill these gaps and allow Telegram bot developers to quickly create powerful, stable and secure bots in just a few lines of code. This work is still in its early stages, but I invite you to help me explore and conquer the fascinating world of Telegram bots by collaborating and using this library.
 
-## 💭 How it works
+## How it works
 
 Basically, we build a class called TlgBotFwk, which inherits from the Application class, implemented by the telegram.ext library, provided by the python-telegram-bot package, version 21 or greater ([https://github.com/python-telegram-bot/python-telegram-bot]()). In this child class, we implement some default methods to handle the universal commands /start, /help and other unrecognized commands. However, the developer can implement their own command handlers without losing the built-in functionality. I recommend reading the source code for more details. I also recommend Python 3.12 version.
 
-## 🎈 Usage
+## Usage
 
 To use this class, just create a simple script with bellow lines of code and the bot will run:
 
@@ -168,7 +168,7 @@ python tlgfwk.py
 * [ ] Add a way to get the bot log file
 * [ ] Add a way to get the bot log level
 
-## ✍️ Authors
+## Authors
 
 - [@gersonfreire](https://github.com/kylelobo) - Idea & Initial work
 
