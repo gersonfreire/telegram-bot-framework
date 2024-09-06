@@ -774,7 +774,7 @@ if __name__ == '__main__':
     # ----- How to´s -----
     
     # How to send a direct, synchronously message without start the bot
-    # TODO: add optional telegram bot token
+    # TODO: Create a direct, no-running, synchronous send message method with an optional telegram bot token
     result = app.loop.run_until_complete(app.application.bot.send_message(chat_id=app.admins_owner[0], text=f"Bot started: {app.bot_name}"))
     
     # ----- Run the bot -----    

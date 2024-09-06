@@ -147,6 +147,7 @@ python tlgfwk.py
 * [X] Add admin users manage commands ✓
 * [X] Delete admin users ✓
 * [X] Added command to manage useful links like the Github repository of Bot ✓
+* [ ] Create a direct, no-running, synchronous send message method with an optional telegram bot token
 * [ ] Save admin list to .env
 * [ ] List of admin users ids with same owner privileges
 * [ ] Show embedded help html page
