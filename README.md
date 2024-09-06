@@ -147,6 +147,7 @@ python tlgfwk.py
 * [X] Add admin users manage commands ✓
 * [X] Delete admin users ✓
 * [X] Added command to manage useful links like the Github repository of Bot ✓
+* [X] Refactored to eliminate dependency on util_config.py ✓
 * [ ] Save admin list to .env
 * [ ] List of admin users ids with same owner privileges
 * [ ] Show embedded help html page
