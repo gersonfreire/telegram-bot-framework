@@ -16,6 +16,7 @@ parent_folder = os.path.dirname(script_path)
 common_module_path = rf"{parent_folder}{os.sep}"
 sys.path.append(common_module_path)
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.append(parent_folder)
 script_name = os.path.basename(sys.argv[0]).replace('.py', '')
 
 # ---- Logging ----------------------------
@@ -41,8 +42,8 @@ logger.debug(f"Log folder: {log_folder}")
 
 # ------------------------------------------
 
-from util_decorators import *
-from util_telegram import *
-from util_console import *
+from util.util_decorators import *
+from util.util_telegram import *
+from util.util_console import *
 
 from handlers import *
