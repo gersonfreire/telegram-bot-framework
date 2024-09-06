@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-version = '0.2.8 Create a direct, no-running, synchronous send message method with an optional telegram bot token ✓'
+version = '0.2.9 moved util modules to internal folders ✓'
 
 # ------------------------------------------
 
