@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-version = '0.3.0 fixed /link ✓'
+version = '0.3.1 fixed admin list ✓'
 
 # ------------------------------------------
 
@@ -93,12 +93,12 @@ _Path:_
         try:           
             
             self.links_string = os.environ.get('USEFUL_LINKS', '')
-            self.links_list = self.links_string.split(',') if self.links_string else []            
+            self.links_list = self.links_string.split(',') if self.links_string else []          
              
             self.show_config_message = f"""*Bot Configuration Settings*{os.linesep}
 _Bot Name:_ `{self.bot_name}`
 _Bot Owner:_ `{self.bot_owner}`
-_Bot Admins:_ `{self.admin_id_list if self.admin_id_list else ''}`
+_Bot Admins:_ `{self.admin_id_string if self.admin_id_string else ''}`
 _Default Language Code:_ `{self.default_language_code}`
 _Decrypted Token:_ `{self.token}`
 _Links:_ 
@@ -425,7 +425,10 @@ _Links:_
             self.logger = logger 
             self.token = token if token else ''
             self.bot_owner = bot_owner if bot_owner else ''
-            self.admin_id_list = admin_id_list if admin_id_list else []
+            
+            self.admin_id_string = [int(admin_id) for admin_id in os.environ.get('ADMIN_ID_LIST', '').split(',')]  
+            self.admin_id_string = admin_id_list if admin_id_list else os.environ.get('ADMIN_ID_LIST', '')
+            
             self.all_commands = []
 
             # Create an empty .env file at run time if it does not exist
@@ -440,7 +443,7 @@ _Links:_
             self.bot_owner = int(os.environ.get('DEFAULT_BOT_OWNER', 999999)) if not self.bot_owner else self.bot_owner 
                  
             # read list of admin users from the .env file
-            default_list = [self.bot_owner] + self.admin_id_list
+            default_list = [self.bot_owner] + [int(admin_id) for admin_id in (self.admin_id_string.split(',') if self.admin_id_string else [])]
             default_str = ','.join(map(str, default_list))
             self.admins_owner = [int(admin_id) for admin_id in os.environ.get('ADMIN_ID_LIST', default_str).split(',')]
             
