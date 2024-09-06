@@ -28,6 +28,7 @@
 - [How it works](#working)
 - [Usage](#usage)
 - [Getting Started](#getting_started)
+- [TODOs](#todos)
 - [Authors](#authors)
 
 ## About
