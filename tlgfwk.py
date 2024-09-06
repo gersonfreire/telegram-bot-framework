@@ -30,8 +30,9 @@ _Path:_
             return f'Sorry, we encountered an error: {e}'
     
     async def set_start_message(self, language_code:str, full_name:str, user_id:int): #, update, context):
+        
         try:
-            # language_code = context.user_data.get('language_code', update.effective_user.language_code)                           
+                                      
             self.default_start_message = translations.get_translated_message(language_code, 'start_message', 'en', full_name, self.application.bot.name, self.application.bot.first_name)
             
             # if self.bot_owner and user_id == self.bot_owner:                          
@@ -691,8 +692,10 @@ _Decrypted Token:_ `{self.token}`"""
     async def default_start_handler(self, update: Update, context: CallbackContext, *args, **kwargs):
         
         try:              
+            # fix user language code
+            language_code = context.user_data['language_code'] if 'language_code' in context.user_data else update.effective_user.language_code
             
-            await self.set_start_message(update.effective_user.language_code, update.effective_user.full_name, update.effective_user.id)
+            await self.set_start_message(language_code, update.effective_user.full_name, update.effective_user.id)
                 
             await update.message.reply_text(self.default_start_message.format(update.effective_user.first_name))
                 
