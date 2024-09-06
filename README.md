@@ -131,7 +131,7 @@ python tlgfwk.py
 
 ## TODOs:
 
-* [X] Last Stable Version: 0.2.7 *✓*
+* [X] Last Stable Version: 0.2.8 *✓*
 * [X] Deploy a demo instance - Bot running on [Demo Bot](https://t.me/TecVitoriaBot) ✓
 * [X] Add handlers to telegram menu commands ✓
 * [X] Auto-update by git pull ✓
