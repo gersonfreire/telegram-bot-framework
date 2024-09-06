@@ -1,4 +1,4 @@
-import sys, os, logging
+import sys, os, logging, socket
 import base64
 
 from telegram import Bot
