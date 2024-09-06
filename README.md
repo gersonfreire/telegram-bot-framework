@@ -25,11 +25,11 @@
 ## 📝 Table of Contents
 
 - [🧐About](#about)
-- [How it works](#how-it-works)
-- [Usage](#usage)
-- [Getting Started](#getting_started)
+- [💭How it works](#how-it-works)
+- [🎈Usage](#usage)
+- [🏁Getting Started](#getting_started)
 - [TODOs](#todos)
-- [Authors](#authors)
+- [✍️Authors](#authors)
 
 ## About
 
