@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-version = '0.3.4 Users management'
+version = '0.3.5 Show enviroment variables'
 
 # ------------------------------------------
 
@@ -120,7 +120,7 @@ _Links:_
         
         try:
             # Load the .env file into a dictionary
-            env_vars = dotenv.dotenv_values(self.env_path)
+            env_vars = dotenv.dotenv_values(self.env_file)
             
             # convert dictionary to string
             env_vars_str = os.linesep.join([f"`{key}`=`{value}`" for key, value in env_vars.items()])

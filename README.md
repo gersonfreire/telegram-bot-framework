@@ -130,7 +130,7 @@ python tlgfwk.py
 
 ## TODOs:
 
-* [X] Last Stable Version: 0.3.3 *✓*
+* [X] Last Stable Version: 0.3.5 *✓*
 * [X] Deploy a demo instance - Bot running on [Demo Bot](https://t.me/TecVitoriaBot) ✓
 * [X] Add handlers to telegram menu commands ✓
 * [X] Auto-update by git pull ✓
@@ -151,6 +151,9 @@ python tlgfwk.py
 * [X] Save admin list to .env ✓
 * [X] Making bot persistant from the base class ✓
 * [X] List of admin users ids with same owner privileges ✓
+* [X] Show enviroment variables ✓
+* [ ] Create a plugin system
+* [ ] Create a command decorator
 * [ ] Users management
 * [ ] Show embedded help html page
 * [ ] Create a command to encrypt and decrypt strings
@@ -158,16 +161,6 @@ python tlgfwk.py
 * [ ] Add persistence for user and bot data
 * [ ] Allow more than one owner
 * [ ] Logger to Telegram
-* [ ] Add a way to get or change the bot token
-* [ ] Add a way to get the bot owner id
-* [ ] Add a way to get the bot name
-* [ ] Add a way to get the bot version
-* [ ] Add a way to get the bot hostname
-* [ ] Add a way to get the bot script path
-* [ ] Add a way to get the bot main script path
-* [ ] Add a way to get the bot log folder
-* [ ] Add a way to get the bot log file
-* [ ] Add a way to get the bot log level
 
 ## Authors
 
