@@ -188,7 +188,7 @@ _Links:_
         
         return command_dict
     
-    async def get_help_text(self, language_code = None, current_user_id = None, *args, **kwargs):
+    async def get_help_text(self, language_code = None, current_user_id = None, sort_by_command=True):
         """Generates a help text from bot commands already set and the command handlers
 
         Args:
@@ -206,11 +206,12 @@ _Links:_
             # get all commands from bot commands menu scope=BotCommandScopeDefault()
             self.common_users_commands = await self.application.bot.get_my_commands()
             self.admin_commands = await self.application.bot.get_my_commands(scope={'type': 'chat', 'chat_id': self.admins_owner[0]}) if self.admins_owner else []
+            
             self.all_commands = tuple(list(self.common_users_commands) + list(self.admin_commands))
             
             language_code = self.default_language_code if not language_code else language_code
             
-            self.help_text = translations.get_translated_message(language_code, 'help_message', self.default_language_code, self.application.bot.name)            
+            self.help_text = translations.get_translated_message(language_code, 'help_message', self.default_language_code, self.application.bot.name)           
             
             for command in self.common_users_commands:
                 self.help_text += f"/{command.command} - {command.description}{os.linesep}"
@@ -245,6 +246,14 @@ _Links:_
                 except Exception as e:
                     logger.error(f"Error adding command to menu: {e}")
                     continue
+                
+                
+            # if sort is enabled, convert help text to a list of strings and order list by command name
+            if sort_by_command: 
+                help_header = self.help_text.split(os.linesep)[0]
+                help_text_list = self.help_text.split(os.linesep)[1:]
+                help_text_list = sorted(help_text_list)
+                self.help_text = f'{help_header}{os.linesep}{os.linesep.join(help_text_list)}'            
                 
             # set new commands to telegram bot menu
             await self.application.bot.set_my_commands(self.common_users_commands)

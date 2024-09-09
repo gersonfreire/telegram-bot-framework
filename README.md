@@ -151,6 +151,7 @@ python tlgfwk.py
 * [X] Save admin list to .env ✓
 * [X] Making bot persistant from the base class ✓
 * [X] List of admin users ids with same owner privileges ✓
+* [X] Sort help comands alphabetically
 * [X] Show enviroment variables ✓
 * [ ] Create a plugin system
 * [ ] Create a command decorator
