@@ -29,6 +29,19 @@ def with_writing_action(handler):
         
     return wrapper
 
+def with_writing_action_sync(handler):
+    @wraps(handler)
+    def wrapper(self, update: Update, context: CallbackContext, *args, **kwargs):
+        try:                
+            self.loop.run_until_complete(context.bot.send_chat_action(chat_id=update.effective_chat.id, action=ChatAction.TYPING))
+            self.logger.debug(f"Typing action sent to chat_id: {update.effective_chat.id}")
+            return handler(self, update, context, *args, **kwargs)
+        except Exception as e:
+            self.logger.error(f"Error: {e}")
+            return handler(self, update, context, *args, **kwargs)
+        
+    return wrapper
+
 def with_waiting_action(handler):
     @wraps(handler)
     async def wrapper(self, update: Update, context: CallbackContext):
