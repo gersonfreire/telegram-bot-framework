@@ -556,8 +556,8 @@ _Links:_
       
     # -------- Default command handlers --------
     
-    @with_writing_action
-    @with_log_admin
+    # @with_writing_action
+    # @with_log_admin
     def send_message_sync(self, chat_id: int, message: str):
         """Send a message synchronously
 
