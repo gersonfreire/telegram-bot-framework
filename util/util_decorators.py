@@ -31,14 +31,15 @@ def with_writing_action(handler):
 
 def with_writing_action_sync(handler):
     @wraps(handler)
-    def wrapper(self, update: Update, context: CallbackContext, *args, **kwargs):
+    def wrapper(self, chat_id: int, message: str):
         try:                
-            self.loop.run_until_complete(context.bot.send_chat_action(chat_id=update.effective_chat.id, action=ChatAction.TYPING))
-            self.logger.debug(f"Typing action sent to chat_id: {update.effective_chat.id}")
-            return handler(self, update, context, *args, **kwargs)
+            self.loop.run_until_complete(self.application.bot.send_chat_action(chat_id=chat_id, action=ChatAction.TYPING))
+            self.logger.debug(f"Typing action sent to chat_id: {chat_id}")
+            
         except Exception as e:
             self.logger.error(f"Error: {e}")
-            return handler(self, update, context, *args, **kwargs)
+        
+        return handler(self, chat_id, message)
         
     return wrapper
 
