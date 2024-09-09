@@ -573,6 +573,10 @@ _Links:_
             useful_links_handler = CommandHandler('links', self.cmd_manage_links)
             self.application.add_handler(useful_links_handler)
             
+            # add show env command handler
+            show_env_handler = CommandHandler('showenv', self.cmd_show_env, filters=filters.User(user_id=self.admins_owner))
+            self.application.add_handler(show_env_handler)
+            
             self.application.add_handler(MessageHandler(filters.COMMAND, self.default_unknown_command))
             
         except Exception as e:
