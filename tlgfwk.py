@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-version = '0.3.3 Making bot persistant from the base class'
+version = '0.3.4 Users management'
 
 # ------------------------------------------
 
@@ -556,8 +556,8 @@ _Links:_
       
     # -------- Default command handlers --------
     
-    # @with_writing_action
-    # @with_log_admin
+    @with_writing_action
+    @with_log_admin
     def send_message_sync(self, chat_id: int, message: str):
         """Send a message synchronously
 

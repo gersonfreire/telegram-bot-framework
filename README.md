@@ -149,8 +149,9 @@ python tlgfwk.py
 * [X] Create a direct, no-running, synchronous send message method with an optional telegram bot token ✓
 * [X] Moved util modules to internal folders ✓
 * [X] Save admin list to .env ✓
-* [ ] Making bot persistant from the base class
-* [ ] List of admin users ids with same owner privileges
+* [X] Making bot persistant from the base class ✓
+* [X] List of admin users ids with same owner privileges ✓
+* [ ] Users management
 * [ ] Show embedded help html page
 * [ ] Create a command to encrypt and decrypt strings
 * [ ] Add a way to save the bot token for next run
