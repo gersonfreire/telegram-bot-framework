@@ -110,6 +110,31 @@ _Links:_
             logger.error(f"Error in cmd_show_config: {e}")
             await update.message.reply_text(f"Sorry, we encountered an error: {e}")
     
+    async def cmd_show_env(self, update: Update, context: CallbackContext, *args, **kwargs):
+        """Show the bot environment settings
+
+        Args:
+            update (Update): _description_
+            context (CallbackContext): _description_
+        """
+        
+        try:
+            # Load the .env file into a dictionary
+            env_vars = dotenv.dotenv_values(self.env_path)
+            
+            # convert dictionary to string
+            env_vars_str = os.linesep.join([f"`{key}`=`{value}`" for key, value in env_vars.items()])
+            
+            self.show_env_message = f"""*Bot Environment Settings*{os.linesep}
+{env_vars_str}
+{self.links_string.replace(',', os.linesep)}"""
+
+            await update.message.reply_text(self.show_env_message, parse_mode=ParseMode.MARKDOWN)
+            
+        except Exception as e:
+            logger.error(f"Error in cmd_show_env: {e}")
+            await update.message.reply_text(f"Sorry, we encountered an error: {e}")
+    
     # Function to add or update a setting in the .env file
     def add_or_update_env_setting(self, key, value):
         # Read the existing .env file
