@@ -188,7 +188,7 @@ _Links:_
         
         return command_dict
     
-    async def get_help_text(self, language_code = None, current_user_id = None, sort_by_command=True):
+    async def get_help_text(self, language_code = None, current_user_id = None):
         """Generates a help text from bot commands already set and the command handlers
 
         Args:
@@ -246,10 +246,9 @@ _Links:_
                 except Exception as e:
                     logger.error(f"Error adding command to menu: {e}")
                     continue
-                
-                
+                               
             # if sort is enabled, convert help text to a list of strings and order list by command name
-            if sort_by_command: 
+            if self.sort_commands: 
                 help_header = self.help_text.split(os.linesep)[0]
                 help_text_list = self.help_text.split(os.linesep)[1:]
                 help_text_list = sorted(help_text_list)
@@ -451,7 +450,8 @@ _Links:_
         links: list[str] = [],
         persistence_file: str = None,
         disable_persistence = False,
-        logger = logger
+        logger = logger,
+        sort_commands = False,
         ):
         
         try: 
@@ -468,6 +468,8 @@ _Links:_
             self.admin_id_string = admin_id_list if admin_id_list else os.environ.get('ADMIN_ID_LIST', '')
             
             self.all_commands = []
+            
+            self.sort_commands = sort_commands
 
             # Create an empty .env file at run time if it does not exist
             if not os.path.exists(self.env_file):
@@ -871,8 +873,8 @@ if __name__ == '__main__':
         # Instantiate the bot with an optional list of useful links
         # app = TlgBotFwk(links=['https://github.com/gersonfreire/telegram-bot-framework']) 
         
-        # Instantiate the bot without persistence
-        app = TlgBotFwk(disable_persistence=True)
+        # Instantiate the bot without persistence and sort commands list alphabetically
+        app = TlgBotFwk(disable_persistence=True, sort_commands=True)
         
         # How to send a direct, synchronously message without start the bot
         result = app.send_message_sync(app.admins_owner[0], f"_This was sent by a direct, synchronously message without start the bot as a how-to example_")
