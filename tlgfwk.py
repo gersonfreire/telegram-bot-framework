@@ -475,7 +475,7 @@ _Links:_
             # TODO : Making bot persistant from the base class      
             # https://github.com/python-telegram-bot/python-telegram-bot/wiki/Making-your-bot-persistent
             self.persistence_file = f"{script_path}{os.sep}{self.bot_info.username + '.pickle'}" if not persistence_file else persistence_file
-            persistence = PicklePersistence(filepath=self.persistence_file)
+            persistence = PicklePersistence(filepath=self.persistence_file, update_interval=20)
             # application = Application.builder().token("TOKEN").persistence(persistence).build() 
             
             # Create an Application instance using the builder pattern            
