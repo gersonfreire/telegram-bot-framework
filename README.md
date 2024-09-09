@@ -148,7 +148,7 @@ python tlgfwk.py
 * [X] Added command to manage useful links like the Github repository of Bot ✓
 * [X] Create a direct, no-running, synchronous send message method with an optional telegram bot token ✓
 * [X] Moved util modules to internal folders ✓
-* [ ] Save admin list to .env
+* [X] Save admin list to .env ✓
 * [ ] List of admin users ids with same owner privileges
 * [ ] Show embedded help html page
 * [ ] Create a command to encrypt and decrypt strings

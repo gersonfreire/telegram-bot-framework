@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-version = '0.3.1 fixed admin list ✓'
+version = '0.3.2 users management'
 
 # ------------------------------------------
 
