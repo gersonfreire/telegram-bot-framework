@@ -416,6 +416,7 @@ _Links:_
         admin_id_list: list[int] = None,
         links: list[str] = [],
         persistence_file: str = None,
+        disable_persistence = False,
         logger = logger
         ):
         
@@ -472,11 +473,10 @@ _Links:_
             
             # ---------- Build the bot application ------------
               
-            # TODO : Making bot persistant from the base class      
+            # Making bot persistant from the base class      
             # https://github.com/python-telegram-bot/python-telegram-bot/wiki/Making-your-bot-persistent
             self.persistence_file = f"{script_path}{os.sep}{self.bot_info.username + '.pickle'}" if not persistence_file else persistence_file
-            persistence = PicklePersistence(filepath=self.persistence_file, update_interval=20)
-            # application = Application.builder().token("TOKEN").persistence(persistence).build() 
+            persistence = PicklePersistence(filepath=self.persistence_file, update_interval=20) if not disable_persistence else None
             
             # Create an Application instance using the builder pattern            
             self.application = Application.builder().defaults(bot_defaults_build).token(self.token).post_init(self.post_init).post_stop(self.post_stop).persistence(persistence).build()            
@@ -711,9 +711,25 @@ _Links:_
     @with_log_admin
     async def default_start_handler(self, update: Update, context: CallbackContext, *args, **kwargs):
         
-        try:              
-            # fix user language code
+        try:                
+            # if the dictionary of users does not exist on bot_data, create it
+            if 'user_dict' not in context.bot_data:
+                context.bot_data['user_dict'] = {}
+                
+            # Insert or update user on the bot_data dictionary
+            context.bot_data['user_dict'][update.effective_user.id] = update.effective_user
+            
+            # force persistence of the bot_data dictionary
+            self.application.persistence.update_bot_data(context.bot_data) if self.application.persistence else None
+                      
+            # set effective language code
             language_code = context.user_data['language_code'] if 'language_code' in context.user_data else update.effective_user.language_code
+            
+            # force persistence update of the user data
+            self.application.persistence.update_user_data(update.effective_user.id, context.user_data) if self.application.persistence else None          
+            
+            # get user data from persistence
+            user_data = await self.application.persistence.get_user_data() if self.application.persistence else None
             
             await self.set_start_message(language_code, update.effective_user.full_name, update.effective_user.id)
                 
@@ -815,7 +831,10 @@ if __name__ == '__main__':
     if len(sys.argv) > 1 and sys.argv[1] == 'howto':
         
         # Instantiate the bot with an optional list of useful links
-        app = TlgBotFwk(links=['https://github.com/gersonfreire/telegram-bot-framework']) 
+        # app = TlgBotFwk(links=['https://github.com/gersonfreire/telegram-bot-framework']) 
+        
+        # Instantiate the bot without persistence
+        app = TlgBotFwk(disable_persistence=True)
         
         # How to send a direct, synchronously message without start the bot
         result = app.send_message_sync(app.admins_owner[0], f"_This was sent by a direct, synchronously message without start the bot as a how-to example_")
