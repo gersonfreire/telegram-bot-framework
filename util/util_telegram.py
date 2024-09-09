@@ -22,5 +22,6 @@ from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandl
 from telegram.ext import CallbackContext
 from telegram.ext import CallbackQueryHandler
 from telegram.ext import ConversationHandler
+from telegram.ext import PicklePersistence
 
 from telegram import BotCommandScopeAllPrivateChats, BotCommandScopeDefault, BotCommandScopeAllGroupChats, BotCommandScopeAllChatAdministrators, BotCommandScopeChat, BotCommandScopeChatAdministrators, BotCommandScopeChatMember, BotCommandScopeDefault, BotCommandScopeAllPrivateChats, BotCommandScopeAllGroupChats, BotCommandScopeAllChatAdministrators, BotCommandScopeChat, BotCommandScopeChatAdministrators, BotCommandScopeChatMember, BotCommandScope

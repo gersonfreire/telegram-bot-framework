@@ -414,7 +414,10 @@ _Links:_
         decrypt_key = None,
         disable_encryption = True,
         admin_id_list: list[int] = None,
-        links: list[str] = []):
+        links: list[str] = [],
+        persistence_file: str = None,
+        logger = logger
+        ):
         
         try: 
             self.hostname = socket.getfqdn()
@@ -467,8 +470,17 @@ _Links:_
             
             self.bot_defaults_build = bot_defaults_build 
             
+            # ---------- Build the bot application ------------
+                    
+            # Create the Application and pass it your bot's token.
+            self.persistence_file = f"{script_path}{os.sep}{self.bot_info.username + '.pickle'}" if not persistence_file else persistence_file
+            persistence = PicklePersistence(filepath=self.persistence_file)
+            # application = Application.builder().token("TOKEN").persistence(persistence).build() 
+            
             # Create an Application instance using the builder pattern            
-            self.application = Application.builder().defaults(bot_defaults_build).token(self.token).post_init(self.post_init).post_stop(self.post_stop).build() 
+            self.application = Application.builder().defaults(bot_defaults_build).token(self.token).post_init(self.post_init).post_stop(self.post_stop).persistence(persistence).build()            
+            
+            # --------------------------------------------------
             
             # save botname to .env file
             dotenv.set_key(self.env_file, 'BOT_NAME', self.bot_info.username)                       
