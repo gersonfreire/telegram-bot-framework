@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-version = '0.3.5 Show enviroment variables'
+version = '0.3.5 Show environment variables'
 
 # ------------------------------------------
 
