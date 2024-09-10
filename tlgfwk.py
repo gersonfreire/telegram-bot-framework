@@ -717,43 +717,37 @@ _Links:_
             #     raise pickle.UnpicklingError(f"Unsupported persistent id: {persid}")     
                     
         try:  
-            # force persistence of the bot_data dictionary
-            # await self.force_persistence(update, context)
-            
             # in case the persistence file does not exist, warn the user
             if not os.path.exists(self.persistence_file):
                 await update.message.reply_text(f"_Persistence file not found:_ {os.linesep}`{self.persistence_file}`")
                 return
                              
             # Read the bot .pickle persistence file and show it to the user
-            # with open(self.persistence_file, 'rb') as file:
-            #     pickle_data = pickle.load(file)    
-            # Load the pickle file with the persistent_load function
             with open(self.persistence_file, 'rb') as file:
                 unpickler = pickle.Unpickler(file)
                 unpickler.persistent_load = persistent_load
                 pickle_data = unpickler.load()                       
                 
-            # Serialize bot data
+            # First, serialize bot data with a custom encoder because it is a telegram bot user that is not serializable
             bot_data = next(iter(pickle_data['bot_data']['user_dict'].values()))
             serialized_bot_data = json.dumps(bot_data, cls=TelegramObjectEncoder, indent=4) 
-            print(f"JSON data: {serialized_bot_data}")            
-            # Then format it as json snippet
+            print(f"JSON data: {serialized_bot_data}") 
+                       
+            # Format bot data as json snippet and show to telegram user
             formatted_json = f"```json\n{serialized_bot_data}\n```"
             print(f"JSON data: {formatted_json}")
-            # Then show it to the telegram user
             await update.message.reply_text(f"_Bot data:_ {os.linesep}{formatted_json}")
             
-            # Now, remove the item 'bot_data" from the dictionary
+            # Now, remove the item 'bot_data" from the dictionary because it was already shown
             pickle_data.pop('bot_data')  
                       
-            # Then serialize the rest of all other items of dictionary data     
+            # Then serialize the rest of all other items of dictionary data with default encoder    
             serialized_other_data = json.dumps(pickle_data, indent=4) 
             print(f"JSON data: {serialized_other_data}") 
-            # Then format it as json snippet
+            
+            # Then format them as json snippet and show it to the telegram user
             formatted_json = f"```json\n{serialized_other_data}\n```"
             print(f"JSON data: {formatted_json}")
-            # Then show it to the telegram user
             await update.message.reply_text(f"_Chat and User data:_ {os.linesep}{formatted_json}")
             
         except Exception as e:
