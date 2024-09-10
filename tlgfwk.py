@@ -1,9 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
-version = '0.3.5 Show environment variables'
-
 # ------------------------------------------
+
+__version__ = '0.3.5 Show environment variables'
 
 from __init__ import *
 
@@ -12,11 +11,43 @@ import translations.translations as translations
 class TlgBotFwk(Application):
     
     # ------------- util functions ------------------
+     
+    async def force_persistence(self, update: Update, context: CallbackContext):
+        """Force the bot to save the persistence file
+
+        Args:
+            update (Update): _description_
+            context (CallbackContext): _description_
+        """
+        
+        try:
+            # if the dictionary of users does not exist on bot_data, create it
+            if 'user_dict' not in context.bot_data:
+                context.bot_data['user_dict'] = {}
+                
+            # Insert or update user on the bot_data dictionary
+            context.bot_data['user_dict'][update.effective_user.id] = update.effective_user
+            
+            # force persistence of the bot_data dictionary
+            self.application.persistence.update_bot_data(context.bot_data) if self.application.persistence else None
+                      
+            # set effective language code
+            language_code = context.user_data['language_code'] if 'language_code' in context.user_data else update.effective_user.language_code
+            
+            # force persistence update of the user data
+            self.application.persistence.update_user_data(update.effective_user.id, context.user_data) if self.application.persistence else None          
+            
+            # get user data from persistence
+            user_data = await self.application.persistence.get_user_data() if self.application.persistence else None
+            
+        except Exception as e:
+            logger.error(f"Error: {e}")
+            await update.message.reply_text(f"An error occurred: {e}")
     
     async def get_init_message(self): 
         try:
             post_init_message = f"""@{self.bot_name} *Started!*
-_Version:_   `{version}`
+_Version:_   `{__version__}`
 _Host:_     `{self.hostname}`
 _CWD:_ `{os.getcwd()}`
 _Path:_
@@ -135,8 +166,14 @@ _Links:_
             logger.error(f"Error in cmd_show_env: {e}")
             await update.message.reply_text(f"Sorry, we encountered an error: {e}")
     
-    # Function to add or update a setting in the .env file
     def add_or_update_env_setting(self, key, value):
+        """Function to add or update a setting in the .env file
+
+        Args:
+            key (_type_): _description_
+            value (_type_): _description_
+        """
+        
         # Read the existing .env file
         if os.path.exists(self.env_file):
             with open(self.env_file, 'r') as file:
@@ -422,8 +459,11 @@ _Links:_
 
     async def post_stop(self, application: Application) -> None:
         
-        try:
-            stop_message = f"_STOPPING_ @{self.bot_name} {os.linesep}`{hostname}`{os.linesep}`{__file__}` {bot_version}..."
+        try:            
+            # force persistence of all bot data
+            self.application.persistence.flush() if self.application.persistence else None
+            
+            stop_message = f"_STOPPING_ @{self.bot_name} {os.linesep}`{self.hostname}`{os.linesep}`{__file__}` {self.bot_name}..."
             logger.info(stop_message)
                      
             await self.send_admins_message(message=stop_message)
@@ -450,6 +490,7 @@ _Links:_
         links: list[str] = [],
         persistence_file: str = None,
         disable_persistence = False,
+        default_persistence_interval = 10,
         logger = logger,
         sort_commands = False,
         ):
@@ -467,9 +508,10 @@ _Links:_
             self.admin_id_string = [int(admin_id) for admin_id in os.environ.get('ADMIN_ID_LIST', '').split(',')]  
             self.admin_id_string = admin_id_list if admin_id_list else os.environ.get('ADMIN_ID_LIST', '')
             
-            self.all_commands = []
-            
+            self.all_commands = []            
             self.sort_commands = sort_commands
+            
+            self.default_persistence_interval = default_persistence_interval
 
             # Create an empty .env file at run time if it does not exist
             if not os.path.exists(self.env_file):
@@ -512,7 +554,7 @@ _Links:_
             # Making bot persistant from the base class      
             # https://github.com/python-telegram-bot/python-telegram-bot/wiki/Making-your-bot-persistent
             self.persistence_file = f"{script_path}{os.sep}{self.bot_info.username + '.pickle'}" if not persistence_file else persistence_file
-            persistence = PicklePersistence(filepath=self.persistence_file, update_interval=20) if not disable_persistence else None
+            persistence = PicklePersistence(filepath=self.persistence_file, update_interval=self.default_persistence_interval) if not disable_persistence else None
             
             # Create an Application instance using the builder pattern            
             self.application = Application.builder().defaults(bot_defaults_build).token(self.token).post_init(self.post_init).post_stop(self.post_stop).persistence(persistence).build()            
@@ -588,13 +630,19 @@ _Links:_
             show_env_handler = CommandHandler('showenv', self.cmd_show_env, filters=filters.User(user_id=self.admins_owner))
             self.application.add_handler(show_env_handler)
             
+            # add show pickle command handler
+            show_pickle_handler = CommandHandler('showpickle', self.cmd_show_pickle, filters=filters.User(user_id=self.admins_owner))
+            self.application.add_handler(show_pickle_handler)
+            
+            # add force persistence command handler
+            force_persistence_handler = CommandHandler('forcepersistence', self.cmd_force_persistence, filters=filters.User(user_id=self.admins_owner))
+            self.application.add_handler(force_persistence_handler)
+            
             self.application.add_handler(MessageHandler(filters.COMMAND, self.default_unknown_command))
             
         except Exception as e:
             logger.error(f"Error initializing handlers: {e}")
             return f'Sorry, we have a problem initializing handlers: {e}'
-      
-    # -------- Default command handlers --------
     
     @with_writing_action_sync
     def send_message_sync(self, chat_id: int, message: str):
@@ -613,6 +661,128 @@ _Links:_
         except Exception as e:
             logger.error(f"Error sending message: {e}")
             return f'Sorry, we have a problem sending message: {e}'
+       
+    # -------- Default command handlers --------
+    
+    @with_writing_action
+    @with_log_admin
+    async def cmd_force_persistence(self, update: Update, context: CallbackContext):
+        """Force the bot to save the persistence file
+
+        Args:
+            update (Update): _description_
+            context (CallbackContext): _description_
+        """
+        
+        try: 
+            # Set up persistence with a custom store interval (e.g., 60 seconds)
+            # persistence = PicklePersistence(filepath=self.persistence_file, update_interval=5)
+            # context.application.persistence = persistence
+                                    
+            # context.application.persistence.store_data = True  
+               
+            context.bot_data['force_save'] = True
+            context.application.persistence.update_bot_data(context.bot_data) if context.application.persistence else None
+            await context.application.persistence.flush()
+            
+            # await asyncio.sleep(5)
+            
+            await update.message.reply_text('Persistence file has been saved.') 
+            
+            # # return persistence to 60 seconds interval
+            # persistence = PicklePersistence(filepath='bot_data.pickle', update_interval=self.default_persistence_interval)
+            # context.application.persistence = persistence           
+            
+        except Exception as e:
+            logger.error(f"Error in cmd_force_persistence: {e}")
+            await update.message.reply_text(f"Sorry, we encountered an error: {e}")
+    
+    @with_writing_action
+    @with_log_admin
+    async def cmd_show_pickle(self, update: Update, context: CallbackContext):
+        """Show the bot persistence file
+
+        Args:
+            update (Update): _description_
+            context (CallbackContext): _description_
+        """
+                        
+        # Define the persistent_load function
+        def persistent_load(persid):
+            # Handle the persistent ID
+            # For example, you can return a default value or raise an error
+            if persid == "a known bot replaced by PTB's PicklePersistence":
+                return persid
+            # else:
+            #     raise pickle.UnpicklingError(f"Unsupported persistent id: {persid}")     
+                    
+        try:  
+            # force persistence of the bot_data dictionary
+            # await self.force_persistence(update, context)
+            
+            # in case the persistence file does not exist, warn the user
+            if not os.path.exists(self.persistence_file):
+                await update.message.reply_text(f"_Persistence file not found:_ {os.linesep}`{self.persistence_file}`")
+                return
+                             
+            # Read the bot .pickle persistence file and show it to the user
+            # with open(self.persistence_file, 'rb') as file:
+            #     pickle_data = pickle.load(file)    
+            # Load the pickle file with the persistent_load function
+            with open(self.persistence_file, 'rb') as file:
+                unpickler = pickle.Unpickler(file)
+                unpickler.persistent_load = persistent_load
+                pickle_data = unpickler.load()                       
+            
+            # convert the pickle data to a string and show it to the user
+            pickle_str = str(pickle_data)
+            
+            # Convert JSON data to a formatted string
+            json_snippet = json.dumps(pickle_str, indent=4)
+            # json_formatted = json.dumps(pickle_data['chat_data'], indent=4)
+            
+            # Object of type User is not JSON serializable
+            # json_formatted = json.dumps(pickle_data, indent=4)
+            # Serialize the User object using the custom encoder
+            # user_values = pickle_data['bot_data']['user_dict'].values()
+            
+            # Serialize bot data
+            bot_data = next(iter(pickle_data['bot_data']['user_dict'].values()))
+            serialized_bot_data = json.dumps(bot_data, cls=TelegramObjectEncoder, indent=4) 
+            print(f"JSON data: {serialized_bot_data}")            
+            # Then format it as json snippet
+            formatted_json = f"```json\n{serialized_bot_data}\n```"
+            print(f"JSON data: {formatted_json}")
+            # Then show it to the telegram user
+            await update.message.reply_text(f"_Bot data:_ {os.linesep}{formatted_json}")
+            
+            # Now, remove the item 'bot_data" from the dictionary
+            pickle_data.pop('bot_data')  
+                      
+            # Then serialize the rest of all other items of dictionary data     
+            serialized_other_data = json.dumps(pickle_data, indent=4) 
+            print(f"JSON data: {serialized_other_data}") 
+            # Then format it as json snippet
+            formatted_json = f"```json\n{serialized_other_data}\n```"
+            print(f"JSON data: {formatted_json}")
+            # Then show it to the telegram user
+            await update.message.reply_text(f"_Bot data:_ {os.linesep}{formatted_json}")
+            
+            # Then show it to the telegram user
+            # await update.message.reply_text(f"_Bot data:_ {os.linesep}{formatted_json}")  
+            # Format the message using Markdown as python default language
+            # formatted_json = f"```\n{json_snippet}\n```"  
+            # Format the message using Markdown and specify the language as 'json'
+            # formatted_json = f"```json\n{json_snippet}\n```"        
+                     
+            # await update.message.reply_text(f"Pickle data: {os.linesep}{serialized_user}", parse_mode=None)
+            
+            # print(f"Pickle data: {pickle_str}")
+            # print(f"JSON data: {json_snippet}")
+            
+        except Exception as e:
+            logger.error(f"Error in cmd_show_env: {e}")
+            await update.message.reply_text(f"Sorry, we encountered an error: {e}", parse_mode=None)
     
     @with_writing_action
     @with_log_admin
@@ -871,13 +1041,16 @@ if __name__ == '__main__':
     if len(sys.argv) > 1 and sys.argv[1] == 'howto':
         
         # Instantiate the bot with an optional list of useful links
-        # app = TlgBotFwk(links=['https://github.com/gersonfreire/telegram-bot-framework']) 
+        app = TlgBotFwk(links=['https://github.com/gersonfreire/telegram-bot-framework']) 
         
         # Instantiate the bot without persistence and sort commands list alphabetically
         app = TlgBotFwk(disable_persistence=True, sort_commands=True)
         
         # How to send a direct, synchronously message without start the bot
         result = app.send_message_sync(app.admins_owner[0], f"_This was sent by a direct, synchronously message without start the bot as a how-to example_")
+        
+        # Test global error handler
+        raise Exception("A test error was intentionally raised to test the global error handler")
     
     else:    
         app = TlgBotFwk() 

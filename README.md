@@ -153,7 +153,7 @@ python tlgfwk.py
 * [X] List of admin users ids with same owner privileges ✓
 * [X] Sort help comands alphabetically
 * [X] Show environment variables ✓
-* [ ] Show a .picle file content
+* [X] Command to show a .pickle file content ✓
 * [ ] Create a plugin system
 * [ ] Create a command decorator
 * [ ] Users management
