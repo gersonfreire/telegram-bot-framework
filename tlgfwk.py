@@ -733,19 +733,7 @@ _Links:_
                 unpickler = pickle.Unpickler(file)
                 unpickler.persistent_load = persistent_load
                 pickle_data = unpickler.load()                       
-            
-            # convert the pickle data to a string and show it to the user
-            pickle_str = str(pickle_data)
-            
-            # Convert JSON data to a formatted string
-            json_snippet = json.dumps(pickle_str, indent=4)
-            # json_formatted = json.dumps(pickle_data['chat_data'], indent=4)
-            
-            # Object of type User is not JSON serializable
-            # json_formatted = json.dumps(pickle_data, indent=4)
-            # Serialize the User object using the custom encoder
-            # user_values = pickle_data['bot_data']['user_dict'].values()
-            
+                
             # Serialize bot data
             bot_data = next(iter(pickle_data['bot_data']['user_dict'].values()))
             serialized_bot_data = json.dumps(bot_data, cls=TelegramObjectEncoder, indent=4) 
@@ -766,19 +754,7 @@ _Links:_
             formatted_json = f"```json\n{serialized_other_data}\n```"
             print(f"JSON data: {formatted_json}")
             # Then show it to the telegram user
-            await update.message.reply_text(f"_Bot data:_ {os.linesep}{formatted_json}")
-            
-            # Then show it to the telegram user
-            # await update.message.reply_text(f"_Bot data:_ {os.linesep}{formatted_json}")  
-            # Format the message using Markdown as python default language
-            # formatted_json = f"```\n{json_snippet}\n```"  
-            # Format the message using Markdown and specify the language as 'json'
-            # formatted_json = f"```json\n{json_snippet}\n```"        
-                     
-            # await update.message.reply_text(f"Pickle data: {os.linesep}{serialized_user}", parse_mode=None)
-            
-            # print(f"Pickle data: {pickle_str}")
-            # print(f"JSON data: {json_snippet}")
+            await update.message.reply_text(f"_Chat and User data:_ {os.linesep}{formatted_json}")
             
         except Exception as e:
             logger.error(f"Error in cmd_show_env: {e}")
