@@ -5,6 +5,36 @@
 __version__ = '0.3.7 Added command to show users from persistence file'
 
 from __init__ import *
+from typing import List
+
+# async def cmd_show_users(self, update: Update, context: CallbackContext):
+#     """Show the users from the persistence file
+
+#     Args:
+#         update (Update): The update object
+#         context (CallbackContext): The callback context
+#     """
+#     try:
+#         # Get the user dictionary from the bot data
+#         user_dict = context.bot_data.get('user_dict', {})
+        
+#         # Check if there are any users in the dictionary
+#         if user_dict:
+#             # Create a list of user names
+#             user_names = [user.username for user in user_dict.values()]
+            
+#             # Create a message with the user names
+#             message = "Users from persistence file:\n" + "\n".join(user_names)
+#         else:
+#             message = "No users found in the persistence file."
+        
+#         # Send the message to the user
+#         await update.message.reply_text(message)
+        
+#     except Exception as e:
+#         logger.error(f"Error in cmd_show_users: {e}")
+#         await update.message.reply_text(f"Sorry, we encountered an error: {e}")
+
 
 import translations.translations as translations
 

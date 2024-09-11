@@ -6,6 +6,8 @@ import translations.translations as translations
 
 from handlers import *
 import translations as translations
+# import translations.translations as translations
+from typing import List
 
 from cryptography.fernet import Fernet
 
