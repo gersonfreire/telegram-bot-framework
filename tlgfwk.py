@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # ------------------------------------------
 
-__version__ = '0.3.8 Added command to show users from persistence file'
+__version__ = '0.3.9 Improved command to show users from persistence file'
 
 from __init__ import *
 import translations.translations as translations
@@ -688,12 +688,11 @@ _Links:_
         
         try:
             # Get the user dictionary from the bot data
-            user_dict = context.bot_data.get('user_dict', {})
+            all_users_data = context.bot_data.get('user_dict', {})
             
             # Check if there are any users in the dictionary
-            if user_dict:
-                # {' ' * (20 - len(str(user.name)))}
-                user_names = [f"`{str(user.id):<11}` `{str(user.full_name)[:20]:<20}`  {format_string(user.name)} " for user in user_dict.values()]               
+            if all_users_data:
+                user_names = [f"`{str(user.id):<11}` `{str(user.full_name)[:20]:<20}`  {format_string(user.name)} " for user in all_users_data.values()]               
                 # Create a message with the user names
                 message = f"_Current active bot users:_{os.linesep}" + os.linesep.join(user_names)
             else:
