@@ -682,7 +682,7 @@ _Links:_
             
             # Check if there are any users in the dictionary
             if user_dict:
-                user_names = [f"`{str(user.id):<11}` `{str(user.username):<20}`" for user in user_dict.values()]               
+                user_names = [f"`{str(user.id):<11}` `{str(user.username)[:20]:<20}`" for user in user_dict.values()]               
                 # Create a message with the user names
                 message = f"_Current active bot users:_{os.linesep}" + os.linesep.join(user_names)
             else:
