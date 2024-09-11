@@ -676,13 +676,24 @@ _Links:_
             update (Update): The update object
             context (CallbackContext): The callback context
         """
+        
+        def format_string(input_string):
+            # Truncate the string to a maximum length of 20 characters
+            truncated_string = input_string[:20]
+            
+            # Fill the string with spaces if it is less than 20 characters
+            formatted_string = truncated_string.ljust(20)
+            
+            return formatted_string        
+        
         try:
             # Get the user dictionary from the bot data
             user_dict = context.bot_data.get('user_dict', {})
             
             # Check if there are any users in the dictionary
             if user_dict:
-                user_names = [f"`{str(user.id):<11}` `{str(user.username)[:20]:<20}`" for user in user_dict.values()]               
+                # {' ' * (20 - len(str(user.name)))}
+                user_names = [f"`{str(user.id):<11}` `{format_string(user.name)}` `{str(user.full_name)[:20]:<20}`" for user in user_dict.values()]               
                 # Create a message with the user names
                 message = f"_Current active bot users:_{os.linesep}" + os.linesep.join(user_names)
             else:
