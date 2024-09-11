@@ -1,3 +1,15 @@
+import os,sys
+   
+# ---- Add parent folder to import path ----
+script_path = os.path.dirname(os.path.realpath(__file__))
+parent_folder = os.path.dirname(script_path)
+common_module_path = rf"{parent_folder}{os.sep}"
+sys.path.append(common_module_path)
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.append(parent_folder)
+script_name = os.path.basename(sys.argv[0]).replace('.py', '')
+
+# -----------------------------------------
 
 import tlgfwk as tlgfwk
 
@@ -13,9 +25,9 @@ class SampleBot(tlgfwk.TlgBotFwk):
         # A simple start command response
         await update.message.reply_text(f'Hello {update.effective_user.name}! Welcome to My Telegram Bot.')    
     
-    def __init__(self, token: str = None, env_file: str = None, bot_name: str = None, bot_owner: str = None, bots_json_file: str = None, bot_defaults_build = None, **kwargs):
+    def __init__(self, token: str = None, env_file: str = None,bot_owner: str = None, bot_defaults_build = None):
         
-        super().__init__(token, env_file, bot_name, bot_owner, bots_json_file, bot_defaults_build, **kwargs)
+        super().__init__(token=token, env_file=env_file, bot_owner=bot_owner, bot_defaults_build=bot_defaults_build)
 
     def initialize_handlers(self):
         
@@ -32,7 +44,6 @@ class SampleBot(tlgfwk.TlgBotFwk):
 
 if __name__ == '__main__':
     
-    # app = tlgfwk.TlgBotFwk() 
     app = SampleBot()
     
     app.run()

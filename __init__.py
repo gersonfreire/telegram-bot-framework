@@ -72,8 +72,8 @@ class TelegramObjectEncoder(json.JSONEncoder):
             return telegram_object_to_dict(obj)
         except TypeError:
             return super().default(obj)
-        
-# ------------------------------------------
+       
+# ---- Add parent folder to import path ----
 script_path = os.path.dirname(os.path.realpath(__file__))
 parent_folder = os.path.dirname(script_path)
 common_module_path = rf"{parent_folder}{os.sep}"

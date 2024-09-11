@@ -500,7 +500,7 @@ _Links:_
             self.main_script_path = sys.argv[0]
             self.bot_name = None
              
-            self.env_file = env_file 
+            self.env_file = env_file if env_file else '.env'
             self.logger = logger 
             self.token = token if token else ''
             self.bot_owner = bot_owner if bot_owner else ''
@@ -514,7 +514,7 @@ _Links:_
             self.default_persistence_interval = default_persistence_interval
 
             # Create an empty .env file at run time if it does not exist
-            if not os.path.exists(self.env_file):
+            if self.env_file and not os.path.exists(self.env_file):
                 open(self.env_file, 'w').close() 
                 # and add en empty line with token and bot owner
                 dotenv.set_key(self.env_file, 'DEFAULT_BOT_TOKEN',self.token)
