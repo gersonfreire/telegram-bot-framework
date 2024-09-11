@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # ------------------------------------------
 
-__version__ = '0.3.9 Improved command to show users from persistence file'
+__version__ = '0.4.0 Improved command to show users from persistence file'
 
 from __init__ import *
 import datetime
