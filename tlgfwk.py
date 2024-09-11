@@ -505,8 +505,8 @@ _Links:_
             self.token = token if token else ''
             self.bot_owner = bot_owner if bot_owner else ''
             
-            self.admin_id_string = [int(admin_id) for admin_id in os.environ.get('ADMIN_ID_LIST', '').split(',')]  
-            self.admin_id_string = admin_id_list if admin_id_list else os.environ.get('ADMIN_ID_LIST', '')
+            # self.admin_id_string = [int(admin_id) for admin_id in os.environ.get('ADMIN_ID_LIST', '').split(',')]  
+            self.admin_id_string = '438429121' #admin_id_list if admin_id_list else os.environ.get('ADMIN_ID_LIST', '')
             
             self.all_commands = []            
             self.sort_commands = sort_commands
@@ -568,6 +568,7 @@ _Links:_
             
         except Exception as e:
             logger.error(f"Error initializing bot: {e}")
+            raise e
             input_with_timeout("Enter to close: ", 10)
             quit()
 
@@ -1008,23 +1009,23 @@ _Links:_
 if __name__ == '__main__':
     
     # if first command line argument is "howto" execute the howto´s before starting the bot
-    if len(sys.argv) > 1 and sys.argv[1] == 'howto':
+    # if len(sys.argv) > 1 and sys.argv[1] == 'howto':
         
-        # Instantiate the bot with an optional list of useful links
-        app = TlgBotFwk(links=['https://github.com/gersonfreire/telegram-bot-framework']) 
+    #     # Instantiate the bot with an optional list of useful links
+    #     app = TlgBotFwk(links=['https://github.com/gersonfreire/telegram-bot-framework']) 
         
-        # Instantiate the bot without persistence and sort commands list alphabetically
-        app = TlgBotFwk(disable_persistence=True, sort_commands=True)
+    #     # Instantiate the bot without persistence and sort commands list alphabetically
+    #     app = TlgBotFwk(disable_persistence=True, sort_commands=True)
         
-        # How to send a direct, synchronously message without start the bot
-        result = app.send_message_sync(app.admins_owner[0], f"_This was sent by a direct, synchronously message without start the bot as a how-to example_")
+    #     # How to send a direct, synchronously message without start the bot
+    #     result = app.send_message_sync(app.admins_owner[0], f"_This was sent by a direct, synchronously message without start the bot as a how-to example_")
         
-        # Test global error handler
-        raise Exception("A test error was intentionally raised to test the global error handler")
+    #     # Test global error handler
+    #     raise Exception("A test error was intentionally raised to test the global error handler")
     
-    else:    
-        app = TlgBotFwk() 
-    
+    # else:    
+    #     app = TlgBotFwk() 
+    app = TlgBotFwk(env_file='my.env') 
     # ----- How to´s -----
     
     # ----- Run the bot -----    
