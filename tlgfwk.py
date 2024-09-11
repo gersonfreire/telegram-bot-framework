@@ -677,12 +677,12 @@ _Links:_
             context (CallbackContext): The callback context
         """
         
-        def format_string(input_string):
+        def format_string(input_string, max_length=20):
             # Truncate the string to a maximum length of 20 characters
-            truncated_string = input_string[:20]
+            truncated_string = input_string[:max_length]
             
             # Fill the string with spaces if it is less than 20 characters
-            formatted_string = truncated_string.ljust(20)
+            formatted_string = truncated_string.ljust(max_length)
             
             return formatted_string        
         
@@ -693,7 +693,7 @@ _Links:_
             # Check if there are any users in the dictionary
             if user_dict:
                 # {' ' * (20 - len(str(user.name)))}
-                user_names = [f"`{str(user.id):<11}` `{format_string(user.name)}` `{str(user.full_name)[:20]:<20}`" for user in user_dict.values()]               
+                user_names = [f"`{str(user.id):<11}` `{str(user.full_name)[:20]:<20}`  {format_string(user.name)} " for user in user_dict.values()]               
                 # Create a message with the user names
                 message = f"_Current active bot users:_{os.linesep}" + os.linesep.join(user_names)
             else:
