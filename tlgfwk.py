@@ -682,11 +682,9 @@ _Links:_
             
             # Check if there are any users in the dictionary
             if user_dict:
-                # Create a list of user names
-                user_names = [user.username for user in user_dict.values()]
-                
+                user_names = [f"`{str(user.id):<11}` `{str(user.username):<20}`" for user in user_dict.values()]               
                 # Create a message with the user names
-                message = "Users from persistence file:\n" + "\n".join(user_names)
+                message = f"_Current active bot users:_{os.linesep}" + os.linesep.join(user_names)
             else:
                 message = "No users found in the persistence file."
             
