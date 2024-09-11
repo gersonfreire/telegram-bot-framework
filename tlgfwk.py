@@ -568,7 +568,6 @@ _Links:_
             
         except Exception as e:
             logger.error(f"Error initializing bot: {e}")
-            raise e
             input_with_timeout("Enter to close: ", 10)
             quit()
 
