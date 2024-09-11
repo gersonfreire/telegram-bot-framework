@@ -690,12 +690,10 @@ _Links:_
         def get_user_line(user):
             
             # Get the user data buffer from bot context
-            user_data = context.application.persistence.get_user_data(user.id) if context.application.persistence else None
-            last_message = context.bot_data['user_status'][update.effective_user.id]['last_message_date'] if 'user_status' in context.bot_data and update.effective_user.id in context.bot_data['user_status'] else (datetime.datetime.now()+ timedelta(hours=-3)).strftime('%d/%m/%Y %H:%M:%S')             
-            
+            last_message = context.bot_data['user_status'][update.effective_user.id]['last_message_date'] if 'user_status' in context.bot_data and update.effective_user.id in context.bot_data['user_status'] else (datetime.datetime.now()+ timedelta(hours=-3)).strftime('%d/%m/%Y %H:%M:%S')      
             
             # Get the user line
-            user_line = f"`{str(user.id):<11}` `{str(user.full_name)[:20]:<20}`  {format_string(user.name)} "
+            user_line = f"`{str(user.id):<11}` `{str(user.full_name)[:20]:<20}`  `{last_message}`  {format_string(user.name)}"
             
             return user_line
         
