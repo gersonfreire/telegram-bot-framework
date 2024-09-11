@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # ------------------------------------------
 
-__version__ = '0.3.5 Show environment variables'
+__version__ = '0.3.6 Show environment variables'
 
 from __init__ import *
 
