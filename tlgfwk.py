@@ -637,6 +637,10 @@ _Links:_
             force_persistence_handler = CommandHandler('forcepersistence', self.cmd_force_persistence, filters=filters.User(user_id=self.admins_owner))
             self.application.add_handler(force_persistence_handler)
             
+            # Add admin command to show users from persistence file
+            show_users_handler = CommandHandler('showusers', self.cmd_show_users, filters=filters.User(user_id=self.admins_owner))
+            self.application.add_handler(show_users_handler)
+            
             self.application.add_handler(MessageHandler(filters.COMMAND, self.default_unknown_command))
             
         except Exception as e:
