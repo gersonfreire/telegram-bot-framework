@@ -690,10 +690,12 @@ _Links:_
         def get_user_line(user):
             
             # Get the user data buffer from bot context
-            last_message = context.bot_data['user_status'][update.effective_user.id]['last_message_date'] if 'user_status' in context.bot_data and update.effective_user.id in context.bot_data['user_status'] else (datetime.datetime.now()+ timedelta(hours=-3)).strftime('%d/%m/%Y %H:%M:%S')      
+            last_message = context.bot_data['user_status'][user.id]['last_message_date'] if 'user_status' in context.bot_data and user.id in context.bot_data['user_status'] else (datetime.datetime.now()+ timedelta(hours=-3)).strftime('%d/%m %H:%M')      
             
             # Get the user line
             user_line = f"`{str(user.id):<11}` `{str(user.full_name)[:20]:<20}`  `{last_message}`  {format_string(user.name)}"
+            user_line = f"`{str(user.full_name)[:12]:<12}` `{last_message}` {format_string(user.name,15)}"
+            user_line = f"`{str(user.id)[:10]:<10}` `{last_message}` {user.name}"
             
             return user_line
         

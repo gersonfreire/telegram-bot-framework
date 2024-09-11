@@ -26,7 +26,7 @@ def with_writing_action(handler):
             
             # Add to bot_data the last time the user accessed the bot
             context.bot_data['user_status'] = {update.effective_user.id:{}} if 'user_status' not in context.bot_data else context.bot_data['user_status']             
-            context.bot_data['user_status'][update.effective_user.id]['last_message_date'] = (update.message.date + timedelta(hours=-3)).strftime('%d/%m/%Y %H:%M:%S')             
+            context.bot_data['user_status'][update.effective_user.id]['last_message_date'] = (update.message.date + timedelta(hours=-3)).strftime('%d/%m %H:%M')             
             
             return await handler(self, update, context, *args, **kwargs)
         
