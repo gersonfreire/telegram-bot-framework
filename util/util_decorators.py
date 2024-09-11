@@ -20,9 +20,15 @@ from util.util_telegram import *
 def with_writing_action(handler):
     @wraps(handler)
     async def wrapper(self, update: Update, context: CallbackContext, *args, **kwargs):
-        try:                
+        
+        try:      
+                      
             await context.bot.send_chat_action(chat_id=update.effective_chat.id, action=ChatAction.TYPING)
-            self.logger.debug(f"Typing action sent to chat_id: {update.effective_chat.id}")
+            self.logger.debug(f"Typing action sent to chat_id: {update.effective_chat.id}")            
+             
+            # Insert or update user on the bot_data dictionary
+            context.bot_data['user_dict'] = {} if 'user_dict' not in context.bot_data else context.bot_data['user_dict']
+            context.bot_data['user_dict'][update.effective_user.id] = update.effective_user 
             
             # Add to bot_data the last time the user accessed the bot
             context.bot_data['user_status'] = {update.effective_user.id:{}} if 'user_status' not in context.bot_data else context.bot_data['user_status']             

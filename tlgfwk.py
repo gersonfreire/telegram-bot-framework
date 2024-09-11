@@ -949,10 +949,7 @@ _Links:_
             # if the dictionary of users does not exist on bot_data, create it
             if 'user_dict' not in context.bot_data:
                 context.bot_data['user_dict'] = {}
-                
-            # Insert or update user on the bot_data dictionary
-            context.bot_data['user_dict'][update.effective_user.id] = update.effective_user
-            
+                        
             # force persistence of the bot_data dictionary
             self.application.persistence.update_bot_data(context.bot_data) if self.application.persistence else None
                       
