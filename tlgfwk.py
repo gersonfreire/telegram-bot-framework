@@ -505,7 +505,7 @@ _Links:_
             self.token = token if token else ''
             self.bot_owner = bot_owner if bot_owner else ''
             
-            self.admin_id_string = [int(admin_id) for admin_id in os.environ.get('ADMIN_ID_LIST', '').split(',')]  
+            # self.admin_id_string = [int(admin_id) for admin_id in os.environ.get('ADMIN_ID_LIST', '').split(',')]  
             self.admin_id_string = admin_id_list if admin_id_list else os.environ.get('ADMIN_ID_LIST', '')
             
             self.all_commands = []            
