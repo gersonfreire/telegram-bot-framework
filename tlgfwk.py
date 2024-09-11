@@ -5,7 +5,7 @@
 __version__ = '0.3.7 Added command to show users from persistence file'
 
 from __init__ import *
-from typing import List
+import translations.translations as translations
 
 # async def cmd_show_users(self, update: Update, context: CallbackContext):
 #     """Show the users from the persistence file
@@ -34,9 +34,6 @@ from typing import List
 #     except Exception as e:
 #         logger.error(f"Error in cmd_show_users: {e}")
 #         await update.message.reply_text(f"Sorry, we encountered an error: {e}")
-
-
-import translations.translations as translations
 
 class TlgBotFwk(Application):
     

@@ -2,7 +2,6 @@ import sys, os, logging, socket, pdb, json, pickle, dotenv
 import base64
 
 from telegram import Bot, Chat, Message, User
-import translations.translations as translations
 
 from handlers import *
 import translations as translations
