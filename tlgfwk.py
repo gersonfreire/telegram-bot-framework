@@ -946,10 +946,6 @@ _Links:_
             # Insert or update user on the bot_data dictionary
             context.bot_data['user_dict'][update.effective_user.id] = update.effective_user
             
-            # # Add to bot_data the last time the user accessed the bot
-            # context.bot_data['user_status'] = {update.effective_user.id:{}} if 'user_status' not in context.bot_data else context.bot_data['user_status']             
-            # context.bot_data['user_status'][update.effective_user.id]['last_message_date'] = (update.message.date + timedelta(hours=-3)).strftime('%d/%m/%Y %H:%M:%S') 
-            
             # force persistence of the bot_data dictionary
             self.application.persistence.update_bot_data(context.bot_data) if self.application.persistence else None
                       
