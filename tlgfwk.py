@@ -686,13 +686,19 @@ _Links:_
             
             return formatted_string        
         
+        def get_user_line(user):
+            # Get the user line
+            user_line = f"`{str(user.id):<11}` `{str(user.full_name)[:20]:<20}`  {format_string(user.name)} "
+            
+            return user_line
+        
         try:
             # Get the user dictionary from the bot data
             all_users_data = context.bot_data.get('user_dict', {})
             
             # Check if there are any users in the dictionary
             if all_users_data:
-                user_names = [f"`{str(user.id):<11}` `{str(user.full_name)[:20]:<20}`  {format_string(user.name)} " for user in all_users_data.values()]               
+                user_names = [get_user_line(user) for user in all_users_data.values()]               
                 # Create a message with the user names
                 message = f"_Current active bot users:_{os.linesep}" + os.linesep.join(user_names)
             else:
@@ -939,6 +945,10 @@ _Links:_
                 
             # Insert or update user on the bot_data dictionary
             context.bot_data['user_dict'][update.effective_user.id] = update.effective_user
+            
+            # # Add to bot_data the last time the user accessed the bot
+            # context.bot_data['user_status'] = {update.effective_user.id:{}} if 'user_status' not in context.bot_data else context.bot_data['user_status']             
+            # context.bot_data['user_status'][update.effective_user.id]['last_message_date'] = (update.message.date + timedelta(hours=-3)).strftime('%d/%m/%Y %H:%M:%S') 
             
             # force persistence of the bot_data dictionary
             self.application.persistence.update_bot_data(context.bot_data) if self.application.persistence else None

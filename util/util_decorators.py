@@ -9,6 +9,7 @@ Returns:
 """
 
 # Define the decorator for all functions that require the bot to send a typing action
+from datetime import timedelta
 from functools import wraps
 
 from telegram import InlineKeyboardButton, Update
@@ -22,7 +23,13 @@ def with_writing_action(handler):
         try:                
             await context.bot.send_chat_action(chat_id=update.effective_chat.id, action=ChatAction.TYPING)
             self.logger.debug(f"Typing action sent to chat_id: {update.effective_chat.id}")
+            
+            # Add to bot_data the last time the user accessed the bot
+            context.bot_data['user_status'] = {update.effective_user.id:{}} if 'user_status' not in context.bot_data else context.bot_data['user_status']             
+            context.bot_data['user_status'][update.effective_user.id]['last_message_date'] = (update.message.date + timedelta(hours=-3)).strftime('%d/%m/%Y %H:%M:%S')             
+            
             return await handler(self, update, context, *args, **kwargs)
+        
         except Exception as e:
             self.logger.error(f"Error: {e}")
             return await handler(self, update, context, *args, **kwargs)
