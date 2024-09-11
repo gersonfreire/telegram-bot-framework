@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # ------------------------------------------
 
-__version__ = '0.3.7 Added command to show users from persistence file'
+__version__ = '0.3.8 Added command to show users from persistence file'
 
 from __init__ import *
 import translations.translations as translations
