@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # ------------------------------------------
 
-__version__ = '0.3.6 Show environment variables'
+__version__ = '0.3.7 Added command to show users from persistence file'
 
 from __init__ import *
 

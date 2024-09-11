@@ -152,8 +152,9 @@ python tlgfwk.py
 * [X] Making bot persistant from the base class ✓
 * [X] List of admin users ids with same owner privileges ✓
 * [X] Sort help comands alphabetically
-* [X] Show environment variables ✓
-* [X] Command to show a .pickle file content ✓
+* [X] Admin command to show environment variables ✓
+* [X] Admin command to show a .pickle file content ✓
+* [ ] Admin command to show users from persistence file
 * [ ] Create a plugin system
 * [ ] Create a command decorator
 * [ ] Users management
