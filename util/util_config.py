@@ -51,17 +51,6 @@ logger.debug(f"Log folder: {log_folder}")
 
 # ------------------------------------------
 
-# from util.util_console import input_with_timeout
-# import util.util_open_ai as openai
-
-# import util.util_multi_sql as db
-# db.default_database_file = os.path.join(f'{os.path.dirname(__file__)}{os.sep}db', "multi.db")
-# logger.info(f"default_database_file: {db.default_database_file} {sys.argv[0]}")
-
-# import util.util_bulk_questions as bq
-
-# ------------------------------------------
-
 hostname = socket.getfqdn()
 
 bot_version = "9.0.0"
@@ -117,6 +106,10 @@ users_questions_totals = {
         "last_questions": 0,
         "last_correct_answers": 0,
     }
+}
+
+current_bot_settings = {
+    'token': '1234567890:ABCDEF'
 }
 
 
@@ -358,6 +351,10 @@ if __name__ == "__main__":
         "á": "à",
         "ç": "ã"
     }
+    
+    # in case the folder of config file does not exist, create it
+    if not os.path.exists(os.path.dirname(DEFAULT_FILE_PATH)):
+        os.makedirs(os.path.dirname(DEFAULT_FILE_PATH))
     
     # ler arquivo json com caracteres acentuados da lingua portugesa e preserválos na leitura
     with open(DEFAULT_FILE_PATH, 'r', encoding='utf-8') as f:

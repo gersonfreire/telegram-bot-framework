@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # ------------------------------------------
 
-__version__ = '0.4.0 Improved command to show users from persistence file'
+__version__ = '0.5.0 Stripe integration'
 
 from __init__ import *
 import datetime
@@ -1058,6 +1058,8 @@ _Links:_
         
 if __name__ == '__main__':
     
+    # ----- How to´s -----
+    
     # if first command line argument is "howto" execute the howto´s before starting the bot
     if len(sys.argv) > 1 and sys.argv[1] == 'howto':
         
@@ -1075,8 +1077,9 @@ if __name__ == '__main__':
     
     else:    
         app = TlgBotFwk() 
-    
-    # ----- How to´s -----
+        
+    # from util.util_stripe_new import *
+    # util_stripe_main(application=application)
     
     # ----- Run the bot -----    
     app.run()
