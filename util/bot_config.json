@@ -1,0 +1,1620 @@
+{
+    "EletrobrasBot": {
+        "token": "2032614524:AAEBarmIrEbB2_wq46ZrMeH-pJIVGo2tmJk",
+        "admin": 438429121,
+        "owner": "RosaCelular",
+        "owner_phone": "+55 27 99785 0410",
+        "stripe_token": {
+            "test": "",
+            "live": ""
+        },
+        "bot_url": "https://t.me/EletrobrasBot?start=bXl1c2VyQGVtYWlsLmNvbTo6UGFzc3dAM3dvcmQ",
+        "group": "Cloud",
+        "group_name": "Cloud",
+        "group_url": "https://t.me/@EletrobrasBot",
+        "bot_short_desc": "Contabo Tests",
+        "admin_only": true,
+        "commands": [
+            {
+                "BotCommand": {
+                    "command": "start",
+                    "description": "Start"
+                },
+                "action": "cmd_start"
+            },
+            {
+                "BotCommand": {
+                    "command": "help",
+                    "description": "Help"
+                },
+                "action": "util_bot_template.cmd_help"
+            },
+            {
+                "BotCommand": {
+                    "command": "instances",
+                    "description": "Show instances"
+                },
+                "action": "template_contabo_bot.cmd_get_instances"
+            },
+            {
+                "BotCommand": {
+                    "command": "snapshots",
+                    "description": "Show snapshots"
+                },
+                "action": "template_contabo_bot.cmd_get_snapshots"
+            },
+            {
+                "BotCommand": {
+                    "command": "backup",
+                    "description": "Make a backup of an instance"
+                },
+                "action": "template_contabo_bot.cmd_backup_snapshot"
+            },
+            {
+                "BotCommand": {
+                    "command": "backupall",
+                    "description": "Make a backup of all instances"
+                },
+                "action": "template_contabo_bot.cmd_backup_all_snapshots"
+            },
+            {
+                "BotCommand": {
+                    "command": "autobackup",
+                    "description": "Schedule automatic backup of all instances"
+                },
+                "action": "template_contabo_bot.cmd_auto_backup"
+            },
+            {
+                "BotCommand": {
+                    "command": "username",
+                    "description": "Show user"
+                },
+                "action": "template_contabo_bot.cmd_get_credentials"
+            },
+            {
+                "BotCommand": {
+                    "command": "password",
+                    "description": "Show password"
+                },
+                "action": "template_contabo_bot.cmd_get_credentials",
+                "admin": false
+            },
+            {
+                "BotCommand": {
+                    "command": "clientid",
+                    "description": "Show Client-id"
+                },
+                "action": "template_contabo_bot.cmd_get_credentials",
+                "admin": false
+            },
+            {
+                "BotCommand": {
+                    "command": "clientsecret",
+                    "description": "Show Client-secret"
+                },
+                "action": "template_contabo_bot.cmd_get_credentials",
+                "admin": false
+            }
+        ]
+    },
+    "SmartMonitTestBot": {
+        "token": "1076729431:AAE95s3Q_QKkEtVxnProc5BRxdqxKo_S7v8",
+        "admin": 438429121,
+        "owner": "RosaCelular",
+        "owner_phone": "+55 27 99785 0410",
+        "stripe_token": {
+            "test": "284685063:TEST:ZGQ1ZjQ2ZTVjNDcw",
+            "live": "284685063:TEST:ZGQ1ZjQ2ZTVjNDcw"
+        },
+        "bot_url": "https://t.me/SmartMonitTestBot?start=bXl1c2VyQGVtYWlsLmNvbTo6UGFzc3dAM3dvcmQ",
+        "group": "Bots in Dev Tests",
+        "group_name": "Bots in Dev Tests",
+        "group_url": "https://t.me/SmartMonitTestBot",
+        "bot_short_desc": "Bot Test",
+        "admin_only": true,
+        "default_start_menu": "main_menu_bot",
+        "commands": [
+            {
+                "BotCommand": {
+                    "command": "start",
+                    "description": "Iniciar"
+                },
+                "action": "cmd_start"
+            },
+            {
+                "BotCommand": {
+                    "command": "help",
+                    "description": "Ajuda"
+                },
+                "action": "cmd_help"
+            },
+            {
+                "BotCommand": {
+                    "command": "pay",
+                    "description": "Recarga"
+                },
+                "action": "start_without_shipping_callback"
+            },
+            {
+                "BotCommand": {
+                    "command": "version",
+                    "description": "Vers\u00e3o"
+                },
+                "action": "cmd_version",
+                "admin": true
+            },  
+            {
+                "BotCommand": {
+                    "command": "git",
+                    "description": "Git"
+                },
+                "action": "cmd_git",
+                "admin": true
+            }, 
+            {
+                "BotCommand": {
+                    "command": "cnpj",
+                    "description": "Consultar por CNPJ"
+                },
+                "action": "util.util_cnpj.cmd_get_by_cnpj"
+            }
+        ],
+        "default_db_connection_string": "DRIVER={ODBC Driver 17 for SQL Server};SERVER=llama2.brazilsouth.cloudapp.azure.com;DATABASE=rfb;UID=sa;PWD=Rosa@210856",
+        "sws_settings": {
+            "default_username": "gersonfaf61@gmail.com",
+            "default_pass": "pjIx6@aN",
+            "default_soap_username": "gersonfaf61@gmail.com",
+            "default_soap_pass": "pjIx6@aN",
+            "default_soap_username2": "gersonfaf61@gmail.com",
+            "default_soap_pass2": "pjIx6@aN",
+            "base_url_dev": "http://svcs.soawebservices.com.br/webservices/test-drive/sws/administracao.asmx?wsdl",
+            "base_url_prod": "http://svcs.soawebservices.com.br/webservices/producao/sws/administracao.asmx?wsdl",
+            "base_url_dev_cep": "http://svcs.soawebservices.com.br/webservices/test-drive/cep/cep.asmx?wsdl",
+            "base_url_prod_cep": "http://svcs.soawebservices.com.br/webservices/producao/cep/cep.asmx?wsdl",
+            "base_url_dev_cdc": "http://www.soawebservices.com.br/webservices/test-drive/cdc/cdc.asmx?wsdl",
+            "base_url_prod_cdc": "http://www.soawebservices.com.br/webservices/producao/cdc/cdc.asmx?wsdl",
+            "base_url_soap": "http://www.soawebservices.com.br/webservices/producao",
+            "test_drive_cpf": "999.999.999-99",
+            "test_drive_cnpj": "99.999.999/9999-62",
+            "test_drive_cep": "99.999-999"
+        },
+        "product_prices": {
+            "cmd_get_by_cnpj": -100
+        }
+    },
+    "IbovespaBot": {
+        "token": "939557786:AAHFGRs6Rgp9mB-ZVWcCdUL6GJr5AxR00Vs",
+        "admin": 438429121,
+        "owner": "RosaCelular",
+        "owner_phone": "+55 27 99785 0410",
+        "stripe_token": {
+            "test": "284685063:TEST:OGQ1NzdlMWZmNmEw",
+            "live": "350862534:LIVE:MDQ1OTU0MjEyYmQy"
+        },
+        "stripe_mode": "live",
+        "bot_url": "https://t.me/IbovespaBot?start=bXl1c2VyQGVtYWlsLmNvbTo6UGFzc3dAM3dvcmQ",
+        "group": "Bots in Dev Tests",
+        "group_name": "Bots in Dev Tests",
+        "group_url": "https://t.me/SmartMonitTestBot",
+        "bot_short_desc": "Bot Test",
+        "admin_only": true,
+        "default_start_menu": "main_menu_bot",
+        "commands": [
+            {
+                "BotCommand": {
+                    "command": "start",
+                    "description": "Iniciar"
+                },
+                "action": "cmd_start"
+            },
+            {
+                "BotCommand": {
+                    "command": "help",
+                    "description": "Ajuda"
+                },
+                "action": "cmd_help"
+            },
+            {
+                "BotCommand": {
+                    "command": "pay",
+                    "description": "Recarga"
+                },
+                "action": "start_without_shipping_callback"
+            },
+            {
+                "BotCommand": {
+                    "command": "version",
+                    "description": "Vers\u00e3o"
+                },
+                "action": "cmd_version",
+                "admin": true
+            },
+            {
+                "BotCommand": {
+                    "command": "git",
+                    "description": "Git"
+                },
+                "action": "cmd_git",
+                "admin": true
+            },
+            {
+                "BotCommand": {
+                    "command": "cnpj",
+                    "description": "Consultar por CNPJ"
+                },
+                "action": "util.util_cnpj.cmd_get_by_cnpj"
+            }
+        ],
+        "default_db_connection_string": "DRIVER={ODBC Driver 17 for SQL Server};SERVER=llama2.brazilsouth.cloudapp.azure.com;DATABASE=rfb;UID=sa;PWD=Rosa@210856",
+        "product_prices": {
+            "cmd_get_by_cnpj": -100
+        }
+    },
+    "CepConsultaBot": {
+        "token": "5411989277:AAFyIQGTUIddo8TBrI4NIatc7OBenhQKejU",
+        "admin": 438429121,
+        "owner": "RosaCelular",
+        "owner_phone": "+55 27 99785 0410",
+        "stripe_token": {
+            "test": "350862534:LIVE:M2QwMGJlODUyZDc4",
+            "live": "284685063:TEST:Mzc1NDliZWIxNzBk"
+        },
+        "stripe_mode": "live",
+        "bot_url": "https://t.me/CepConsultaBot?start=bXl1c2VyQGVtYWlsLmNvbTo6UGFzc3dAM3dvcmQ",
+        "group": "Consultas RFB",
+        "group_name": "Consultas RFB",
+        "group_url": "https://t.me/SmartMonitTestBot",
+        "bot_short_desc": "CepConsultaBot",
+        "admin_only": true,
+        "default_start_menu": "main_menu_bot",
+        "commands": [
+            {
+                "BotCommand": {
+                    "command": "start",
+                    "description": "Iniciar"
+                },
+                "action": "cmd_start"
+            },
+            {
+                "BotCommand": {
+                    "command": "help",
+                    "description": "Ajuda"
+                },
+                "action": "cmd_help"
+            },
+            {
+                "BotCommand": {
+                    "command": "pay",
+                    "description": "Recarga"
+                },
+                "action": "start_without_shipping_callback"
+            },
+            {
+                "BotCommand": {
+                    "command": "version",
+                    "description": "Vers\u00e3o"
+                },
+                "action": "cmd_version",
+                "admin": true
+            },
+            {
+                "BotCommand": {
+                    "command": "git",
+                    "description": "Git"
+                },
+                "action": "cmd_git",
+                "admin": true
+            },
+            {
+                "BotCommand": {
+                    "command": "cnpj",
+                    "description": "Consultar por CNPJ"
+                },
+                "action": "util.util_cnpj.cmd_get_by_cnpj"
+            }
+        ],
+        "default_db_connection_string": "DRIVER={ODBC Driver 17 for SQL Server};SERVER=llama2.brazilsouth.cloudapp.azure.com;DATABASE=rfb;UID=sa;PWD=Rosa@210856",
+        "product_prices": {
+            "cmd_get_by_cnpj": -100
+        }
+    },
+    "Windows365bot": {
+        "token": "6530535583:AAEEM1RYbnsE9r9qGZfOzQkJ-recUPN6rDo",
+        "admin": 438429121,
+        "owner": "RosaCelular",
+        "owner_phone": "+55 27 99785 0410",
+        "stripe_token": {
+            "test": "284685063:TEST:YjJjYWY1MmY2ZWQz",
+            "live": "350862534:LIVE:MzliNjgwNWFjMDY2"
+        },
+        "stripe_mode": "live",
+        "bot_url": "https://t.me/Windows365bot?start=bXl1c2VyQGVtYWlsLmNvbTo6UGFzc3dAM3dvcmQ",
+        "group": "Bots in Dev Tests",
+        "group_name": "Bots in Dev Tests",
+        "group_url": "https://t.me/SmartMonitTestBot",
+        "bot_short_desc": "Bot Test",
+        "admin_only": true,
+        "default_start_menu": "main_menu_bot",
+        "commands": [
+            {
+                "BotCommand": {
+                    "command": "start",
+                    "description": "Iniciar"
+                },
+                "action": "cmd_start"
+            },
+            {
+                "BotCommand": {
+                    "command": "help",
+                    "description": "Ajuda"
+                },
+                "action": "cmd_help"
+            },
+            {
+                "BotCommand": {
+                    "command": "pay",
+                    "description": "Recarga"
+                },
+                "action": "start_without_shipping_callback"
+            },
+            {
+                "BotCommand": {
+                    "command": "version",
+                    "description": "Vers\u00e3o"
+                },
+                "action": "cmd_version",
+                "admin": true
+            },
+            {
+                "BotCommand": {
+                    "command": "git",
+                    "description": "Git"
+                },
+                "action": "cmd_git",
+                "admin": true
+            },
+            {
+                "BotCommand": {
+                    "command": "cnpj",
+                    "description": "Consultar por CNPJ"
+                },
+                "action": "util.util_cnpj.cmd_get_by_cnpj"
+            }
+        ],
+        "default_db_connection_string": "DRIVER={ODBC Driver 17 for SQL Server};SERVER=llama2.brazilsouth.cloudapp.azure.com;DATABASE=rfb;UID=sa;PWD=Rosa@210856",
+        "product_prices": {
+            "cmd_get_by_cnpj": -100
+        },
+        "host_alias": "llama2.3ohoqcoqhsjuliciarm2qwxmld.nx.internal.cloudapp.net"
+    },
+    "SenadoBot": {
+        "token": "2015357935:AAEWd4Sqyc1mHhQnpJ_B1-JpibM7Ml0iyG0",
+        "admin": 438429121,
+        "owner": "RosaCelular",
+        "owner_phone": "+55 27 99785 0410",
+        "stripe_token": {
+            "test": "284685063:TEST:YWJkZmRlN2Y1YWQx",
+            "live": "350862534:LIVE:OGJkMDY2Mzk4YjBh"
+        },
+        "stripe_mode": "live",
+        "bot_url": "https://t.me/SenadoBot?start=bXl1c2VyQGVtYWlsLmNvbTo6UGFzc3dAM3dvcmQ",
+        "group": "Consultas RFB",
+        "group_name": "Consultas RFB",
+        "group_url": "https://t.me/SenadoBot",
+        "bot_short_desc": "Bot Test",
+        "admin_only": true,
+        "default_start_menu": "main_menu_bot",
+        "commands": [
+            {
+                "BotCommand": {
+                    "command": "start",
+                    "description": "Iniciar"
+                },
+                "action": "cmd_start"
+            },
+            {
+                "BotCommand": {
+                    "command": "help",
+                    "description": "Ajuda"
+                },
+                "action": "cmd_help"
+            },
+            {
+                "BotCommand": {
+                    "command": "pay",
+                    "description": "Recarga"
+                },
+                "action": "start_without_shipping_callback"
+            },
+            {
+                "BotCommand": {
+                    "command": "version",
+                    "description": "Vers\u00e3o"
+                },
+                "action": "cmd_version",
+                "admin": true
+            },
+            {
+                "BotCommand": {
+                    "command": "git",
+                    "description": "Git"
+                },
+                "action": "cmd_git",
+                "admin": true
+            },
+            {
+                "BotCommand": {
+                    "command": "cnpj",
+                    "description": "Consultar por CNPJ"
+                },
+                "action": "util.util_cnpj.cmd_get_by_cnpj"
+            }
+        ],
+        "default_db_connection_string": "DRIVER={ODBC Driver 17 for SQL Server};SERVER=llama2.brazilsouth.cloudapp.azure.com;DATABASE=rfb;UID=sa;PWD=Rosa@210856",
+        "product_prices": {
+            "cmd_get_by_cnpj": -100
+        },
+        "host_alias": "llama2.3ohoqcoqhsjuliciarm2qwxmld.nx.internal.cloudapp.net"
+    },
+    "BolsaFamiliaBot": {
+        "token": "2029175955:AAFwAYwF-vtuJYL5jQyMJUzp2s-icCfm8Q8",
+        "admin": 438429121,
+        "owner": "RosaCelular",
+        "owner_phone": "+55 27 99785 0410",
+        "stripe_token": {
+            "test": "284685063:TEST:NGVmZjRmZjQ4OTFi",
+            "live": "350862534:LIVE:NmExNWExNmMxM2Mx"
+        },
+        "bot_url": "https://t.me/BolsaFamiliaBot?start=bXl1c2VyQGVtYWlsLmNvbTo6UGFzc3dAM3dvcmQ",
+        "group": "Bots in Dev Tests",
+        "group_name": "Bots in Dev Tests",
+        "group_url": "https://t.me/SmartMonitTestBot",
+        "bot_short_desc": "Bot Test",
+        "admin_only": true,
+        "default_start_menu": "main_menu_bot",
+        "stripe_mode": "live",
+        "commands": [
+            {
+                "BotCommand": {
+                    "command": "start",
+                    "description": "Iniciar"
+                },
+                "action": "cmd_start"
+            },
+            {
+                "BotCommand": {
+                    "command": "help",
+                    "description": "Ajuda"
+                },
+                "action": "cmd_help"
+            },
+            {
+                "BotCommand": {
+                    "command": "pay",
+                    "description": "Recarga"
+                },
+                "action": "start_without_shipping_callback"
+            },
+            {
+                "BotCommand": {
+                    "command": "version",
+                    "description": "Vers\u00e3o"
+                },
+                "action": "cmd_version",
+                "admin": true
+            },
+            {
+                "BotCommand": {
+                    "command": "git",
+                    "description": "Git"
+                },
+                "action": "cmd_git",
+                "admin": true
+            },
+            {
+                "BotCommand": {
+                    "command": "cnpj",
+                    "description": "Consultar por CNPJ"
+                },
+                "action": "util.util_cnpj.cmd_get_by_cnpj"
+            }
+        ],
+        "default_db_connection_string": "DRIVER={ODBC Driver 17 for SQL Server};SERVER=llama2.brazilsouth.cloudapp.azure.com;DATABASE=rfb;UID=sa;PWD=Rosa@210856",
+        "product_prices": {
+            "cmd_get_by_cnpj": -100
+        }
+    },
+    "EtaureBot": {
+        "token": "927186470:AAGHm9Q1h_uOPsbwe_EXDhsJyrINp4LbN5w",
+        "admin": 438429121,
+        "owner": "RosaCelular",
+        "owner_phone": "+55 27 99785 0410",
+        "stripe_token": {
+            "test": "",
+            "live": ""
+        },
+        "bot_url": "https://t.me/EtaureBot?start=bXl1c2VyQGVtYWlsLmNvbTo6UGFzc3dAM3dvcmQ",
+        "group": "Testes Bots em Dev",
+        "group_name": "Testes Bots em Dev",
+        "group_url": "https://t.me/SmartMonitTestBot",
+        "bot_short_desc": "Teste de Bot",
+        "admin_only": true,
+        "commands": [
+            {
+                "BotCommand": {
+                    "command": "start",
+                    "description": "Inicia o bot"
+                },
+                "action": "util_bot_template.cmd_start"
+            },
+            {
+                "BotCommand": {
+                    "command": "instances",
+                    "description": "Exibe instancias"
+                },
+                "action": "template_contabo_bot.cmd_get_instances"
+            },
+            {
+                "BotCommand": {
+                    "command": "snapshots",
+                    "description": "Exibe snapshots"
+                },
+                "action": "template_contabo_bot.cmd_get_snapshots"
+            },
+            {
+                "BotCommand": {
+                    "command": "backup",
+                    "description": "Faz backup de uma instancia"
+                },
+                "action": "template_contabo_bot.cmd_backup_snapshot"
+            },
+            {
+                "BotCommand": {
+                    "command": "username",
+                    "description": "Exibe usu\u00e1rio"
+                },
+                "action": "template_contabo_bot.cmd_get_credentials"
+            },
+            {
+                "BotCommand": {
+                    "command": "password",
+                    "description": "Exibe senha"
+                },
+                "action": "template_contabo_bot.cmd_get_credentials",
+                "admin": true
+            },
+            {
+                "BotCommand": {
+                    "command": "clientid",
+                    "description": "Exibe Client-id"
+                },
+                "action": "template_contabo_bot.cmd_get_credentials",
+                "admin": true
+            },
+            {
+                "BotCommand": {
+                    "command": "clientsecret",
+                    "description": "Exibe Client-secret"
+                },
+                "action": "template_contabo_bot.cmd_get_credentials",
+                "admin": true
+            }
+        ]
+    },
+    "MenuRFBbot": {
+        "token": "7064057557:AAFq5kFriDytbVny7thZR0u3kkHQ9d05CNs",
+        "admin": 438429121,
+        "owner": "SmartBotMonitor",
+        "owner_phone": "+55 11 92007 8268",
+        "stripe_token": {
+            "test": "284685063:TEST:NmM5NmU3YTg5NjRh",
+            "live": "350862534:LIVE:NDY5ZDRlNDQ3NmVi"
+        },
+        "default_start_menu": "main_menu_bot",
+        "stripe_mode": "live",
+        "commands": [
+            {
+                "BotCommand": {
+                    "command": "start",
+                    "description": "Iniciar"
+                },
+                "action": "cmd_start"
+            },
+            {
+                "BotCommand": {
+                    "command": "help",
+                    "description": "Ajuda"
+                },
+                "action": "cmd_help"
+            },
+            {
+                "BotCommand": {
+                    "command": "pay",
+                    "description": "Recarga"
+                },
+                "action": "start_without_shipping_callback"
+            },
+            {
+                "BotCommand": {
+                    "command": "version",
+                    "description": "Vers\u00e3o"
+                },
+                "action": "cmd_version",
+                "admin": true
+            },
+            {
+                "BotCommand": {
+                    "command": "git",
+                    "description": "Git"
+                },
+                "action": "cmd_git",
+                "admin": true
+            },
+            {
+                "BotCommand": {
+                    "command": "cnpj",
+                    "description": "Consultar por CNPJ"
+                },
+                "action": "util.util_cnpj.cmd_get_by_cnpj"
+            }
+        ],
+        "bot_url": "https://t.me/MenuRFBbot?start=bXl1c2VyQGVtYWlsLmNvbTo6UGFzc3dAM3dvcmQ",
+        "product_prices": {
+            "cmd_get_by_cnpj": -100
+        },
+        "default_db_connection_string": "DRIVER={ODBC Driver 17 for SQL Server};SERVER=llama2.brazilsouth.cloudapp.azure.com;DATABASE=rfb;UID=sa;PWD=Rosa@210856",
+        "host_alias": "llama2.3ohoqcoqhsjuliciarm2qwxmld.nx.internal.cloudapp.net"
+    },
+    "ConsultaRiscoBot": {
+        "token": "5771949793:AAHrs67iDAFRhSeCcPJiZkdw9FBulJDt4k4",
+        "admin": 438429121,
+        "owner": "SmartBotMonitor",
+        "owner_phone": "+55 11 92007 8268",
+        "stripe_token": {
+            "test": "284685063:TEST:MDk0MWYxMzM5N2Yy",
+            "live": "350862534:LIVE:NjUwNTE2M2FhNWY2"
+        },
+        "default_start_menu": "main_menu_bot",
+        "stripe_mode": "live",
+        "commands": [
+            {
+                "BotCommand": {
+                    "command": "start",
+                    "description": "Iniciar"
+                },
+                "action": "cmd_start"
+            },
+            {
+                "BotCommand": {
+                    "command": "help",
+                    "description": "Ajuda"
+                },
+                "action": "cmd_help"
+            },
+            {
+                "BotCommand": {
+                    "command": "pay",
+                    "description": "Recarga"
+                },
+                "action": "start_without_shipping_callback"
+            },
+            {
+                "BotCommand": {
+                    "command": "version",
+                    "description": "Vers\u00e3o"
+                },
+                "action": "cmd_version",
+                "admin": true
+            },
+            {
+                "BotCommand": {
+                    "command": "git",
+                    "description": "Git"
+                },
+                "action": "cmd_git",
+                "admin": true
+            },
+            {
+                "BotCommand": {
+                    "command": "cnpj",
+                    "description": "Consultar por CNPJ"
+                },
+                "action": "util.util_cnpj.cmd_get_by_cnpj"
+            }
+        ],
+        "bot_url": "https://t.me/ConsultaRiscoBot?start=bXl1c2VyQGVtYWlsLmNvbTo6UGFzc3dAM3dvcmQ",
+        "product_prices": {
+            "cmd_get_by_cnpj": -100
+        }
+    },
+    "SerasaConsultaBot": {
+        "token": "1879530380:AAG-zZ-6KtNNrdmutKS7lin7EMss__clHao",
+        "admin": 438429121,
+        "owner": "gersonfaf61",
+        "owner_phone": "+55 27 996080356",
+        "stripe_token": {
+            "test": "284685063:TEST:ZTAzNjJjOTczNTBm",
+            "live": "350862534:LIVE:NGQzY2JkYmRiMGQ4"
+        },
+        "default_start_menu": "main_menu_bot",
+        "stripe_mode": "live",
+        "commands": [
+            {
+                "BotCommand": {
+                    "command": "start",
+                    "description": "Iniciar"
+                },
+                "action": "cmd_start"
+            },
+            {
+                "BotCommand": {
+                    "command": "help",
+                    "description": "Ajuda"
+                },
+                "action": "cmd_help"
+            },
+            {
+                "BotCommand": {
+                    "command": "pay",
+                    "description": "Recarga"
+                },
+                "action": "start_without_shipping_callback"
+            },
+            {
+                "BotCommand": {
+                    "command": "version",
+                    "description": "Vers\u00e3o"
+                },
+                "action": "cmd_version",
+                "admin": true
+            },
+            {
+                "BotCommand": {
+                    "command": "git",
+                    "description": "Git"
+                },
+                "action": "cmd_git",
+                "admin": true
+            },
+            {
+                "BotCommand": {
+                    "command": "cnpj",
+                    "description": "Consultar por CNPJ"
+                },
+                "action": "util.util_cnpj.cmd_get_by_cnpj"
+            }
+        ],
+        "bot_url": "https://t.me/SerasaConsultaBot?start=bXl1c2VyQGVtYWlsLmNvbTo6UGFzc3dAM3dvcmQ",
+        "product_prices": {
+            "cmd_get_by_cnpj": -100
+        },
+        "default_db_connection_string": "DRIVER={ODBC Driver 17 for SQL Server};SERVER=llama2.brazilsouth.cloudapp.azure.com;DATABASE=rfb;UID=sa;PWD=Rosa@210856"
+    },
+    "C6BankBot": {
+        "token": "2006659670:AAG1guH_1SiBviDkuqVyKdneij-K276Pspo",
+        "admin": 438429121,
+        "owner": "gersonfaf61",
+        "owner_phone": "+55 27 996080356",
+        "stripe_token": {
+            "test": "284685063:TEST:YzhkYmViZGYwNGRm",
+            "live": "350862534:LIVE:Y2YyNThkMmU2NjFj"
+        },
+        "default_start_menu": "main_menu_bot",
+        "stripe_mode": "live",
+        "commands": [
+            {
+                "BotCommand": {
+                    "command": "start",
+                    "description": "Iniciar"
+                },
+                "action": "cmd_start"
+            },
+            {
+                "BotCommand": {
+                    "command": "help",
+                    "description": "Ajuda"
+                },
+                "action": "cmd_help"
+            },
+            {
+                "BotCommand": {
+                    "command": "pay",
+                    "description": "Recarga"
+                },
+                "action": "start_without_shipping_callback"
+            },
+            {
+                "BotCommand": {
+                    "command": "version",
+                    "description": "Vers\u00e3o"
+                },
+                "action": "cmd_version",
+                "admin": true
+            },
+            {
+                "BotCommand": {
+                    "command": "git",
+                    "description": "Git"
+                },
+                "action": "cmd_git",
+                "admin": true
+            },
+            {
+                "BotCommand": {
+                    "command": "cnpj",
+                    "description": "Consultar por CNPJ"
+                },
+                "action": "util.util_cnpj.cmd_get_by_cnpj"
+            }
+        ],
+        "bot_url": "https://t.me/C6BankBot?start=bXl1c2VyQGVtYWlsLmNvbTo6UGFzc3dAM3dvcmQ",
+        "product_prices": {
+            "cmd_get_by_cnpj": -100
+        }
+    },
+    "RiscoCreditoBot": {
+        "token": "5612764189:AAHjjgyIj4m8fgMj74PVRWMWp4mFlauY5x8",
+        "admin": 438429121,
+        "owner": "SmartBotMonitor",
+        "owner_phone": "+55 11 92007 8268",
+        "stripe_token": {
+            "test": "284685063:TEST:OWUzYzkwNjU0MmNh",
+            "live": "350862534:LIVE:MWJkMDhmZmJmMmE1"
+        },
+        "default_start_menu": "main_menu_bot",
+        "bot_url": "https://t.me/RiscoCreditoBot?start=bXl1c2VyQGVtYWlsLmNvbTo6UGFzc3dAM3dvcmQ",
+        "commands": [
+            {
+                "BotCommand": {
+                    "command": "start",
+                    "description": "Iniciar"
+                },
+                "action": "cmd_start"
+            },
+            {
+                "BotCommand": {
+                    "command": "help",
+                    "description": "Ajuda"
+                },
+                "action": "cmd_help"
+            },
+            {
+                "BotCommand": {
+                    "command": "version",
+                    "description": "Vers\u00e3o"
+                },
+                "action": "cmd_version",
+                "admin": true
+            },
+            {
+                "BotCommand": {
+                    "command": "git",
+                    "description": "Git"
+                },
+                "action": "cmd_git",
+                "admin": true
+            },
+            {
+                "BotCommand": {
+                    "command": "cnpj",
+                    "description": "Consultar por CNPJ"
+                },
+                "action": "util.util_cnpj.cmd_get_by_cnpj"
+            }
+        ],
+        "default_db_connection_string": "DRIVER={ODBC Driver 17 for SQL Server};SERVER=llama2.brazilsouth.cloudapp.azure.com;DATABASE=rfb;UID=sa;PWD=Rosa@210856",
+        "product_prices": {
+            "cmd_get_by_cnpj": -100
+        }
+    },
+    "CREDNETtestBot": {
+        "token": "1738361183:AAFmTeYUHftV0ASKKZwm0jrEdScRZFOG3As",
+        "admin": 438429121,
+        "owner": "SmartBotMonitor",
+        "owner_phone": "+55 11 92007 8268",
+        "stripe_token": {
+            "test": "284685063:TEST:ZGEyNWRiMTNjNzRk",
+            "live": "350862534:LIVE:ZGMwODM0ZTQzZTZm"
+        },
+        "default_start_menu": "main_menu_bot",
+        "bot_url": "https://t.me/CREDNETtestBot?start=bXl1c2VyQGVtYWlsLmNvbTo6UGFzc3dAM3dvcmQ",
+        "commands": [
+            {
+                "BotCommand": {
+                    "command": "start",
+                    "description": "Iniciar"
+                },
+                "action": "cmd_start"
+            },
+            {
+                "BotCommand": {
+                    "command": "help",
+                    "description": "Ajuda"
+                },
+                "action": "cmd_help"
+            },
+            {
+                "BotCommand": {
+                    "command": "version",
+                    "description": "Vers\u00e3o"
+                },
+                "action": "cmd_version",
+                "admin": true
+            },
+            {
+                "BotCommand": {
+                    "command": "git",
+                    "description": "Git"
+                },
+                "action": "cmd_git",
+                "admin": true
+            },
+            {
+                "BotCommand": {
+                    "command": "cnpj",
+                    "description": "Consultar por CNPJ"
+                },
+                "action": "util.util_cnpj.cmd_get_by_cnpj"
+            }
+        ],
+        "default_db_connection_string": "DRIVER={ODBC Driver 17 for SQL Server};SERVER=llama2.brazilsouth.cloudapp.azure.com;DATABASE=rfb;UID=sa;PWD=Rosa@210856",
+        "product_prices": {
+            "cmd_get_by_cnpj": -100
+        }
+    },
+    "RFBrobot": {
+        "token": "6554633559:AAGXJoRwTMT1vzWYo9YMLfM35Ze2ztEI2DM",
+        "admin": 438429121,
+        "owner": "RosaCelular",
+        "owner_phone": "+55 27 99785 0410",
+        "stripe_token": {
+            "test": "284685063:TEST:NTZhOTJhZjcxNGY0",
+            "live": "350862534:LIVE:N2MwZDEwYzU5MGY1"
+        },
+        "bot_url": "https://t.me/RFBrobot?start=bXl1c2VyQGVtYWlsLmNvbTo6UGFzc3dAM3dvcmQ",
+        "group": "Consultas RFB",
+        "group_name": "Consultas RFB",
+        "group_url": "https://t.me/SmartMonitTestBot",
+        "bot_short_desc": "Consultas RFB",
+        "admin_only": true,
+        "default_start_menu": "main_menu_bot",
+        "commands": [
+            {
+                "BotCommand": {
+                    "command": "start",
+                    "description": "Iniciar"
+                },
+                "action": "cmd_start"
+            },
+            {
+                "BotCommand": {
+                    "command": "help",
+                    "description": "Ajuda"
+                },
+                "action": "cmd_help"
+            },
+            {
+                "BotCommand": {
+                    "command": "version",
+                    "description": "Vers\u00e3o"
+                },
+                "action": "cmd_version",
+                "admin": true
+            },
+            {
+                "BotCommand": {
+                    "command": "git",
+                    "description": "Git"
+                },
+                "action": "cmd_git",
+                "admin": true
+            },
+            {
+                "BotCommand": {
+                    "command": "cnpj",
+                    "description": "Consultar por CNPJ"
+                },
+                "action": "util.util_cnpj.cmd_get_by_cnpj"
+            }
+        ],
+        "default_db_connection_string": "DRIVER={ODBC Driver 17 for SQL Server};SERVER=llama2.brazilsouth.cloudapp.azure.com;DATABASE=rfb;UID=sa;PWD=Rosa@210856",
+        "product_prices": {
+            "cmd_get_by_cnpj": -100
+        }
+    },
+    "ThermoguardianBot": {
+        "token": "588255672:AAHNyApU-hOLJHdrp_puDcvnYNrRDc6A4ig",
+        "admin": 438429121,
+        "owner": "@SmartBotMonitor Gerson Teste",
+        "owner_phone": "+55 11 92007 8268",
+        "stripe_token": {
+            "test": "",
+            "live": ""
+        },
+        "bot_url": "https://t.me/ThermoguardianBot?start=bXl1c2VyQGVtYWlsLmNvbTo6UGFzc3dAM3dvcmQ",
+        "group": "Cloud",
+        "group_name": "Cloud",
+        "group_url": "https://t.me/ThermoguardianBot",
+        "bot_short_desc": "Monitoramento de Temperatura",
+        "admin_only": false,
+        "commands": [
+            {
+                "BotCommand": {
+                    "command": "start",
+                    "description": "Start"
+                },
+                "action": "cmd_start"
+            },
+            {
+                "BotCommand": {
+                    "command": "help",
+                    "description": "Help"
+                },
+                "action": "util_bot_template.cmd_help"
+            },
+            {
+                "BotCommand": {
+                    "command": "instances",
+                    "description": "Show instances"
+                },
+                "action": "template_contabo_bot.cmd_get_instances"
+            },
+            {
+                "BotCommand": {
+                    "command": "snapshots",
+                    "description": "Show snapshots"
+                },
+                "action": "template_contabo_bot.cmd_get_snapshots"
+            },
+            {
+                "BotCommand": {
+                    "command": "backup",
+                    "description": "Make a backup of an instance"
+                },
+                "action": "template_contabo_bot.cmd_backup_snapshot"
+            },
+            {
+                "BotCommand": {
+                    "command": "backupall",
+                    "description": "Make a backup of all instances"
+                },
+                "action": "template_contabo_bot.cmd_backup_all_snapshots"
+            },
+            {
+                "BotCommand": {
+                    "command": "autobackup",
+                    "description": "Schedule automatic backup of all instances"
+                },
+                "action": "template_contabo_bot.cmd_auto_backup"
+            },
+            {
+                "BotCommand": {
+                    "command": "username",
+                    "description": "Show user"
+                },
+                "action": "template_contabo_bot.cmd_get_credentials"
+            },
+            {
+                "BotCommand": {
+                    "command": "password",
+                    "description": "Show password"
+                },
+                "action": "template_contabo_bot.cmd_get_credentials",
+                "admin": false
+            },
+            {
+                "BotCommand": {
+                    "command": "clientid",
+                    "description": "Show Client-id"
+                },
+                "action": "template_contabo_bot.cmd_get_credentials",
+                "admin": false
+            },
+            {
+                "BotCommand": {
+                    "command": "clientsecret",
+                    "description": "Show Client-secret"
+                },
+                "action": "template_contabo_bot.cmd_get_credentials",
+                "admin": false
+            }
+        ],
+        "product_prices": {
+            "cmd_get_by_cnpj": -100
+        }
+    },
+    "mathallbot": {
+        "token": "747947515:AAGVrkcgiwoG__X2wyugLjATv3ZkKg40UFc",
+        "admin": 438429121,
+        "owner": "RosaCelular",
+        "owner_phone": "+55 27 99785 0410",
+        "stripe_token": {
+            "test": "284685063:TEST:MDM4NWJjZjBhZGE1",
+            "live": "350862534:LIVE:ODNhYWFmOGRlMzIx"
+        },
+        "stripe_mode": "live",
+        "bot_url": "https://t.me/mathallbot?start=bXl1c2VyQGVtYWlsLmNvbTo6UGFzc3dAM3dvcmQ",
+        "group": "Outros Bots",
+        "group_name": "Outros Bots",
+        "group_url": "https://t.me/SmartMonitTestBot",
+        "bot_short_desc": "Math expressions",
+        "admin_only": true,
+        "default_start_menu": "main_menu_bot",
+        "commands": [
+            {
+                "BotCommand": {
+                    "command": "start",
+                    "description": "Iniciar"
+                },
+                "action": "cmd_start"
+            },
+            {
+                "BotCommand": {
+                    "command": "help",
+                    "description": "Ajuda"
+                },
+                "action": "cmd_help"
+            },
+            {
+                "BotCommand": {
+                    "command": "pay",
+                    "description": "Recarga"
+                },
+                "action": "start_without_shipping_callback"
+            },
+            {
+                "BotCommand": {
+                    "command": "version",
+                    "description": "Vers\u00e3o"
+                },
+                "action": "cmd_version",
+                "admin": true
+            },
+            {
+                "BotCommand": {
+                    "command": "git",
+                    "description": "Git"
+                },
+                "action": "cmd_git",
+                "admin": true
+            },
+            {
+                "BotCommand": {
+                    "command": "cnpj",
+                    "description": "Consultar por CNPJ"
+                },
+                "action": "util.util_cnpj.cmd_get_by_cnpj"
+            }
+        ],
+        "default_db_connection_string": "DRIVER={ODBC Driver 17 for SQL Server};SERVER=llama2.brazilsouth.cloudapp.azure.com;DATABASE=rfb;UID=sa;PWD=Rosa@210856",
+        "product_prices": {
+            "cmd_get_by_cnpj": -100
+        }
+    },
+    "MulChoiceBot": {
+        "token": "6749366494:AAHWUBTV2vZvRdgIkH4d4ga3gpx9zzM1lzg",
+        "admin": 438429121,
+        "owner": "RosaCelular",
+        "owner_phone": "+55 27 99785 0410",
+        "stripe_token": {
+            "test": "",
+            "live": ""
+        },
+        "bot_url": "https://t.me/MulChoiceBot?start=bXl1c2VyQGVtYWlsLmNvbTo6UGFzc3dAM3dvcmQ",
+        "group": "Educa\u00e7\u00e3o",
+        "group_name": "Educa\u00e7\u00e3o",
+        "group_url": "https://t.me/MulChoiceBot",
+        "bot_short_desc": "Exerc\u00edcios de M\u00faltipla Escolha",
+        "admin_only": false,
+        "product_prices": {
+            "cmd_get_by_cnpj": -100
+        }
+    },
+    "PraticoNaPraticaBot": {
+        "token": "6815913494:AAEJPYuWh3Uj5THUCQODCbp9DrWxRCv1Dh4",
+        "admin": 438429121,
+        "owner": "RosaCelular",
+        "owner_phone": "+55 27 99785 0410",
+        "stripe_token": {
+            "test": "",
+            "live": ""
+        },
+        "bot_url": "https://t.me/PraticoNaPraticaBot?start=bXl1c2VyQGVtYWlsLmNvbTo6UGFzc3dAM3dvcmQ",
+        "group": "Educa\u00e7\u00e3o",
+        "group_name": "Educa\u00e7\u00e3o",
+        "group_url": "https://t.me/MulChoiceBot",
+        "bot_short_desc": "Preparat\u00f3rio para Concursos",
+        "admin_only": false
+    },
+    "r7portalbot": {
+        "token": "563000465:AAF54ZgQ2_Ksr1hoWW8qvS7lwgcwUh3xV9w",
+        "admin": 438429121,
+        "owner": "gersonfaf61",
+        "owner_phone": "+55 27 996080356",
+        "stripe_token": {
+            "test": "284685063:TEST:M2QwMjdkNGI5YTA4",
+            "live": "350862534:LIVE:ZmJjMGEwMTcwMGU1"
+        },
+        "default_start_menu": "main_menu_bot",
+        "stripe_mode": "live",
+        "commands": [
+            {
+                "BotCommand": {
+                    "command": "start",
+                    "description": "Iniciar"
+                },
+                "action": "cmd_start"
+            },
+            {
+                "BotCommand": {
+                    "command": "help",
+                    "description": "Ajuda"
+                },
+                "action": "cmd_help"
+            },
+            {
+                "BotCommand": {
+                    "command": "pay",
+                    "description": "Recarga"
+                },
+                "action": "start_without_shipping_callback"
+            },
+            {
+                "BotCommand": {
+                    "command": "version",
+                    "description": "Vers\u00e3o"
+                },
+                "action": "cmd_version",
+                "admin": true
+            },
+            {
+                "BotCommand": {
+                    "command": "git",
+                    "description": "Git"
+                },
+                "action": "cmd_git",
+                "admin": true
+            },
+            {
+                "BotCommand": {
+                    "command": "cnpj",
+                    "description": "Consultar por CNPJ"
+                },
+                "action": "util.util_cnpj.cmd_get_by_cnpj"
+            }
+        ],
+        "bot_url": "https://t.me/r7portalbot?start=bXl1c2VyQGVtYWlsLmNvbTo6UGFzc3dAM3dvcmQ",
+        "group": "Not\u00edcias",
+        "group_name": "Not\u00edcias",
+        "group_url": "https://t.me/r7portalbot",
+        "bot_short_desc": "Portal R7",
+        "admin_only": false,
+        "product_prices": {
+            "cmd_get_by_cnpj": -100
+        },
+        "default_db_connection_string": "DRIVER={ODBC Driver 17 for SQL Server};SERVER=llama2.brazilsouth.cloudapp.azure.com;DATABASE=rfb;UID=sa;PWD=Rosa@210856"
+    },
+    "ConsultaBot": {
+        "token": "6554633559:AAGXJoRwTMT1vzWYo9YMLfM35Ze2ztEI2DM",
+        "admin": 438429121,
+        "owner": "SmartBotMonitor",
+        "owner_phone": "+55 11 92007 8268",
+        "stripe_token": {
+            "test": "",
+            "live": ""
+        },
+        "bot_url": "https://t.me/ConsultaBot?start=bXl1c2VyQGVtYWlsLmNvbTo6UGFzc3dAM3dvcmQ",
+        "group": "Consultas RFB",
+        "group_name": "Consultas RFB",
+        "bot_short_desc": "Receita Federal do Brasil",
+        "admin_only": false
+    },
+    "PessoaBot": {
+        "token": "7064057557:AAFq5kFriDytbVny7thZR0u3kkHQ9d05CNs",
+        "admin": 438429121,
+        "owner": "gersonfaf61",
+        "owner_phone": "+55 27 996080356",
+        "stripe_token": {
+            "test": "",
+            "live": ""
+        },
+        "bot_url": "https://t.me/PessoaBot?start=bXl1c2VyQGVtYWlsLmNvbTo6UGFzc3dAM3dvcmQ",
+        "group": "Consultas RFB",
+        "group_name": "Consultas RFB",
+        "bot_short_desc": "Receita Federal do Brasil v.2",
+        "admin_only": false
+    },
+    "TvGloboBot": {
+        "token": "1991298118:AAEba2-bhEvybMupmtSOfX0k29GxSQUJW1M",
+        "admin": 438429121,
+        "owner": "gersonfaf61",
+        "owner_phone": "+55 27 996080356",
+        "stripe_token": {
+            "test": "284685063:TEST:NmU0NzE1NDJhNjk3",
+            "live": "350862534:LIVE:NGUzZGQ3NTNlZjMy"
+        },
+        "default_start_menu": "main_menu_bot",
+        "commands": [
+            {
+                "BotCommand": {
+                    "command": "start",
+                    "description": "Iniciar"
+                },
+                "action": "cmd_start"
+            },
+            {
+                "BotCommand": {
+                    "command": "help",
+                    "description": "Ajuda"
+                },
+                "action": "cmd_help"
+            },
+            {
+                "BotCommand": {
+                    "command": "pay",
+                    "description": "Recarga"
+                },
+                "action": "start_without_shipping_callback"
+            },
+            {
+                "BotCommand": {
+                    "command": "version",
+                    "description": "Vers\u00e3o"
+                },
+                "action": "cmd_version",
+                "admin": true
+            },
+            {
+                "BotCommand": {
+                    "command": "git",
+                    "description": "Git"
+                },
+                "action": "cmd_git",
+                "admin": true
+            },
+            {
+                "BotCommand": {
+                    "command": "cnpj",
+                    "description": "Consultar por CNPJ"
+                },
+                "action": "util.util_cnpj.cmd_get_by_cnpj"
+            }
+        ],
+        "bot_url": "https://t.me/TvGloboBot?start=bXl1c2VyQGVtYWlsLmNvbTo6UGFzc3dAM3dvcmQ",
+        "group": "Consultas RFB",
+        "group_name": "Consultas RFB",
+        "bot_short_desc": "TV Globo",
+        "admin_only": false,
+        "product_prices": {
+            "cmd_get_by_cnpj": -100
+        }
+    },
+    "rfbdevbot": {
+        "token": "5253378519:AAFNTE2Ok45cF6PJVicfEl8U4JjmJaf0Z0A",
+        "admin": 438429121,
+        "owner": "gersonfaf61",
+        "owner_phone": "+55 27 99608 0356",
+        "stripe_token": {
+            "test": "284685063:TEST:MmIwYzEwNWRkZmZh",
+            "live": "350862534:LIVE:ZDdlMDgzMTYxMjli"
+        },
+        "default_start_menu": "main_menu_bot",
+        "commands": [
+            {
+                "BotCommand": {
+                    "command": "start",
+                    "description": "Iniciar"
+                },
+                "action": "cmd_start"
+            },
+            {
+                "BotCommand": {
+                    "command": "help",
+                    "description": "Ajuda"
+                },
+                "action": "cmd_help"
+            },
+            {
+                "BotCommand": {
+                    "command": "pay",
+                    "description": "Recarga"
+                },
+                "action": "start_without_shipping_callback"
+            },
+            {
+                "BotCommand": {
+                    "command": "version",
+                    "description": "Vers\u00e3o"
+                },
+                "action": "cmd_version",
+                "admin": true
+            },
+            {
+                "BotCommand": {
+                    "command": "git",
+                    "description": "Git"
+                },
+                "action": "cmd_git",
+                "admin": true
+            },
+            {
+                "BotCommand": {
+                    "command": "cnpj",
+                    "description": "Consultar por CNPJ"
+                },
+                "action": "util.util_cnpj.cmd_get_by_cnpj"
+            }
+        ],
+        "group": "Testes Bots em Dev",
+        "group_name": "Testes Bots em Dev",
+        "bot_short_desc": "Teste de Bot v.2",
+        "admin_only": false,
+        "bot_url": "https://t.me/rfbdevbot?start=bXl1c2VyQGVtYWlsLmNvbTo6UGFzc3dAM3dvcmQ",
+        "host_alias": "vmi1898724",
+        "product_prices": {
+            "cmd_get_by_cnpj": -100
+        }
+    },
+    "BigQuoteBot": {
+        "token": "6932761512:AAF-eUJ0_fa8p1Eeo4vHrS-EJpgETzq8Pfo",
+        "admin": 438429121,
+        "owner": "gersonfaf61",
+        "owner_phone": "+55 27 99608 0356",
+        "stripe_token": {
+            "test": "284685063:TEST:Yjg5OWI1NjUyNWQ0",
+            "live": "350862534:LIVE:YTg5ZGIxZmIwZDYw"
+        },
+        "group": "Cryptomoedas",
+        "group_name": "Cryptomoedas",
+        "bot_short_desc": "Cryptomoedas",
+        "admin_only": false,
+        "bot_url": "https://t.me/BigQuoteBot?start=bXl1c2VyQGVtYWlsLmNvbTo6UGFzc3dAM3dvcmQ",
+        "product_prices": {
+            "cmd_get_by_cnpj": -100
+        }
+    },
+    "ComteleBot": {
+        "token": "6406674114:AAHsuhQTxQdtI5GRK2aNlCZPSEd2VD5Gi6k",
+        "admin": 438429121,
+        "owner": "gersonfaf61",
+        "owner_phone": "+55 27 99608 0356",
+        "stripe_token": {
+            "test": "284685063:TEST:ZmY5MTljZDNlNzNm",
+            "live": "350862534:LIVE:ZDY3ODU4YzMyOWYw"
+        },
+        "group": "Outros Bots",
+        "group_name": "Outros Bots",
+        "bot_short_desc": "Envio de SMS",
+        "admin_only": false,
+        "bot_url": "https://t.me/ComteleBot?start=bXl1c2VyQGVtYWlsLmNvbTo6UGFzc3dAM3dvcmQ"
+    },
+    "OpenGovBot": {
+        "token": "6772172649:AAGFPIA14L-W9FFCkoCdxwFF53BYyF4Jh_8",
+        "admin": 438429121,
+        "owner": "SmartBotMonitor",
+        "owner_phone": "+55 11 92007 8268",
+        "stripe_token": {
+            "test": "284685063:TEST:NmVhMzJkNmI4Yjdh",
+            "live": "350862534:LIVE:OTRjMDI2MmEyYTNm"
+        },
+        "group": "OpenGov - Governo Aberto",
+        "group_name": "OpenGov - Governo Aberto",
+        "bot_short_desc": "OpenGov - Governo Aberto",
+        "admin_only": false,
+        "bot_url": "https://t.me/OpenGovBot?start=bXl1c2VyQGVtYWlsLmNvbTo6UGFzc3dAM3dvcmQ"
+    },
+    "MicrobiltBot": {
+        "token": "6856237610:AAGcdlo5h1BsU2cKpluy0TVX2Q1h6GXh9O0",
+        "admin": 438429121,
+        "owner": "SmartSensor",
+        "owner_phone": "+55 11 95063 9487",
+        "stripe_token": {
+            "test": "284685063:TEST:NjUzMTUwOGUxMzUx",
+            "live": "350862534:LIVE:MmM2ZGU2OGUxZjYw"
+        },
+        "group": "OpenGov - Governo Aberto",
+        "group_name": "OpenGov - Governo Aberto",
+        "bot_short_desc": "Microbilt - Consultas de SSN",
+        "admin_only": false,
+        "bot_url": "https://t.me/MicrobiltBot?start=bXl1c2VyQGVtYWlsLmNvbTo6UGFzc3dAM3dvcmQ"
+    },
+    "SocialSecurityNumberBot": {
+        "token": "5513505362:AAFTLdkLt0YFLIgYrKsYp4dvS0Ykbaj4n-g",
+        "admin": 438429121,
+        "owner": "GersonSmartMonit",
+        "owner_phone": "+55 11 93939 6551",
+        "stripe_token": {
+            "test": "284685063:TEST:MzE5NDQ3NmJhY2I2",
+            "live": "350862534:LIVE:M2E0NmQ0NTE2Y2Rk"
+        },
+        "group": "OpenGov - Governo Aberto",
+        "group_name": "OpenGov - Governo Aberto",
+        "bot_short_desc": "Social Security Number",
+        "admin_only": false,
+        "bot_url": "https://t.me/SocialSecurityNumberBot?start=bXl1c2VyQGVtYWlsLmNvbTo6UGFzc3dAM3dvcmQ"
+    },
+    "PhonesBot": {
+        "token": "5416320465:AAHJ_4gsdVReub7Qa_tP802uIPH1qHDjhqY",
+        "admin": 438429121,
+        "owner": "GersonSmartMonit",
+        "owner_phone": "+55 11 93939 6551",
+        "stripe_token": {
+            "test": "284685063:TEST:NzQ3NzhjYzg3NDBk",
+            "live": "350862534:LIVE:ZTVhNjJjNjZhZDc4"
+        },
+        "group": "OpenGov - Governo Aberto",
+        "group_name": "OpenGov - Governo Aberto",
+        "bot_short_desc": "Consulta de Telefones USA",
+        "admin_only": false,
+        "bot_url": "https://t.me/PhonesBot?start=bXl1c2VyQGVtYWlsLmNvbTo6UGFzc3dAM3dvcmQ"
+    },
+    "USPhonesBot": {
+        "token": "5341604949:AAHGRND-jcvDsF7Y6ui1G8AH9pKpRitkezc",
+        "admin": 438429121,
+        "owner": "GersonSmartMonit",
+        "owner_phone": "+55 11 93939 6551",
+        "stripe_token": {
+            "test": "284685063:TEST:N2VlMjI3MjAxMTdh",
+            "live": "350862534:LIVE:ZjY4NWM4MDI1YjNi"
+        },
+        "group": "OpenGov - Governo Aberto",
+        "group_name": "OpenGov - Governo Aberto",
+        "bot_short_desc": "Consulta de Telefones USA v.2",
+        "admin_only": false,
+        "bot_url": "https://t.me/USPhonesBot?start=bXl1c2VyQGVtYWlsLmNvbTo6UGFzc3dAM3dvcmQ"
+    },
+    "ContaboToolsBot": {
+        "token": "6872675994:AAF451jcJMJuBudoM3yh8fhb-qJ6ssMTwzs",
+        "admin": 438429121,
+        "owner": "gersonfaf61",
+        "owner_phone": "+55 27 99608 0356",
+        "stripe_token": {
+            "test": "284685063:TEST:Y2UyYjU3YmYwYjNh",
+            "live": "350862534:LIVE:YzZlMjE4N2ZiMjk3"
+        },
+        "group": "Cloud",
+        "group_name": "Cloud",
+        "bot_short_desc": "Gerenciamento VPS Contabo",
+        "admin_only": false,
+        "bot_url": "https://t.me/ContaboToolsBot?start=bXl1c2VyQGVtYWlsLmNvbTo6UGFzc3dAM3dvcmQ",
+        "commands": [
+            {
+                "BotCommand": {
+                    "command": "start",
+                    "description": "Starts the bot"
+                },
+                "action": "cmd_start"
+            },
+            {
+                "BotCommand": {
+                    "command": "help",
+                    "description": "How to use the bot"
+                },
+                "action": "cmd_help"
+            },
+            {
+                "BotCommand": {
+                    "command": "git",
+                    "description": "Git"
+                },
+                "action": "cmd_git",
+                "admin": true
+            }
+        ]
+    },
+    "QueryAllBot": {
+        "token": "5898579522:AAGz_yAGmfuO4TL6Z3NC9Y-fSuG2xOc-KUM",
+        "admin": 438429121,
+        "owner": "SmartBotMonitor",
+        "owner_phone": "+55 11 92007 8268",
+        "stripe_token": {
+            "test": "",
+            "live": ""
+        },
+        "group": "Outros Bots",
+        "group_name": "Outros Bots",
+        "bot_short_desc": "Testes em Geral",
+        "admin_only": false,
+        "bot_url": "https://t.me/QueryAllBot?start=bXl1c2VyQGVtYWlsLmNvbTo6UGFzc3dAM3dvcmQ"
+    }
+}
