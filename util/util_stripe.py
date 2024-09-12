@@ -50,8 +50,8 @@ DEFAULT_STRIPE_PRICE = 10 if 'stripe_price' not in current_bot_settings else cur
 DEFAULT_STRIPE_LIVE_TOKEN = current_bot_settings['stripe_token']['live'] if 'stripe_token' in current_bot_settings and 'live' in current_bot_settings['stripe_token'] else None
 DEFAULT_STRIPE_TEST_TOKEN = current_bot_settings['stripe_token']['test'] if 'stripe_token' in current_bot_settings and 'test' in current_bot_settings['stripe_token'] else None
 
-DEFAULT_STRIPE_LIVE_TOKEN = dotenv_values().get('STRIPE_LIVE_TOKEN') if not DEFAULT_STRIPE_LIVE_TOKEN else DEFAULT_STRIPE_LIVE_TOKEN
-DEFAULT_STRIPE_TEST_TOKEN = dotenv_values().get('STRIPE_TEST_TOKEN') if not DEFAULT_STRIPE_TEST_TOKEN else DEFAULT_STRIPE_TEST_TOKEN
+DEFAULT_STRIPE_LIVE_TOKEN = current_bot_settings['STRIPE_LIVE_TOKEN'] if not DEFAULT_STRIPE_LIVE_TOKEN else DEFAULT_STRIPE_LIVE_TOKEN
+DEFAULT_STRIPE_TEST_TOKEN = current_bot_settings['STRIPE_TEST_TOKEN'] if not DEFAULT_STRIPE_TEST_TOKEN else DEFAULT_STRIPE_TEST_TOKEN
 
 DEFAULT_STRIPE_PAYLOAD = 'Custom-Payload'
 DEFAULT_STRIPE_START_PARAMETER = 'test-payment'
@@ -440,6 +440,9 @@ if __name__ == '__main__':
     
     dotenv_settings = main_util_env()
     TELEGRAM_BOT_TOKEN = dotenv_settings['DEFAULT_BOT_TOKEN']
+    
+    DEFAULT_STRIPE_LIVE_TOKEN = dotenv_settings['STRIPE_LIVE_TOKEN'] 
+    DEFAULT_STRIPE_TEST_TOKEN = dotenv_settings['STRIPE_TEST_TOKEN'] 
     
     application = util_stripe_main()
     
