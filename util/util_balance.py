@@ -9,7 +9,7 @@ Módulo de funções de configuração.
 """
 #-------------------------------------------
 
-from util_log import *
+from .util_log import *
 
 from functools import wraps
 
