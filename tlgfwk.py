@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # ------------------------------------------
 
-__version__ = '0.5.0 Stripe integration'
+__version__ = '0.6.0 Plugin system'
 
 from __init__ import *
 import datetime
@@ -1091,8 +1091,6 @@ _Links:_
             logger.error(f"Error: {e}")
             await update.message.reply_text(f"An error occurred: {e}")
 
-    # https://github.com/python-telegram-bot/python-telegram-bot/issues/3718
-    # https://github.com/python-telegram-bot/python-telegram-bot/wiki/Code-snippets#simple-way-of-restarting-the-bot
     @with_writing_action
     @with_log_admin
     async def restart_bot(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
