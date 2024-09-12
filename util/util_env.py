@@ -3,17 +3,10 @@
 # pylint: disable=unused-argument
 
 # ------------------------------------------
+import os
 from dotenv import * # load_dotenv
-# ------------------------------------------
 
-try:
-    from util_config import *
-except ImportError:
-    try:
-        from util.util_config import *
-    except ImportError:
-        print("Error: util_config.py not found or import error.")
-        exit(1)
+from util_log import *
 
 # ------------------------------------------
 

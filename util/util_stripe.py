@@ -9,11 +9,10 @@ Stripe module wrapper for a bot that can receive payment from user.
 
 from typing import List
 
-import sys, os, logging
+import sys, os, logging, socket
 
 #-------------------------------------------
 
-from util_config import *
 from util_env import *
 from util_telegram import *
 from util_decorators import *
@@ -24,6 +23,15 @@ from telegram.ext import Defaults, filters
 from telegram.ext import PreCheckoutQueryHandler, ShippingQueryHandler 
 
 #-------------------------------------------
+
+bot_version = '1.0.0'
+hostname = socket.getfqdn()
+
+dotenv_settings = main_util_env()
+TELEGRAM_BOT_TOKEN = dotenv_settings['DEFAULT_BOT_TOKEN']
+
+DEFAULT_STRIPE_LIVE_TOKEN = dotenv_settings['STRIPE_LIVE_TOKEN'] 
+DEFAULT_STRIPE_TEST_TOKEN = dotenv_settings['STRIPE_TEST_TOKEN']
 
 current_bot_settings = {
     'token': '1234567890:ABCDEF',
@@ -37,6 +45,12 @@ current_bot_settings = {
         'test': 'pk_test_1234567890'
         }
     }
+   
+bot_user_admin = dotenv_settings['ADMIN_ID_LIST']
+if bot_user_admin:
+    if ',' in bot_user_admin:
+        bot_user_admin = bot_user_admin.split(',')[0]
+    bot_user_admin = int(bot_user_admin)
 
 DEFAULT_LANGUAGE = 'pt-br'
 
@@ -46,12 +60,6 @@ DEFAULT_STRIPE_DESCRIPTION = 'Clique no botão "Pagar" abaixo para adquirir cré
 DEFAULT_STRIPE_MODE = 'test' if 'stripe_mode' not in current_bot_settings else current_bot_settings['stripe_mode']
 
 DEFAULT_STRIPE_PRICE = 10 if 'stripe_price' not in current_bot_settings else current_bot_settings['stripe_price']
-
-DEFAULT_STRIPE_LIVE_TOKEN = current_bot_settings['stripe_token']['live'] if 'stripe_token' in current_bot_settings and 'live' in current_bot_settings['stripe_token'] else None
-DEFAULT_STRIPE_TEST_TOKEN = current_bot_settings['stripe_token']['test'] if 'stripe_token' in current_bot_settings and 'test' in current_bot_settings['stripe_token'] else None
-
-DEFAULT_STRIPE_LIVE_TOKEN = current_bot_settings['STRIPE_LIVE_TOKEN'] if not DEFAULT_STRIPE_LIVE_TOKEN else DEFAULT_STRIPE_LIVE_TOKEN
-DEFAULT_STRIPE_TEST_TOKEN = current_bot_settings['STRIPE_TEST_TOKEN'] if not DEFAULT_STRIPE_TEST_TOKEN else DEFAULT_STRIPE_TEST_TOKEN
 
 DEFAULT_STRIPE_PAYLOAD = 'Custom-Payload'
 DEFAULT_STRIPE_START_PARAMETER = 'test-payment'
@@ -437,13 +445,7 @@ def util_stripe_main(application: Application = None, run_polling=False) -> None
         input("Press Enter to exit...")
 
 if __name__ == '__main__':
-    
-    dotenv_settings = main_util_env()
-    TELEGRAM_BOT_TOKEN = dotenv_settings['DEFAULT_BOT_TOKEN']
-    
-    DEFAULT_STRIPE_LIVE_TOKEN = dotenv_settings['STRIPE_LIVE_TOKEN'] 
-    DEFAULT_STRIPE_TEST_TOKEN = dotenv_settings['STRIPE_TEST_TOKEN'] 
-    
+        
     application = util_stripe_main()
     
     application.run_polling(allowed_updates=Update.ALL_TYPES) 
