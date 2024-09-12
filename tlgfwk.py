@@ -557,9 +557,7 @@ _Links:_
             persistence = PicklePersistence(filepath=self.persistence_file, update_interval=self.default_persistence_interval) if not disable_persistence else None
             
             # Create an Application instance using the builder pattern            
-            self.application = Application.builder().defaults(bot_defaults_build).token(self.token).post_init(self.post_init).post_stop(self.post_stop).persistence(persistence).build()         
-            
-            # util_stripe_main(self.application)   
+            self.application = Application.builder().defaults(bot_defaults_build).token(self.token).post_init(self.post_init).post_stop(self.post_stop).persistence(persistence).build() 
             
             # --------------------------------------------------
             
@@ -1148,8 +1146,5 @@ if __name__ == '__main__':
     else:    
         app = TlgBotFwk() 
         
-    # from util.util_stripe_new import *
-    # util_stripe_main(application=application)
-    
     # ----- Run the bot -----    
     app.run()
