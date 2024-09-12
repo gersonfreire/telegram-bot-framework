@@ -25,6 +25,19 @@ from telegram.ext import PreCheckoutQueryHandler, ShippingQueryHandler
 
 #-------------------------------------------
 
+current_bot_settings = {
+    'token': '1234567890:ABCDEF',
+    'stripe_currency': 'USD', 
+    'stripe_title': 'Add credits to use the Bot', 
+    'stripe_description': 'Click the "Pay" below to purchase credits:',
+    'stripe_mode': 'test', 
+    'stripe_price': 10, 
+    'stripe_token': {
+        'live': 'pk_live_1234567890', 
+        'test': 'pk_test_1234567890'
+        }
+    }
+
 DEFAULT_LANGUAGE = 'pt-br'
 
 DEFAULT_STRIPE_CURRENCY = 'BRL' if 'stripe_currency' not in current_bot_settings else current_bot_settings['stripe_currency']
@@ -383,42 +396,45 @@ async def post_shutdown(application: Application) -> None:
 
 def util_stripe_main(application: Application = None, run_polling=False) -> None:
     
-    if application is None:
-        bot_defaults_build = Defaults(parse_mode=ParseMode.MARKDOWN) # , tzinfo=pytz.timezone('Europe/Berlin'))        
-        application = Application.builder().defaults(defaults=bot_defaults_build).token(TELEGRAM_BOT_TOKEN).post_init(post_init).post_shutdown(post_shutdown).build()
+    try:
+        if application is None:
+            bot_defaults_build = Defaults(parse_mode=ParseMode.MARKDOWN) # , tzinfo=pytz.timezone('Europe/Berlin'))        
+            application = Application.builder().defaults(defaults=bot_defaults_build).token(TELEGRAM_BOT_TOKEN).post_init(post_init).post_shutdown(post_shutdown).build()
 
-    # simple start function
-    # application.add_handler(CommandHandler("exit", stop_bot, 
-        # filters=filters.User(bot_user_admin)), 0)    
-    application.add_handler(CommandHandler("start", start_callback))
+        # simple start handler    
+        application.add_handler(CommandHandler("start", start_callback))
 
-    # Add command handler to start the payment invoice
-    # dispatcher.add_handler(CommandHandler("shipping", start_with_shipping_callback))
-    application.add_handler(CommandHandler("shipping", shipping_invoice_callback, filters=filters.User(bot_user_admin)))
-    application.add_handler(CommandHandler("pay", start_without_shipping_callback, filters=filters.User(bot_user_admin)))
+        # Add command handler to start the payment invoice
+        # dispatcher.add_handler(CommandHandler("shipping", start_with_shipping_callback))
+        application.add_handler(CommandHandler("shipping", shipping_invoice_callback, filters=filters.User(bot_user_admin)))
+        application.add_handler(CommandHandler("pay", start_without_shipping_callback, filters=filters.User(bot_user_admin)))
 
-    # Optional handler if your product requires shipping
-    application.add_handler(ShippingQueryHandler(shipping_callback))
+        # Optional handler if your product requires shipping
+        application.add_handler(ShippingQueryHandler(shipping_callback))
 
-    # Pre-checkout handler to final check
-    application.add_handler(PreCheckoutQueryHandler(precheckout_callback))
+        # Pre-checkout handler to final check
+        application.add_handler(PreCheckoutQueryHandler(precheckout_callback))
 
-    # Success! Notify your user!
-    # dispatcher.add_handler(MessageHandler(Filters.successful_payment, successful_payment_callback))
-    application.add_handler(MessageHandler(callback=successful_payment_callback, filters=filters.SUCCESSFUL_PAYMENT), group=-1)
-    
-    # # Optional handler if your product requires shipping
-    # dispatcher.add_handler(ShippingQueryHandler(shipping_callback))
+        # Success! Notify your user!
+        # dispatcher.add_handler(MessageHandler(Filters.successful_payment, successful_payment_callback))
+        application.add_handler(MessageHandler(callback=successful_payment_callback, filters=filters.SUCCESSFUL_PAYMENT), group=-1)
+        
+        # # Optional handler if your product requires shipping
+        # dispatcher.add_handler(ShippingQueryHandler(shipping_callback))
 
-    application.add_handler(CommandHandler("balance", cmd_get_user_balance), group=-1)
-    
-    application.add_handler(CommandHandler("stripemode", cmd_stripe_mode, filters=filters.User(bot_user_admin)), group=-1)
+        application.add_handler(CommandHandler("balance", cmd_get_user_balance), group=-1)
+        
+        application.add_handler(CommandHandler("stripemode", cmd_stripe_mode, filters=filters.User(bot_user_admin)), group=-1)
 
-    if run_polling:
-        # Start the Bot
-        application.run_polling(allowed_updates=Update.ALL_TYPES) 
-    else:
-        return application
+        if run_polling:
+            # Start the Bot
+            application.run_polling(allowed_updates=Update.ALL_TYPES) 
+        else:
+            return application
+
+    except Exception as e:
+        logging.error(str(e))
+        input("Press Enter to exit...")
 
 if __name__ == '__main__':
     
