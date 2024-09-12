@@ -438,6 +438,9 @@ def util_stripe_main(application: Application = None, run_polling=False) -> None
 
 if __name__ == '__main__':
     
+    dotenv_settings = main_util_env()
+    TELEGRAM_BOT_TOKEN = dotenv_settings['DEFAULT_BOT_TOKEN']
+    
     application = util_stripe_main()
     
     application.run_polling(allowed_updates=Update.ALL_TYPES) 

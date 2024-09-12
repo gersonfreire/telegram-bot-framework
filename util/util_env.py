@@ -46,6 +46,8 @@ def main_util_env():
     for key, value in dotenv_settings.items():
         print(f"{key}: {value}")
     
+    return dotenv_settings
+    
 if __name__ == "__main__":
     main_util_env()
     
