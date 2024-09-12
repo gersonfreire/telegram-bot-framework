@@ -9,7 +9,7 @@ Stripe module wrapper for a bot that can receive payment from user.
 
 from typing import List
 
-import sys, os, logging
+import sys, os, logging, socket
 
 #-------------------------------------------
 
@@ -23,6 +23,9 @@ from telegram.ext import Defaults, filters
 from telegram.ext import PreCheckoutQueryHandler, ShippingQueryHandler 
 
 #-------------------------------------------
+
+bot_version = '1.0.0'
+hostname = socket.getfqdn()
 
 dotenv_settings = main_util_env()
 TELEGRAM_BOT_TOKEN = dotenv_settings['DEFAULT_BOT_TOKEN']
