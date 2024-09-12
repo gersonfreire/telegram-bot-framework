@@ -669,7 +669,9 @@ _Links:_
             return f'Sorry, we have a problem sending message: {e}'
        
     # -------- Default command handlers --------
-        
+
+    @with_writing_action
+    @with_log_admin        
     async def cmd_payment(self, update: Update, context: CallbackContext) -> None:
         """Receive and process payments
 
@@ -678,9 +680,7 @@ _Links:_
             context (CallbackContext): _description_
         """
         
-        try:
-            # context.application.add_handler(MessageHandler(callback=successful_payment_callback, filters=filters.SUCCESSFUL_PAYMENT))
-            
+        try:            
             user_language = update.effective_user.language_code
             
             chat_id = update.effective_message.chat_id
@@ -732,8 +732,11 @@ _Links:_
             # Currency_total_amount_invalid
             logging.error(str(e))
             try:
-                await context.bot.send_message(chat_id=update.effective_user.id, text=str(e), parse_mode=None)
-                await context.bot.send_message(chat_id=bot_user_admin, text=str(e), parse_mode=None)
+                message = f'_Sorry! The payment failed. Please try again later._'
+                await context.bot.send_message(chat_id=update.effective_user.id, text=message)
+                
+                message = f'`{update.effective_user.id}`_: Error on payment:_{os.linesep}`{e.message.replace("_"," ")}`'
+                await context.bot.send_message(chat_id=bot_user_admin, text=message)
             except Exception as ex:
                 logging.error(str(ex))    
     
