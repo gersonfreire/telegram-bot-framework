@@ -642,7 +642,7 @@ _Links:_
             show_users_handler = CommandHandler('showusers', self.cmd_show_users, filters=filters.User(user_id=self.admins_owner))
             self.application.add_handler(show_users_handler)
             
-            self.application.add_handler(CommandHandler("payment", self.cmd_payment, filters=filters.User(self.admins_owner))) 
+            self.application.add_handler(CommandHandler("payment", self.cmd_payment)) 
             
             self.application.add_handler(MessageHandler(filters.COMMAND, self.default_unknown_command))
             
