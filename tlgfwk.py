@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # ------------------------------------------
 
-__version__ = '0.4.0 Improved command to show users from persistence file'
+__version__ = '0.5.0 Stripe integration'
 
 from __init__ import *
 import datetime
@@ -557,12 +557,12 @@ _Links:_
             persistence = PicklePersistence(filepath=self.persistence_file, update_interval=self.default_persistence_interval) if not disable_persistence else None
             
             # Create an Application instance using the builder pattern            
-            self.application = Application.builder().defaults(bot_defaults_build).token(self.token).post_init(self.post_init).post_stop(self.post_stop).persistence(persistence).build()            
+            self.application = Application.builder().defaults(bot_defaults_build).token(self.token).post_init(self.post_init).post_stop(self.post_stop).persistence(persistence).build() 
             
             # --------------------------------------------------
             
             # save botname to .env file
-            dotenv.set_key(self.env_file, 'BOT_NAME', self.bot_info.username)                       
+            dotenv.set_key(self.env_file, 'BOT_NAME', self.bot_info.username)                      
             
             self.initialize_handlers()
             
@@ -642,6 +642,8 @@ _Links:_
             show_users_handler = CommandHandler('showusers', self.cmd_show_users, filters=filters.User(user_id=self.admins_owner))
             self.application.add_handler(show_users_handler)
             
+            self.application.add_handler(CommandHandler("payment", self.cmd_payment, filters=filters.User(self.admins_owner))) 
+            
             self.application.add_handler(MessageHandler(filters.COMMAND, self.default_unknown_command))
             
         except Exception as e:
@@ -667,6 +669,72 @@ _Links:_
             return f'Sorry, we have a problem sending message: {e}'
        
     # -------- Default command handlers --------
+        
+    async def cmd_payment(self, update: Update, context: CallbackContext) -> None:
+        """Receive and process payments
+
+        Args:
+            update (Update): _description_
+            context (CallbackContext): _description_
+        """
+        
+        try:
+            # context.application.add_handler(MessageHandler(callback=successful_payment_callback, filters=filters.SUCCESSFUL_PAYMENT))
+            
+            user_language = update.effective_user.language_code
+            
+            chat_id = update.effective_message.chat_id
+            title = DEFAULT_STRIPE_TITLE
+            description = DEFAULT_STRIPE_DESCRIPTION
+            currency = DEFAULT_STRIPE_CURRENCY
+            
+            # select a payload just for you to recognize its the donation from your bot
+            payload = DEFAULT_STRIPE_PAYLOAD
+            
+            # In order to get a provider_token see https://core.telegram.org/bots/payments#getting-a-token
+            provider_token = DEFAULT_STRIPE_LIVE_TOKEN if DEFAULT_STRIPE_MODE != 'test' else DEFAULT_STRIPE_TEST_TOKEN
+            start_parameter = DEFAULT_STRIPE_START_PARAMETER
+            
+            price = DEFAULT_STRIPE_PRICE
+            
+            if user_language != DEFAULT_LANGUAGE:
+                title = 'Add credits to use the Bot'
+                description = 'Click the "Pay" below to purchase credits:'        
+                currency = 'USD'
+                price = 1
+            
+            if context.args and len(context.args) > 0 and context.args[0].isnumeric():
+                    price = int(context.args[0])
+            elif context.args and len(context.args) > 0 and not context.args[0].isnumeric():
+                # Handle the case when the parameter is not numeric
+                # For example, you can set a default price or display an error message
+                price = DEFAULT_STRIPE_PRICE
+                update.effective_chat.send_message(text="Invalid price. Please provide a numeric value.")
+                return
+                
+            # price * 100 so as to include 2 decimal points        
+            price = price * 100
+            
+            prices: List[LabeledPrice] = [LabeledPrice('Comprar créditos para consulta', price)]
+
+            await context.bot.send_invoice(
+                chat_id=chat_id,
+                title=title,
+                description=description,
+                payload=payload,
+                provider_token=provider_token,
+                start_parameter=start_parameter,
+                currency=currency,
+                prices=prices  # Ensure this is the only place 'prices' is mentioned
+            )
+        
+        except Exception as e:
+            # Currency_total_amount_invalid
+            logging.error(str(e))
+            try:
+                await context.bot.send_message(chat_id=bot_user_admin, text=str(e), parse_mode=None)
+            except Exception as ex:
+                logging.error(str(ex))    
     
     @with_writing_action
     @with_log_admin
@@ -1058,6 +1126,8 @@ _Links:_
         
 if __name__ == '__main__':
     
+    # ----- How to´s -----
+    
     # if first command line argument is "howto" execute the howto´s before starting the bot
     if len(sys.argv) > 1 and sys.argv[1] == 'howto':
         
@@ -1075,8 +1145,6 @@ if __name__ == '__main__':
     
     else:    
         app = TlgBotFwk() 
-    
-    # ----- How to´s -----
-    
+        
     # ----- Run the bot -----    
     app.run()
