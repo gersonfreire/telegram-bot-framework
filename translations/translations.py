@@ -10,8 +10,8 @@ language_dictionary = {
         'pt': f"_Commandos disponíveis %s:_{os.linesep}"    
     },
     'command_not_implemented': {
-        'en': f'_Sorry, the command has not yet been implemented:_ %s{os.linesep}',
-        'pt': f"_Desculpe, o comando_ %s _ainda não foi implementado._{os.linesep}"
+        'en': f'_Sorry, the command has not yet been implemented:_ %s{os.linesep}_Use /help to see the available commands._',
+        'pt': f"_Desculpe, o comando_ %s _ainda não foi implementado._{os.linesep}_Use /help para ver os comandos disponíveis._"
     }
 }
 

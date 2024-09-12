@@ -9,6 +9,7 @@ Returns:
 """
 
 # Define the decorator for all functions that require the bot to send a typing action
+from datetime import timedelta
 from functools import wraps
 
 from telegram import InlineKeyboardButton, Update
@@ -19,13 +20,39 @@ from util.util_telegram import *
 def with_writing_action(handler):
     @wraps(handler)
     async def wrapper(self, update: Update, context: CallbackContext, *args, **kwargs):
-        try:                
+        
+        try:      
+                      
             await context.bot.send_chat_action(chat_id=update.effective_chat.id, action=ChatAction.TYPING)
-            self.logger.debug(f"Typing action sent to chat_id: {update.effective_chat.id}")
+            self.logger.debug(f"Typing action sent to chat_id: {update.effective_chat.id}")            
+             
+            # Insert or update user on the bot_data dictionary
+            context.bot_data['user_dict'] = {} if 'user_dict' not in context.bot_data else context.bot_data['user_dict']
+            context.bot_data['user_dict'][update.effective_user.id] = update.effective_user 
+            
+            # Add to bot_data the last time the user accessed the bot
+            context.bot_data['user_status'] = {update.effective_user.id:{}} if 'user_status' not in context.bot_data else context.bot_data['user_status']             
+            context.bot_data['user_status'][update.effective_user.id]['last_message_date'] = (update.message.date + timedelta(hours=-3)).strftime('%d/%m %H:%M')             
+            
             return await handler(self, update, context, *args, **kwargs)
+        
         except Exception as e:
             self.logger.error(f"Error: {e}")
             return await handler(self, update, context, *args, **kwargs)
+        
+    return wrapper
+
+def with_writing_action_sync(handler):
+    @wraps(handler)
+    def wrapper(self, chat_id: int, message: str):
+        try:                
+            self.loop.run_until_complete(self.application.bot.send_chat_action(chat_id=chat_id, action=ChatAction.TYPING))
+            self.logger.debug(f"Typing action sent to chat_id: {chat_id}")
+            
+        except Exception as e:
+            self.logger.error(f"Error: {e}")
+        
+        return handler(self, chat_id, message)
         
     return wrapper
 

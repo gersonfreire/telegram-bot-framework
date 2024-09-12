@@ -37,7 +37,7 @@ You can find many libraries and modules ready to build bots on Telegram, but non
 
 ## How it works
 
-Basically, we build a class called TlgBotFwk, which inherits from the Application class, implemented by the telegram.ext library, provided by the python-telegram-bot package, version 21 or greater ([https://github.com/python-telegram-bot/python-telegram-bot]()). In this child class, we implement some default methods to handle the universal commands /start, /help and other unrecognized commands. However, the developer can implement their own command handlers without losing the built-in functionality. I recommend reading the source code for more details. I also recommend Python 3.12 version.
+Basically, we build a class called TlgBotFwk, which inherits from the Application class, implemented by the telegram.ext library, provided by the python-telegram-bot package, version 21 or greater ([https://github.com/python-telegram-bot/python-telegram-bot](https://github.com/python-telegram-bot/python-telegram-bot)). In this child class, we implement some default methods to handle the universal commands /start, /help and other unrecognized commands. However, the developer can implement their own command handlers without losing the built-in functionality. I recommend reading the source code for more details. I also recommend Python 3.12 version.
 
 ## Usage
 
@@ -130,7 +130,7 @@ python tlgfwk.py
 
 ## TODOs:
 
-* [X] Last Stable Version: 0.3.1 *✓*
+* [X] Last Stable Version: 0.4.0 *✓*
 * [X] Deploy a demo instance - Bot running on [Demo Bot](https://t.me/TecVitoriaBot) ✓
 * [X] Add handlers to telegram menu commands ✓
 * [X] Auto-update by git pull ✓
@@ -148,24 +148,22 @@ python tlgfwk.py
 * [X] Added command to manage useful links like the Github repository of Bot ✓
 * [X] Create a direct, no-running, synchronous send message method with an optional telegram bot token ✓
 * [X] Moved util modules to internal folders ✓
-* [ ] Save admin list to .env
-* [ ] List of admin users ids with same owner privileges
+* [X] Save admin list to .env ✓
+* [X] Making bot persistant from the base class ✓
+* [X] List of admin users ids with same owner privileges ✓
+* [X] Sort help comands alphabetically
+* [X] Admin command to show environment variables ✓
+* [X] Admin command to show a .pickle file content ✓
+* [X] Admin command to show users from persistence file ✓
+* [ ] Create a plugin system
+* [ ] Create a command decorator
+* [ ] Users management
 * [ ] Show embedded help html page
 * [ ] Create a command to encrypt and decrypt strings
 * [ ] Add a way to save the bot token for next run
 * [ ] Add persistence for user and bot data
 * [ ] Allow more than one owner
 * [ ] Logger to Telegram
-* [ ] Add a way to get or change the bot token
-* [ ] Add a way to get the bot owner id
-* [ ] Add a way to get the bot name
-* [ ] Add a way to get the bot version
-* [ ] Add a way to get the bot hostname
-* [ ] Add a way to get the bot script path
-* [ ] Add a way to get the bot main script path
-* [ ] Add a way to get the bot log folder
-* [ ] Add a way to get the bot log file
-* [ ] Add a way to get the bot log level
 
 ## Authors
 
