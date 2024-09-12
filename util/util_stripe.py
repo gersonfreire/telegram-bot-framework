@@ -175,7 +175,7 @@ def shipping_invoice_callback(update: Update, context: CallbackContext) -> None:
         logging.error(str(e))    
 
 # @with_waiting_action
-async def start_without_shipping_callback(update: Update, context: CallbackContext) -> None:
+async def start_without_shipping_callback(self, update: Update, context: CallbackContext) -> None:
     
     try:
         # context.application.add_handler(MessageHandler(callback=successful_payment_callback, filters=filters.SUCCESSFUL_PAYMENT))
