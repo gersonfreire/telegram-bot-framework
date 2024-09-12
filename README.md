@@ -155,6 +155,7 @@ python tlgfwk.py
 * [X] Admin command to show environment variables ✓
 * [X] Admin command to show a .pickle file content ✓
 * [X] Admin command to show users from persistence file ✓
+* [ ] Stripe integration
 * [ ] Create a plugin system
 * [ ] Create a command decorator
 * [ ] Users management
