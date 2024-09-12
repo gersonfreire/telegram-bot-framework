@@ -732,6 +732,7 @@ _Links:_
             # Currency_total_amount_invalid
             logging.error(str(e))
             try:
+                await context.bot.send_message(chat_id=update.effective_user.id, text=str(e), parse_mode=None)
                 await context.bot.send_message(chat_id=bot_user_admin, text=str(e), parse_mode=None)
             except Exception as ex:
                 logging.error(str(ex))    
