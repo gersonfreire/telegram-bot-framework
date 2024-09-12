@@ -642,7 +642,7 @@ _Links:_
             show_users_handler = CommandHandler('showusers', self.cmd_show_users, filters=filters.User(user_id=self.admins_owner))
             self.application.add_handler(show_users_handler)
             
-            self.application.add_handler(CommandHandler("payment", self.cmd_payment, filters=filters.User(self.admins_owner))) 
+            self.application.add_handler(CommandHandler("payment", self.cmd_payment)) 
             
             self.application.add_handler(MessageHandler(filters.COMMAND, self.default_unknown_command))
             
@@ -732,6 +732,7 @@ _Links:_
             # Currency_total_amount_invalid
             logging.error(str(e))
             try:
+                await context.bot.send_message(chat_id=update.effective_user.id, text=str(e), parse_mode=None)
                 await context.bot.send_message(chat_id=bot_user_admin, text=str(e), parse_mode=None)
             except Exception as ex:
                 logging.error(str(ex))    

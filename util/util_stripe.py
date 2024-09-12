@@ -30,8 +30,8 @@ hostname = socket.getfqdn()
 dotenv_settings = main_util_env()
 TELEGRAM_BOT_TOKEN = dotenv_settings['DEFAULT_BOT_TOKEN']
 
-DEFAULT_STRIPE_LIVE_TOKEN = dotenv_settings['STRIPE_LIVE_TOKEN'] 
-DEFAULT_STRIPE_TEST_TOKEN = dotenv_settings['STRIPE_TEST_TOKEN']
+DEFAULT_STRIPE_LIVE_TOKEN = dotenv_settings['STRIPE_LIVE_TOKEN'] if 'STRIPE_LIVE_TOKEN' in dotenv_settings else None
+DEFAULT_STRIPE_TEST_TOKEN = dotenv_settings['STRIPE_TEST_TOKEN'] if 'STRIPE_TEST_TOKEN' in dotenv_settings else None
 
 current_bot_settings = {
     'token': '1234567890:ABCDEF',

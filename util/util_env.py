@@ -13,7 +13,7 @@ from .util_log import *
 def load_env_settings():
 
   try:
-    env_path = os.path.join(os.path.dirname(__file__), '.env')
+    env_path = os.path.join(os.path.dirname(__file__), f'..{os.sep}.env')
     if os.path.exists(env_path):
         if load_dotenv():
             logger.info("Loaded .env file.")
