@@ -11,6 +11,8 @@ from typing import List
 
 from cryptography.fernet import Fernet
 
+import util.util_stripe
+
 # ------------------------------------------
 
 def telegram_object_to_dict(obj):

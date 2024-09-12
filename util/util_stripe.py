@@ -13,11 +13,11 @@ import sys, os, logging, socket
 
 #-------------------------------------------
 
-from util_env import *
-from util_telegram import *
-from util_decorators import *
+from .util_env import *
+from .util_telegram import *
+from .util_decorators import *
 
-from util_balance import *
+from .util_balance import *
 
 from telegram.ext import Defaults, filters
 from telegram.ext import PreCheckoutQueryHandler, ShippingQueryHandler 

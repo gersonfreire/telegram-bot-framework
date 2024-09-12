@@ -6,7 +6,7 @@
 import os
 from dotenv import * # load_dotenv
 
-from util_log import *
+from .util_log import *
 
 # ------------------------------------------
 
