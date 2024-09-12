@@ -13,7 +13,6 @@ import sys, os, logging
 
 #-------------------------------------------
 
-from util_config import *
 from util_env import *
 from util_telegram import *
 from util_decorators import *
