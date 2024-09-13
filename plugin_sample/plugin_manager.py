@@ -4,6 +4,8 @@ import importlib
 import os
 import sys
 
+from plugin_base import Plugin
+
 class PluginManager:
     def __init__(self, plugin_dir):
         self.plugin_dir = plugin_dir
