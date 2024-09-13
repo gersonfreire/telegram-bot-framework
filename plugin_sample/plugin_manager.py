@@ -6,8 +6,19 @@ import sys
 
 from plugin_base import Plugin
 
-class PluginManager:
+class PluginManager:    
+    
     def __init__(self, plugin_dir):
+        """
+        Initializes a new instance of the PluginManager class.
+        Args:
+            plugin_dir (str): The directory path where the plugins are located.
+        """
+        """
+        Loads all the plugins from the plugin directory.
+        Raises:
+            ImportError: If there is an error importing a plugin module.
+        """        
         self.plugin_dir = plugin_dir
         self.plugins = []
 
@@ -23,10 +34,27 @@ class PluginManager:
                         self.plugins.append(cls())
 
     def execute_plugins(self):
+        """
+        Executes all the loaded plugins.
+        Raises:
+            AttributeError: If a plugin does not have the execute() method.
+        """        
         for plugin in self.plugins:
             plugin.execute()
             
-    def execute_plugin_by_name(self, plugin_name, function_name, *args, **kwargs):
+    def execute_plugin_by_name(self, plugin_name, function_name, *args, **kwargs):    
+        """
+        Executes a specific function of a plugin by its name.
+        Args:
+            plugin_name (str): The name of the plugin class.
+            function_name (str): The name of the function to execute.
+            *args: Variable length argument list.
+            **kwargs: Arbitrary keyword arguments.
+        Raises:
+            AttributeError: If the plugin does not have the specified function.
+            ValueError: If the plugin with the given name is not found.
+        """ 
+               
         for plugin in self.plugins:
             if plugin.__class__.__name__ == plugin_name:
                 if hasattr(plugin, function_name):
