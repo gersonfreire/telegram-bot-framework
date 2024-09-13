@@ -564,12 +564,28 @@ _Links:_
             
             self.initialize_handlers()
             
-            # Initialize plugin system
-            self.plugin_manager = plugin_system_main 
+            # -------------------------------------------            
+             
             try:
-                self.plugin_manager.main()
+                # Initialize plugin system
+                
+                # self.plugin_manager = plugin_system_main                
+                # self.plugin_manager.main()
+                
+                # get current script folder
+                script_dir = os.path.dirname(os.path.realpath(__file__)) 
+
+                # Concatenate current script folder with plugins folder
+                plugins_dir = os.path.join(script_dir, f"plugin_system{os.sep}plugins") 
+            
+                # Create PluginManager object               
+                from plugin_system.plugin_manager import PluginManager
+                self.plugin_manager = PluginManager(plugins_dir)
+                self.plugin_manager.load_plugins()     
+                
             except Exception as e:
-                logger.error(f"Error in plugin manager: {e}")
+                logger.error(f"Error in plugin manager: {e}")    
+            # -------------------------------------------
             
         except Exception as e:
             logger.error(f"Error initializing bot: {e}")
