@@ -11,4 +11,11 @@ if __name__ == "__main__":
     # Create PluginManager object
     manager = PluginManager(plugins_dir)
     manager.load_plugins()
+    
+    # execute all plugins
     manager.execute_plugins()
+    
+    manager.execute_plugin_by_name("ExamplePlugin", "execute_message", "Hello World!")    
+    
+    
+    

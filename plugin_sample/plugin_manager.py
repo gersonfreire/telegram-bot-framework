@@ -25,3 +25,14 @@ class PluginManager:
     def execute_plugins(self):
         for plugin in self.plugins:
             plugin.execute()
+            
+    def execute_plugin_by_name(self, plugin_name, function_name, *args, **kwargs):
+        for plugin in self.plugins:
+            if plugin.__class__.__name__ == plugin_name:
+                if hasattr(plugin, function_name):
+                    function = getattr(plugin, function_name)
+                    function(*args, **kwargs)
+                else:
+                    raise AttributeError(f"Plugin '{plugin_name}' does not have a function '{function_name}'")
+                return
+        raise ValueError(f"Plugin '{plugin_name}' not found")    
