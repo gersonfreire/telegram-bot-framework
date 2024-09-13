@@ -5,10 +5,6 @@
 __version__ = '0.6.0 Plugin system'
 
 from __init__ import *
-import plugin_system.main
-import plugin_system.main
-import plugin_system.main
-import plugin_system.plugin_manager
 
 class TlgBotFwk(Application):
     
@@ -569,7 +565,11 @@ _Links:_
             self.initialize_handlers()
             
             # Initialize plugin system
-            self.plugin_manager = plugin_system.main # PluginManager(plugins_dir)
+            self.plugin_manager = plugin_system_main 
+            try:
+                self.plugin_manager.main()
+            except Exception as e:
+                logger.error(f"Error in plugin manager: {e}")
             
         except Exception as e:
             logger.error(f"Error initializing bot: {e}")

@@ -2,8 +2,7 @@
 import os
 from .plugin_manager import PluginManager
 
-if __name__ == "__main__":
-    
+def main():
     # get current script folder
     script_dir = os.path.dirname(os.path.realpath(__file__)) 
        
@@ -18,7 +17,11 @@ if __name__ == "__main__":
     manager.execute_plugins()
     
     # execute plugin by name
-    manager.execute_plugin_by_name("ExamplePlugin", "execute_message", "Hello World!")    
+    manager.execute_plugin_by_name("ExamplePlugin", "execute_message", "Hello World!")
+
+if __name__ == "__main__":
+    
+    main()   
     
     
     
