@@ -5,6 +5,10 @@
 __version__ = '0.6.0 Plugin system'
 
 from __init__ import *
+import plugin_system.main
+import plugin_system.main
+import plugin_system.main
+import plugin_system.plugin_manager
 
 class TlgBotFwk(Application):
     
@@ -563,6 +567,9 @@ _Links:_
             dotenv.set_key(self.env_file, 'BOT_NAME', self.bot_info.username)                      
             
             self.initialize_handlers()
+            
+            # Initialize plugin system
+            self.plugin_manager = plugin_system.main # PluginManager(plugins_dir)
             
         except Exception as e:
             logger.error(f"Error initializing bot: {e}")
