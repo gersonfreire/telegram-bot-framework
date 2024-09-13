@@ -4,7 +4,7 @@ import importlib
 import os
 import sys
 
-from .plugin_base import Plugin
+from plugin_base import Plugin
 
 class PluginManager:    
     
@@ -25,13 +25,21 @@ class PluginManager:
     def load_plugins(self):
         sys.path.insert(0, self.plugin_dir)
         for filename in os.listdir(self.plugin_dir):
-            if filename.endswith(".py") and filename != "__init__.py":
-                module_name = filename[:-3]
-                module = importlib.import_module(module_name)
-                for attr in dir(module):
-                    cls = getattr(module, attr)
-                    if isinstance(cls, type) and issubclass(cls, Plugin) and cls is not Plugin:
-                        self.plugins.append(cls())
+            try:
+                if filename.endswith(".py") and filename != "__init__.py":
+                    
+                    from plugins.example_plugin import ExamplePlugin
+                    
+                    module_name = filename[:-3]
+                    # module = importlib.import_module(module_name)
+                    # module_name = f'.plugins.{filename[:-3]}'
+                    module = importlib.import_module(f'.{module_name}', package='plugins')
+                    for attr in dir(module):
+                        cls = getattr(module, attr)
+                        if isinstance(cls, type) and issubclass(cls, Plugin) and cls is not Plugin:
+                            self.plugins.append(cls())
+            except Exception as e:
+                raise ImportError(f"Error importing plugin module: {e}")
 
     def execute_plugins(self):
         """

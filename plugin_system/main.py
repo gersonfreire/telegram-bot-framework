@@ -1,9 +1,11 @@
 # main.py
 import os
-from .plugin_manager import PluginManager
+from plugin_manager import PluginManager
+# from .plugin_manager import PluginManager
 
 def main():
     try:
+        
         # get current script folder
         script_dir = os.path.dirname(os.path.realpath(__file__)) 
 
