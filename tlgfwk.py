@@ -5,8 +5,6 @@
 __version__ = '0.6.0 Plugin system'
 
 from __init__ import *
-import datetime
-import translations.translations as translations
 
 class TlgBotFwk(Application):
     

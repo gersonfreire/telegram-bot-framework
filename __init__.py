@@ -14,6 +14,9 @@ from cryptography.fernet import Fernet
 # import util.util_stripe
 from util.util_stripe import *
 
+import datetime
+import translations.translations as translations
+
 # ------------------------------------------
 
 def telegram_object_to_dict(obj):
