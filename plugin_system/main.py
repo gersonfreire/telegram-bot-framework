@@ -1,7 +1,12 @@
 # main.py
 import os
-from plugin_manager import PluginManager
-# from .plugin_manager import PluginManager
+
+
+try:
+    from plugin_manager import PluginManager
+except ImportError as e:
+    print(f"Failed to import PluginManager: {str(e)}")
+    from .plugin_manager import PluginManager
 
 def main():
     try:

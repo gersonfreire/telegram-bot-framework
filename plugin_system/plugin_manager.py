@@ -4,7 +4,10 @@ import importlib
 import os
 import sys
 
-from plugin_base import Plugin
+try:
+    from plugin_base import Plugin
+except ImportError as e:
+    from .plugin_base import Plugin
 
 class PluginManager:    
     
@@ -34,7 +37,8 @@ class PluginManager:
                     module_name = filename[:-3]
                     # module = importlib.import_module(module_name)
                     # module_name = f'.plugins.{filename[:-3]}'
-                    module = importlib.import_module(f'.{module_name}', package='plugins')
+                    # module = importlib.import_module(f'.{module_name}', package='plugins')
+                    module = importlib.import_module(f'{module_name}', package='plugins')
                     for attr in dir(module):
                         cls = getattr(module, attr)
                         if isinstance(cls, type) and issubclass(cls, Plugin) and cls is not Plugin:
