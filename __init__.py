@@ -17,6 +17,8 @@ from util.util_stripe import *
 import datetime
 import translations.translations as translations
 
+import plugin_sample
+
 # ------------------------------------------
 
 def telegram_object_to_dict(obj):
