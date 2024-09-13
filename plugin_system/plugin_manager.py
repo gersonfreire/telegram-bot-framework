@@ -28,7 +28,8 @@ class PluginManager:
             try:
                 if filename.endswith(".py") and filename != "__init__.py":
                     
-                    from plugins.example_plugin import ExamplePlugin
+                    # from .plugins.example_plugin import ExamplePlugin
+                    # from plugins.example_plugin import ExamplePlugin
                     
                     module_name = filename[:-3]
                     # module = importlib.import_module(module_name)
