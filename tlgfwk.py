@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # ------------------------------------------
 
-__version__ = '0.6.0 Plugin system'
+__version__ = '0.6.1 Plugin system'
 
 from __init__ import *
 
@@ -491,6 +491,7 @@ _Links:_
         default_persistence_interval = 10,
         logger = logger,
         sort_commands = False,
+        enable_plugins = False,
         ):
         
         try: 
@@ -564,27 +565,18 @@ _Links:_
             
             self.initialize_handlers()
             
-            # -------------------------------------------            
-             
-            try:
-                # Initialize plugin system
-                
-                # self.plugin_manager = plugin_system_main                
-                # self.plugin_manager.main()
-                
-                # get current script folder
-                script_dir = os.path.dirname(os.path.realpath(__file__)) 
-
-                # Concatenate current script folder with plugins folder
-                plugins_dir = os.path.join(script_dir, f"plugin_system{os.sep}plugins") 
+            # -------------------------------------------  
             
-                # Create PluginManager object               
-                from plugin_system.plugin_manager import PluginManager
-                self.plugin_manager = PluginManager(plugins_dir)
-                self.plugin_manager.load_plugins()     
-                
-            except Exception as e:
-                logger.error(f"Error in plugin manager: {e}")    
+            self.enable_plugins = enable_plugins          
+             
+            if enable_plugins:
+                try:                    
+                    # self.plugin_manager = PluginManager(plugins_dir)
+                    self.plugin_manager = PluginManager()
+                    self.plugin_manager.load_plugins()     
+                    
+                except Exception as e:
+                    logger.error(f"Error in plugin manager: {e}") 
             # -------------------------------------------
             
         except Exception as e:
@@ -1167,7 +1159,7 @@ if __name__ == '__main__':
         raise Exception("A test error was intentionally raised to test the global error handler")
     
     else:    
-        app = TlgBotFwk() 
+        app = TlgBotFwk(enable_plugins=True) 
         
     # ----- Run the bot -----    
     app.run()

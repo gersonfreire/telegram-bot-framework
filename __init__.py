@@ -19,6 +19,8 @@ import translations.translations as translations
 
 import plugin_system.main as plugin_system_main
 
+from plugin_system.plugin_manager import PluginManager
+
 # ------------------------------------------
 
 def telegram_object_to_dict(obj):

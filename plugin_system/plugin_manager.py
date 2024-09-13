@@ -11,7 +11,9 @@ except ImportError as e:
 
 class PluginManager:    
     
-    def __init__(self, plugin_dir):
+    current_folder = os.path.dirname(os.path.realpath(__file__))
+    
+    def __init__(self, plugin_dir = f'{current_folder}{os.sep}plugins'):
         """
         Initializes a new instance of the PluginManager class.
         Args:
