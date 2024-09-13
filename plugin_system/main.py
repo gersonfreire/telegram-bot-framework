@@ -1,6 +1,6 @@
 # main.py
 import os
-from plugin_manager import PluginManager
+from .plugin_manager import PluginManager
 
 if __name__ == "__main__":
     

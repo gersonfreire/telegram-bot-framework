@@ -4,7 +4,7 @@ import importlib
 import os
 import sys
 
-from plugin_base import Plugin
+from .plugin_base import Plugin
 
 class PluginManager:    
     
