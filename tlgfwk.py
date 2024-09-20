@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # ------------------------------------------
 
-__version__ = '0.6.1 Plugin system'
+__version__ = '0.6.2 Command to load plugin system'
 
 from __init__ import *
 
@@ -682,6 +682,27 @@ _Links:_
             return f'Sorry, we have a problem sending message: {e}'
        
     # -------- Default command handlers --------
+    
+    @with_writing_action
+    @with_log_admin
+    async def cmd_load_plugin(self, update: Update, context: CallbackContext):
+        """Load a plugin dynamically
+
+        Args:
+            update (Update): _description_
+            context (CallbackContext): _description_
+        """
+        
+        try:
+            plugin_name = context.args[0]
+            self.plugin_manager.load_plugin(plugin_name)
+            
+            message = f"Plugin {plugin_name} loaded successfully."
+            await update.message.reply_text(message)
+            
+        except Exception as e:
+            logger.error(f"Error loading plugin: {e}")
+            await update.message.reply_text(f"Sorry, we encountered an error: {e}")
 
     @with_writing_action
     @with_log_admin        

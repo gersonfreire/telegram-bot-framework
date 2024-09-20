@@ -6,12 +6,10 @@ from telegram import Bot, Chat, Message, User
 
 from handlers import *
 import translations as translations
-# import translations.translations as translations
 from typing import List
 
 from cryptography.fernet import Fernet
 
-# import util.util_stripe
 from util.util_stripe import *
 
 import datetime
