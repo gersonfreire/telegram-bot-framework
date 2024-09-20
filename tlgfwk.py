@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # ------------------------------------------
 
-__version__ = '0.6.2 Command to load plugin system'
+__version__ = '0.6.3 Load just a specified plugin'
 
 from __init__ import *
 
