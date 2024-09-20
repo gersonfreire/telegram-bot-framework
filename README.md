@@ -155,8 +155,9 @@ python tlgfwk.py
 * [X] Admin command to show environment variables ✓
 * [X] Admin command to show a .pickle file content ✓
 * [X] Admin command to show users from persistence file ✓
-* [ ] Paging for messages longer than 4096 characters
+* [X] Command to load plugin system ✓
 * [ ] Plugin system
+* [ ] Paging for messages longer than 4096 characters
 * [ ] Stripe integration
 * [ ] Create a command decorator
 * [ ] Users management
