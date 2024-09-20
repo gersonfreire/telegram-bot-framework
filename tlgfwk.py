@@ -657,6 +657,10 @@ _Links:_
             
             self.application.add_handler(CommandHandler("payment", self.cmd_payment)) 
             
+            # add handler for the /loadplugin command to load a plugin dynamically
+            load_plugin_handler = CommandHandler('loadplugin', self.cmd_load_plugin, filters=filters.User(user_id=self.admins_owner))
+            self.application.add_handler(load_plugin_handler)
+            
             self.application.add_handler(MessageHandler(filters.COMMAND, self.default_unknown_command))
             
         except Exception as e:
@@ -694,6 +698,11 @@ _Links:_
         """
         
         try:
+            if not context.args:
+                self.plugin_manager.load_plugins() 
+                await update.message.reply_text("_All plugins loaded!_.")
+                return
+            
             plugin_name = context.args[0]
             self.plugin_manager.load_plugin(plugin_name)
             
