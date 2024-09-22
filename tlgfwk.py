@@ -2,7 +2,8 @@
 # -*- coding: utf-8 -*-
 # ------------------------------------------
 
-__version__ = '0.6.3 Load just a specified plugin - Show to admin user which commands is common or admin'
+__version__ = """0.6.3 Load just a specified plugin
+0.6.4 Show to admin user which commands is common or admin"""
 
 from __init__ import *
 
