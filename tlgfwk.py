@@ -2,7 +2,11 @@
 # -*- coding: utf-8 -*-
 # ------------------------------------------
 
-__version__ = '0.6.2 Command to load plugin system'
+__version__ = """
+0.6.3 Load just a specified plugin
+0.6.4 Show to admin user which commands is common or admin
+0.6.5 Add a command to show the bot configuration settings
+"""
 
 from __init__ import *
 
@@ -661,10 +665,19 @@ _Links:_
             load_plugin_handler = CommandHandler('loadplugin', self.cmd_load_plugin, filters=filters.User(user_id=self.admins_owner))
             self.application.add_handler(load_plugin_handler)
             
+            # Add handler for the /showcommands command to show the commands available to the user and admin
+            show_commands_handler = CommandHandler('showcommands', self.cmd_show_commands, filters=filters.User(user_id=self.admins_owner))
+            self.application.add_handler(show_commands_handler)
+            
             self.application.add_handler(MessageHandler(filters.COMMAND, self.default_unknown_command))
             
         except Exception as e:
             logger.error(f"Error initializing handlers: {e}")
+            for admin_id in self.admins_owner:
+                try:
+                    self.send_message_sync(chat_id=admin_id, message=f"Error initializing handlers: {e}")
+                except Exception as e:
+                    logger.error(f"Error sending warning to admin {admin_id}: {e}")
             return f'Sorry, we have a problem initializing handlers: {e}'
     
     @with_writing_action_sync
@@ -677,7 +690,11 @@ _Links:_
         """
         
         try:
-            result = app.loop.run_until_complete(app.application.bot.send_message(chat_id=chat_id, text=message))
+            try:
+                result = self.loop.run_until_complete(self.application.bot.send_message(chat_id=chat_id, text=message))
+            except Exception as e:
+                logger.error(f"Error sending message with markdown: {e}")
+                result = self.loop.run_until_complete(self.application.bot.send_message(chat_id=chat_id, text=message, parse_mode=None))
                         
             return result
         
@@ -686,6 +703,32 @@ _Links:_
             return f'Sorry, we have a problem sending message: {e}'
        
     # -------- Default command handlers --------
+    
+    @with_writing_action
+    @with_log_admin
+    async def cmd_show_commands(self, update: Update, context: CallbackContext):
+        """Show the commands available to the user and admin
+
+        Args:
+            update (Update): The update object
+            context (CallbackContext): The callback context
+        """
+        try:
+            user_id = update.effective_user.id
+            is_admin = user_id in self.admins_owner
+
+            common_commands = [cmd.command for cmd in self.common_users_commands]
+            admin_commands = [cmd.command for cmd in self.admin_commands]
+
+            message = "Common Commands:\n" + "\n".join(common_commands)
+            
+            if is_admin:
+                message += "\n\nAdmin Commands:\n" + "\n".join(admin_commands)
+
+            await update.message.reply_text(message)
+        except Exception as e:
+            logger.error(f"Error showing commands: {e}")
+            await update.message.reply_text(f"Sorry, we encountered an error: {e}")
     
     @with_writing_action
     @with_log_admin
