@@ -666,13 +666,18 @@ _Links:_
             self.application.add_handler(load_plugin_handler)
             
             # Add handler for the /showcommands command to show the commands available to the user and admin
-            show_commands_handler = CommandHandler('showcommands', self.cmd_show_commands)
-            self.application.add_handler(show_commands_handler, filters=filters.User(user_id=self.admins_owner))
+            show_commands_handler = CommandHandler('showcommands', self.cmd_show_commands, filters=filters.User(user_id=self.admins_owner))
+            self.application.add_handler(show_commands_handler)
             
             self.application.add_handler(MessageHandler(filters.COMMAND, self.default_unknown_command))
             
         except Exception as e:
             logger.error(f"Error initializing handlers: {e}")
+            for admin_id in self.admins_owner:
+                try:
+                    self.send_message_sync(chat_id=admin_id, message=f"Error initializing handlers: {e}")
+                except Exception as e:
+                    logger.error(f"Error sending warning to admin {admin_id}: {e}")
             return f'Sorry, we have a problem initializing handlers: {e}'
     
     @with_writing_action_sync
@@ -685,7 +690,11 @@ _Links:_
         """
         
         try:
-            result = app.loop.run_until_complete(app.application.bot.send_message(chat_id=chat_id, text=message))
+            try:
+                result = self.loop.run_until_complete(self.application.bot.send_message(chat_id=chat_id, text=message))
+            except Exception as e:
+                logger.error(f"Error sending message with markdown: {e}")
+                result = self.loop.run_until_complete(self.application.bot.send_message(chat_id=chat_id, text=message, parse_mode=None))
                         
             return result
         
