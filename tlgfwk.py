@@ -730,7 +730,7 @@ _Links:_
             common_commands.sort()
             admin_commands.sort()
             
-            message = f"_Common Commands:_{os.linesep}{os.linesep.join(common_commands)}"
+            message = f"_User Commands:_{os.linesep}{os.linesep.join(common_commands)}"
             
             if is_admin:
                 admin_only_commands = [cmd for cmd in admin_commands if cmd not in common_commands]
