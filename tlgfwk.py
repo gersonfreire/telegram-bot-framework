@@ -3,9 +3,11 @@
 # ------------------------------------------
 
 __version__ = """
+TODO´s:
 0.6.3 Load just a specified plugin
 0.6.4 Show to admin user which commands is common or admin
 0.6.5 Add a command to show the bot configuration settings
+0.6.6 Improve command handler to show the commands available to the user and admin
 """
 
 from __init__ import *
@@ -719,13 +721,13 @@ _Links:_
 
             common_commands = [cmd.command for cmd in self.common_users_commands]
             admin_commands = [cmd.command for cmd in self.admin_commands]
-
-            message = "Common Commands:\n" + "\n".join(common_commands)
+            message = f"_Common Commands:_{os.linesep}{os.linesep.join(common_commands)}"
             
             if is_admin:
-                message += "\n\nAdmin Commands:\n" + "\n".join(admin_commands)
+                message += f"{os.linesep}{os.linesep}_Admin Commands:_{os.linesep}{os.linesep.join(admin_commands)}"
 
             await update.message.reply_text(message)
+            
         except Exception as e:
             logger.error(f"Error showing commands: {e}")
             await update.message.reply_text(f"Sorry, we encountered an error: {e}")
