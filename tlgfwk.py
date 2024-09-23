@@ -719,12 +719,14 @@ _Links:_
             user_id = update.effective_user.id
             is_admin = user_id in self.admins_owner
 
-            common_commands = [cmd.command for cmd in self.common_users_commands]
-            admin_commands = [cmd.command for cmd in self.admin_commands]
+            common_commands = [f'/{cmd.command}' for cmd in self.common_users_commands]
+            admin_commands = [f'/{cmd.command}' for cmd in self.admin_commands]
+            
             message = f"_Common Commands:_{os.linesep}{os.linesep.join(common_commands)}"
             
             if is_admin:
-                message += f"{os.linesep}{os.linesep}_Admin Commands:_{os.linesep}{os.linesep.join(admin_commands)}"
+                admin_only_commands = [cmd for cmd in admin_commands if cmd not in common_commands]
+                message += f"{os.linesep}{os.linesep}_Admin Commands:_{os.linesep}{os.linesep.join(admin_only_commands)}"
 
             await update.message.reply_text(message)
             
