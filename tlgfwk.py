@@ -722,6 +722,10 @@ _Links:_
             common_commands = [f'/{cmd.command}' for cmd in self.common_users_commands]
             admin_commands = [f'/{cmd.command}' for cmd in self.admin_commands]
             
+            # order by name
+            common_commands.sort()
+            admin_commands.sort()
+            
             message = f"_Common Commands:_{os.linesep}{os.linesep.join(common_commands)}"
             
             if is_admin:
