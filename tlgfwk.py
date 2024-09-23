@@ -8,6 +8,7 @@ TODO´s:
 0.6.4 Show to admin user which commands is common or admin
 0.6.5 Add a command to show the bot configuration settings
 0.6.7 Improve command handler to show the commands available to the user and admin
+0.6.8 Show "*" asterisk on the user list for the admin users
 """
 
 from __init__ import *
@@ -862,9 +863,10 @@ _Links:_
             last_message = context.bot_data['user_status'][user.id]['last_message_date'] if 'user_status' in context.bot_data and user.id in context.bot_data['user_status'] else (datetime.datetime.now()+ timedelta(hours=-3)).strftime('%d/%m %H:%M')      
             
             # Get the user line
+            flag_admin = '👑' if user.id in self.admins_owner else ' '
             user_line = f"`{str(user.id):<11}` `{str(user.full_name)[:20]:<20}`  `{last_message}`  {format_string(user.name)}"
             user_line = f"`{str(user.full_name)[:12]:<12}` `{last_message}` {format_string(user.name,15)}"
-            user_line = f"`{str(user.id)[:10]:<10}` `{last_message}` {user.name}"
+            user_line = f"`{str(user.id)[:10]:<10}` `{last_message}` {user.name} {flag_admin}"
             
             return user_line
         
