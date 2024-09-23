@@ -715,12 +715,16 @@ _Links:_
             update (Update): The update object
             context (CallbackContext): The callback context
         """
+        
+        def get_command_line(command):
+            return f"/{command.command} - {command.description}"
+        
         try:
             user_id = update.effective_user.id
             is_admin = user_id in self.admins_owner
 
-            common_commands = [f'/{cmd.command}' for cmd in self.common_users_commands]
-            admin_commands = [f'/{cmd.command}' for cmd in self.admin_commands]
+            common_commands = [get_command_line(cmd) for cmd in self.common_users_commands]
+            admin_commands = [get_command_line(cmd) for cmd in self.admin_commands]
             
             # order by name
             common_commands.sort()
