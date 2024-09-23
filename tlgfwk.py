@@ -8,7 +8,8 @@ TODO´s:
 0.6.4 Show to admin user which commands is common or admin
 0.6.5 Add a command to show the bot configuration settings
 0.6.7 Improve command handler to show the commands available to the user and admin
-0.6.8 Show "*" asterisk on the user list for the admin users
+0.6.8 Show 👑 on the user list for the admin users
+0.6.9 Show 👑 on the command help list for the admin commands
 """
 
 from __init__ import *
@@ -263,11 +264,12 @@ _Links:_
             
             # convert the commands dictionary into help text and update command menu
             for command_name, command_data in command_dict.items():
+                flag_admin = '👑' if command_data['is_admin'] else ' '
                 try:
                     if command_name not in [bot_command.command for bot_command in self.common_users_commands]:
                         if command_data['is_admin']:
                             if current_user_id in self.admins_owner:
-                                self.help_text += f"/{command_name} - {command_data['command_description']}{os.linesep}"
+                                self.help_text += f"/{command_name} {flag_admin} - {command_data['command_description']}{os.linesep}"
                                 
                                 # add command got from command handler to telegram menu commands only to specific admin user
                                 admin_commands_list = list(self.admin_commands)
@@ -276,7 +278,7 @@ _Links:_
                                 
                         else:
                             command_description = command_data['command_description']
-                            self.help_text += f"/{command_name} - {command_description}{os.linesep}" 
+                            self.help_text += f"/{command_name} {flag_admin} - {command_description}{os.linesep}" 
                             
                             # Add command got from command handler to telegram menu commands
                             users_commands_list = list(self.common_users_commands)
