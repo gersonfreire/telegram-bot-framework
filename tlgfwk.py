@@ -916,16 +916,20 @@ _Links:_
             
             return formatted_string        
         
-        def get_user_line(user):
+        def get_user_line(user, persistence_user_data):
             
             # Get the user data buffer from bot context
             last_message = context.bot_data['user_status'][user.id]['last_message_date'] if 'user_status' in context.bot_data and user.id in context.bot_data['user_status'] else (datetime.datetime.now()+ timedelta(hours=-3)).strftime('%d/%m %H:%M')      
             
-            # Get the user line
             flag_admin = '👑' if user.id in self.admins_owner else ' '
+            user_balance = persistence_user_data.get(user.id, None).get('balance', 0) if persistence_user_data else 0
+            user_balance = f'${user_balance:,.0f}'          
+            
+            # Get the user line
             user_line = f"`{str(user.id):<11}` `{str(user.full_name)[:20]:<20}`  `{last_message}`  {format_string(user.name)}"
             user_line = f"`{str(user.full_name)[:12]:<12}` `{last_message}` {format_string(user.name,15)}"
-            user_line = f"`{str(user.id)[:10]:<10}` `{last_message}` {user.name} {flag_admin}"
+            
+            user_line = f"`{str(user.id)[:10]:<10}` `{str(user_balance)[:4]:>4}` `{last_message}` {user.name} {flag_admin}"
             
             return user_line
         
@@ -933,9 +937,12 @@ _Links:_
             # Get the user dictionary from the bot data
             all_users_data = context.bot_data.get('user_dict', {})
             
+            # get user data from persistence
+            persistence_user_data = await self.application.persistence.get_user_data() if self.application.persistence else None            
+            
             # Check if there are any users in the dictionary
             if all_users_data:
-                user_names = [get_user_line(user) for user in all_users_data.values()]               
+                user_names = [get_user_line(user, persistence_user_data) for user in all_users_data.values()]               
                 # Create a message with the user names
                 message = f"_Current active bot users:_{os.linesep}" + os.linesep.join(user_names)
             else:
