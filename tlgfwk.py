@@ -918,18 +918,21 @@ _Links:_
         
         def get_user_line(user, persistence_user_data):
             
-            # Get the user data buffer from bot context
-            last_message = context.bot_data['user_status'][user.id]['last_message_date'] if 'user_status' in context.bot_data and user.id in context.bot_data['user_status'] else (datetime.datetime.now()+ timedelta(hours=-3)).strftime('%d/%m %H:%M')      
+            empty_date = '-' * 11
             
+            # Get the user data buffer from bot context
+            last_message = context.bot_data['user_status'][user.id]['last_message_date'] if 'user_status' in context.bot_data and user.id in context.bot_data['user_status'] else empty_date  # (datetime.datetime.now()+ timedelta(hours=-3)).strftime('%d/%m %H:%M') 
+         
             flag_admin = '👑' if user.id in self.admins_owner else ' '
             user_balance = persistence_user_data.get(user.id, None).get('balance', 0) if persistence_user_data else 0
-            user_balance = f'${user_balance:,.0f}'          
+            
+            user_balance = f'${user_balance:,.0f}' 
             
             # Get the user line
             user_line = f"`{str(user.id):<11}` `{str(user.full_name)[:20]:<20}`  `{last_message}`  {format_string(user.name)}"
             user_line = f"`{str(user.full_name)[:12]:<12}` `{last_message}` {format_string(user.name,15)}"
             
-            user_line = f"`{str(user.id)[:10]:<10}` `{str(user_balance)[:4]:>4}` `{last_message}` {user.name} {flag_admin}"
+            user_line = f"`{str(user.id)[:10]:<10}` `{str(user_balance)[:4]:<4}` `{last_message}` {user.name} {flag_admin}"
             
             return user_line
         
