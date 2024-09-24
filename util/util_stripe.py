@@ -409,8 +409,8 @@ def util_stripe_main(application: Application = None, run_polling=False) -> None
             bot_defaults_build = Defaults(parse_mode=ParseMode.MARKDOWN) # , tzinfo=pytz.timezone('Europe/Berlin'))        
             application = Application.builder().defaults(defaults=bot_defaults_build).token(TELEGRAM_BOT_TOKEN).post_init(post_init).post_shutdown(post_shutdown).build()
 
-        # simple start handler    
-        application.add_handler(CommandHandler("start", start_callback))
+            # simple start handler    
+            application.add_handler(CommandHandler("start", start_callback))
 
         # Add command handler to start the payment invoice
         # dispatcher.add_handler(CommandHandler("shipping", start_with_shipping_callback))
