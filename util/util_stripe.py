@@ -13,11 +13,13 @@ import sys, os, logging, socket
 
 #-------------------------------------------
 
-from .util_env import *
-from .util_telegram import *
-from .util_decorators import *
+import __init__
 
-from .util_balance import *
+from util.util_env import *
+from util.util_telegram import *
+from util.util_decorators import *
+
+from util.util_balance import *
 
 from telegram.ext import Defaults, filters
 from telegram.ext import PreCheckoutQueryHandler, ShippingQueryHandler 
@@ -76,7 +78,7 @@ async def start_callback(update: Update, context: CallbackContext) -> None:
     await update.effective_message.reply_text(msg)
     
 
-def start_with_shipping_callback(update: Update, context: CallbackContext) -> None:
+async def start_with_shipping_callback(update: Update, context: CallbackContext) -> None:
     
     global provider_token
     
@@ -97,7 +99,7 @@ def start_with_shipping_callback(update: Update, context: CallbackContext) -> No
 
     # optionally pass need_name=True, need_phone_number=True,
     # need_email=True, need_shipping_address=True, is_flexible=True
-    context.bot.send_invoice(
+    await context.bot.send_invoice(
         chat_id,
         title,
         description,
@@ -113,7 +115,7 @@ def start_with_shipping_callback(update: Update, context: CallbackContext) -> No
         is_flexible=True,
     )
 
-def shipping_invoice_callback(update: Update, context: CallbackContext) -> None:
+async def shipping_invoice_callback(update: Update, context: CallbackContext) -> None:
     
     global provider_token
     
@@ -124,7 +126,7 @@ def shipping_invoice_callback(update: Update, context: CallbackContext) -> None:
             # Use this to tell the user that something is happening on the bot's side:
             # update.effective_chat.send_chat_action(telegram.ChatAction.TYPING)
             # 11.2.2 typing + mktlist order by name + novos bots
-            context.bot.send_chat_action(chat_id=update.effective_chat.id, action=telegram.ChatAction.TYPING) 
+            await context.bot.send_chat_action(chat_id=update.effective_chat.id, action=telegram.ChatAction.TYPING) 
         except Exception as e:
             logging.error(str(e))                
 
@@ -140,7 +142,7 @@ def shipping_invoice_callback(update: Update, context: CallbackContext) -> None:
         #     price_to_buy = 10
         
         # Escolhe token conforme ambiente do Bot
-        provider_token = provider_token_test if bot_config.environment_type == 'dev' else provider_token_live
+        provider_token = DEFAULT_STRIPE_TEST_TOKEN
             
         title, description, payload, provider_token, start_parameter, prices, currency = \
             create_invoice(
@@ -160,7 +162,7 @@ def shipping_invoice_callback(update: Update, context: CallbackContext) -> None:
         # prices =  [LabeledPrice("Test", price_to_buy)]          
         prices =  [LabeledPrice("Comprar créditos para consulta", price_to_buy)]          
              
-        context.bot.send_invoice(
+        await context.bot.send_invoice(
             chat_id= update.message.chat_id,
             title= title,
             description= description,
@@ -175,7 +177,7 @@ def shipping_invoice_callback(update: Update, context: CallbackContext) -> None:
         logging.error(str(e))    
 
 # @with_waiting_action
-async def start_without_shipping_callback(self, update: Update, context: CallbackContext) -> None:
+async def start_without_shipping_callback(update: Update, context: CallbackContext) -> None:
     
     try:
         # context.application.add_handler(MessageHandler(callback=successful_payment_callback, filters=filters.SUCCESSFUL_PAYMENT))
@@ -216,6 +218,7 @@ async def start_without_shipping_callback(self, update: Update, context: Callbac
         
         prices: List[LabeledPrice] = [LabeledPrice('Comprar créditos para consulta', price)]
 
+        # await context.bot.send_invoice(
         await context.bot.send_invoice(
             chat_id=chat_id,
             title=title,
