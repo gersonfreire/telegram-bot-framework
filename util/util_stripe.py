@@ -257,13 +257,20 @@ def shipping_callback(update: Update, context: CallbackContext) -> None:
 
 # after (optional) shipping, it's the pre-checkout
 async def precheckout_callback(update: Update, context: CallbackContext) -> None:
-    query = update.pre_checkout_query
-    # check the payload, is this from your bot?
-    if query.invoice_payload != 'Custom-Payload':
-        # answer False pre_checkout_query
+    
+    try:
+        query = update.pre_checkout_query
+        # check the payload, is this from your bot?
+        if query.invoice_payload != 'Custom-Payload':
+            # answer False pre_checkout_query
+            await query.answer(ok=False, error_message="Erro no processamento do pagamento!")
+        else:
+            # add new credits to the users balance inside persistent storage context user data
+            context.user_data['balance'] += 1000 
+            await query.answer(ok=True)
+    except Exception as e:
+        logging.error(str(e))
         await query.answer(ok=False, error_message="Erro no processamento do pagamento!")
-    else:
-        await query.answer(ok=True)
   
 # finally, after contacting the payment provider...
 async def successful_payment_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:      
