@@ -265,8 +265,6 @@ async def precheckout_callback(update: Update, context: CallbackContext) -> None
             # answer False pre_checkout_query
             await query.answer(ok=False, error_message="Erro no processamento do pagamento!")
         else:
-            # add new credits to the users balance inside persistent storage context user data
-            context.user_data['balance'] += 1000 
             await query.answer(ok=True)
     except Exception as e:
         logging.error(str(e))

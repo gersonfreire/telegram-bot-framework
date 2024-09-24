@@ -484,15 +484,20 @@ _Links:_
     # --------------- Payment handlers --------------------
     
     # after (optional) shipping, it's the pre-checkout
-    async def precheckout_callback(update: Update, context: CallbackContext) -> None:
+    async def precheckout_callback(self, update: Update, context: CallbackContext) -> None:
         try:
             query = update.pre_checkout_query
+            
             # check the payload, is this from your bot?
             if query.invoice_payload != 'Custom-Payload':
-            # answer False pre_checkout_query
+                # answer False pre_checkout_query
                 await query.answer(ok=False, error_message="Erro no processamento do pagamento!")
             else:
                 await query.answer(ok=True)
+                # add new credits to the users balance inside persistent storage context user data
+                previous_balance = context.user_data['balance'] if 'balance' in context.user_data else 0
+                credit = int(query.total_amount / 100)
+                context.user_data['balance'] = previous_balance + credit
             
         except Exception as e:
             logger.error(f"Error in precheckout_callback: {e}")
@@ -697,7 +702,7 @@ _Links:_
             self.application.add_handler(show_balance_handler)
             
             # Pre-checkout handler to final check
-            self.application.add_handler(PreCheckoutQueryHandler(precheckout_callback))            
+            self.application.add_handler(PreCheckoutQueryHandler(self.precheckout_callback))            
             
             self.application.add_handler(MessageHandler(filters.COMMAND, self.default_unknown_command))
             
@@ -748,10 +753,11 @@ _Links:_
             
             # Get user data from persistence
             user_data = await self.application.persistence.get_user_data() if self.application.persistence else None
+            user_data = context.user_data
             bot_data = await self.application.persistence.get_bot_data() if self.application.persistence else None
             
             # Then get the balance from the user data
-            balance = user_data.get('balance', 0) if user_data else 0
+            balance = context.user_data.get('balance', 0) if user_data else 0
 
             message = f"_Your current balance is: _`${balance:,.2f}`"
             await update.message.reply_text(message)
