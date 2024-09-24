@@ -10,6 +10,7 @@ TODO´s:
 0.6.7 Improve command handler to show the commands available to the user and admin
 0.6.8 Show 👑 on the user list for the admin users
 0.6.9 Show 👑 on the command help list for the admin commands
+0.7.0 Add a command to show user´s balance
 """
 
 from __init__ import *
@@ -674,6 +675,10 @@ _Links:_
             show_commands_handler = CommandHandler('showcommands', self.cmd_show_commands, filters=filters.User(user_id=self.admins_owner))
             self.application.add_handler(show_commands_handler)
             
+            # Add handler for the /showbalance command to show the current user's balance
+            show_balance_handler = CommandHandler('showbalance', self.cmd_show_balance)
+            self.application.add_handler(show_balance_handler)
+            
             self.application.add_handler(MessageHandler(filters.COMMAND, self.default_unknown_command))
             
         except Exception as e:
@@ -708,6 +713,32 @@ _Links:_
             return f'Sorry, we have a problem sending message: {e}'
        
     # -------- Default command handlers --------
+    
+    @with_writing_action
+    @with_log_admin
+    async def cmd_show_balance(self, update: Update, context: CallbackContext):
+        """Show the current user's balance
+
+        Args:
+            update (Update): The update object
+            context (CallbackContext): The callback context
+        """
+        try:
+            user_id = update.effective_user.id
+            
+            # Get user data from persistence
+            user_data = await self.application.persistence.get_user_data() if self.application.persistence else None
+            bot_data = await self.application.persistence.get_bot_data() if self.application.persistence else None
+            
+            # Then get the balance from the user data
+            balance = user_data.get('balance', 0) if user_data else 0
+
+            message = f"_Your current balance is: _`${balance:,.2f}`"
+            await update.message.reply_text(message)
+            
+        except Exception as e:
+            logger.error(f"Error showing balance: {e}")
+            await update.message.reply_text(f"Sorry, we encountered an error: {e}")
     
     @with_writing_action
     @with_log_admin
