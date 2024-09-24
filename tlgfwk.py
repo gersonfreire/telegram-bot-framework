@@ -481,6 +481,23 @@ _Links:_
                 
         sys.exit(0)
 
+    # --------------- Payment handlers --------------------
+    
+    # after (optional) shipping, it's the pre-checkout
+    async def precheckout_callback(update: Update, context: CallbackContext) -> None:
+        try:
+            query = update.pre_checkout_query
+            # check the payload, is this from your bot?
+            if query.invoice_payload != 'Custom-Payload':
+            # answer False pre_checkout_query
+                await query.answer(ok=False, error_message="Erro no processamento do pagamento!")
+            else:
+                await query.answer(ok=True)
+            
+        except Exception as e:
+            logger.error(f"Error in precheckout_callback: {e}")
+            await query.answer(ok=False, error_message="An unexpected error occurred during payment processing.")
+       
     # ---------------- Bot constructor and initializers -------    
     
     def __init__(self, 
@@ -678,6 +695,9 @@ _Links:_
             # Add handler for the /showbalance command to show the current user's balance
             show_balance_handler = CommandHandler('showbalance', self.cmd_show_balance)
             self.application.add_handler(show_balance_handler)
+            
+            # Pre-checkout handler to final check
+            self.application.add_handler(PreCheckoutQueryHandler(precheckout_callback))            
             
             self.application.add_handler(MessageHandler(filters.COMMAND, self.default_unknown_command))
             
