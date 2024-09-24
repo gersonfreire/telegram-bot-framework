@@ -1205,6 +1205,11 @@ _Links:_
             await self.set_start_message(language_code, update.effective_user.full_name, update.effective_user.id)
                 
             await update.message.reply_text(self.default_start_message.format(update.effective_user.first_name))
+            
+            context.bot_data['user_status'] = context.bot_data.get('user_status', {})
+            context.bot_data['user_status'][update.effective_user.id] = context.bot_data['user_status'].get(update.effective_user.id, {})
+            
+            context.bot_data['user_status'][update.effective_user.id]['last_message_date'] = datetime.datetime.now().strftime('%d/%m %H:%M')          
                 
         except Exception as e:
             logger.error(f"Error in default_start_handler: {e}")
