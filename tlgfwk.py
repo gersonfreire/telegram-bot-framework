@@ -1218,8 +1218,15 @@ _Links:_
     @with_writing_action
     @with_log_admin     
     async def error_handler(self, update: Update, context: CallbackContext) -> None:
-        self.logger.error(context.error)
-        await self.application.bot.send_message(chat_id=self.bot_owner, text=str(context.error))        
+        try:
+            self.logger.error(context.error)
+            await self.application.bot.send_message(chat_id=self.bot_owner, text=str(context.error)) 
+            error_message = f"{__file__} at line {sys.exc_info()[-1].tb_lineno}: {context.error.__module__}"  
+        
+        except Exception as e:            
+            error_message = f"{__file__} at line {sys.exc_info()[-1].tb_lineno}: {context.error.__module__}"
+            logger.error(error_message)
+            await update.message.reply_text(error_message)   
 
     @with_writing_action
     @with_log_admin        
