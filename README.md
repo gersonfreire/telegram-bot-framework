@@ -158,6 +158,8 @@ python tlgfwk.py
 * [X] Command to load plugin system ✓
 * [X] Plugin system ✓
 * [X] Show to admin user which commands is common or admin ✓
+* [ ] Initialize a minimum balance for new users
+* [ ] Set last message date for all commands
 * [ ] Add a command to manage user's balance
 * [ ] Load just a specified plugin
 * [ ] Paging for messages longer than 4096 characters

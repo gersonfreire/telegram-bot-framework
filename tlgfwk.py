@@ -12,6 +12,8 @@ TODO´s:
 0.6.9 Show 👑 on the command help list for the admin commands
 0.7.0 Add a command to show user´s balance
 0.7.1 Add a command to manage user's balance
+0.7.2 Initialize a minimum balance for new users
+0.7.3 Set last message date for all commands
 """
 
 from __init__ import *
@@ -769,6 +771,7 @@ _Links:_
                 return
 
             # Update the balance
+            amount  = user_data[user_id].get('balance', 0) + amount if user_id in user_data and 'balance' in user_data[user_id] else amount
             user_data[user_id]['balance'] = amount
 
             # Save the updated user data back to persistence
