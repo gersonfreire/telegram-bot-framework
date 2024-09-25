@@ -703,7 +703,11 @@ _Links:_
             self.application.add_handler(show_balance_handler)
             
             # Pre-checkout handler to final check
-            self.application.add_handler(PreCheckoutQueryHandler(self.precheckout_callback))            
+            self.application.add_handler(PreCheckoutQueryHandler(self.precheckout_callback)) 
+            
+            # Add a command to manage user's balance
+            manage_balance_handler = CommandHandler('managebalance', self.cmd_manage_balance, filters=filters.User(user_id=self.admins_owner))
+            self.application.add_handler(manage_balance_handler)           
             
             self.application.add_handler(MessageHandler(filters.COMMAND, self.default_unknown_command))
             
@@ -739,6 +743,43 @@ _Links:_
             return f'Sorry, we have a problem sending message: {e}'
        
     # -------- Default command handlers --------
+    
+    @with_writing_action
+    @with_log_admin
+    async def cmd_manage_balance(self, update: Update, context: CallbackContext):
+        """Manage the user's balance by changing the value specified in the message parameter
+
+        Args:
+            update (Update): The update object
+            context (CallbackContext): The callback context
+        """
+        try:
+            if len(context.args) < 2:
+                await update.message.reply_text("Usage: /managebalance <user_id> <amount>")
+                return
+
+            user_id = int(context.args[0])
+            amount = float(context.args[1])
+
+            # Get user data from persistence
+            user_data = await self.application.persistence.get_user_data() if self.application.persistence else None
+
+            if user_data is None:
+                await update.message.reply_text("No user data found.")
+                return
+
+            # Update the balance
+            user_data[user_id]['balance'] = amount
+
+            # Save the updated user data back to persistence
+            await self.application.persistence.update_user_data(user_id, user_data[user_id])
+
+            message = f"User {user_id}'s balance has been updated to {amount:,.2f}."
+            await update.message.reply_text(message)
+
+        except Exception as e:
+            logger.error(f"Error managing balance: {e}")
+            await update.message.reply_text(f"Sorry, we encountered an error: {e}")
     
     @with_writing_action
     @with_log_admin
