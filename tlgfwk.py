@@ -751,13 +751,21 @@ _Links:_
         try:
             user_id = update.effective_user.id
             
+            # if is there a parameter in command, take it as user_id
+            if context.args and len(context.args) > 0:
+                user_id = int(context.args[0])
+                
+            else:
+                user_id = update.effective_user.id            
+            
             # Get user data from persistence
             user_data = await self.application.persistence.get_user_data() if self.application.persistence else None
-            user_data = context.user_data
-            bot_data = await self.application.persistence.get_bot_data() if self.application.persistence else None
+            
+            # get the balance from the persistence user data
+            balance = user_data.get(user_id, {}).get('balance', 0) if user_data else 0 
             
             # Then get the balance from the user data
-            balance = context.user_data.get('balance', 0) if user_data else 0
+            # balance = context.user_data.get('balance', 0) if user_data else 0
 
             message = f"_Your current balance is: _`${balance:,.2f}`"
             await update.message.reply_text(message)
