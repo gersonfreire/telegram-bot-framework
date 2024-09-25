@@ -11,6 +11,7 @@ TODO´s:
 0.6.8 Show 👑 on the user list for the admin users
 0.6.9 Show 👑 on the command help list for the admin commands
 0.7.0 Add a command to show user´s balance
+0.7.1 Add a command to manage user's balance
 """
 
 from __init__ import *
