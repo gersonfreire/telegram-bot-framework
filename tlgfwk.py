@@ -2,7 +2,17 @@
 # -*- coding: utf-8 -*-
 # ------------------------------------------
 
-__version__ = '0.6.1 Plugin system'
+__version__ = """
+TODO´s:
+0.6.3 Load just a specified plugin
+0.6.4 Show to admin user which commands is common or admin
+0.6.5 Add a command to show the bot configuration settings
+0.6.7 Improve command handler to show the commands available to the user and admin
+0.6.8 Show 👑 on the user list for the admin users
+0.6.9 Show 👑 on the command help list for the admin commands
+0.7.0 Add a command to show user´s balance
+0.7.1 Add a command to manage user's balance
+"""
 
 from __init__ import *
 
@@ -256,11 +266,12 @@ _Links:_
             
             # convert the commands dictionary into help text and update command menu
             for command_name, command_data in command_dict.items():
+                flag_admin = '👑' if command_data['is_admin'] else ' '
                 try:
                     if command_name not in [bot_command.command for bot_command in self.common_users_commands]:
                         if command_data['is_admin']:
                             if current_user_id in self.admins_owner:
-                                self.help_text += f"/{command_name} - {command_data['command_description']}{os.linesep}"
+                                self.help_text += f"/{command_name} {flag_admin} - {command_data['command_description']}{os.linesep}"
                                 
                                 # add command got from command handler to telegram menu commands only to specific admin user
                                 admin_commands_list = list(self.admin_commands)
@@ -269,7 +280,7 @@ _Links:_
                                 
                         else:
                             command_description = command_data['command_description']
-                            self.help_text += f"/{command_name} - {command_description}{os.linesep}" 
+                            self.help_text += f"/{command_name} {flag_admin} - {command_description}{os.linesep}" 
                             
                             # Add command got from command handler to telegram menu commands
                             users_commands_list = list(self.common_users_commands)
@@ -471,6 +482,28 @@ _Links:_
                 
         sys.exit(0)
 
+    # --------------- Payment handlers --------------------
+    
+    # after (optional) shipping, it's the pre-checkout
+    async def precheckout_callback(self, update: Update, context: CallbackContext) -> None:
+        try:
+            query = update.pre_checkout_query
+            
+            # check the payload, is this from your bot?
+            if query.invoice_payload != 'Custom-Payload':
+                # answer False pre_checkout_query
+                await query.answer(ok=False, error_message="Erro no processamento do pagamento!")
+            else:
+                await query.answer(ok=True)
+                # add new credits to the users balance inside persistent storage context user data
+                previous_balance = context.user_data['balance'] if 'balance' in context.user_data else 0
+                credit = int(query.total_amount / 100)
+                context.user_data['balance'] = previous_balance + credit
+            
+        except Exception as e:
+            logger.error(f"Error in precheckout_callback: {e}")
+            await query.answer(ok=False, error_message="An unexpected error occurred during payment processing.")
+       
     # ---------------- Bot constructor and initializers -------    
     
     def __init__(self, 
@@ -657,10 +690,34 @@ _Links:_
             
             self.application.add_handler(CommandHandler("payment", self.cmd_payment)) 
             
+            # add handler for the /loadplugin command to load a plugin dynamically
+            load_plugin_handler = CommandHandler('loadplugin', self.cmd_load_plugin, filters=filters.User(user_id=self.admins_owner))
+            self.application.add_handler(load_plugin_handler)
+            
+            # Add handler for the /showcommands command to show the commands available to the user and admin
+            show_commands_handler = CommandHandler('showcommands', self.cmd_show_commands, filters=filters.User(user_id=self.admins_owner))
+            self.application.add_handler(show_commands_handler)
+            
+            # Add handler for the /showbalance command to show the current user's balance
+            show_balance_handler = CommandHandler('showbalance', self.cmd_show_balance)
+            self.application.add_handler(show_balance_handler)
+            
+            # Pre-checkout handler to final check
+            self.application.add_handler(PreCheckoutQueryHandler(self.precheckout_callback)) 
+            
+            # Add a command to manage user's balance
+            manage_balance_handler = CommandHandler('managebalance', self.cmd_manage_balance, filters=filters.User(user_id=self.admins_owner))
+            self.application.add_handler(manage_balance_handler)           
+            
             self.application.add_handler(MessageHandler(filters.COMMAND, self.default_unknown_command))
             
         except Exception as e:
             logger.error(f"Error initializing handlers: {e}")
+            for admin_id in self.admins_owner:
+                try:
+                    self.send_message_sync(chat_id=admin_id, message=f"Error initializing handlers: {e}")
+                except Exception as e:
+                    logger.error(f"Error sending warning to admin {admin_id}: {e}")
             return f'Sorry, we have a problem initializing handlers: {e}'
     
     @with_writing_action_sync
@@ -673,7 +730,11 @@ _Links:_
         """
         
         try:
-            result = app.loop.run_until_complete(app.application.bot.send_message(chat_id=chat_id, text=message))
+            try:
+                result = self.loop.run_until_complete(self.application.bot.send_message(chat_id=chat_id, text=message))
+            except Exception as e:
+                logger.error(f"Error sending message with markdown: {e}")
+                result = self.loop.run_until_complete(self.application.bot.send_message(chat_id=chat_id, text=message, parse_mode=None))
                         
             return result
         
@@ -682,6 +743,140 @@ _Links:_
             return f'Sorry, we have a problem sending message: {e}'
        
     # -------- Default command handlers --------
+    
+    @with_writing_action
+    @with_log_admin
+    async def cmd_manage_balance(self, update: Update, context: CallbackContext):
+        """Manage the user's balance by changing the value specified in the message parameter
+
+        Args:
+            update (Update): The update object
+            context (CallbackContext): The callback context
+        """
+        try:
+            if len(context.args) < 2:
+                await update.message.reply_text("Usage: /managebalance [user_id] [amount]")
+                return
+
+            user_id = int(context.args[0])
+            amount = float(context.args[1])
+
+            # Get user data from persistence
+            user_data = await self.application.persistence.get_user_data() if self.application.persistence else None
+
+            if user_data is None:
+                await update.message.reply_text("No user data found.")
+                return
+
+            # Update the balance
+            user_data[user_id]['balance'] = amount
+
+            # Save the updated user data back to persistence
+            await self.application.persistence.update_user_data(user_id, user_data[user_id])
+
+            message = f"User {user_id}'s balance has been updated to {amount:,.2f}."
+            await update.message.reply_text(message)
+
+        except Exception as e:
+            error_message = f"Error managing balance in {__file__} at line {sys.exc_info()[-1].tb_lineno}: {e}"
+            logger.error(error_message)
+            await update.message.reply_text(error_message)
+    
+    @with_writing_action
+    @with_log_admin
+    async def cmd_show_balance(self, update: Update, context: CallbackContext):
+        """Show the current user's balance
+
+        Args:
+            update (Update): The update object
+            context (CallbackContext): The callback context
+        """
+        try:
+            user_id = update.effective_user.id
+            
+            # if is there a parameter in command, take it as user_id
+            if context.args and len(context.args) > 0:
+                user_id = int(context.args[0])
+                
+            else:
+                user_id = update.effective_user.id            
+            
+            # Get user data from persistence
+            user_data = await self.application.persistence.get_user_data() if self.application.persistence else None
+            
+            # get the balance from the persistence user data
+            balance = user_data.get(user_id, {}).get('balance', 0) if user_data else 0 
+            
+            # Then get the balance from the user data
+            # balance = context.user_data.get('balance', 0) if user_data else 0
+
+            message = f"_Your current balance is: _`${balance:,.2f}`"
+            await update.message.reply_text(message)
+            
+        except Exception as e:
+            logger.error(f"Error showing balance: {e}")
+            await update.message.reply_text(f"Sorry, we encountered an error: {e}")
+    
+    @with_writing_action
+    @with_log_admin
+    async def cmd_show_commands(self, update: Update, context: CallbackContext):
+        """Show the commands available to the user and admin
+
+        Args:
+            update (Update): The update object
+            context (CallbackContext): The callback context
+        """
+        
+        def get_command_line(command):
+            return f"/{command.command} - {command.description}"
+        
+        try:
+            user_id = update.effective_user.id
+            is_admin = user_id in self.admins_owner
+
+            common_commands = [get_command_line(cmd) for cmd in self.common_users_commands]
+            admin_commands = [get_command_line(cmd) for cmd in self.admin_commands if cmd not in self.common_users_commands]
+            
+            # order by name
+            common_commands.sort()
+            admin_commands.sort()
+            
+            message = f"_User Commands:_{os.linesep}{os.linesep.join(common_commands)}"
+            
+            if is_admin:
+                message += f"{os.linesep}{os.linesep}_Admin Commands:_{os.linesep}{os.linesep.join(admin_commands)}"
+
+            await update.message.reply_text(message)
+            
+        except Exception as e:
+            logger.error(f"Error showing commands: {e}")
+            await update.message.reply_text(f"Sorry, we encountered an error: {e}")
+    
+    @with_writing_action
+    @with_log_admin
+    async def cmd_load_plugin(self, update: Update, context: CallbackContext):
+        """Load a plugin dynamically
+
+        Args:
+            update (Update): _description_
+            context (CallbackContext): _description_
+        """
+        
+        try:
+            if not context.args:
+                self.plugin_manager.load_plugins() 
+                await update.message.reply_text("_All plugins loaded!_.")
+                return
+            
+            plugin_name = context.args[0]
+            self.plugin_manager.load_plugin(plugin_name)
+            
+            message = f"Plugin {plugin_name} loaded successfully."
+            await update.message.reply_text(message)
+            
+        except Exception as e:
+            logger.error(f"Error loading plugin: {e}")
+            await update.message.reply_text(f"Sorry, we encountered an error: {e}")
 
     @with_writing_action
     @with_log_admin        
@@ -772,15 +967,23 @@ _Links:_
             
             return formatted_string        
         
-        def get_user_line(user):
+        def get_user_line(user, persistence_user_data):
+            
+            empty_date = '-' * 11
             
             # Get the user data buffer from bot context
-            last_message = context.bot_data['user_status'][user.id]['last_message_date'] if 'user_status' in context.bot_data and user.id in context.bot_data['user_status'] else (datetime.datetime.now()+ timedelta(hours=-3)).strftime('%d/%m %H:%M')      
+            last_message = context.bot_data['user_status'][user.id]['last_message_date'] if 'user_status' in context.bot_data and user.id in context.bot_data['user_status'] else empty_date  # (datetime.datetime.now()+ timedelta(hours=-3)).strftime('%d/%m %H:%M') 
+         
+            flag_admin = '👑' if user.id in self.admins_owner else ' '
+            user_balance = persistence_user_data.get(user.id, None).get('balance', 0) if persistence_user_data else 0
+            
+            user_balance = f'${user_balance:,.0f}' 
             
             # Get the user line
             user_line = f"`{str(user.id):<11}` `{str(user.full_name)[:20]:<20}`  `{last_message}`  {format_string(user.name)}"
             user_line = f"`{str(user.full_name)[:12]:<12}` `{last_message}` {format_string(user.name,15)}"
-            user_line = f"`{str(user.id)[:10]:<10}` `{last_message}` {user.name}"
+            
+            user_line = f"`{str(user.id)[:10]:<10}` `{str(user_balance)[:4]:<4}` `{last_message}` {user.name} {flag_admin}"
             
             return user_line
         
@@ -788,9 +991,12 @@ _Links:_
             # Get the user dictionary from the bot data
             all_users_data = context.bot_data.get('user_dict', {})
             
+            # get user data from persistence
+            persistence_user_data = await self.application.persistence.get_user_data() if self.application.persistence else None            
+            
             # Check if there are any users in the dictionary
             if all_users_data:
-                user_names = [get_user_line(user) for user in all_users_data.values()]               
+                user_names = [get_user_line(user, persistence_user_data) for user in all_users_data.values()]               
                 # Create a message with the user names
                 message = f"_Current active bot users:_{os.linesep}" + os.linesep.join(user_names)
             else:
@@ -1050,6 +1256,11 @@ _Links:_
             await self.set_start_message(language_code, update.effective_user.full_name, update.effective_user.id)
                 
             await update.message.reply_text(self.default_start_message.format(update.effective_user.first_name))
+            
+            context.bot_data['user_status'] = context.bot_data.get('user_status', {})
+            context.bot_data['user_status'][update.effective_user.id] = context.bot_data['user_status'].get(update.effective_user.id, {})
+            
+            context.bot_data['user_status'][update.effective_user.id]['last_message_date'] = datetime.datetime.now().strftime('%d/%m %H:%M')          
                 
         except Exception as e:
             logger.error(f"Error in default_start_handler: {e}")

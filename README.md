@@ -130,7 +130,7 @@ python tlgfwk.py
 
 ## TODOs:
 
-* [X] Last Stable Version: 0.6.1 *✓*
+* [X] Last Stable Version: 0.7.0 *✓*
 * [X] Deploy a demo instance - Bot running on [Demo Bot](https://t.me/TecVitoriaBot) ✓
 * [X] Add handlers to telegram menu commands ✓
 * [X] Auto-update by git pull ✓
@@ -155,8 +155,11 @@ python tlgfwk.py
 * [X] Admin command to show environment variables ✓
 * [X] Admin command to show a .pickle file content ✓
 * [X] Admin command to show users from persistence file ✓
-* [X] Start developing bot plugins system ✓
-* [ ] Create an empty .env file with defaults inside util folder
+* [X] Command to load plugin system ✓
+* [X] Plugin system ✓
+* [X] Show to admin user which commands is common or admin ✓
+* [ ] Add a command to manage user's balance
+* [ ] Load just a specified plugin
 * [ ] Paging for messages longer than 4096 characters
 * [ ] Stripe integration
 * [ ] Create a command decorator
