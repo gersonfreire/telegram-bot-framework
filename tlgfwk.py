@@ -755,7 +755,7 @@ _Links:_
         """
         try:
             if len(context.args) < 2:
-                await update.message.reply_text("Usage: /managebalance <user_id> <amount>")
+                await update.message.reply_text("Usage: /managebalance [user_id] [amount]")
                 return
 
             user_id = int(context.args[0])
@@ -778,8 +778,9 @@ _Links:_
             await update.message.reply_text(message)
 
         except Exception as e:
-            logger.error(f"Error managing balance: {e}")
-            await update.message.reply_text(f"Sorry, we encountered an error: {e}")
+            error_message = f"Error managing balance in {__file__} at line {sys.exc_info()[-1].tb_lineno}: {e}"
+            logger.error(error_message)
+            await update.message.reply_text(error_message)
     
     @with_writing_action
     @with_log_admin
