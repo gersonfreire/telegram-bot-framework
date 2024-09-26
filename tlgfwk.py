@@ -22,7 +22,7 @@ class TlgBotFwk(Application):
     
     # ------------- util functions ------------------
     
-    async def get_user_data(self, user_id: int = None , data_dict = 'user_status', data_item = 'balance'):
+    async def get_user_data(self, user_id: int = None , data_dict = 'user_status', data_item = 'balance', default_value = None):
         
         try:
             if not self.application.persistence:
@@ -39,7 +39,7 @@ class TlgBotFwk(Application):
                 user_data = user_data.get(user_id, {user_id: {}}) 
                 
             if data_item:
-                user_data = user_data.get(data_item, {data_item: {}})
+                user_data = user_data.get(data_item, {data_item: default_value})
             
             return user_data
         
@@ -791,7 +791,6 @@ _Links:_
             amount = float(context.args[1])
 
             # Get user data from persistence
-            # user_data = await self.application.persistence.get_user_data() if self.application.persistence else None
             user_data = await self.get_user_data(user_id=user_id)            
 
             if user_data is None:
@@ -800,7 +799,7 @@ _Links:_
 
             # Update the balance
             amount  = user_data[user_id].get('balance', 0) + amount if user_id in user_data and 'balance' in user_data[user_id] else amount
-            user_data[user_id]['balance'] = amount
+            user_data['balance'] = amount
 
             # Save the updated user data back to persistence
             await self.application.persistence.update_user_data(user_id, user_data[user_id])
