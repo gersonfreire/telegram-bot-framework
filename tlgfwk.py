@@ -1021,7 +1021,8 @@ _Links:_
             flag_admin = '👑' if user.id in self.admins_owner else ' '
             user_data = persistence_user_data.get(user.id, None) if persistence_user_data else None
         
-            user_balance = user_data.get('balance', 0) if user_data else 0
+            # user_balance = user_data.get('balance', 0) if user_data else 0
+            user_balance = self.get_set_user_data(dict_name='user_status',user_id=user.id, user_item_name='balance', default_value=0, context=context) 
             
             user_balance = f'${user_balance:,.0f}' 
             
