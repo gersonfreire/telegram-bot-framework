@@ -22,24 +22,35 @@ class TlgBotFwk(Application):
     
     # ------------- util functions ------------------
     
-    async def get_user_data(self, user_id: int = None , data_dict = 'user_status', data_item = 'balance', default_value = None):
+    async def get_set_user_data(self, dict_name = 'user_status', user_id: int = None, user_item_name = 'balance', default_value = None, set_data = False, context = None):
         
         try:
             if not self.application.persistence:
                 return None
             
-            user_data = await self.application.persistence.get_bot_data()
+            bot_data = await self.application.persistence.get_bot_data()
             
-            if data_dict in user_data:
-                user_data = user_data[data_dict]
+            if dict_name in bot_data:
+                dict_data = bot_data[dict_name]
             else:
-                user_data = {data_dict: {}}
+                dict_data = {dict_name: {}}
             
-            if user_id:
-                user_data = user_data.get(user_id, {user_id: {}}) 
+            if user_id and user_id in dict_data:
+                user_data = dict_data[user_id] 
+            else:
+                user_data[user_id] = {user_id: {}}
                 
-            if data_item:
-                user_data = user_data.get(data_item, {data_item: default_value})
+            if user_item_name and user_item_name in user_data:
+                item_value = user_data[user_item_name]
+            else:
+                user_data[user_item_name] = default_value
+                
+            if set_data:
+                user_data[user_item_name] = default_value
+                # await self.application.persistence.get_bot_data()[dict_name][user_id] = user_data
+                await self.application.persistence.update_bot_data(bot_data)
+                if context:
+                    context.bot_data[dict_name] = dict_data
             
             return user_data
         
@@ -791,7 +802,7 @@ _Links:_
             amount = float(context.args[1])
 
             # Get user data from persistence
-            user_data = await self.get_user_data(user_id=user_id)            
+            user_data = await self.get_set_user_data(dict_name='user_status',user_id=user_id, user_item_name='balance', default_value=0)         
 
             if user_data is None:
                 await update.message.reply_text("No user data found.")
@@ -799,10 +810,11 @@ _Links:_
 
             # Update the balance
             amount  = user_data[user_id].get('balance', 0) + amount if user_id in user_data and 'balance' in user_data[user_id] else amount
-            user_data['balance'] = amount
+            # user_data['balance'] = amount
+            user_data = await self.get_set_user_data(dict_name='user_status',user_id=user_id, user_item_name='balance', default_value=amount, set_data=True, context=context)    
 
             # Save the updated user data back to persistence
-            await self.application.persistence.update_user_data(user_id, user_data[user_id])
+            await self.application.persistence.update_user_data(user_id, user_data)
             # Flush persistence to save the changes
             await self.application.persistence.flush()
 
