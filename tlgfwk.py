@@ -1011,7 +1011,7 @@ _Links:_
             
             return formatted_string        
         
-        def get_user_line(user, persistence_user_data):
+        async def get_user_line(user, persistence_user_data, user_balance = 0):
             
             empty_date = '-' * 11
             
@@ -1022,7 +1022,8 @@ _Links:_
             user_data = persistence_user_data.get(user.id, None) if persistence_user_data else None
         
             # user_balance = user_data.get('balance', 0) if user_data else 0
-            user_balance = self.get_set_user_data(dict_name='user_status',user_id=user.id, user_item_name='balance', default_value=0, context=context) 
+            user_data_dic = await self.get_set_user_data(dict_name='user_status',user_id=user.id, user_item_name='balance', default_value=0, context=context) 
+            user_balance = user_data_dic['balance'] if 'balance' in user_data_dic else 0
             
             user_balance = f'${user_balance:,.0f}' 
             
@@ -1045,7 +1046,7 @@ _Links:_
             
             # Check if there are any users in the dictionary
             if all_users_data:
-                user_names = [get_user_line(user, persistence_user_data) for user in all_users_data.values()]               
+                user_names = [await get_user_line(user, persistence_user_data) for user in all_users_data.values()]               
                 # Create a message with the user names
                 message = f"_Current active bot users:_{os.linesep}" + os.linesep.join(user_names)
             else:
