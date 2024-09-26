@@ -28,7 +28,12 @@ class TlgBotFwk(Application):
             if not self.application.persistence:
                 return None
             
-            user_data = await self.application.persistence.get_bot_data().get(data_type, {data_type: {}}) 
+            user_data = await self.application.persistence.get_bot_data()
+            
+            if data_type in user_data:
+                user_data = user_data[data_type]
+            else:
+                user_data = {data_type: {}}
             
             if user_id:
                 user_data = user_data.get(user_id, {}) 
