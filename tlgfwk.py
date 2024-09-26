@@ -14,6 +14,7 @@ TODO´s:
 0.7.1 Add a command to manage user's balance
 0.7.2 Initialize a minimum balance for new users
 0.7.3 Set last message date for all commands
+0.7.4 Fixed the show balance command and show all user´s data
 """
 
 from __init__ import *
@@ -846,10 +847,12 @@ _Links:_
                 user_id = update.effective_user.id            
             
             # Get user data from persistence
-            user_data = await self.application.persistence.get_user_data() if self.application.persistence else None
+            # user_data = await self.application.persistence.get_user_data() if self.application.persistence else None
+            user_data = await self.get_set_user_data(dict_name='user_status',user_id=user_id, user_item_name='balance', default_value=0)
             
             # get the balance from the persistence user data
-            balance = user_data.get(user_id, {}).get('balance', 0) if user_data else 0 
+            # balance = user_data.get(user_id, {}).get('balance', 0) if user_data else 0 
+            balance = user_data['balance'] if user_data else 0 
             
             # Then get the balance from the user data
             # balance = context.user_data.get('balance', 0) if user_data else 0
