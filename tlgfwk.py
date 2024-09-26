@@ -818,7 +818,8 @@ _Links:_
             message = f"_Your current balance is: _`${balance:,.2f}`"
             await update.message.reply_text(message)
             
-        except Exception as e:
+        """_summary_
+        """        except Exception as e:
             logger.error(f"Error showing balance: {e}")
             await update.message.reply_text(f"Sorry, we encountered an error: {e}")
     
