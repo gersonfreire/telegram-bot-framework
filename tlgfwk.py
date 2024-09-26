@@ -523,7 +523,7 @@ _Links:_
         links: list[str] = [],
         persistence_file: str = None,
         disable_persistence = False,
-        default_persistence_interval = 10,
+        default_persistence_interval = 5,
         logger = logger,
         sort_commands = False,
         enable_plugins = False,
@@ -776,6 +776,8 @@ _Links:_
 
             # Save the updated user data back to persistence
             await self.application.persistence.update_user_data(user_id, user_data[user_id])
+            # Flush persistence to save the changes
+            await self.application.persistence.flush()
 
             message = f"User {user_id}'s balance has been updated to {amount:,.2f}."
             await update.message.reply_text(message)
@@ -978,7 +980,9 @@ _Links:_
             last_message = context.bot_data['user_status'][user.id]['last_message_date'] if 'user_status' in context.bot_data and user.id in context.bot_data['user_status'] else empty_date  # (datetime.datetime.now()+ timedelta(hours=-3)).strftime('%d/%m %H:%M') 
          
             flag_admin = '👑' if user.id in self.admins_owner else ' '
-            user_balance = persistence_user_data.get(user.id, None).get('balance', 0) if persistence_user_data else 0
+            user_data = persistence_user_data.get(user.id, None) if persistence_user_data else None
+        
+            user_balance = user_data.get('balance', 0) if user_data else 0
             
             user_balance = f'${user_balance:,.0f}' 
             
@@ -992,6 +996,8 @@ _Links:_
         
         try:
             # Get the user dictionary from the bot data
+            # get user data from persistence
+            # all_users_data = await self.application.persistence.get_user_data() if self.application.persistence else None            
             all_users_data = context.bot_data.get('user_dict', {})
             
             # get user data from persistence
