@@ -21,6 +21,25 @@ from __init__ import *
 class TlgBotFwk(Application):
     
     # ------------- util functions ------------------
+    
+    async def get_user_data(self, user_id: int = None , data_type = 'user_status'):
+        
+        try:
+            if not self.application.persistence:
+                return None
+            
+            user_data = await self.application.persistence.get_bot_data().get(data_type, {data_type: {}}) 
+            
+            if user_id:
+                user_data = user_data.get(user_id, {}) 
+            
+            return user_data
+        
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            logger.error(f"Error getting user data in {fname} at line {exc_tb.tb_lineno}: {e}")
+            return f'Sorry, we have a problem getting user data: {e}'
      
     async def force_persistence(self, update: Update, context: CallbackContext):
         """Force the bot to save the persistence file
@@ -764,7 +783,8 @@ _Links:_
             amount = float(context.args[1])
 
             # Get user data from persistence
-            user_data = await self.application.persistence.get_user_data() if self.application.persistence else None
+            # user_data = await self.application.persistence.get_user_data() if self.application.persistence else None
+            user_data = await self.get_user_data(user_id=user_id)            
 
             if user_data is None:
                 await update.message.reply_text("No user data found.")
@@ -818,8 +838,7 @@ _Links:_
             message = f"_Your current balance is: _`${balance:,.2f}`"
             await update.message.reply_text(message)
             
-        """_summary_
-        """        except Exception as e:
+        except Exception as e:
             logger.error(f"Error showing balance: {e}")
             await update.message.reply_text(f"Sorry, we encountered an error: {e}")
     
