@@ -22,7 +22,7 @@ class TlgBotFwk(Application):
     
     # ------------- util functions ------------------
     
-    async def get_user_data(self, user_id: int = None , data_type = 'user_status'):
+    async def get_user_data(self, user_id: int = None , data_dict = 'user_status', data_item = 'balance'):
         
         try:
             if not self.application.persistence:
@@ -30,13 +30,16 @@ class TlgBotFwk(Application):
             
             user_data = await self.application.persistence.get_bot_data()
             
-            if data_type in user_data:
-                user_data = user_data[data_type]
+            if data_dict in user_data:
+                user_data = user_data[data_dict]
             else:
-                user_data = {data_type: {}}
+                user_data = {data_dict: {}}
             
             if user_id:
-                user_data = user_data.get(user_id, {}) 
+                user_data = user_data.get(user_id, {user_id: {}}) 
+                
+            if data_item:
+                user_data = user_data.get(data_item, {data_item: {}})
             
             return user_data
         
