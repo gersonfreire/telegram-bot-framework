@@ -15,6 +15,7 @@ TODO´s:
 0.7.2 Initialize a minimum balance for new users
 0.7.3 Set last message date for all commands
 0.7.4 Fixed the show balance command and show all user´s data
+0.7.5 Migrate user´s balance storage on the user data context 
 """
 
 from __init__ import *
