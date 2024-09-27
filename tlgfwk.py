@@ -53,6 +53,8 @@ class TlgBotFwk(Application):
                 await self.application.persistence.update_bot_data(bot_data)
                 if context:
                     context.bot_data[dict_name] = dict_data
+                    # TODO: update the user data on the context
+                    context.user_data[user_item_name] = default_value
             
             return user_data
         
@@ -540,7 +542,11 @@ _Links:_
                 # add new credits to the users balance inside persistent storage context user data
                 previous_balance = context.user_data['balance'] if 'balance' in context.user_data else 0
                 credit = int(query.total_amount / 100)
-                context.user_data['balance'] = previous_balance + credit
+                new_balance = previous_balance + credit
+                context.user_data['balance'] = new_balance
+                
+                # TODO: add balance to context bot data
+                await self.get_set_user_data(dict_name='user_status', user_id=update.effective_user.id, user_item_name='balance', default_value=credit, set_data=True, context=context)
             
         except Exception as e:
             logger.error(f"Error in precheckout_callback: {e}")
@@ -813,7 +819,10 @@ _Links:_
             # Update the balance
             amount  = user_data[user_id].get('balance', 0) + amount if user_id in user_data and 'balance' in user_data[user_id] else amount
             # user_data['balance'] = amount
-            user_data = await self.get_set_user_data(dict_name='user_status',user_id=user_id, user_item_name='balance', default_value=amount, set_data=True, context=context)    
+            user_data = await self.get_set_user_data(dict_name='user_status',user_id=user_id, user_item_name='balance', default_value=amount, set_data=True, context=context) 
+            
+            # TODO: add balance to user data context
+            # await self.get_set_user_data(dict_name='user_status', user_id=update.effective_user.id, user_item_name='balance', default_value=credit, set_data=True, context=context)               
 
             # Save the updated user data back to persistence
             await self.application.persistence.update_user_data(user_id, user_data)
