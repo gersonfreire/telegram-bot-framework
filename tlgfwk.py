@@ -817,10 +817,16 @@ _Links:_
                 await update.message.reply_text("No user data found.")
                 return
 
+            # get old balance
+            old_balance = user_data['balance'] if 'balance' in user_data else 0
+            
+            # add credit to old balance
+            new_balance = old_balance + amount
+
             # Update the balance
-            amount  = user_data[user_id].get('balance', 0) + amount if user_id in user_data and 'balance' in user_data[user_id] else amount
+            # amount  = user_data[user_id].get('balance', 0) + amount if user_id in user_data and 'balance' in user_data[user_id] else amount
             # user_data['balance'] = amount
-            user_data = await self.get_set_user_data(dict_name='user_status',user_id=user_id, user_item_name='balance', default_value=amount, set_data=True, context=context) 
+            user_data = await self.get_set_user_data(dict_name='user_status',user_id=user_id, user_item_name='balance', default_value=new_balance, set_data=True, context=context) 
             
             # TODO: add balance to user data context
             # await self.get_set_user_data(dict_name='user_status', user_id=update.effective_user.id, user_item_name='balance', default_value=credit, set_data=True, context=context)               
@@ -830,7 +836,7 @@ _Links:_
             # Flush persistence to save the changes
             await self.application.persistence.flush()
 
-            message = f"User {user_id}'s balance has been updated to {amount:,.2f}."
+            message = f"User {user_id}'s balance has been updated to {new_balance:,.2f}."
             await update.message.reply_text(message)
 
         except Exception as e:
