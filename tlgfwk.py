@@ -866,6 +866,7 @@ _Links:_
             balance = user_data['balance'] if user_data else 0 
     
             # TODO: update the user data on the context
+            breakpoint()  # Execution will pause here
             user_balance = context.user_data['balance']           
             
             # Then get the balance from the user data
