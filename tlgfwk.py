@@ -864,6 +864,9 @@ _Links:_
             # get the balance from the persistence user data
             # balance = user_data.get(user_id, {}).get('balance', 0) if user_data else 0 
             balance = user_data['balance'] if user_data else 0 
+    
+            # TODO: update the user data on the context
+            user_balance = context.user_data['balance']           
             
             # Then get the balance from the user data
             # balance = context.user_data.get('balance', 0) if user_data else 0
