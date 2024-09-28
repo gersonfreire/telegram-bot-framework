@@ -2,7 +2,8 @@
 # -*- coding: utf-8 -*-
 # ------------------------------------------
 
-__version__ = """
+__version__ = """0.7.4 Fixed the show balance command and show all user´s data"""
+__change_log__ = """
 TODO´s:
 0.6.3 Load just a specified plugin
 0.6.4 Show to admin user which commands is common or admin
