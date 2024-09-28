@@ -547,7 +547,7 @@ _Links:_
                 context.user_data['balance'] = new_balance
                 
                 # TODO: add balance to context bot data
-                await self.get_set_user_data(dict_name='user_status', user_id=update.effective_user.id, user_item_name='balance', default_value=credit, set_data=True, context=context)
+                await self.get_set_user_data(dict_name='user_status', user_id=update.effective_user.id, user_item_name='balance', default_value=new_balance, set_data=True, context=context)
             
         except Exception as e:
             logger.error(f"Error in precheckout_callback: {e}")
@@ -866,7 +866,7 @@ _Links:_
             balance = user_data['balance'] if user_data else 0 
     
             # TODO: update the user data on the context
-            breakpoint()  # Execution will pause here
+            # breakpoint()  # Execution will pause here
             user_balance = context.user_data['balance']           
             
             # Then get the balance from the user data
