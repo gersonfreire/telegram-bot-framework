@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # ------------------------------------------
 
-__version__ = """0.7.4 Fixed the show balance command and show all user´s data"""
+__version__ = """0.7.6 Fixed duplicate commands """
 __change_log__ = """
 TODO´s:
 0.6.3 Load just a specified plugin
