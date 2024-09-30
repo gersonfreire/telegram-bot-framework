@@ -2,9 +2,20 @@
 # -*- coding: utf-8 -*-
 # ------------------------------------------
 
-__version__ = """0.7.8 Add user into the user list from the decorator of the command handler"""
+__version__ = """0.8.6 Created an examples folder
+"""
+
+__todos__ = """
+0.7.9 Command to Manage links
+0.8.0 Manage TODO´s
+0.8.1 Manage products
+0.8.2 Manage commands
+0.8.3 Send broadcast messages to all admin users and common users
+0.8.4 Show description besides each link 
+0.8.5 Delete links from the .env file and add them to the bot configuration settings
+"""
+
 __change_log__ = """
-TODO´s:
 0.6.3 Load just a specified plugin
 0.6.4 Show to admin user which commands is common or admin
 0.6.5 Add a command to show the bot configuration settings
@@ -19,6 +30,7 @@ TODO´s:
 0.7.5 Migrate user´s balance storage on the user data context 
 0.7.6 Fixed duplicate commands 
 0.7.7 Change payment tokens
+0.7.8 Add user into the user list from the decorator of the command handler
 """
 
 from __init__ import *
