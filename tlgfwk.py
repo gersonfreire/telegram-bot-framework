@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # ------------------------------------------
 
-__version__ = """0.7.8 Add user into the user list from the annotation of the command handler"""
+__version__ = """0.7.8 Add user into the user list from the decorator of the command handler"""
 __change_log__ = """
 TODO´s:
 0.6.3 Load just a specified plugin
