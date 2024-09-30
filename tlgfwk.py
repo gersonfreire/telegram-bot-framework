@@ -2,8 +2,7 @@
 # -*- coding: utf-8 -*-
 # ------------------------------------------
 
-__version__ = """0.8.6 Created an examples folder
-"""
+__version__ = """0.8.7 Created the simplest example of a bot with the framework"""
 
 __todos__ = """
 0.7.9 Command to Manage links
@@ -13,7 +12,7 @@ __todos__ = """
 0.8.3 Send broadcast messages to all admin users and common users
 0.8.4 Show description besides each link 
 0.8.5 Delete links from the .env file and add them to the bot configuration settings
-"""
+0.8.7 Created the simplest example of a bot with the framework"""
 
 __change_log__ = """
 0.6.3 Load just a specified plugin
@@ -31,7 +30,7 @@ __change_log__ = """
 0.7.6 Fixed duplicate commands 
 0.7.7 Change payment tokens
 0.7.8 Add user into the user list from the decorator of the command handler
-"""
+0.8.6 Created an examples folder"""
 
 from __init__ import *
 
