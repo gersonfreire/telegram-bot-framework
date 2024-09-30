@@ -909,6 +909,9 @@ _Links:_
             common_commands.sort()
             admin_commands.sort()
             
+            # eliminate duplicates from admin commands
+            admin_commands = list(set(admin_commands))
+            
             message = f"_User Commands:_{os.linesep}{os.linesep.join(common_commands)}"
             
             if is_admin:
