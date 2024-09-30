@@ -77,6 +77,28 @@ def with_waiting_action(handler):
         
     return wrapper
 
+def with_user_register(handler):
+    @wraps(handler)
+    async def wrapper(self, update: Update, context: CallbackContext):
+        
+        try:
+            # Load all users data
+            all_users_data = db.load_all_users_data()
+            # Check if the user is already registered
+            if str(update.effective_user.id) in all_users_data:
+                current_user = all_users_data[str(update.effective_user.id)]
+            else:
+                current_user = db.new_user_data
+                
+            # If not, insert the user into the database
+            return await handler(self, update, context, current_user)
+        
+        except Exception as e:
+            self.logger.error(f"Error: {e}")
+            return await handler(self, update, context)
+        
+    return wrapper
+
 # Define the decorator to check if the user is already registered
 def validate_user(handler):
     @wraps(handler)
