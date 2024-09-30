@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # ------------------------------------------
 
-__version__ = """0.7.6 Fixed duplicate commands """
+__version__ = """0.7.8 Add user into the user list from the decorator of the command handler"""
 __change_log__ = """
 TODO´s:
 0.6.3 Load just a specified plugin
@@ -17,6 +17,8 @@ TODO´s:
 0.7.3 Set last message date for all commands
 0.7.4 Fixed the show balance command and show all user´s data
 0.7.5 Migrate user´s balance storage on the user data context 
+0.7.6 Fixed duplicate commands 
+0.7.7 Change payment tokens
 """
 
 from __init__ import *
@@ -756,7 +758,11 @@ _Links:_
             
             # Add a command to manage user's balance
             manage_balance_handler = CommandHandler('managebalance', self.cmd_manage_balance, filters=filters.User(user_id=self.admins_owner))
-            self.application.add_handler(manage_balance_handler)           
+            self.application.add_handler(manage_balance_handler)  
+            
+            # Add a command to manage the Stripe payment token
+            manage_stripe_token_handler = CommandHandler('paytoken', self.cmd_manage_stripe_token, filters=filters.User(user_id=self.admins_owner))
+            self.application.add_handler(manage_stripe_token_handler)         
             
             self.application.add_handler(MessageHandler(filters.COMMAND, self.default_unknown_command))
             
@@ -792,6 +798,52 @@ _Links:_
             return f'Sorry, we have a problem sending message: {e}'
        
     # -------- Default command handlers --------
+    
+    @with_writing_action
+    @with_log_admin
+    async def cmd_manage_stripe_token(self, update: Update, context: CallbackContext):
+        """Show and change the current Stripe payment token in the .env file
+
+        Args:
+            update (Update): The update object
+            context (CallbackContext): The callback context
+        """
+        try:
+            if len(context.args) == 0:
+                # Show the current Stripe live token
+                stripe_token = os.environ.get('STRIPE_LIVE_TOKEN', 'Not set')
+                # Get the stripe test token
+                stripe_test_token = os.environ.get('STRIPE_TEST_TOKEN', 'Not set')
+                
+                # concatenate both
+                stripe_token = f"{os.linesep}Live: `{stripe_token}`{os.linesep}Test: `{stripe_test_token}`"
+                
+                await update.message.reply_text(f"Current Stripe payment tokens: {stripe_token}")
+                
+            elif len(context.args) >= 2:
+                # first parameter is the type of token live or test:
+                token_type = context.args[0].lower()
+                
+                # if the token type is test, change the test token
+                if token_type == 'test':
+                    # Change the Stripe test token
+                    new_token = context.args[1]
+                    dotenv.set_key(self.env_file, 'STRIPE_TEST_TOKEN', new_token)
+                    os.environ['STRIPE_TEST_TOKEN'] = new_token
+                    await update.message.reply_text(f"Stripe test payment token updated to: `{new_token}`")
+                else:
+                    # Change the Stripe live token
+                    new_token = context.args[1]
+                    dotenv.set_key(self.env_file, 'STRIPE_LIVE_TOKEN', new_token)
+                    os.environ['STRIPE_LIVE_TOKEN'] = new_token
+                    await update.message.reply_text(f"Stripe live payment token updated to: `{new_token}`")
+                    
+            else:
+                await update.message.reply_text("Usage: /paytoken [new_token]")
+
+        except Exception as e:
+            logger.error(f"Error managing Stripe token: {e}")
+            await update.message.reply_text(f"Sorry, we encountered an error: {e}")
     
     @with_writing_action
     @with_log_admin
@@ -1351,7 +1403,8 @@ _Links:_
             await update.message.reply_text(f"Sorry, we encountered an error: {e}")
 
     @with_writing_action
-    @with_log_admin            
+    @with_log_admin  
+    @with_register_user          
     async def default_help_handler(self, update: Update, context: CallbackContext, *args, **kwargs):        
         
         # TODO: Show embedded help html page

@@ -77,6 +77,30 @@ def with_waiting_action(handler):
         
     return wrapper
 
+def with_register_user(handler):
+    @wraps(handler)
+    async def wrapper(self, update: Update, context: CallbackContext, *args, **kwargs):
+        try:
+            user_id = update.effective_user.id
+            user_data = update.effective_user
+
+            # Ensure the bot_data dictionary has a 'user_dict' key
+            if 'user_dict' not in context.bot_data:
+                context.bot_data['user_dict'] = {}
+
+            # Register or update the user data
+            context.bot_data['user_dict'][user_id] = user_data
+
+            self.logger.debug(f"User {user_id} registered in bot data dictionary.")
+
+            return await handler(self, update, context, *args, **kwargs)
+        
+        except Exception as e:
+            self.logger.error(f"Error registering user: {e}")
+            return await handler(self, update, context, *args, **kwargs)
+
+    return wrapper
+
 # Define the decorator to check if the user is already registered
 def validate_user(handler):
     @wraps(handler)
