@@ -2,7 +2,8 @@
 # -*- coding: utf-8 -*-
 # ------------------------------------------
 
-__version__ = """
+__version__ = """0.7.6 Fixed duplicate commands """
+__change_log__ = """
 TODO´s:
 0.6.3 Load just a specified plugin
 0.6.4 Show to admin user which commands is common or admin
@@ -12,6 +13,10 @@ TODO´s:
 0.6.9 Show 👑 on the command help list for the admin commands
 0.7.0 Add a command to show user´s balance
 0.7.1 Add a command to manage user's balance
+0.7.2 Initialize a minimum balance for new users
+0.7.3 Set last message date for all commands
+0.7.4 Fixed the show balance command and show all user´s data
+0.7.5 Migrate user´s balance storage on the user data context 
 """
 
 from __init__ import *
@@ -19,6 +24,46 @@ from __init__ import *
 class TlgBotFwk(Application):
     
     # ------------- util functions ------------------
+    
+    async def get_set_user_data(self, dict_name = 'user_status', user_id: int = None, user_item_name = 'balance', default_value = None, set_data = False, context = None):
+        
+        try:
+            if not self.application.persistence:
+                return None
+            
+            bot_data = await self.application.persistence.get_bot_data()
+            
+            if dict_name in bot_data:
+                dict_data = bot_data[dict_name]
+            else:
+                dict_data = {dict_name: {}}
+            
+            if user_id and user_id in dict_data:
+                user_data = dict_data[user_id] 
+            else:
+                user_data[user_id] = {user_id: {}}
+                
+            if user_item_name and user_item_name in user_data:
+                item_value = user_data[user_item_name]
+            else:
+                user_data[user_item_name] = default_value
+                
+            if set_data:
+                user_data[user_item_name] = default_value
+                # await self.application.persistence.get_bot_data()[dict_name][user_id] = user_data
+                await self.application.persistence.update_bot_data(bot_data)
+                if context:
+                    context.bot_data[dict_name] = dict_data
+                    # TODO: update the user data on the context
+                    context.user_data[user_item_name] = default_value
+            
+            return user_data
+        
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            logger.error(f"Error getting user data in {fname} at line {exc_tb.tb_lineno}: {e}")
+            return f'Sorry, we have a problem getting user data: {e}'
      
     async def force_persistence(self, update: Update, context: CallbackContext):
         """Force the bot to save the persistence file
@@ -498,7 +543,11 @@ _Links:_
                 # add new credits to the users balance inside persistent storage context user data
                 previous_balance = context.user_data['balance'] if 'balance' in context.user_data else 0
                 credit = int(query.total_amount / 100)
-                context.user_data['balance'] = previous_balance + credit
+                new_balance = previous_balance + credit
+                context.user_data['balance'] = new_balance
+                
+                # TODO: add balance to context bot data
+                await self.get_set_user_data(dict_name='user_status', user_id=update.effective_user.id, user_item_name='balance', default_value=new_balance, set_data=True, context=context)
             
         except Exception as e:
             logger.error(f"Error in precheckout_callback: {e}")
@@ -521,7 +570,7 @@ _Links:_
         links: list[str] = [],
         persistence_file: str = None,
         disable_persistence = False,
-        default_persistence_interval = 10,
+        default_persistence_interval = 5,
         logger = logger,
         sort_commands = False,
         enable_plugins = False,
@@ -762,19 +811,32 @@ _Links:_
             amount = float(context.args[1])
 
             # Get user data from persistence
-            user_data = await self.application.persistence.get_user_data() if self.application.persistence else None
+            user_data = await self.get_set_user_data(dict_name='user_status',user_id=user_id, user_item_name='balance', default_value=0)         
 
             if user_data is None:
                 await update.message.reply_text("No user data found.")
                 return
 
+            # get old balance
+            old_balance = user_data['balance'] if 'balance' in user_data else 0
+            
+            # add credit to old balance
+            new_balance = old_balance + amount
+
             # Update the balance
-            user_data[user_id]['balance'] = amount
+            # amount  = user_data[user_id].get('balance', 0) + amount if user_id in user_data and 'balance' in user_data[user_id] else amount
+            # user_data['balance'] = amount
+            user_data = await self.get_set_user_data(dict_name='user_status',user_id=user_id, user_item_name='balance', default_value=new_balance, set_data=True, context=context) 
+            
+            # TODO: add balance to user data context
+            # await self.get_set_user_data(dict_name='user_status', user_id=update.effective_user.id, user_item_name='balance', default_value=credit, set_data=True, context=context)               
 
             # Save the updated user data back to persistence
-            await self.application.persistence.update_user_data(user_id, user_data[user_id])
+            await self.application.persistence.update_user_data(user_id, user_data)
+            # Flush persistence to save the changes
+            await self.application.persistence.flush()
 
-            message = f"User {user_id}'s balance has been updated to {amount:,.2f}."
+            message = f"User {user_id}'s balance has been updated to {new_balance:,.2f}."
             await update.message.reply_text(message)
 
         except Exception as e:
@@ -802,10 +864,16 @@ _Links:_
                 user_id = update.effective_user.id            
             
             # Get user data from persistence
-            user_data = await self.application.persistence.get_user_data() if self.application.persistence else None
+            # user_data = await self.application.persistence.get_user_data() if self.application.persistence else None
+            user_data = await self.get_set_user_data(dict_name='user_status',user_id=user_id, user_item_name='balance', default_value=0)
             
             # get the balance from the persistence user data
-            balance = user_data.get(user_id, {}).get('balance', 0) if user_data else 0 
+            # balance = user_data.get(user_id, {}).get('balance', 0) if user_data else 0 
+            balance = user_data['balance'] if user_data else 0 
+    
+            # TODO: update the user data on the context
+            # breakpoint()  # Execution will pause here
+            user_balance = context.user_data['balance']           
             
             # Then get the balance from the user data
             # balance = context.user_data.get('balance', 0) if user_data else 0
@@ -840,6 +908,9 @@ _Links:_
             # order by name
             common_commands.sort()
             admin_commands.sort()
+            
+            # eliminate duplicates from admin commands
+            admin_commands = list(set(admin_commands))
             
             message = f"_User Commands:_{os.linesep}{os.linesep.join(common_commands)}"
             
@@ -967,7 +1038,7 @@ _Links:_
             
             return formatted_string        
         
-        def get_user_line(user, persistence_user_data):
+        async def get_user_line(user, persistence_user_data, user_balance = 0):
             
             empty_date = '-' * 11
             
@@ -975,7 +1046,11 @@ _Links:_
             last_message = context.bot_data['user_status'][user.id]['last_message_date'] if 'user_status' in context.bot_data and user.id in context.bot_data['user_status'] else empty_date  # (datetime.datetime.now()+ timedelta(hours=-3)).strftime('%d/%m %H:%M') 
          
             flag_admin = '👑' if user.id in self.admins_owner else ' '
-            user_balance = persistence_user_data.get(user.id, None).get('balance', 0) if persistence_user_data else 0
+            user_data = persistence_user_data.get(user.id, None) if persistence_user_data else None
+        
+            # user_balance = user_data.get('balance', 0) if user_data else 0
+            user_data_dic = await self.get_set_user_data(dict_name='user_status',user_id=user.id, user_item_name='balance', default_value=0, context=context) 
+            user_balance = user_data_dic['balance'] if 'balance' in user_data_dic else 0
             
             user_balance = f'${user_balance:,.0f}' 
             
@@ -989,6 +1064,8 @@ _Links:_
         
         try:
             # Get the user dictionary from the bot data
+            # get user data from persistence
+            # all_users_data = await self.application.persistence.get_user_data() if self.application.persistence else None            
             all_users_data = context.bot_data.get('user_dict', {})
             
             # get user data from persistence
@@ -996,7 +1073,7 @@ _Links:_
             
             # Check if there are any users in the dictionary
             if all_users_data:
-                user_names = [get_user_line(user, persistence_user_data) for user in all_users_data.values()]               
+                user_names = [await get_user_line(user, persistence_user_data) for user in all_users_data.values()]               
                 # Create a message with the user names
                 message = f"_Current active bot users:_{os.linesep}" + os.linesep.join(user_names)
             else:

@@ -130,7 +130,7 @@ python tlgfwk.py
 
 ## TODOs:
 
-* [X] Last Stable Version: 0.7.0 *✓*
+* [X] Last Stable Version: 0.7.4 *✓*
 * [X] Deploy a demo instance - Bot running on [Demo Bot](https://t.me/TecVitoriaBot) ✓
 * [X] Add handlers to telegram menu commands ✓
 * [X] Auto-update by git pull ✓
@@ -158,6 +158,8 @@ python tlgfwk.py
 * [X] Command to load plugin system ✓
 * [X] Plugin system ✓
 * [X] Show to admin user which commands is common or admin ✓
+* [ ] Initialize a minimum balance for new users
+* [ ] Set last message date for all commands
 * [ ] Add a command to manage user's balance
 * [ ] Load just a specified plugin
 * [ ] Paging for messages longer than 4096 characters
