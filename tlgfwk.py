@@ -19,6 +19,10 @@ TODO´s:
 0.7.5 Migrate user´s balance storage on the user data context 
 0.7.6 Fixed duplicate commands 
 0.7.7 Change payment tokens
+0.7.8 Add user into the user list from the decorator of the command handler
+0.7.9 Command to Manage links
+0.8.0 Manage TODO´s
+0.8.1 Manage products
 """
 
 from __init__ import *
