@@ -819,14 +819,26 @@ _Links:_
                 
                 await update.message.reply_text(f"Current Stripe payment tokens: {stripe_token}")
                 
-            elif len(context.args) == 1:
-                # Change the Stripe live token
-                new_token = context.args[0]
-                dotenv.set_key(self.env_file, 'STRIPE_LIVE_TOKEN', new_token)
-                os.environ['STRIPE_LIVE_TOKEN'] = new_token
-                await update.message.reply_text(f"Stripe live payment token updated to: `{new_token}`")
+            elif len(context.args) >= 2:
+                # first parameter is the type of token live or test:
+                token_type = context.args[0].lower()
+                
+                # if the token type is test, change the test token
+                if token_type == 'test':
+                    # Change the Stripe test token
+                    new_token = context.args[1]
+                    dotenv.set_key(self.env_file, 'STRIPE_TEST_TOKEN', new_token)
+                    os.environ['STRIPE_TEST_TOKEN'] = new_token
+                    await update.message.reply_text(f"Stripe test payment token updated to: `{new_token}`")
+                else:
+                    # Change the Stripe live token
+                    new_token = context.args[1]
+                    dotenv.set_key(self.env_file, 'STRIPE_LIVE_TOKEN', new_token)
+                    os.environ['STRIPE_LIVE_TOKEN'] = new_token
+                    await update.message.reply_text(f"Stripe live payment token updated to: `{new_token}`")
+                    
             else:
-                await update.message.reply_text("Usage: /managestripetoken [new_token]")
+                await update.message.reply_text("Usage: /paytoken [new_token]")
 
         except Exception as e:
             logger.error(f"Error managing Stripe token: {e}")
