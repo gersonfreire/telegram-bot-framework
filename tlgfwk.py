@@ -12,7 +12,8 @@ __todos__ = """
 0.8.3 Send broadcast messages to all admin users and common users
 0.8.4 Show description besides each link 
 0.8.5 Delete links from the .env file and add them to the bot configuration settings
-0.8.7 Created the simplest example of a bot with the framework"""
+0.8.7 Created the simplest example of a bot with the framework
+0.9.0 Command to show how to create a simple bot and instantiate from token another on the fly"""
 
 __change_log__ = """
 0.6.3 Load just a specified plugin
