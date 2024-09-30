@@ -1403,7 +1403,8 @@ _Links:_
             await update.message.reply_text(f"Sorry, we encountered an error: {e}")
 
     @with_writing_action
-    @with_log_admin            
+    @with_log_admin  
+    @with_register_user          
     async def default_help_handler(self, update: Update, context: CallbackContext, *args, **kwargs):        
         
         # TODO: Show embedded help html page

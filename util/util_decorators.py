@@ -77,7 +77,7 @@ def with_waiting_action(handler):
         
     return wrapper
 
-def register_user(handler):
+def with_register_user(handler):
     @wraps(handler)
     async def wrapper(self, update: Update, context: CallbackContext, *args, **kwargs):
         try:
