@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # ------------------------------------------
 
-__version__ = """0.7.6 Fixed duplicate commands """
+__version__ = """0.7.7 change payment tokens"""
 __change_log__ = """
 TODO´s:
 0.6.3 Load just a specified plugin
@@ -17,6 +17,7 @@ TODO´s:
 0.7.3 Set last message date for all commands
 0.7.4 Fixed the show balance command and show all user´s data
 0.7.5 Migrate user´s balance storage on the user data context 
+0.7.6 Fixed duplicate commands 
 """
 
 from __init__ import *
