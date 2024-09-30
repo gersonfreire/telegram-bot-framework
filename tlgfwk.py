@@ -24,7 +24,8 @@ TODO´s:
 0.8.0 Manage TODO´s
 0.8.1 Manage products
 0.8.2 Manage commands
-0.8.3 Send broadcast messages to all admin users and common users 
+0.8.3 Send broadcast messages to all admin users and common users
+0.8.4 Show description besides each link 
 """
 
 from __init__ import *
