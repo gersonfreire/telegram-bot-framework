@@ -1,42 +1,21 @@
-# To get a new Stripe token to use in a Telegram bot written in Python, follow these steps:
-
-# Install the required libraries:
-
-# pip install stripe python-telegram-bot
-
-# stripe for interacting with the Stripe API.
-# python-telegram-bot for interacting with the Telegram Bot API.
-# You can install these libraries using pip:
-
-# Set up your Stripe account:
-
-# Sign up for a Stripe account if you don't have one.
-# Get your Stripe API keys from the Stripe Dashboard.
-# Create a Telegram bot:
-
-# Create a new bot using the BotFather on Telegram and get the bot token.
-# Write the Python code:
-
-# Initialize the Stripe and Telegram bot.
-# Create a command handler to generate a new Stripe token.
-# Here is a sample code to achieve this:
-
-import os, dotenv, stripe
+import os
+import dotenv
+import stripe
 from telegram import Update
-from telegram.ext import Updater, CommandHandler, CallbackContext
+from telegram.ext import Application, CommandHandler, ContextTypes
 
 dotenv.load_dotenv()
 
 # Set your Stripe secret key
-stripe.api_key = os.getenv('STRIPE_SECRET_KEY') # 'your_stripe_secret_key'
+stripe.api_key = os.getenv('STRIPE_SECRET_KEY')  # 'your_stripe_secret_key'
 
 # Set your Telegram bot token
-telegram_bot_token = os.getenv('DEFAULT_BOT_TOKEN') # 'your_telegram_bot_token'
+telegram_bot_token = os.getenv('DEFAULT_BOT_TOKEN')  # 'your_telegram_bot_token'
 
-def start(update: Update, context: CallbackContext) -> None:
-    update.message.reply_text('Welcome to the Stripe Token Generator Bot! Use /get_token to get a new Stripe token.')
+async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    await update.message.reply_text('Welcome to the Stripe Token Generator Bot! Use /get_token to get a new Stripe token.')
 
-def get_token(update: Update, context: CallbackContext) -> None:
+async def get_token(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     try:
         # Create a new Stripe token
         token = stripe.Token.create(
@@ -47,38 +26,28 @@ def get_token(update: Update, context: CallbackContext) -> None:
                 "cvc": "123"
             }
         )
-        update.message.reply_text(f'New Stripe token: {token.id}')
+        await update.message.reply_text(f'New Stripe token: {token.id}')
     except Exception as e:
-        update.message.reply_text(f'Error: {str(e)}')
+        await update.message.reply_text(f'Error: {str(e)}')
+
+"""
+Error: Request req_F7AAWbxdEgwdJC: Sending credit card numbers directly to the Stripe API is generally unsafe. To continue processing use Stripe.js, the Stripe mobile bindings, or Stripe Elements. For more information, see https://dashboard.stripe.com/account/integration/settings. If you are qualified to handle card data directly, see https://support.stripe.com/questions/enabling-access-to-raw-card-data-apis.
+
+Stripe (https://dashboard.stripe.com/account/integration/settings)
+Stripe Login | Sign in to the Stripe Dashboard
+Sign in to the Stripe Dashboard to manage business payments and operations in your account. Manage payments and refunds, respond to disputes and more.
+"""        
 
 def main() -> None:
-    # Create the Updater and pass it your bot's token
-    updater = Updater(telegram_bot_token)
-
-    # Get the dispatcher to register handlers
-    dispatcher = updater.dispatcher
+    # Create the Application and pass it your bot's token
+    application = Application.builder().token(telegram_bot_token).build()
 
     # Register the command handlers
-    dispatcher.add_handler(CommandHandler("start", start))
-    dispatcher.add_handler(CommandHandler("get_token", get_token))
+    application.add_handler(CommandHandler("start", start))
+    application.add_handler(CommandHandler("get_token", get_token))
 
     # Start the Bot
-    updater.start_polling()
-
-    # Run the bot until you press Ctrl-C or the process receives SIGINT, SIGTERM or SIGABRT
-    updater.idle()
+    application.run_polling()
 
 if __name__ == '__main__':
     main()
-    
-#     Explanation:
-# Install Libraries: The required libraries are installed using pip.
-# Stripe Setup: The Stripe secret key is set up to authenticate API requests.
-# Telegram Bot Setup: The Telegram bot token is set up to interact with the Telegram Bot API.
-# Command Handlers:
-# /start: Sends a welcome message.
-# /get_token: Generates a new Stripe token using test card details and sends the token ID back to the user.
-# Main Function: Initializes the bot, registers command handlers, and starts polling for updates.
-# Replace 'your_stripe_secret_key' and 'your_telegram_bot_token' with your actual Stripe secret key and Telegram bot token, respectively.
-
-# This code provides a basic implementation. For production use, ensure to handle sensitive data securely and follow best practices for error handling and user input validation.
