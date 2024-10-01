@@ -51,9 +51,6 @@ def load_config(config_file_path: str = os.path.join(os.path.dirname(__file__), 
                 
     except Exception as e:
         logger.error(f"Error loading json bot tokens: {e}")
-        timeout_seconds = 5  # Set your timeout (seconds)
-        input_with_timeout("Press Enter to finish: ", timeout_seconds)        
-        sys.exit()
         
     return config_dict
 
