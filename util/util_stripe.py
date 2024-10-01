@@ -26,6 +26,35 @@ from telegram.ext import PreCheckoutQueryHandler, ShippingQueryHandler
 
 #-------------------------------------------
 
+def load_config(config_file_path: str = os.path.join(os.path.dirname(__file__), 'payment_config.json')) -> dict:    
+    
+    try:
+        config_dict =
+            {
+            'token': '1234567890:ABCDEF',
+            'stripe_currency': 'USD', 
+            'stripe_title': 'Add credits to use the Bot', 
+            'stripe_description': 'Click the "Pay" below to purchase credits:',
+            'stripe_mode': 'test', 
+            'stripe_price': 10, 
+            'stripe_token': {
+                'live': 'pk_live_1234567890', 
+                'test': 'pk_test_1234567890'
+                }
+            }  
+                  
+        if os.path.exists(config_file_path):
+            with open(bot_config_file, 'r', encoding='utf-8') as fp:
+                config_dict = json.load(fp)
+                
+    except Exception as e:
+        logger.error(f"Error loading json bot tokens: {e}")
+        timeout_seconds = 5  # Set your timeout (seconds)
+        input_with_timeout("Press Enter to finish: ", timeout_seconds)        
+        sys.exit()
+        
+    return config_dict
+
 bot_version = '1.0.0'
 hostname = socket.getfqdn()
 
@@ -35,18 +64,8 @@ TELEGRAM_BOT_TOKEN = dotenv_settings['DEFAULT_BOT_TOKEN']
 DEFAULT_STRIPE_LIVE_TOKEN = dotenv_settings['STRIPE_LIVE_TOKEN'] if 'STRIPE_LIVE_TOKEN' in dotenv_settings else None
 DEFAULT_STRIPE_TEST_TOKEN = dotenv_settings['STRIPE_TEST_TOKEN'] if 'STRIPE_TEST_TOKEN' in dotenv_settings else None
 
-current_bot_settings = {
-    'token': '1234567890:ABCDEF',
-    'stripe_currency': 'USD', 
-    'stripe_title': 'Add credits to use the Bot', 
-    'stripe_description': 'Click the "Pay" below to purchase credits:',
-    'stripe_mode': 'test', 
-    'stripe_price': 10, 
-    'stripe_token': {
-        'live': 'pk_live_1234567890', 
-        'test': 'pk_test_1234567890'
-        }
-    }
+# load the current bot settings from json file
+current_bot_settings = load_config() 
    
 bot_user_admin = dotenv_settings['ADMIN_ID_LIST']
 if bot_user_admin:
