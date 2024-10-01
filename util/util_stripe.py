@@ -59,7 +59,9 @@ DEFAULT_LANGUAGE = 'pt-br'
 DEFAULT_STRIPE_CURRENCY = 'BRL' if 'stripe_currency' not in current_bot_settings else current_bot_settings['stripe_currency']
 DEFAULT_STRIPE_TITLE = 'Adicionar créditos para usar o Bot' if 'stripe_title' not in current_bot_settings else current_bot_settings['stripe_title']
 DEFAULT_STRIPE_DESCRIPTION = 'Clique no botão "Pagar" abaixo para adquirir créditos:' if 'stripe_description' not in current_bot_settings else current_bot_settings['stripe_description']
+
 DEFAULT_STRIPE_MODE = 'test' if 'stripe_mode' not in current_bot_settings else current_bot_settings['stripe_mode']
+DEFAULT_STRIPE_MODE = 'test' if 'PAYMENT_MODE' not in dotenv_settings else dotenv_settings['PAYMENT_MODE']
 
 DEFAULT_STRIPE_PRICE = 10 if 'stripe_price' not in current_bot_settings else current_bot_settings['stripe_price']
 
