@@ -389,6 +389,27 @@ def create_invoice(title = "Payment Example",
     except Exception as e:
         logging.error(str(e))
 
+# generate a stripe payment link
+def generate_stripe_payment_link(title = "Payment Example", 
+                                    description = "Payment Example using python-telegram-bot",
+                                    currency = "USD",
+                                    price = 1,
+                                    labeled_price = "Test",
+                                    payload = "Custom-Payload",
+                                    start_parameter = "test-payment"):
+    
+    try:
+        # select a payload just for you to recognize its the donation from your bot
+        # payload = "Custom-Payload"
+        
+        # price in dollars
+        # price * 100 so as to include 2 decimal points
+        # check https://core.telegram.org/bots/payments#supported-currencies for more details
+        prices = [LabeledPrice(labeled_price, price * 100)]
+        
+        return title, description, payload, provider_token, start_parameter, prices, currency
+    
+    
 # ------------------------------------------
 
 async def post_init(application: Application) -> None:   
