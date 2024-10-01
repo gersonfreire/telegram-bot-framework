@@ -21,15 +21,17 @@
 # Create a command handler to generate a new Stripe token.
 # Here is a sample code to achieve this:
 
-import stripe
+import os, dotenv, stripe
 from telegram import Update
 from telegram.ext import Updater, CommandHandler, CallbackContext
 
+dotenv.load_dotenv()
+
 # Set your Stripe secret key
-stripe.api_key = 'your_stripe_secret_key'
+stripe.api_key = os.getenv('STRIPE_SECRET_KEY') # 'your_stripe_secret_key'
 
 # Set your Telegram bot token
-telegram_bot_token = 'your_telegram_bot_token'
+telegram_bot_token = os.getenv('DEFAULT_BOT_TOKEN') # 'your_telegram_bot_token'
 
 def start(update: Update, context: CallbackContext) -> None:
     update.message.reply_text('Welcome to the Stripe Token Generator Bot! Use /get_token to get a new Stripe token.')

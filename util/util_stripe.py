@@ -398,7 +398,7 @@ def generate_stripe_payment_link(title = "Payment Example",
                                     payload = "Custom-Payload",
                                     start_parameter = "test-payment"):
     
-    try:
+    # try:
         # select a payload just for you to recognize its the donation from your bot
         # payload = "Custom-Payload"
         
