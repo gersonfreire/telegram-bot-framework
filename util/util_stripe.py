@@ -29,8 +29,7 @@ from telegram.ext import PreCheckoutQueryHandler, ShippingQueryHandler
 def load_config(config_file_path: str = os.path.join(os.path.dirname(__file__), 'payment_config.json')) -> dict:    
     
     try:
-        config_dict =
-            {
+        config_dict = {
             'token': '1234567890:ABCDEF',
             'stripe_currency': 'USD', 
             'stripe_title': 'Add credits to use the Bot', 
