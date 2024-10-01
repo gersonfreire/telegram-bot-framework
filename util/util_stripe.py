@@ -9,7 +9,7 @@ Stripe module wrapper for a bot that can receive payment from user.
 
 from typing import List
 
-import sys, os, logging, socket
+import sys, os, logging, socket, json
 
 #-------------------------------------------
 
@@ -43,8 +43,11 @@ def load_config(config_file_path: str = os.path.join(os.path.dirname(__file__), 
             }  
                   
         if os.path.exists(config_file_path):
-            with open(bot_config_file, 'r', encoding='utf-8') as fp:
+            with open(config_file_path, 'r', encoding='utf-8') as fp:
                 config_dict = json.load(fp)
+        else:
+            with open(config_file_path, 'w', encoding='utf-8') as fp:
+                json.dump(config_dict, fp, indent=4)
                 
     except Exception as e:
         logger.error(f"Error loading json bot tokens: {e}")
