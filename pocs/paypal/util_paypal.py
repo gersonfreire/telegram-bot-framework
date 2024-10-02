@@ -27,6 +27,8 @@ def create_payment():
             "redirect_urls": {
                 "return_url": "http://localhost:5000/payment/execute",
                 "cancel_url": "http://localhost:5000/payment/cancel"},
+                # "return_url": "https://t.me/BolsaFamiliaBot?start=5.00",
+                # "cancel_url": "https://t.me/BolsaFamiliaBot?start=5.00"},
             "transactions": [{
                 "item_list": {
                     "items": [{
