@@ -20,10 +20,11 @@ async def get_token(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         # Create a new Stripe token
         token = stripe.Token.create(
             card={
-                "number": "4242424242424242",
+                # "number": "4242424242424242",
+                "number": "4242",
                 "exp_month": 12,
                 "exp_year": 2023,
-                "cvc": "123"
+                # "cvc": "123"
             }
         )
         await update.message.reply_text(f'New Stripe token: {token.id}')
