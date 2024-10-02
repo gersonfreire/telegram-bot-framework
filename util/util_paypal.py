@@ -5,10 +5,11 @@
 import os, logging, dotenv
 import paypalrestsdk
 
-dotenv.load_dotenv()
+def create_payment():
+    dotenv.load_dotenv()
 
-client_id = os.getenv("PAYPAL_CLIENT_ID")
-client_secret = os.getenv("PAYPAL_CLIENT_SECRET")
+    client_id = os.getenv("PAYPAL_CLIENT_ID")
+    client_secret = os.getenv("PAYPAL_CLIENT_SECRET")
 
 paypalrestsdk.configure({
     "mode": "sandbox",  # sandbox or live
@@ -49,25 +50,4 @@ if payment.create():
 else:
     print(payment.error)
     
-    
-"""
-Step 1: Install the PayPal SDK
-First, you need to install the PayPal SDK. You can do this using pip.
-
-Step 2: Set Up PayPal SDK
-You need to set up the PayPal SDK with your client ID and secret. You can get these from your PayPal developer account.
-
-Step 3: Create a Payment
-Create a payment object with the necessary details like amount, currency, and redirect URLs.
-
-Step 4: Generate the Payment Link
-Extract the approval URL from the payment object to get the link that you can share with others to receive payments.
-
-Explanation:
-Install the PayPal SDK: Use pip to install the PayPal SDK.
-Set Up PayPal SDK: Configure the SDK with your client ID and secret.
-Create a Payment: Define the payment details including the amount, currency, and redirect URLs.
-Generate the Payment Link: Extract the approval URL from the payment object and print it.
-Replace "YOUR_CLIENT_ID" and "YOUR_CLIENT_SECRET" with your actual PayPal client ID and secret. The approval_url is the link you can share to receive payments.
-
-"""    
+      
