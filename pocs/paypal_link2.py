@@ -2,8 +2,13 @@
 # pip install paypalrestsdk
 
 # Step 2: Set Up PayPal SDK
+import os, logging, dotenv
 import paypalrestsdk
-import logging
+
+dotenv.load_dotenv()
+
+client_id = os.getenv("PAYPAL_CLIENT_ID")
+client_secret = os.getenv("PAYPAL_CLIENT_SECRET")
 
 # paypal rfbot app  gerson.freire@gmail.com Life@2011
 
@@ -27,11 +32,13 @@ payment = paypalrestsdk.Payment({
                 "name": "item",
                 "sku": "item",
                 "price": "5.00",
-                "currency": "USD",
+                # "currency": "USD",
+                "currency": "BRL",
                 "quantity": 1}]},
         "amount": {
             "total": "5.00",
-            "currency": "USD"},
+            # "currency": "USD"},
+            "currency": "BRL"},
         "description": "This is the payment transaction description."}]})
 
 # Step 4: Generate the Payment Link
@@ -64,4 +71,5 @@ Set Up PayPal SDK: Configure the SDK with your client ID and secret.
 Create a Payment: Define the payment details including the amount, currency, and redirect URLs.
 Generate the Payment Link: Extract the approval URL from the payment object and print it.
 Replace "YOUR_CLIENT_ID" and "YOUR_CLIENT_SECRET" with your actual PayPal client ID and secret. The approval_url is the link you can share to receive payments.
+
 """    
