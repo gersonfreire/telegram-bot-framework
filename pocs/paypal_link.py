@@ -14,10 +14,9 @@ def generate_paypal_link(business_email, item_name, amount, currency='USD'):
 
 # Example usage
 business_email = "your-paypal-email@example.com"
-business_email = "gerson.freire-facilitator@gmail.com"
 item_name = "Sample Item"
 amount = "10.00"
 currency = "USD"
 
 paypal_link = generate_paypal_link(business_email, item_name, amount, currency)
-print("PayPal Payment Link:", paypal_link)
+print("PayPal Payment Link:", paypal_link)   

@@ -231,3 +231,8 @@ my.env
 my.env
 util/bot_config.json
 util/bot_config.json
+pocs/util_paypal.py
+pocs/paypal_link.py
+pocs/paypal_v1.py
+pocs/paypal_link.py
+pocs/paypal_link.py
