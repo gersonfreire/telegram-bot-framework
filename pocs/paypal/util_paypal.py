@@ -25,8 +25,8 @@ def create_payment():
             "payer": {
                 "payment_method": "paypal"},
             "redirect_urls": {
-                "return_url": "http://localhost:3000/payment/execute",
-                "cancel_url": "http://localhost:3000/payment/cancel"},
+                "return_url": "http://localhost:5000/payment/execute",
+                "cancel_url": "http://localhost:5000/payment/cancel"},
             "transactions": [{
                 "item_list": {
                     "items": [{

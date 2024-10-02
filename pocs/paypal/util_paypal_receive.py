@@ -1,13 +1,19 @@
+import os, dotenv
 from flask import Flask, request, redirect, url_for
 import paypalrestsdk
+
+dotenv.load_dotenv()
+
+client_id = os.getenv("PAYPAL_CLIENT_ID")
+client_secret = os.getenv("PAYPAL_CLIENT_SECRET")
 
 app = Flask(__name__)
 
 # Configure PayPal SDK
 paypalrestsdk.configure({
     "mode": "sandbox",  # sandbox or live
-    "client_id": "YOUR_CLIENT_ID",
-    "client_secret": "YOUR_CLIENT_SECRET"
+    "client_id": client_id,
+    "client_secret": client_secret
 })
 
 @app.route('/payment/execute', methods=['GET'])
