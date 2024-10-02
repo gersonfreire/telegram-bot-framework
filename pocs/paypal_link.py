@@ -19,4 +19,4 @@ amount = "10.00"
 currency = "USD"
 
 paypal_link = generate_paypal_link(business_email, item_name, amount, currency)
-print("PayPal Payment Link:", paypal_link)   
+print("PayPal Payment Link:", paypal_link)     
