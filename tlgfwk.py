@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # ------------------------------------------
 
-__version__ = """0.9.1 Sort command help by command name"""
+__version__ = """0.9.2 Command to generate Paypal payment links"""
 
 __todos__ = """
 0.7.9 Command to Manage links
@@ -781,7 +781,11 @@ _Links:_
             
             # Add a command to manage the Stripe payment token
             manage_stripe_token_handler = CommandHandler('paytoken', self.cmd_manage_stripe_token, filters=filters.User(user_id=self.admins_owner))
-            self.application.add_handler(manage_stripe_token_handler)         
+            self.application.add_handler(manage_stripe_token_handler)  
+            
+            # Command to generate Paypal payment links
+            generate_paypal_link_handler = CommandHandler('paypal', self.cmd_generate_paypal_link)
+            self.application.add_handler(generate_paypal_link_handler)       
             
             self.application.add_handler(MessageHandler(filters.COMMAND, self.default_unknown_command))
             
@@ -817,6 +821,32 @@ _Links:_
             return f'Sorry, we have a problem sending message: {e}'
        
     # -------- Default command handlers --------
+    
+    @with_writing_action
+    @with_log_admin
+    async def cmd_generate_paypal_link(self, update: Update, context: CallbackContext):
+        """Generate a PayPal payment link
+
+        Args:
+            update (Update): The update object
+            context (CallbackContext): The callback context
+        """
+        try:
+            if len(context.args) < 2:
+                await update.message.reply_text("Usage: /paypal [amount] [currency]")
+                return
+
+            amount = context.args[0]
+            currency = context.args[1].upper()
+
+            # Generate the PayPal payment link
+            paypal_link = f"https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&business=YOUR_PAYPAL_EMAIL&amount={amount}&currency_code={currency}&item_name=Bot+Credits"
+
+            await update.message.reply_text(f"PayPal payment link: {paypal_link}")
+
+        except Exception as e:
+            logger.error(f"Error generating PayPal link: {e}")
+            await update.message.reply_text(f"Sorry, we encountered an error: {e}")
     
     @with_writing_action
     @with_log_admin
