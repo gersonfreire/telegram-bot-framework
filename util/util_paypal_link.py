@@ -5,8 +5,8 @@ import os, dotenv
 import paypalrestsdk
 
 def create_payment(
-    return_url="https://t.me/BolsaFamiliaBot?start=5.00", 
-    cancel_url="https://t.me/BolsaFamiliaBot?start=5.00", 
+    return_url="https://t.me/BolsaFamiliaBot", 
+    cancel_url="https://t.me/BolsaFamiliaBot", 
     total="5.00", 
     currency="BRL", 
     description="This is the payment transaction description."): 
