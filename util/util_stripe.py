@@ -9,7 +9,7 @@ Stripe module wrapper for a bot that can receive payment from user.
 
 from typing import List
 
-import sys, os, logging, socket
+import sys, os, logging, socket, json
 
 #-------------------------------------------
 
@@ -26,6 +26,34 @@ from telegram.ext import PreCheckoutQueryHandler, ShippingQueryHandler
 
 #-------------------------------------------
 
+def load_config(config_file_path: str = os.path.join(os.path.dirname(__file__), 'payment_config.json')) -> dict:    
+    
+    try:
+        config_dict = {
+            'token': '1234567890:ABCDEF',
+            'stripe_currency': 'USD', 
+            'stripe_title': 'Add credits to use the Bot', 
+            'stripe_description': 'Click the "Pay" below to purchase credits:',
+            'stripe_mode': 'test', 
+            'stripe_price': 10, 
+            'stripe_token': {
+                'live': 'pk_live_1234567890', 
+                'test': 'pk_test_1234567890'
+                }
+            }  
+                  
+        if os.path.exists(config_file_path):
+            with open(config_file_path, 'r', encoding='utf-8') as fp:
+                config_dict = json.load(fp)
+        else:
+            with open(config_file_path, 'w', encoding='utf-8') as fp:
+                json.dump(config_dict, fp, indent=4)
+                
+    except Exception as e:
+        logger.error(f"Error loading json bot tokens: {e}")
+        
+    return config_dict
+
 bot_version = '1.0.0'
 hostname = socket.getfqdn()
 
@@ -35,18 +63,8 @@ TELEGRAM_BOT_TOKEN = dotenv_settings['DEFAULT_BOT_TOKEN']
 DEFAULT_STRIPE_LIVE_TOKEN = dotenv_settings['STRIPE_LIVE_TOKEN'] if 'STRIPE_LIVE_TOKEN' in dotenv_settings else None
 DEFAULT_STRIPE_TEST_TOKEN = dotenv_settings['STRIPE_TEST_TOKEN'] if 'STRIPE_TEST_TOKEN' in dotenv_settings else None
 
-current_bot_settings = {
-    'token': '1234567890:ABCDEF',
-    'stripe_currency': 'USD', 
-    'stripe_title': 'Add credits to use the Bot', 
-    'stripe_description': 'Click the "Pay" below to purchase credits:',
-    'stripe_mode': 'test', 
-    'stripe_price': 10, 
-    'stripe_token': {
-        'live': 'pk_live_1234567890', 
-        'test': 'pk_test_1234567890'
-        }
-    }
+# load the current bot settings from json file
+current_bot_settings = load_config() 
    
 bot_user_admin = dotenv_settings['ADMIN_ID_LIST']
 if bot_user_admin:
@@ -59,7 +77,9 @@ DEFAULT_LANGUAGE = 'pt-br'
 DEFAULT_STRIPE_CURRENCY = 'BRL' if 'stripe_currency' not in current_bot_settings else current_bot_settings['stripe_currency']
 DEFAULT_STRIPE_TITLE = 'Adicionar créditos para usar o Bot' if 'stripe_title' not in current_bot_settings else current_bot_settings['stripe_title']
 DEFAULT_STRIPE_DESCRIPTION = 'Clique no botão "Pagar" abaixo para adquirir créditos:' if 'stripe_description' not in current_bot_settings else current_bot_settings['stripe_description']
+
 DEFAULT_STRIPE_MODE = 'test' if 'stripe_mode' not in current_bot_settings else current_bot_settings['stripe_mode']
+DEFAULT_STRIPE_MODE = 'test' if 'PAYMENT_MODE' not in dotenv_settings else dotenv_settings['PAYMENT_MODE']
 
 DEFAULT_STRIPE_PRICE = 10 if 'stripe_price' not in current_bot_settings else current_bot_settings['stripe_price']
 
@@ -369,6 +389,27 @@ def create_invoice(title = "Payment Example",
     except Exception as e:
         logging.error(str(e))
 
+# generate a stripe payment link
+def generate_stripe_payment_link(title = "Payment Example", 
+                                    description = "Payment Example using python-telegram-bot",
+                                    currency = "USD",
+                                    price = 1,
+                                    labeled_price = "Test",
+                                    payload = "Custom-Payload",
+                                    start_parameter = "test-payment"):
+    
+    # try:
+        # select a payload just for you to recognize its the donation from your bot
+        # payload = "Custom-Payload"
+        
+        # price in dollars
+        # price * 100 so as to include 2 decimal points
+        # check https://core.telegram.org/bots/payments#supported-currencies for more details
+        prices = [LabeledPrice(labeled_price, price * 100)]
+        
+        return title, description, payload, provider_token, start_parameter, prices, currency
+    
+    
 # ------------------------------------------
 
 async def post_init(application: Application) -> None:   
