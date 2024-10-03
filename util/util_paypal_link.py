@@ -5,6 +5,7 @@ import os, dotenv
 import paypalrestsdk
 
 import util_paypal_receive
+import threading
 
 dotenv.load_dotenv()
 
@@ -63,6 +64,12 @@ def create_payment(
     
 if __name__ == "__main__":
     
-    util_paypal_receive.main()
+    # util_paypal_receive.main(False)
+    def run_app():
+        util_paypal_receive.app.run(debug=False)
+
+    # Run the app in a separate thread
+    thread = threading.Thread(target=run_app)
+    thread.start()
     
     create_payment()      
