@@ -34,5 +34,8 @@ def execute_payment():
 def cancel_payment():
     return "Payment cancelled"
 
-if __name__ == '__main__':
+def main():
     app.run(debug=True)
+
+if __name__ == '__main__':
+    main()

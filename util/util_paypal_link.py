@@ -4,6 +4,8 @@
 import os, dotenv
 import paypalrestsdk
 
+import util_paypal_receive
+
 dotenv.load_dotenv()
 
 def create_payment(
@@ -60,4 +62,7 @@ def create_payment(
         print(f"An error occurred: {e}")
     
 if __name__ == "__main__":
+    
+    util_paypal_receive.main()
+    
     create_payment()      
