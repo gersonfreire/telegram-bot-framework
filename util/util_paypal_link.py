@@ -4,33 +4,32 @@
 import os, dotenv
 import paypalrestsdk
 
+dotenv.load_dotenv()
+
 def create_payment(
-    return_url="https://t.me/BolsaFamiliaBot", 
-    cancel_url="https://t.me/BolsaFamiliaBot", 
+    return_url="http://localhost:5000/payment/execute", 
+    cancel_url="http://localhost:5000/payment/cancel", 
     total="5.00", 
     currency="BRL", 
-    description="This is the payment transaction description."): 
+    description="This is the payment transaction description.",
+    client_id = os.getenv("PAYPAL_CLIENT_ID") ,
+    client_secret = os.getenv("PAYPAL_CLIENT_SECRET")
+    ): 
 
     try:  
-         
-        dotenv.load_dotenv()
-
-        client_id = os.getenv("PAYPAL_CLIENT_ID")
-        client_secret = os.getenv("PAYPAL_CLIENT_SECRET")
 
         paypalrestsdk.configure({
             "mode": "sandbox",  # sandbox or live
             "client_id": client_id,
             "client_secret": client_secret
         })
+        
         # Step 3: Create a Payment
         payment = paypalrestsdk.Payment({
             "intent": "sale",
             "payer": {
                 "payment_method": "paypal"},
             "redirect_urls": {
-                # "return_url": "http://localhost:5000/payment/execute",
-                # "cancel_url": "http://localhost:5000/payment/cancel"},
                 "return_url": return_url,
                 "cancel_url": cancel_url},
             "transactions": [{
