@@ -1,24 +1,23 @@
-import os,sys
-   
-# ---- Add parent folder to import path ----
-script_path = os.path.dirname(os.path.realpath(__file__))
-parent_folder = os.path.dirname(script_path)
-common_module_path = rf"{parent_folder}{os.sep}"
-sys.path.append(common_module_path)
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-sys.path.append(parent_folder)
-script_name = os.path.basename(sys.argv[0]).replace('.py', '')
 
-# -----------------------------------------
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+# ------------------------------------------
 
-import tlgfwk as tlgfwk
+"""
+This is a sample bot using this Telegram Bot Framwork that 
+overloads the initialize_handlers method to add a help command handler.
+"""
+
+import __init__
+
+from tlgfwk import *
 
 from util.util_telegram import *
 from handlers import *
 
 __version__ = '0.0.1'
 
-class SampleBot(tlgfwk.TlgBotFwk):
+class SampleBot(TlgBotFwk):
     
     async def help(self, update: Update, context: CallbackContext):
     

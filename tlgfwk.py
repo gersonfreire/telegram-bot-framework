@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # ------------------------------------------
 
-__version__ = """0.8.7 Created the simplest example of a bot with the framework"""
+__version__ = """0.9.2 Command to generate Paypal payment links"""
 
 __todos__ = """
 0.7.9 Command to Manage links
@@ -13,7 +13,8 @@ __todos__ = """
 0.8.4 Show description besides each link 
 0.8.5 Delete links from the .env file and add them to the bot configuration settings
 0.8.7 Created the simplest example of a bot with the framework
-0.9.0 Command to show how to create a simple bot and instantiate from token another on the fly"""
+0.9.0 Command to show how to create a simple bot and instantiate from token another on the fly
+0.9.1 Sort command help by command name"""
 
 __change_log__ = """
 0.6.3 Load just a specified plugin
@@ -586,8 +587,10 @@ _Links:_
         disable_persistence = False,
         default_persistence_interval = 5,
         logger = logger,
-        sort_commands = False,
+        sort_commands = True,
         enable_plugins = False,
+        admin_filters  = None,
+        force_common_commands = [],
         ):
         
         try: 
@@ -643,6 +646,10 @@ _Links:_
             dotenv.set_key(dotenv_path=self.env_file, key_to_set='USEFUL_LINKS', value_to_set=self.links_string)
             
             self.bot_defaults_build = bot_defaults_build 
+            
+            self.admin_filters = admin_filters if admin_filters else filters.User(user_id=self.admins_owner) 
+            
+            self.force_common_commands = force_common_commands  
             
             # ---------- Build the bot application ------------
               
@@ -724,7 +731,7 @@ _Links:_
             self.application.add_handler(show_config_handler)
             
             # add version command handler
-            version_handler = CommandHandler('version', self.cmd_version_handler, filters=filters.User(user_id=self.admins_owner))
+            version_handler = CommandHandler('version', self.cmd_version_handler, filters=self.admin_filters if 'version' not in self.force_common_commands else None)
             self.application.add_handler(version_handler)
             
             # add admin manage command handler
@@ -774,7 +781,11 @@ _Links:_
             
             # Add a command to manage the Stripe payment token
             manage_stripe_token_handler = CommandHandler('paytoken', self.cmd_manage_stripe_token, filters=filters.User(user_id=self.admins_owner))
-            self.application.add_handler(manage_stripe_token_handler)         
+            self.application.add_handler(manage_stripe_token_handler)  
+            
+            # Command to generate Paypal payment links
+            generate_paypal_link_handler = CommandHandler('paypal', self.cmd_generate_paypal_link)
+            self.application.add_handler(generate_paypal_link_handler)       
             
             self.application.add_handler(MessageHandler(filters.COMMAND, self.default_unknown_command))
             
@@ -810,6 +821,32 @@ _Links:_
             return f'Sorry, we have a problem sending message: {e}'
        
     # -------- Default command handlers --------
+    
+    @with_writing_action
+    @with_log_admin
+    async def cmd_generate_paypal_link(self, update: Update, context: CallbackContext):
+        """Generate a PayPal payment link
+
+        Args:
+            update (Update): The update object
+            context (CallbackContext): The callback context
+        """
+        try:
+            if len(context.args) < 2:
+                await update.message.reply_text("Usage: /paypal [amount] [currency]")
+                return
+
+            amount = context.args[0]
+            currency = context.args[1].upper()
+
+            # Generate the PayPal payment link
+            paypal_link = paypal.create_payment() #f"https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&business=YOUR_PAYPAL_EMAIL&amount={amount}&currency_code={currency}&item_name=Bot+Credits"
+
+            await update.message.reply_text(f"PayPal payment link:{os.linesep}{paypal_link}", parse_mode=None)
+
+        except Exception as e:
+            logger.error(f"Error generating PayPal link: {e}")
+            await update.message.reply_text(f"Sorry, we encountered an error: {e}")
     
     @with_writing_action
     @with_log_admin
