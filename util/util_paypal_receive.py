@@ -65,6 +65,7 @@ def create_payment(
                 if link.rel == "approval_url":
                     approval_url = str(link.href)
                     print("Redirect for approval: %s" % (approval_url))
+                    return approval_url
                     
         else:
             print(payment.error)

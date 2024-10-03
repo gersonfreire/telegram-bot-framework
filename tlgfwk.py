@@ -840,7 +840,7 @@ _Links:_
             currency = context.args[1].upper()
 
             # Generate the PayPal payment link
-            paypal_link = f"https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&business=YOUR_PAYPAL_EMAIL&amount={amount}&currency_code={currency}&item_name=Bot+Credits"
+            paypal_link = paypal.create_payment() #f"https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&business=YOUR_PAYPAL_EMAIL&amount={amount}&currency_code={currency}&item_name=Bot+Credits"
 
             await update.message.reply_text(f"PayPal payment link:{os.linesep}{paypal_link}", parse_mode=None)
 
