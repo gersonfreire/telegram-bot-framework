@@ -1,0 +1,12 @@
+{
+    "token": "1234567890:ABCDEF",
+    "stripe_currency": "USD",
+    "stripe_title": "Add credits to use the Bot",
+    "stripe_description": "Click the \"Pay\" below to purchase credits:",
+    "stripe_mode": "test",
+    "stripe_price": 10,
+    "stripe_token": {
+        "live": "pk_live_1234567890",
+        "test": "pk_test_1234567890"
+    }
+}
