@@ -842,7 +842,7 @@ _Links:_
             # Generate the PayPal payment link
             paypal_link = f"https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&business=YOUR_PAYPAL_EMAIL&amount={amount}&currency_code={currency}&item_name=Bot+Credits"
 
-            await update.message.reply_text(f"PayPal payment link: {paypal_link}")
+            await update.message.reply_text(f"PayPal payment link:{os.linesep}{paypal_link}", parse_mode=None)
 
         except Exception as e:
             logger.error(f"Error generating PayPal link: {e}")
