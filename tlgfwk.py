@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # ------------------------------------------
 
-__version__ = """0.8.7 Created the simplest example of a bot with the framework"""
+__version__ = """0.9.1 Sort command help by command name"""
 
 __todos__ = """
 0.7.9 Command to Manage links
@@ -13,7 +13,8 @@ __todos__ = """
 0.8.4 Show description besides each link 
 0.8.5 Delete links from the .env file and add them to the bot configuration settings
 0.8.7 Created the simplest example of a bot with the framework
-0.9.0 Command to show how to create a simple bot and instantiate from token another on the fly"""
+0.9.0 Command to show how to create a simple bot and instantiate from token another on the fly
+0.9.1 Sort command help by command name"""
 
 __change_log__ = """
 0.6.3 Load just a specified plugin
@@ -586,8 +587,10 @@ _Links:_
         disable_persistence = False,
         default_persistence_interval = 5,
         logger = logger,
-        sort_commands = False,
+        sort_commands = True,
         enable_plugins = False,
+        admin_filters  = None,
+        force_common_commands = ['version'],
         ):
         
         try: 
@@ -643,6 +646,10 @@ _Links:_
             dotenv.set_key(dotenv_path=self.env_file, key_to_set='USEFUL_LINKS', value_to_set=self.links_string)
             
             self.bot_defaults_build = bot_defaults_build 
+            
+            self.admin_filters = admin_filters if admin_filters else filters.User(user_id=self.admins_owner) 
+            
+            self.force_common_commands = force_common_commands  
             
             # ---------- Build the bot application ------------
               
@@ -724,7 +731,7 @@ _Links:_
             self.application.add_handler(show_config_handler)
             
             # add version command handler
-            version_handler = CommandHandler('version', self.cmd_version_handler, filters=filters.User(user_id=self.admins_owner))
+            version_handler = CommandHandler('version', self.cmd_version_handler, filters=self.admin_filters if 'version' not in self.force_common_commands else None)
             self.application.add_handler(version_handler)
             
             # add admin manage command handler
