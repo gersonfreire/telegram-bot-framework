@@ -590,7 +590,7 @@ _Links:_
         sort_commands = True,
         enable_plugins = False,
         admin_filters  = None,
-        force_common_commands = ['version'],
+        force_common_commands = [],
         ):
         
         try: 
