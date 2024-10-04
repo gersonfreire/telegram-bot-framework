@@ -569,9 +569,10 @@ _Links:_
             logger.error(f"Error in precheckout_callback: {e}")
             await query.answer(ok=False, error_message="An unexpected error occurred during payment processing.")
        
-    def EXECUTE_PAYMENT_CALLBACK(payment, payment_id, payer_id):
+    def EXECUTE_PAYMENT_CALLBACK(self, payment, payment_id, payer_id):
         
-        try:            
+        try:   
+            # TODO: process payment adding credit to user balance         
             pass
         
         except Exception as e:
