@@ -848,13 +848,11 @@ _Links:_
                 await update.message.reply_text("Usage: /paypal [amount] [currency]")
                 return
 
-            amount = context.args[0]
+            total = context.args[0]
             currency = context.args[1].upper()
             
             # Get webhook URL from the .env file
-            webhook_url = os.environ.get('PAYPAL_WEBHOOK_URL', None)
-            total="5.00" 
-            currency="BRL"            
+            webhook_url = os.environ.get('PAYPAL_WEBHOOK_URL', None)            
 
             # Generate the PayPal payment link
             if webhook_url:
