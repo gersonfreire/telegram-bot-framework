@@ -857,7 +857,7 @@ _Links:_
             currency="BRL"            
 
             # Generate the PayPal payment link
-            paypal_link = paypal.create_payment(total=total,currency=currency,return_url=webhook_url, cancel_url=webhook_url)
+            paypal_link = paypal.create_payment(return_url=webhook_url, cancel_url=webhook_url)
 
             await update.message.reply_text(f"PayPal payment link:{os.linesep}{paypal_link}", parse_mode=None)
 
