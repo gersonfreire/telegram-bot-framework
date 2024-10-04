@@ -685,7 +685,12 @@ _Links:_
             # -------------------------------------------
             
             # DOING: 0.9.3 Run in background the Flask webhook endpoint for receive paypal events
-            
+            def run_app():
+                paypal.app.run(debug=False)
+
+            # Run the app in a separate thread
+            thread = threading.Thread(target=run_app)
+            thread.start()            
             
             # -------------------------------------------
             
