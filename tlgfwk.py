@@ -569,6 +569,15 @@ _Links:_
             logger.error(f"Error in precheckout_callback: {e}")
             await query.answer(ok=False, error_message="An unexpected error occurred during payment processing.")
        
+    def EXECUTE_PAYMENT_CALLBACK(payment, payment_id, payer_id):
+        
+        try:            
+            pass
+        
+        except Exception as e:
+            logger.error(f"Error in EXECUTE_PAYMENT_CALLBACK: {e}")
+            return f"An error occurred: {e}"
+        
     # ---------------- Bot constructor and initializers -------    
     
     def __init__(self, 
@@ -591,8 +600,7 @@ _Links:_
         sort_commands = True,
         enable_plugins = False,
         admin_filters  = None,
-        force_common_commands = [],
-        enable_paypal_webhook = True
+        force_common_commands = []
         ):
         
         try: 
@@ -605,7 +613,6 @@ _Links:_
             self.token = token if token else ''
             self.bot_owner = bot_owner if bot_owner else ''
             
-            # self.admin_id_string = [int(admin_id) for admin_id in os.environ.get('ADMIN_ID_LIST', '').split(',')]  
             self.admin_id_string = admin_id_list if admin_id_list else os.environ.get('ADMIN_ID_LIST', '')
             
             self.all_commands = []            
@@ -687,6 +694,9 @@ _Links:_
             # DOING: 0.9.3 Run in background the Flask webhook endpoint for receive paypal events
             def run_app():
                 paypal.app.run(debug=False)
+
+            # set callbacks for paypal events
+            paypal.EXECUTE_PAYMENT_CALLBACK = self.EXECUTE_PAYMENT_CALLBACK
 
             # Run the app in a separate thread
             thread = threading.Thread(target=run_app)
