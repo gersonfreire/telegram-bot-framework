@@ -571,7 +571,21 @@ _Links:_
        
     def execute_payment_callback(self, payment, payment_id, payer_id):
         
-        try:   
+        try:  
+            # get the bot context data persistence
+            bot_data = self.application.bot_data 
+            
+            # get paypal_link dictionary from bot context data
+            paypal_link = bot_data.get('paypal_links', {}) if bot_data else {}
+            
+            # for each paypal link in dictionary, warns user that a payment was detected
+            for user_id, link in paypal_link.items():
+                # send a message to the user by row telegram API
+                self.application.bot.send_message(chat_id=user_id, text="Payment detected! Please wait for the confirmation.")
+                
+                # and remove the item from the dictionary
+                del paypal_link[link]
+                       
             # TODO: process payment adding credit to user balance         
             pass
         
@@ -870,6 +884,15 @@ _Links:_
                 paypal_link = paypal.create_payment(return_url=webhook_url, cancel_url=webhook_url, total=total, currency=currency)
             else:                
                 paypal_link = paypal.create_payment(total=total, currency=currency)
+                
+            if not paypal_link:
+                await update.message.reply_text("Sorry, we encountered an error generating the PayPal link.")
+                return
+                
+            # If there is not a dictionary for paypal links, create it
+            bot_data = self.application.bot_data
+            bot_data['paypal_links'] = {} if 'paypal_links' not in bot_data else bot_data['paypal_links']
+            bot_data['paypal_links'][paypal_link] = update.effective_user.id if 'paypal_links' in bot_data else {paypal_link: update.effective_user.id}     
 
             await update.message.reply_text(f"PayPal payment link:{os.linesep}{paypal_link}", parse_mode=None)
 
