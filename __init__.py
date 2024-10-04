@@ -25,7 +25,8 @@ import requests
 # ------------------------------------------
 
 # Construct the URL for the sendMessage endpoint
-telegram_api_base_url = f'https://api.telegram.org/bot{bot_token}/sendMessage'
+bot_token = os.getenv('DEFAULT_BOT_TOKEN', None)
+telegram_api_base_url = f'https://api.telegram.org/bot{bot_token}/sendMessage' if bot_token else None
 
 def telegram_object_to_dict(obj):
     if isinstance(obj, User):
