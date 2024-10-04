@@ -850,9 +850,14 @@ _Links:_
 
             amount = context.args[0]
             currency = context.args[1].upper()
+            
+            # Get webhook URL from the .env file
+            webhook_url = os.environ.get('PAYPAL_WEBHOOK_URL', None)
+            total="5.00" 
+            currency="BRL"            
 
             # Generate the PayPal payment link
-            paypal_link = paypal.create_payment() #f"https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&business=YOUR_PAYPAL_EMAIL&amount={amount}&currency_code={currency}&item_name=Bot+Credits"
+            paypal_link = paypal.create_payment(total=total,currency=currency,return_url=webhook_url, cancel_url=webhook_url)
 
             await update.message.reply_text(f"PayPal payment link:{os.linesep}{paypal_link}", parse_mode=None)
 
