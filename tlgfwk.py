@@ -579,7 +579,7 @@ _Links:_
             paypal_link = bot_data.get('paypal_links', {}) if bot_data else {}
             
             # for each paypal link in dictionary, warns user that a payment was detected
-            for user_id, link in paypal_link.items():
+            for link, user_id in paypal_link.items():
                 # send a message to the user by row telegram API
                 self.send_message_by_api(chat_id=user_id, message="Payment detected! Please wait for the confirmation.")
                 
