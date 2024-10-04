@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # ------------------------------------------
 
-__version__ = """0.9.2 Command to generate Paypal payment links"""
+__version__ = """0.9.3 Run in background the Flask webhook endpoint for receive paypal events"""
 
 __todos__ = """
 0.7.9 Command to Manage links
@@ -32,7 +32,8 @@ __change_log__ = """
 0.7.6 Fixed duplicate commands 
 0.7.7 Change payment tokens
 0.7.8 Add user into the user list from the decorator of the command handler
-0.8.6 Created an examples folder"""
+0.8.6 Created an examples folder
+0.9.2 Command to generate Paypal payment links"""
 
 from __init__ import *
 
@@ -591,6 +592,7 @@ _Links:_
         enable_plugins = False,
         admin_filters  = None,
         force_common_commands = [],
+        enable_paypal_webhook = True
         ):
         
         try: 
@@ -680,6 +682,16 @@ _Links:_
                     
                 except Exception as e:
                     logger.error(f"Error in plugin manager: {e}") 
+            # -------------------------------------------
+            
+            # DOING: 0.9.3 Run in background the Flask webhook endpoint for receive paypal events
+            def run_app():
+                paypal.app.run(debug=False)
+
+            # Run the app in a separate thread
+            thread = threading.Thread(target=run_app)
+            thread.start()            
+            
             # -------------------------------------------
             
         except Exception as e:
