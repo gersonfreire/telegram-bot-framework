@@ -7,6 +7,10 @@ dotenv.load_dotenv()
 client_id = os.getenv("PAYPAL_CLIENT_ID")
 client_secret = os.getenv("PAYPAL_CLIENT_SECRET")   
 
+# Get webhook URL from the .env file
+DEFAULT_RETURN_URL = os.environ.get('PAYPAL_DEFAULT_RETURN_URL', "http://localhost:5000/payment/execute")
+DEFAULT_CANCEL_URL = os.environ.get('PAYPAL_DEFAULT_CANCEL_URL', "http://localhost:5000/payment/cancel")
+
 app = Flask(__name__)
 
 # Configure PayPal SDK
@@ -20,8 +24,8 @@ paypalrestsdk.configure({
 
 @app.route('/payment/link', methods=['GET'])
 def create_payment(
-    return_url="http://localhost:5000/payment/execute", 
-    cancel_url="http://localhost:5000/payment/cancel", 
+    return_url=DEFAULT_RETURN_URL, 
+    cancel_url=DEFAULT_CANCEL_URL, 
     total="5.00", 
     currency="BRL", 
     description="This is the payment transaction description.",
