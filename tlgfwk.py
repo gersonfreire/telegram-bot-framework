@@ -580,11 +580,15 @@ _Links:_
             
             # for each paypal link in dictionary, warns user that a payment was detected
             for link, user_id in paypal_link.items():
-                # send a message to the user by row telegram API
-                self.send_message_by_api(chat_id=user_id, message="Payment detected! Please wait for the confirmation.")
-                
-                # and remove the item from the dictionary
-                del paypal_link[link]
+                try:
+                    # send a message to the user by raw telegram API
+                    self.send_message_by_api(chat_id=user_id, message="Payment detected! Please wait for the confirmation.")
+                    
+                    # and remove the item from the dictionary
+                    del paypal_link[link]
+                    
+                except Exception as e:
+                    logger.error(f"Error sending payment confirmation message: {e}")
         
         except Exception as e:
             logger.error(f"Error in EXECUTE_PAYMENT_CALLBACK: {e}")
@@ -854,7 +858,7 @@ _Links:_
             logger.error(f"Error sending message: {e}")
             return f'Sorry, we have a problem sending message: {e}'
        
-    @with_writing_action
+    # @with_writing_action
     def send_message_by_api(self, chat_id: int, message: str):
         """Send a message by raw Telegram API
 
