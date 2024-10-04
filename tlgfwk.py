@@ -569,6 +569,40 @@ _Links:_
             logger.error(f"Error in precheckout_callback: {e}")
             await query.answer(ok=False, error_message="An unexpected error occurred during payment processing.")
        
+    def execute_payment_callback(self, payment, payment_id, payer_id):
+        
+        try:  
+            # get the bot context data persistence
+            bot_data = self.application.bot_data 
+            
+            # get paypal_link dictionary from bot context data
+            paypal_link = bot_data.get('paypal_links', {}) if bot_data else {}
+            
+            # clone paypal links dictionary to another variable
+            paypal_link_copy = paypal_link.copy()
+            
+            # for each paypal link in dictionary, warns user that a payment was detected
+            for link, user_id in paypal_link.items():
+                try:
+                    # send a message to the user by raw telegram API
+                    self.send_message_by_api(chat_id=user_id, message="Payment detected! Please wait for the confirmation.")
+                    
+                    # TODO: update user balance
+                    
+                    # and remove the item from the dictionary
+                    # RuntimeError('dictionary changed size during iteration')
+                    del paypal_link_copy[link]
+                    
+                except Exception as e:
+                    logger.error(f"Error sending payment confirmation message: {e}")
+                    
+            # restore paypal links dictionary from the cloned 
+            bot_data['paypal_links'] = paypal_link_copy
+        
+        except Exception as e:
+            logger.error(f"Error in EXECUTE_PAYMENT_CALLBACK: {e}")
+            return f"An error occurred: {e}"
+        
     # ---------------- Bot constructor and initializers -------    
     
     def __init__(self, 
@@ -591,8 +625,7 @@ _Links:_
         sort_commands = True,
         enable_plugins = False,
         admin_filters  = None,
-        force_common_commands = [],
-        enable_paypal_webhook = True
+        force_common_commands = []
         ):
         
         try: 
@@ -605,7 +638,6 @@ _Links:_
             self.token = token if token else ''
             self.bot_owner = bot_owner if bot_owner else ''
             
-            # self.admin_id_string = [int(admin_id) for admin_id in os.environ.get('ADMIN_ID_LIST', '').split(',')]  
             self.admin_id_string = admin_id_list if admin_id_list else os.environ.get('ADMIN_ID_LIST', '')
             
             self.all_commands = []            
@@ -687,6 +719,9 @@ _Links:_
             # DOING: 0.9.3 Run in background the Flask webhook endpoint for receive paypal events
             def run_app():
                 paypal.app.run(debug=False)
+
+            # set callbacks for paypal events
+            paypal.execute_payment_callback = self.execute_payment_callback
 
             # Run the app in a separate thread
             thread = threading.Thread(target=run_app)
@@ -832,6 +867,41 @@ _Links:_
             logger.error(f"Error sending message: {e}")
             return f'Sorry, we have a problem sending message: {e}'
        
+    # @with_writing_action
+    def send_message_by_api(self, chat_id: int, message: str):
+        """Send a message by raw Telegram API
+
+        Args:
+            chat_id (int): Target telegram user ID to send message
+            message (str): text of message to send
+
+        Returns:
+            _type_: response of API
+        """
+        
+        response = None
+        
+        try:
+            # Define the payload
+            payload = {
+                'chat_id': chat_id,
+                'text': message
+            }
+
+            # Send the POST request
+            response = requests.post(telegram_api_base_url, data=payload)
+
+            # Check the response
+            if response.status_code == 200:
+                print('Message sent successfully')
+            else:
+                print('Failed to send message') 
+                
+        except Exception as e:
+            logger.error(f"Error sending message by API: {e}") 
+            
+        return response          
+       
     # -------- Default command handlers --------
     
     @with_writing_action
@@ -848,11 +918,26 @@ _Links:_
                 await update.message.reply_text("Usage: /paypal [amount] [currency]")
                 return
 
-            amount = context.args[0]
+            total = context.args[0]
             currency = context.args[1].upper()
+            
+            # Get webhook URL from the .env file
+            webhook_url = os.environ.get('PAYPAL_WEBHOOK_URL', None)            
 
             # Generate the PayPal payment link
-            paypal_link = paypal.create_payment() #f"https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&business=YOUR_PAYPAL_EMAIL&amount={amount}&currency_code={currency}&item_name=Bot+Credits"
+            if webhook_url:
+                paypal_link = paypal.create_payment(return_url=webhook_url, cancel_url=webhook_url, total=total, currency=currency)
+            else:                
+                paypal_link = paypal.create_payment(total=total, currency=currency)
+                
+            if not paypal_link:
+                await update.message.reply_text("Sorry, we encountered an error generating the PayPal link.")
+                return
+                
+            # If there is not a dictionary for paypal links, create it
+            bot_data = self.application.bot_data
+            bot_data['paypal_links'] = {} if 'paypal_links' not in bot_data else bot_data['paypal_links']
+            bot_data['paypal_links'][paypal_link] = update.effective_user.id if 'paypal_links' in bot_data else {paypal_link: update.effective_user.id}     
 
             await update.message.reply_text(f"PayPal payment link:{os.linesep}{paypal_link}", parse_mode=None)
 
