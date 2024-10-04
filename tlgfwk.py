@@ -592,6 +592,7 @@ _Links:_
         enable_plugins = False,
         admin_filters  = None,
         force_common_commands = [],
+        enable_paypal_webhook = True
         ):
         
         try: 
@@ -681,6 +682,11 @@ _Links:_
                     
                 except Exception as e:
                     logger.error(f"Error in plugin manager: {e}") 
+            # -------------------------------------------
+            
+            # DOING: 0.9.3 Run in background the Flask webhook endpoint for receive paypal events
+            
+            
             # -------------------------------------------
             
         except Exception as e:
