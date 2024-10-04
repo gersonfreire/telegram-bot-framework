@@ -578,17 +578,26 @@ _Links:_
             # get paypal_link dictionary from bot context data
             paypal_link = bot_data.get('paypal_links', {}) if bot_data else {}
             
+            # clone paypal links dictionary to another variable
+            paypal_link_copy = paypal_link.copy()
+            
             # for each paypal link in dictionary, warns user that a payment was detected
             for link, user_id in paypal_link.items():
                 try:
                     # send a message to the user by raw telegram API
                     self.send_message_by_api(chat_id=user_id, message="Payment detected! Please wait for the confirmation.")
                     
+                    # TODO: update user balance
+                    
                     # and remove the item from the dictionary
-                    del paypal_link[link]
+                    # RuntimeError('dictionary changed size during iteration')
+                    del paypal_link_copy[link]
                     
                 except Exception as e:
                     logger.error(f"Error sending payment confirmation message: {e}")
+                    
+            # restore paypal links dictionary from the cloned 
+            bot_data['paypal_links'] = paypal_link_copy
         
         except Exception as e:
             logger.error(f"Error in EXECUTE_PAYMENT_CALLBACK: {e}")
