@@ -581,13 +581,10 @@ _Links:_
             # for each paypal link in dictionary, warns user that a payment was detected
             for user_id, link in paypal_link.items():
                 # send a message to the user by row telegram API
-                self.application.bot.send_message(chat_id=user_id, text="Payment detected! Please wait for the confirmation.")
+                self.send_message_by_api(chat_id=user_id, message="Payment detected! Please wait for the confirmation.")
                 
                 # and remove the item from the dictionary
                 del paypal_link[link]
-                       
-            # TODO: process payment adding credit to user balance         
-            pass
         
         except Exception as e:
             logger.error(f"Error in EXECUTE_PAYMENT_CALLBACK: {e}")
@@ -856,6 +853,41 @@ _Links:_
         except Exception as e:
             logger.error(f"Error sending message: {e}")
             return f'Sorry, we have a problem sending message: {e}'
+       
+    @with_writing_action
+    def send_message_by_api(self, chat_id: int, message: str):
+        """Send a message by raw Telegram API
+
+        Args:
+            chat_id (int): Target telegram user ID to send message
+            message (str): text of message to send
+
+        Returns:
+            _type_: response of API
+        """
+        
+        response = None
+        
+        try:
+            # Define the payload
+            payload = {
+                'chat_id': chat_id,
+                'text': message
+            }
+
+            # Send the POST request
+            response = requests.post(telegram_api_base_url, data=payload)
+
+            # Check the response
+            if response.status_code == 200:
+                print('Message sent successfully')
+            else:
+                print('Failed to send message') 
+                
+        except Exception as e:
+            logger.error(f"Error sending message by API: {e}") 
+            
+        return response          
        
     # -------- Default command handlers --------
     

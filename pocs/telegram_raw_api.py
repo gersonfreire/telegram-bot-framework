@@ -6,7 +6,10 @@ dotenv.load_dotenv()
 bot_token = os.getenv('DEFAULT_BOT_TOKEN') #'YOUR_BOT_TOKEN'
 
 # Replace 'CHAT_ID' with the chat ID you want to send the message to
-chat_id = os.getenv('ADMIN_ID_LIST') # CHAT_ID'
+admin_list = os.getenv('ADMIN_ID_LIST')
+if isinstance(admin_list, str):
+    admin_list = admin_list.split(',')[0]
+chat_id = int(admin_list) # CHAT_ID'
 
 # The message you want to send
 message = 'Hello, this is a synchronous message!'

@@ -20,7 +20,12 @@ import plugin_system.main as plugin_system_main
 
 from plugin_system.plugin_manager import PluginManager
 
+import requests
+
 # ------------------------------------------
+
+# Construct the URL for the sendMessage endpoint
+telegram_api_base_url = f'https://api.telegram.org/bot{bot_token}/sendMessage'
 
 def telegram_object_to_dict(obj):
     if isinstance(obj, User):
