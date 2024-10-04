@@ -11,7 +11,7 @@ client_secret = os.getenv("PAYPAL_CLIENT_SECRET")
 DEFAULT_RETURN_URL = os.environ.get('PAYPAL_DEFAULT_RETURN_URL', "http://localhost:5000/payment/execute")
 DEFAULT_CANCEL_URL = os.environ.get('PAYPAL_DEFAULT_CANCEL_URL', "http://localhost:5000/payment/cancel")
 
-EXECUTE_PAYMENT_CALLBACK = None
+execute_payment_callback = None
 CANCEL_PAYMENT_CALLBACK = None
 
 app = Flask(__name__)
@@ -91,8 +91,8 @@ def execute_payment():
         payment = paypalrestsdk.Payment.find(payment_id)
         
         # call the callback function
-        if EXECUTE_PAYMENT_CALLBACK:
-            EXECUTE_PAYMENT_CALLBACK(payment, payment_id, payer_id)
+        if execute_payment_callback:
+            execute_payment_callback(payment, payment_id, payer_id)
 
         if payment.execute({"payer_id": payer_id}):
             print("Payment executed successfully")

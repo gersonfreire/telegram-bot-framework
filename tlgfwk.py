@@ -569,7 +569,7 @@ _Links:_
             logger.error(f"Error in precheckout_callback: {e}")
             await query.answer(ok=False, error_message="An unexpected error occurred during payment processing.")
        
-    def EXECUTE_PAYMENT_CALLBACK(self, payment, payment_id, payer_id):
+    def execute_payment_callback(self, payment, payment_id, payer_id):
         
         try:   
             # TODO: process payment adding credit to user balance         
@@ -697,7 +697,7 @@ _Links:_
                 paypal.app.run(debug=False)
 
             # set callbacks for paypal events
-            paypal.EXECUTE_PAYMENT_CALLBACK = self.EXECUTE_PAYMENT_CALLBACK
+            paypal.execute_payment_callback = self.execute_payment_callback
 
             # Run the app in a separate thread
             thread = threading.Thread(target=run_app)
