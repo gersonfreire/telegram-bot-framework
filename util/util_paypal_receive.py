@@ -171,18 +171,20 @@ def create_payment(
 
         # Step 4: Generate the Payment Link
         if payment.create():
-            print("Payment created successfully")
+            logger.debug("Payment created successfully")
             for link in payment.links:
                 if link.rel == "approval_url":
                     approval_url = str(link.href)
-                    print("Redirect for approval: %s" % (approval_url))
+                    logger.debug("Redirect for approval: %s" % (approval_url))
                     return approval_url
                     
         else:
-            print(payment.error)
+            logger.error(payment.error)
+            return Exception(payment.error)
             
     except Exception as e:
         logger.error(f"An error occurred in {__file__} at line {e.__traceback__.tb_lineno}: {e}")
+        return e
 
 # --------------------------------
 

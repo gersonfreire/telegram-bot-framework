@@ -933,6 +933,9 @@ _Links:_
             if not paypal_link:
                 await update.message.reply_text("Sorry, we encountered an error generating the PayPal link.")
                 return
+            elif isinstance(paypal_link, Exception):
+                await update.message.reply_text(paypal_link, parse_mode=None)
+                return
                 
             # If there is not a dictionary for paypal links, create it
             bot_data = self.application.bot_data
