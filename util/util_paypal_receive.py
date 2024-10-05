@@ -17,12 +17,23 @@ logger.debug(f'Starting the {__file__}...')
 # Load environment variables from the .env file
 dotenv.load_dotenv()
 
-client_id = os.getenv("PAYPAL_CLIENT_ID")
-client_secret = os.getenv("PAYPAL_CLIENT_SECRET")   
+CLIENT_ID = os.getenv("PAYPAL_CLIENT_ID")
+CLIENT_SECRET = os.getenv("PAYPAL_CLIENT_SECRET")   
+
+USE_SSSL = bool(os.getenv("PAYPAL_USE_SSL", "False"))
+def_ssl_cert = os.getenv("PAYPAL_SSL_CERT", None)
+def_ssl_key = os.getenv("PAYPAL_SSL_KEY", None)
+if USE_SSSL and def_ssl_cert and def_ssl_key and os.path.exists(def_ssl_cert) and os.path.exists(def_ssl_key):
+    def_http_mode = os.getenv("PAYPAL_HTTP_MODE", "https")
+else: 
+    def_http_mode = os.getenv("PAYPAL_HTTP_MODE", "http")
+    
+def_http_host = os.getenv("PAYPAL_HTTP_HOST", "localhost")
+def_http_port = os.getenv("PAYPAL_HTTP_PORT", "5000")
 
 # Get webhook URL from the .env file
-DEFAULT_RETURN_URL = os.environ.get('PAYPAL_DEFAULT_RETURN_URL', "http://localhost:5000/payment/execute")
-DEFAULT_CANCEL_URL = os.environ.get('PAYPAL_DEFAULT_CANCEL_URL', "http://localhost:5000/payment/cancel")
+DEFAULT_RETURN_URL = os.environ.get('PAYPAL_DEFAULT_RETURN_URL', f"{def_http_mode}://{def_http_host}:{def_http_port}/payment/execute")
+DEFAULT_CANCEL_URL = os.environ.get('PAYPAL_DEFAULT_CANCEL_URL', f"{def_http_mode}://{def_http_host}:{def_http_port}/payment/cancel")
 
 execute_payment_callback = None
 CANCEL_PAYMENT_CALLBACK = None
@@ -34,8 +45,8 @@ app = Flask(__name__)
 # Configure PayPal SDK
 paypalrestsdk.configure({
     "mode": "sandbox",  # sandbox or live
-    "client_id": client_id,
-    "client_secret": client_secret
+    "client_id": CLIENT_ID,
+    "client_secret": CLIENT_SECRET
 })
 
 # --------------------------------
@@ -131,7 +142,7 @@ def cancel_payment():
         print(f"An error occurred: {e}")
         return "Payment cancellation failed"
 
-def main(debug=False, port=5000, host='localhost', load_dotenv=False):
+def main(debug=False, port=def_http_port, host=def_http_host, load_dotenv=False):
     """Runs the application on a local development server.
 
     Do not use ``run()`` in a production setting. It is not intended to
@@ -188,13 +199,23 @@ def main(debug=False, port=5000, host='localhost', load_dotenv=False):
         variable.
     """
     
-    try:
-        create_payment()
-        app.run(host=host, port=port, debug=debug, load_dotenv=load_dotenv)
+    try:        
+        
+        # Run the app with SSL context or not
+        if USE_SSSL:
+            ssl_context = (def_ssl_cert, def_ssl_key)
+            app.run(host=host, port=port, debug=debug, ssl_context=ssl_context, load_dotenv=load_dotenv)
+        else:
+            app.run(host=host, port=port, debug=debug, load_dotenv=load_dotenv)
         
     except Exception as e:
         logger.error(f"An error occurred in {__file__} at line {e.__traceback__.tb_lineno}: {e}")
 
 if __name__ == '__main__':
+    
+    # Test the payment link creation
+    create_payment()
+       
+    # Run flask web server API 
     main()
     

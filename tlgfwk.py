@@ -583,11 +583,11 @@ _Links:_
             
             # for each paypal link in dictionary, warns user that a payment was detected
             for link, user_id in paypal_link.items():
-                try:
-                    # send a message to the user by raw telegram API
-                    self.send_message_by_api(chat_id=user_id, message="Payment detected! Please wait for the confirmation.")
-                    
+                try:                    
                     # TODO: update user balance
+                    
+                    # send a message to the user by raw telegram API
+                    self.send_message_by_api(chat_id=user_id, message="Thanks! Payment detected! A credit of $5 was added to your balance!")
                     
                     # and remove the item from the dictionary
                     # RuntimeError('dictionary changed size during iteration')
