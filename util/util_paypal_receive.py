@@ -1,3 +1,4 @@
+import json
 import os, dotenv, time, subprocess
 from flask import Flask, request, redirect, url_for
 import paypalrestsdk
@@ -180,7 +181,7 @@ def create_payment(
                     
         else:
             logger.error(payment.error)
-            return Exception(payment.error)
+            return Exception(json.dumps(payment.error))
             
     except Exception as e:
         logger.error(f"An error occurred in {__file__} at line {e.__traceback__.tb_lineno}: {e}")
