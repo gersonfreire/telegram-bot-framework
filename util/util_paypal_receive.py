@@ -2,6 +2,19 @@ import os, dotenv
 from flask import Flask, request, redirect, url_for
 import paypalrestsdk
 
+# --------------------------------
+
+# set and build logging
+import logging
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
+
+# test logger
+logger.debug(f'Starting the {__file__}...')
+
+# --------------------------------
+
+# Load environment variables from the .env file
 dotenv.load_dotenv()
 
 client_id = os.getenv("PAYPAL_CLIENT_ID")
@@ -13,6 +26,8 @@ DEFAULT_CANCEL_URL = os.environ.get('PAYPAL_DEFAULT_CANCEL_URL', "http://localho
 
 execute_payment_callback = None
 CANCEL_PAYMENT_CALLBACK = None
+
+# --------------------------------
 
 app = Flask(__name__)
 
@@ -116,13 +131,70 @@ def cancel_payment():
         print(f"An error occurred: {e}")
         return "Payment cancellation failed"
 
-def main(debug=True):
+def main(debug=False, port=5000, host='localhost', load_dotenv=False):
+    """Runs the application on a local development server.
+
+    Do not use ``run()`` in a production setting. It is not intended to
+    meet security and performance requirements for a production server.
+    Instead, see :doc:`/deploying/index` for WSGI server recommendations.
+
+    If the :attr:`debug` flag is set the server will automatically reload
+    for code changes and show a debugger in case an exception happened.
+
+    If you want to run the application in debug mode, but disable the
+    code execution on the interactive debugger, you can pass
+    ``use_evalex=False`` as parameter.  This will keep the debugger's
+    traceback screen active, but disable code execution.
+
+    It is not recommended to use this function for development with
+    automatic reloading as this is badly supported.  Instead you should
+    be using the :command:`flask` command line script's ``run`` support.
+
+    .. admonition:: Keep in Mind
+
+        Flask will suppress any server error with a generic error page
+        unless it is in debug mode.  As such to enable just the
+        interactive debugger without the code reloading, you have to
+        invoke :meth:`run` with ``debug=True`` and ``use_reloader=False``.
+        Setting ``use_debugger`` to ``True`` without being in debug mode
+        won't catch any exceptions because there won't be any to
+        catch.
+
+    :param host: the hostname to listen on. Set this to ``'0.0.0.0'`` to
+        have the server available externally as well. Defaults to
+        ``'127.0.0.1'`` or the host in the ``SERVER_NAME`` config variable
+        if present.
+    :param port: the port of the webserver. Defaults to ``5000`` or the
+        port defined in the ``SERVER_NAME`` config variable if present.
+    :param debug: if given, enable or disable debug mode. See
+        :attr:`debug`.
+    :param load_dotenv: Load the nearest :file:`.env` and :file:`.flaskenv`
+        files to set environment variables. Will also change the working
+        directory to the directory containing the first file found.
+    :param options: the options to be forwarded to the underlying Werkzeug
+        server. See :func:`werkzeug.serving.run_simple` for more
+        information.
+
+    .. versionchanged:: 1.0
+        If installed, python-dotenv will be used to load environment
+        variables from :file:`.env` and :file:`.flaskenv` files.
+
+        The :envvar:`FLASK_DEBUG` environment variable will override :attr:`debug`.
+
+        Threaded mode is enabled by default.
+
+    .. versionchanged:: 0.10
+        The default port is now picked from the ``SERVER_NAME``
+        variable.
+    """
     
-    create_payment()
-    
-    app.run(debug=False)
+    try:
+        create_payment()
+        app.run(host=host, port=port, debug=debug, load_dotenv=load_dotenv)
+        
+    except Exception as e:
+        logger.error(f"An error occurred in {__file__} at line {e.__traceback__.tb_lineno}: {e}")
 
 if __name__ == '__main__':
     main()
     
-# app.run()
