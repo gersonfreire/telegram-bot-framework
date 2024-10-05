@@ -1,4 +1,4 @@
-import os, dotenv
+import os, dotenv, time, subprocess
 from flask import Flask, request, redirect, url_for
 import paypalrestsdk
 
@@ -6,6 +6,8 @@ import paypalrestsdk
 
 # set and build logging
 import logging
+
+import requests
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
@@ -18,7 +20,9 @@ logger.debug(f'Starting the {__file__}...')
 dotenv.load_dotenv()
 
 CLIENT_ID = os.getenv("PAYPAL_CLIENT_ID")
-CLIENT_SECRET = os.getenv("PAYPAL_CLIENT_SECRET")   
+CLIENT_SECRET = os.getenv("PAYPAL_CLIENT_SECRET")
+
+USE_NGROK = bool(os.getenv("PAYPAL_USE_NGROK", True))   
 
 USE_SSL = bool(os.getenv("PAYPAL_USE_SSL", None))
 def_ssl_cert = os.getenv("PAYPAL_SSL_CERT", None)
@@ -52,6 +56,36 @@ paypalrestsdk.configure({
 })
 
 # --------------------------------
+
+def start_ngrok():
+    """Starts ngrok to expose the local server to the internet.
+
+    Returns:
+        _type_: ngrok URL if successful, None otherwise.
+    """
+    
+    try:
+        # Start ngrok process
+        # ngrok\ngrok.exe http 80
+        ngrok_path = os.path.join(os.path.dirname(__file__), '..', 'ngrok', 'ngrok.exe')
+        ngrok = subprocess.Popen([ngrok_path, 'http', '5000'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        time.sleep(5)  # Wait for ngrok to initialize
+
+        # Get the ngrok tunnels
+        response = requests.get('http://localhost:4040/api/tunnels')
+        if response.status_code == 200:
+            tunnels = response.json()['tunnels']
+            for tunnel in tunnels:
+                if tunnel['proto'] == 'https':
+                    return tunnel['public_url']
+                
+        return None
+    
+    except Exception as e:
+        logger.error(f"An error occurred while starting ngrok: {e}")
+        return None
+
+# -------------------------------- 
 
 @app.route('/payment/link', methods=['GET'])
 def create_payment(
@@ -108,7 +142,7 @@ def create_payment(
     except Exception as e:
         print(f"An error occurred: {e}")
 
-# -------------------------------- 
+# --------------------------------
 
 @app.route('/payment/execute', methods=['GET'])
 def execute_payment():
@@ -218,14 +252,20 @@ def main(debug=False, port=def_http_port, host=def_http_host, load_dotenv=False)
     except Exception as e:
         logger.error(f"An error occurred in {__file__} at line {e.__traceback__.tb_lineno}: {e}")
 
-if __name__ == '__main__':
+if __name__ == '__main__':    
+
+    return_url = DEFAULT_RETURN_URL
+    cancel_url = DEFAULT_CANCEL_URL     
     
-    # Test return URL with ngrok
-    # ngrok http 5000
-    # http://localhost:4040/inspect/http
-    # https://29df-2804-14d-b080-4073-685a-3109-4f56-8cb2.ngrok-free.app
-    return_url = "https://29df-2804-14d-b080-4073-685a-3109-4f56-8cb2.ngrok-free.app/payment/execute"
-    cancel_url = "https://29df-2804-14d-b080-4073-685a-3109-4f56-8cb2.ngrok-free.app/payment/cancel"
+    if USE_NGROK:
+        ngrok_url = start_ngrok()
+        if ngrok_url:
+            logger.debug(f"Ngrok URL: {ngrok_url}")
+            return_url = f"{ngrok_url}/payment/execute"
+            cancel_url = f"{ngrok_url}/payment/cancel"            
+            logger.debug(f"Using NGROK! Return URL: {return_url}")
+        else:
+            logger.error("Failed to get ngrok URL")  
     
     # Test the payment link creation with ngrok
     create_payment(return_url=return_url, cancel_url=cancel_url)
