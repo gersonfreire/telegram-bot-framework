@@ -20,13 +20,15 @@ dotenv.load_dotenv()
 CLIENT_ID = os.getenv("PAYPAL_CLIENT_ID")
 CLIENT_SECRET = os.getenv("PAYPAL_CLIENT_SECRET")   
 
-USE_SSSL = bool(os.getenv("PAYPAL_USE_SSL", "False"))
+USE_SSL = bool(os.getenv("PAYPAL_USE_SSL", None))
 def_ssl_cert = os.getenv("PAYPAL_SSL_CERT", None)
 def_ssl_key = os.getenv("PAYPAL_SSL_KEY", None)
-if USE_SSSL and def_ssl_cert and def_ssl_key and os.path.exists(def_ssl_cert) and os.path.exists(def_ssl_key):
+if USE_SSL and def_ssl_cert and def_ssl_key and os.path.exists(def_ssl_cert) and os.path.exists(def_ssl_key):
     def_http_mode = os.getenv("PAYPAL_HTTP_MODE", "https")
 else: 
     def_http_mode = os.getenv("PAYPAL_HTTP_MODE", "http")
+    USE_SSL = False
+    logger.warning("SSL certificate and key not found. Running without SSL context.")
     
 def_http_host = os.getenv("PAYPAL_HTTP_HOST", "localhost")
 def_http_port = os.getenv("PAYPAL_HTTP_PORT", "5000")
@@ -202,11 +204,16 @@ def main(debug=False, port=def_http_port, host=def_http_host, load_dotenv=False)
     try:        
         
         # Run the app with SSL context or not
-        if USE_SSSL:
+        if USE_SSL:
             ssl_context = (def_ssl_cert, def_ssl_key)
             app.run(host=host, port=port, debug=debug, ssl_context=ssl_context, load_dotenv=load_dotenv)
+            logger.debug(f"Running the app with SSL context: {ssl_context}")
+            
         else:
             app.run(host=host, port=port, debug=debug, load_dotenv=load_dotenv)
+            logger.debug(f"Running the app without SSL context: {def_http_host}:{def_http_port}")
+        
+        logger.debug(f"Active Endpoint: {def_http_mode}://{def_http_host}:{def_http_port}")
         
     except Exception as e:
         logger.error(f"An error occurred in {__file__} at line {e.__traceback__.tb_lineno}: {e}")
