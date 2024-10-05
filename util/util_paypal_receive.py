@@ -227,7 +227,7 @@ if __name__ == '__main__':
     return_url = "https://29df-2804-14d-b080-4073-685a-3109-4f56-8cb2.ngrok-free.app/payment/execute"
     cancel_url = "https://29df-2804-14d-b080-4073-685a-3109-4f56-8cb2.ngrok-free.app/payment/cancel"
     
-    # Test the payment link creation
+    # Test the payment link creation with ngrok
     create_payment(return_url=return_url, cancel_url=cancel_url)
        
     # Run flask web server API 
