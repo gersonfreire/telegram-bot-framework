@@ -95,7 +95,8 @@ def create_payment(
     currency="BRL", 
     description="This is the payment transaction description.",
     client_id = os.getenv("PAYPAL_CLIENT_ID") ,
-    client_secret = os.getenv("PAYPAL_CLIENT_SECRET")
+    client_secret = os.getenv("PAYPAL_CLIENT_SECRET"),
+    use_ngrok=USE_NGROK
     ): 
 
     try:  
@@ -105,6 +106,16 @@ def create_payment(
             "client_id": client_id,
             "client_secret": client_secret
         })
+        
+        if use_ngrok:
+            ngrok_url = start_ngrok()
+            if ngrok_url:
+                logger.debug(f"Ngrok URL: {ngrok_url}")
+                return_url = f"{ngrok_url}/payment/execute"
+                cancel_url = f"{ngrok_url}/payment/cancel"            
+                logger.debug(f"Using NGROK! Return URL: {return_url}")
+            else:
+                logger.error("Failed to get ngrok URL")          
         
         # Step 3: Create a Payment
         payment = paypalrestsdk.Payment({
@@ -252,23 +263,10 @@ def main(debug=False, port=def_http_port, host=def_http_host, load_dotenv=False)
     except Exception as e:
         logger.error(f"An error occurred in {__file__} at line {e.__traceback__.tb_lineno}: {e}")
 
-if __name__ == '__main__':    
-
-    return_url = DEFAULT_RETURN_URL
-    cancel_url = DEFAULT_CANCEL_URL     
-    
-    if USE_NGROK:
-        ngrok_url = start_ngrok()
-        if ngrok_url:
-            logger.debug(f"Ngrok URL: {ngrok_url}")
-            return_url = f"{ngrok_url}/payment/execute"
-            cancel_url = f"{ngrok_url}/payment/cancel"            
-            logger.debug(f"Using NGROK! Return URL: {return_url}")
-        else:
-            logger.error("Failed to get ngrok URL")  
+if __name__ == '__main__':       
     
     # Test the payment link creation with ngrok
-    create_payment(return_url=return_url, cancel_url=cancel_url)
+    create_payment()
        
     # Run flask web server API 
     main()
