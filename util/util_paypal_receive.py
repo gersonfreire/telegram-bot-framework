@@ -108,6 +108,18 @@ def create_payment(
         })
         
         if use_ngrok:
+            # check if ngrok is already running
+            response = requests.get('http://localhost:4040/api/tunnels')
+            if response.status_code == 200:
+                tunnels = response.json()['tunnels']
+                for tunnel in tunnels:
+                    if tunnel['proto'] == 'https':
+                        ngrok_url = tunnel['public_url']
+                        logger.debug(f"Ngrok is already running at: {ngrok_url}")
+                        return_url = f"{ngrok_url}/payment/execute"
+                        cancel_url = f"{ngrok_url}/payment/cancel"
+                        return return_url, cancel_url
+            
             ngrok_url = start_ngrok()
             if ngrok_url:
                 logger.debug(f"Ngrok URL: {ngrok_url}")
