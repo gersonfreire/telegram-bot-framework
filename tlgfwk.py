@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # ------------------------------------------
 
-__version__ = """0.9.3 Run in background the Flask webhook endpoint for receive paypal events"""
+__version__ = """0.9.4 Test with paypal Live/production environment and get token from .env file"""
 
 __todos__ = """
 0.7.9 Command to Manage links
@@ -14,7 +14,8 @@ __todos__ = """
 0.8.5 Delete links from the .env file and add them to the bot configuration settings
 0.8.7 Created the simplest example of a bot with the framework
 0.9.0 Command to show how to create a simple bot and instantiate from token another on the fly
-0.9.1 Sort command help by command name"""
+0.9.1 Sort command help by command name
+0.9.3 Run in background the Flask webhook endpoint for receive paypal events"""
 
 __change_log__ = """
 0.6.3 Load just a specified plugin
