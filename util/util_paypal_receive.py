@@ -85,12 +85,12 @@ def start_ngrok(ngrok_port=5000):
             # ngrok config add-authtoken <token>
 
             # Run command line: "ngrok\ngrok.exe --config ngrok\ngrok.yml http 5000"
-            # command = [ngrok_path, '--config', ngrok_yml_path, 'http', str(ngrok_port)]
+            command = [ngrok_path, '--config', ngrok_yml_path, 'http', str(ngrok_port)]
             
             # or set the token from command line:
             # export NGROK_AUTHTOKEN=<your_authtoken>
             # ngrok http 5000 --authtoken <your_authtoken>
-            command = [ngrok_path, 'http', str(ngrok_port), '--authtoken', os.getenv("NGROK_AUTH_TOKEN")]
+            # command = [ngrok_path, 'http', str(ngrok_port), '--authtoken', os.getenv("NGROK_AUTH_TOKEN")]
             
             subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             
