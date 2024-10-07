@@ -311,7 +311,7 @@ def main(debug=False, port=def_http_port, host=def_http_host, load_dotenv=False)
 if __name__ == '__main__':       
     
     # Test the payment link creation with ngrok
-    create_payment()
+    create_payment(paypal_mode="sandbox")
        
     # Run flask web server API 
     main()
