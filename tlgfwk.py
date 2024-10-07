@@ -719,7 +719,9 @@ _Links:_
             
             # DOING: 0.9.3 Run in background the Flask webhook endpoint for receive paypal events
             def run_app():
-                paypal.app.run(debug=False)
+                # Run flask web server API 
+                # paypal.app.run(debug=False)
+                main(host="0.0.0.0")  # listen to all IP addresses              
 
             # set callbacks for paypal events
             paypal.execute_payment_callback = self.execute_payment_callback
