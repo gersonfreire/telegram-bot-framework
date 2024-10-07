@@ -731,8 +731,9 @@ _Links:_
 
             # Run the app in a separate thread
             # thread = threading.Thread(target=run_app)
-            thread = threading.Thread(target=paypal.main)
-            thread.start()            
+            thread = threading.Thread(target=paypal.main, kwargs={'host': '0.0.0.0', 'load_dotenv': True})
+            thread.start()    
+            # sudo ss -tuln | grep :5000        
             
             # -------------------------------------------
             
