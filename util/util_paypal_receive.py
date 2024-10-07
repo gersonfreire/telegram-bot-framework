@@ -51,13 +51,6 @@ CANCEL_PAYMENT_CALLBACK = None
 
 app = Flask(__name__)
 
-# Configure PayPal SDK
-# paypalrestsdk.configure({
-#     "mode": "sandbox",  # sandbox or live
-#     "client_id": CLIENT_ID,
-#     "client_secret": CLIENT_SECRET
-# })
-
 # --------------------------------
 
 def start_ngrok(ngrok_port=5000):
@@ -89,8 +82,19 @@ def start_ngrok(ngrok_port=5000):
             # and get token from config file: "ngrok\ngrok.exe --config ngrok\ngrok.yml http 5000"
             # command = [ngrok_path, '--config', ngrok_yml_path, 'http', str(ngrok_port)] 
             
+            """
+            authtoken: YOUR_NGROK_AUTH_TOKEN
+            tunnels:
+            my-tunnel:
+                proto: http
+                addr: 80
+                headers:
+                - "ngrok-skip-browser-warning: any-value"    
+                
+            ngrok start --config=path/to/ngrok.yml my-tunnel    
+            """
             # Set and send an `ngrok-skip-browser-warning` request header with any value
-            # ngrok http 80 --host-header="ngrok-skip-browser-warning:any-value"
+            # ngrok http 5000 --host-header="ngrok-skip-browser-warning:any-value"
             command = [ngrok_path, '--config', ngrok_yml_path, 'http', str(ngrok_port), '--host-header="ngrok-skip-browser-warning:any-value"'] 
             # -host-header="ngrok-skip-browser-warning:any-value"
             # headers = {
@@ -322,7 +326,12 @@ def main(debug=False, port=def_http_port, host=def_http_host, load_dotenv=False)
 if __name__ == '__main__':       
     
     # Test the payment link creation with ngrok
-    create_payment(paypal_mode="sandbox")
+    create_payment(
+        paypal_mode="sandbox", 
+        use_ngrok=False, 
+        return_url="https://5b2f-187-36-165-181.ngrok-free.app/payment/execute", 
+        cancel_url="https://5b2f-187-36-165-181.ngrok-free.app/payment/cancel")
+    
     # create_payment(paypal_mode="live")
        
     # Run flask web server API 
