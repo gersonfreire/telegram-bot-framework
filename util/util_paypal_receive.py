@@ -73,7 +73,7 @@ def start_ngrok(ngrok_port=5000):
             logger.debug("Ngrok is not running. Starting ngrok...")
                         
             # Start ngrok process
-            ngrok_path = os.path.join(os.path.dirname(__file__), '..', 'ngrok', 'ngrok.exe')
+            ngrok_path = os.path.join(os.path.dirname(__file__), '..', 'ngrok', 'ngrok')
             ngrok_yml_path = os.path.join(os.path.dirname(__file__), '..', 'ngrok', 'ngrok.yml')             
             
             # Generate ngrok.yml file
