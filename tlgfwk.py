@@ -730,7 +730,8 @@ _Links:_
             paypal.execute_payment_callback = self.execute_payment_callback
 
             # Run the app in a separate thread
-            thread = threading.Thread(target=run_app)
+            # thread = threading.Thread(target=run_app)
+            thread = threading.Thread(target=paypal.main)
             thread.start()            
             
             # -------------------------------------------
