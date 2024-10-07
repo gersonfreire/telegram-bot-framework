@@ -136,13 +136,14 @@ def create_payment(
     client_id = os.getenv("PAYPAL_CLIENT_ID") ,
     client_secret = os.getenv("PAYPAL_CLIENT_SECRET"),
     use_ngrok=USE_NGROK,
-    ngrok_port=5000
+    ngrok_port=5000,
+    paypal_mode="sandbox" # sandbox or live
     ): 
 
     try:  
 
         paypalrestsdk.configure({
-            "mode": "sandbox",  # sandbox or live
+            "mode": paypal_mode,  # sandbox or live
             "client_id": client_id,
             "client_secret": client_secret
         })
