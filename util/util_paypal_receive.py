@@ -179,22 +179,26 @@ def create_payment(
         payment = paypalrestsdk.Payment({
             "intent": "sale",
             "payer": {
-                "payment_method": "paypal"},
+            "payment_method": "paypal"},
             "redirect_urls": {
-                "return_url": return_url,
-                "cancel_url": cancel_url},
+            "return_url": return_url,
+            "cancel_url": cancel_url},
             "transactions": [{
-                "item_list": {
-                    "items": [{
-                        "name": "item",
-                        "sku": "item",
-                        "price": "5.00",
-                        "currency": "BRL",
-                        "quantity": 1}]},
-                "amount": {
-                    "total": total,
-                    "currency": currency},
-                "description": description}]})
+            "item_list": {
+                "items": [{
+                "name": "item",
+                "sku": "item",
+                "price": "5.00",
+                "currency": "BRL",
+                "quantity": 1}]},
+            "amount": {
+                "total": total,
+                "currency": currency},
+            "description": description}],
+            "headers": {
+                "ngrok-skip-browser-warning": "any-value"
+            }
+        })
 
         # Step 4: Generate the Payment Link
         if payment.create():
@@ -327,10 +331,11 @@ if __name__ == '__main__':
     
     # Test the payment link creation with ngrok
     create_payment(
-        paypal_mode="sandbox", 
-        use_ngrok=False, 
-        return_url="https://5b2f-187-36-165-181.ngrok-free.app/payment/execute", 
-        cancel_url="https://5b2f-187-36-165-181.ngrok-free.app/payment/cancel")
+        # paypal_mode="sandbox", 
+        # use_ngrok=False, 
+        # return_url="https://bab4-187-36-165-181.ngrok-free.app/payment/execute", 
+        # cancel_url="https://bab4-187-36-165-181.ngrok-free.app/payment/cancel"
+        )
     
     # create_payment(paypal_mode="live")
        
