@@ -332,13 +332,15 @@ if __name__ == '__main__':
     # Test the payment link creation with ngrok
     create_payment(
         # paypal_mode="sandbox", 
-        # use_ngrok=False, 
+        use_ngrok=False, 
         # return_url="https://bab4-187-36-165-181.ngrok-free.app/payment/execute", 
         # cancel_url="https://bab4-187-36-165-181.ngrok-free.app/payment/cancel"
+        return_url="http://dev2.monitor.eco.br:5000/",
+        cancel_url="http://dev2.monitor.eco.br:5000/"
         )
     
     # create_payment(paypal_mode="live")
        
     # Run flask web server API 
-    main()
+    main(host="0.0.0.0")
     
