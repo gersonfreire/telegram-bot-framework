@@ -20,6 +20,8 @@ logger.debug(f'Starting the {__file__}...')
 # Load environment variables from the .env file
 dotenv.load_dotenv()
 
+
+# Get client_id and secret from url https://developer.paypal.com/dashboard/
 CLIENT_ID = os.getenv("PAYPAL_CLIENT_ID")
 CLIENT_SECRET = os.getenv("PAYPAL_CLIENT_SECRET")
 
