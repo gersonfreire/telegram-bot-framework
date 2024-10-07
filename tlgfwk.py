@@ -931,7 +931,7 @@ _Links:_
             else:                
                 # paypal_link = paypal.create_payment(total=total, currency=currency)
                 paypal_link = paypal.create_payment(
-                    total=total, currency=currency
+                    total=total, currency=currency,
                     paypal_mode="sandbox", # live
                     use_ngrok=False, 
                     )                
