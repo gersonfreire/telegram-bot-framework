@@ -1,7 +1,7 @@
 import os
 
 # Replace with your path
-path = "/etc/letsencrypt/live/dev2.monitor.eco.br/fullchain.pem"
+path = "/path/file"
 
 # Print the path to ensure it is correct
 print(f"Checking path: '{path}'")
