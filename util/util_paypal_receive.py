@@ -331,7 +331,7 @@ if __name__ == '__main__':
     
     # Test the payment link creation with ngrok
     create_payment(
-        # paypal_mode="sandbox", 
+        paypal_mode="sandbox", # live
         use_ngrok=False, 
         )
     
