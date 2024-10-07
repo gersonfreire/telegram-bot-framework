@@ -52,11 +52,11 @@ CANCEL_PAYMENT_CALLBACK = None
 app = Flask(__name__)
 
 # Configure PayPal SDK
-paypalrestsdk.configure({
-    "mode": "sandbox",  # sandbox or live
-    "client_id": CLIENT_ID,
-    "client_secret": CLIENT_SECRET
-})
+# paypalrestsdk.configure({
+#     "mode": "sandbox",  # sandbox or live
+#     "client_id": CLIENT_ID,
+#     "client_secret": CLIENT_SECRET
+# })
 
 # --------------------------------
 
@@ -81,13 +81,22 @@ def start_ngrok(ngrok_port=5000):
                         
             # Start ngrok process
             ngrok_path = os.path.join(os.path.dirname(__file__), '..', 'ngrok', 'ngrok.exe')
-            ngrok_yml_path = os.path.join(os.path.dirname(__file__), '..', 'ngrok', 'ngrok.yml')
+            ngrok_yml_path = os.path.join(os.path.dirname(__file__), '..', 'ngrok', 'ngrok.yml')             
             
             # Generate ngrok.yml file
             # ngrok config add-authtoken <token>
 
             # and get token from config file: "ngrok\ngrok.exe --config ngrok\ngrok.yml http 5000"
-            command = [ngrok_path, '--config', ngrok_yml_path, 'http', str(ngrok_port)]
+            # command = [ngrok_path, '--config', ngrok_yml_path, 'http', str(ngrok_port)] 
+            
+            # Set and send an `ngrok-skip-browser-warning` request header with any value
+            # ngrok http 80 --host-header="ngrok-skip-browser-warning:any-value"
+            command = [ngrok_path, '--config', ngrok_yml_path, 'http', str(ngrok_port), '--host-header="ngrok-skip-browser-warning:any-value"'] 
+            # -host-header="ngrok-skip-browser-warning:any-value"
+            # headers = {
+            #     "ngrok-skip-browser-warning": "any_value"
+            # }
+            # requests.get("http://localhost:4040/api/tunnels", headers=headers) 
             
             # or set the token from enviroment variable:
             # export NGROK_AUTHTOKEN=<your_authtoken>
@@ -148,7 +157,7 @@ def create_payment(
             "mode": paypal_mode,  # sandbox or live
             "client_id": client_id,
             "client_secret": client_secret
-        })
+        })  
         
         if use_ngrok:
             
