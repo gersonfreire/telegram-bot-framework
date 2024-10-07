@@ -314,6 +314,7 @@ if __name__ == '__main__':
     
     # Test the payment link creation with ngrok
     create_payment(paypal_mode="sandbox")
+    # create_payment(paypal_mode="live")
        
     # Run flask web server API 
     main()
