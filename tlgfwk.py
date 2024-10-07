@@ -721,7 +721,7 @@ _Links:_
             def run_app():
                 # Run flask web server API 
                 # paypal.app.run(debug=False)
-                main(host="0.0.0.0")  # listen to all IP addresses              
+                paypal.app.run(host="0.0.0.0", debug=False)  # listen to all IP addresses              
 
             # set callbacks for paypal events
             paypal.execute_payment_callback = self.execute_payment_callback
