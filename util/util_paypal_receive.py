@@ -253,7 +253,7 @@ def cancel_payment():
         logger.error(f"An error occurred in {__file__} at line {e.__traceback__.tb_lineno}: {e}")
         return "Payment cancellation failed"
 
-def main(debug=False, port=def_http_port, host=def_http_host, load_dotenv=False):
+def main(debug=False, port=def_http_port, host=def_http_host, load_dotenv=False, def_ssl_cert=def_ssl_cert, def_ssl_key=def_ssl_key):
     """Runs the application on a local development server.
 
     Do not use ``run()`` in a production setting. It is not intended to
@@ -333,10 +333,6 @@ if __name__ == '__main__':
     create_payment(
         # paypal_mode="sandbox", 
         use_ngrok=False, 
-        # return_url="https://bab4-187-36-165-181.ngrok-free.app/payment/execute", 
-        # cancel_url="https://bab4-187-36-165-181.ngrok-free.app/payment/cancel"
-        return_url="http://185.215.166.91:5000/payment/execute",
-        cancel_url="http://185.215.166.91:5000/payment/execute"
         )
     
     # create_payment(paypal_mode="live")
