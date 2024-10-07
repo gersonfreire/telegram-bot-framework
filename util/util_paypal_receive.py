@@ -315,12 +315,12 @@ def main(debug=False, port=def_http_port, host=def_http_host, load_dotenv=False)
         # Run the app with SSL context or not
         if USE_SSL:
             ssl_context = (def_ssl_cert, def_ssl_key)
-            app.run(host=host, port=port, debug=debug, ssl_context=ssl_context, load_dotenv=load_dotenv)
             logger.debug(f"Running the app with SSL context: {ssl_context}")
+            app.run(host=host, port=port, debug=debug, ssl_context=ssl_context, load_dotenv=load_dotenv)
             
         else:
-            app.run(host=host, port=port, debug=debug, load_dotenv=load_dotenv)
             logger.debug(f"Running the app without SSL context: {def_http_host}:{def_http_port}")
+            app.run(host=host, port=port, debug=debug, load_dotenv=load_dotenv)
         
         logger.debug(f"Active Endpoint: {def_http_mode}://{def_http_host}:{def_http_port}")
         
@@ -335,8 +335,8 @@ if __name__ == '__main__':
         use_ngrok=False, 
         # return_url="https://bab4-187-36-165-181.ngrok-free.app/payment/execute", 
         # cancel_url="https://bab4-187-36-165-181.ngrok-free.app/payment/cancel"
-        return_url="http://dev2.monitor.eco.br:5000/",
-        cancel_url="http://dev2.monitor.eco.br:5000/"
+        return_url="http://185.215.166.91:5000/payment/execute",
+        cancel_url="http://185.215.166.91:5000/payment/execute"
         )
     
     # create_payment(paypal_mode="live")
