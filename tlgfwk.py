@@ -929,7 +929,12 @@ _Links:_
             if webhook_url:
                 paypal_link = paypal.create_payment(return_url=webhook_url, cancel_url=webhook_url, total=total, currency=currency)
             else:                
-                paypal_link = paypal.create_payment(total=total, currency=currency)
+                # paypal_link = paypal.create_payment(total=total, currency=currency)
+                paypal_link = paypal.create_payment(
+                    total=total, currency=currency
+                    paypal_mode="sandbox", # live
+                    use_ngrok=False, 
+                    )                
                 
             if not paypal_link:
                 await update.message.reply_text("Sorry, we encountered an error generating the PayPal link.")
