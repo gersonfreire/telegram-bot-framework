@@ -195,9 +195,9 @@ def create_payment(
                 "total": total,
                 "currency": currency},
             "description": description}],
-            "headers": {
-                "ngrok-skip-browser-warning": "any-value"
-            }
+            # "headers": {
+            #     "ngrok-skip-browser-warning": "any-value"
+            # }
         })
 
         # Step 4: Generate the Payment Link
