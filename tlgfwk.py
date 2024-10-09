@@ -938,9 +938,9 @@ _Links:_
             # Create a message with all pending PayPal links
             message = "_Pending PayPal Links:_\n"
             for link, user_id in paypal_links.items():
-                message += f"`{user_id}`, {link}{os.linesep}"
+                message += f"{user_id}: {link}{os.linesep}"
 
-            await update.message.reply_text(message)
+            await update.message.reply_text(message, parse_mode=None)
 
         except Exception as e:
             logger.error(f"Error listing PayPal links: {e}")
