@@ -936,7 +936,7 @@ _Links:_
                 return
 
             # Create a message with all pending PayPal links
-            message = "_Pending PayPal Links:_\n"
+            message = "Pending PayPal Links:{os.linesep}"
             for link, user_id in paypal_links.items():
                 message += f"{user_id}: {link}{os.linesep}"
 
