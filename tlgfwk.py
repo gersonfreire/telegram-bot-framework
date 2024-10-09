@@ -932,15 +932,15 @@ _Links:_
             paypal_links = bot_data.get('paypal_links', {})
 
             if not paypal_links:
-                await update.message.reply_text("No pending PayPal links found.")
+                await update.message.reply_text("_No pending PayPal links found._")
                 return
 
             # Create a message with all pending PayPal links
             message = "_Pending PayPal Links:_\n"
             for link, user_id in paypal_links.items():
-                message += f"User ID: {user_id}, Link: {link}\n"
+                message += f"`{user_id}`, {link}{os.linesep}"
 
-            await update.message.reply_text(message, parse_mode=None)
+            await update.message.reply_text(message)
 
         except Exception as e:
             logger.error(f"Error listing PayPal links: {e}")
