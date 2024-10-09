@@ -20,6 +20,8 @@ logger.debug(f'Starting the {__file__}...')
 # Load environment variables from the .env file
 dotenv.load_dotenv()
 
+
+# Get client_id and secret from url https://developer.paypal.com/dashboard/
 CLIENT_ID = os.getenv("PAYPAL_CLIENT_ID")
 CLIENT_SECRET = os.getenv("PAYPAL_CLIENT_SECRET")
 
@@ -49,13 +51,6 @@ CANCEL_PAYMENT_CALLBACK = None
 
 app = Flask(__name__)
 
-# Configure PayPal SDK
-paypalrestsdk.configure({
-    "mode": "sandbox",  # sandbox or live
-    "client_id": CLIENT_ID,
-    "client_secret": CLIENT_SECRET
-})
-
 # --------------------------------
 
 def start_ngrok(ngrok_port=5000):
@@ -78,17 +73,38 @@ def start_ngrok(ngrok_port=5000):
             logger.debug("Ngrok is not running. Starting ngrok...")
                         
             # Start ngrok process
-            ngrok_path = os.path.join(os.path.dirname(__file__), '..', 'ngrok', 'ngrok.exe')
-            ngrok_yml_path = os.path.join(os.path.dirname(__file__), '..', 'ngrok', 'ngrok.yml')
+            ngrok_path = os.path.join(os.path.dirname(__file__), '..', 'ngrok', 'ngrok')
+            ngrok_yml_path = os.path.join(os.path.dirname(__file__), '..', 'ngrok', 'ngrok.yml')             
             
             # Generate ngrok.yml file
             # ngrok config add-authtoken <token>
 
-            # Run command line: "ngrok\ngrok.exe --config ngrok\ngrok.yml http 5000"
-            command = [ngrok_path, '--config', ngrok_yml_path, 'http', str(ngrok_port)]
+            # and get token from config file: "ngrok\ngrok.exe --config ngrok\ngrok.yml http 5000"
+            # command = [ngrok_path, '--config', ngrok_yml_path, 'http', str(ngrok_port)] 
             
-            # or set the token from command line:
+            """
+            authtoken: YOUR_NGROK_AUTH_TOKEN
+            tunnels:
+            my-tunnel:
+                proto: http
+                addr: 80
+                headers:
+                - "ngrok-skip-browser-warning: any-value"    
+                
+            ngrok start --config=path/to/ngrok.yml my-tunnel    
+            """
+            # Set and send an `ngrok-skip-browser-warning` request header with any value
+            # ngrok http 5000 --host-header="ngrok-skip-browser-warning:any-value"
+            command = [ngrok_path, '--config', ngrok_yml_path, 'http', str(ngrok_port), '--host-header="ngrok-skip-browser-warning:any-value"'] 
+            # -host-header="ngrok-skip-browser-warning:any-value"
+            # headers = {
+            #     "ngrok-skip-browser-warning": "any_value"
+            # }
+            # requests.get("http://localhost:4040/api/tunnels", headers=headers) 
+            
+            # or set the token from enviroment variable:
             # export NGROK_AUTHTOKEN=<your_authtoken>
+            # or set the token from command line:
             # ngrok http 5000 --authtoken <your_authtoken>
             # command = [ngrok_path, 'http', str(ngrok_port), '--authtoken', os.getenv("NGROK_AUTH_TOKEN")]
             
@@ -135,16 +151,17 @@ def create_payment(
     client_id = os.getenv("PAYPAL_CLIENT_ID") ,
     client_secret = os.getenv("PAYPAL_CLIENT_SECRET"),
     use_ngrok=USE_NGROK,
-    ngrok_port=5000
+    ngrok_port=5000,
+    paypal_mode="sandbox" # sandbox or live
     ): 
 
     try:  
 
         paypalrestsdk.configure({
-            "mode": "sandbox",  # sandbox or live
+            "mode": paypal_mode,  # sandbox or live
             "client_id": client_id,
             "client_secret": client_secret
-        })
+        })  
         
         if use_ngrok:
             
@@ -162,22 +179,26 @@ def create_payment(
         payment = paypalrestsdk.Payment({
             "intent": "sale",
             "payer": {
-                "payment_method": "paypal"},
+            "payment_method": "paypal"},
             "redirect_urls": {
-                "return_url": return_url,
-                "cancel_url": cancel_url},
+            "return_url": return_url,
+            "cancel_url": cancel_url},
             "transactions": [{
-                "item_list": {
-                    "items": [{
-                        "name": "item",
-                        "sku": "item",
-                        "price": "5.00",
-                        "currency": "BRL",
-                        "quantity": 1}]},
-                "amount": {
-                    "total": total,
-                    "currency": currency},
-                "description": description}]})
+            "item_list": {
+                "items": [{
+                "name": "item",
+                "sku": "item",
+                "price": "5.00",
+                "currency": "BRL",
+                "quantity": 1}]},
+            "amount": {
+                "total": total,
+                "currency": currency},
+            "description": description}],
+            # "headers": {
+            #     "ngrok-skip-browser-warning": "any-value"
+            # }
+        })
 
         # Step 4: Generate the Payment Link
         if payment.create():
@@ -232,7 +253,7 @@ def cancel_payment():
         logger.error(f"An error occurred in {__file__} at line {e.__traceback__.tb_lineno}: {e}")
         return "Payment cancellation failed"
 
-def main(debug=False, port=def_http_port, host=def_http_host, load_dotenv=False):
+def main(debug=False, port=def_http_port, host=def_http_host, load_dotenv=False, def_ssl_cert=def_ssl_cert, def_ssl_key=def_ssl_key):
     """Runs the application on a local development server.
 
     Do not use ``run()`` in a production setting. It is not intended to
@@ -294,12 +315,12 @@ def main(debug=False, port=def_http_port, host=def_http_host, load_dotenv=False)
         # Run the app with SSL context or not
         if USE_SSL:
             ssl_context = (def_ssl_cert, def_ssl_key)
-            app.run(host=host, port=port, debug=debug, ssl_context=ssl_context, load_dotenv=load_dotenv)
             logger.debug(f"Running the app with SSL context: {ssl_context}")
+            app.run(host=host, port=port, debug=debug, ssl_context=ssl_context, load_dotenv=load_dotenv)
             
         else:
-            app.run(host=host, port=port, debug=debug, load_dotenv=load_dotenv)
             logger.debug(f"Running the app without SSL context: {def_http_host}:{def_http_port}")
+            app.run(host=host, port=port, debug=debug, load_dotenv=load_dotenv)
         
         logger.debug(f"Active Endpoint: {def_http_mode}://{def_http_host}:{def_http_port}")
         
@@ -309,8 +330,13 @@ def main(debug=False, port=def_http_port, host=def_http_host, load_dotenv=False)
 if __name__ == '__main__':       
     
     # Test the payment link creation with ngrok
-    create_payment()
+    # create_payment(
+    #     paypal_mode="sandbox", # live
+    #     use_ngrok=False, 
+    #     )
+    
+    # create_payment(paypal_mode="live")
        
     # Run flask web server API 
-    main()
+    main(host="0.0.0.0")
     

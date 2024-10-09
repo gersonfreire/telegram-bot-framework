@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # ------------------------------------------
 
-__version__ = """0.9.3 Run in background the Flask webhook endpoint for receive paypal events"""
+__version__ = """0.9.4 List all paypal pending links"""
 
 __todos__ = """
 0.7.9 Command to Manage links
@@ -14,7 +14,9 @@ __todos__ = """
 0.8.5 Delete links from the .env file and add them to the bot configuration settings
 0.8.7 Created the simplest example of a bot with the framework
 0.9.0 Command to show how to create a simple bot and instantiate from token another on the fly
-0.9.1 Sort command help by command name"""
+0.9.1 Sort command help by command name
+0.9.3 Run in background the Flask webhook endpoint for receive paypal events0.9.4 Test with paypal Live/production environment and get token from .env file
+"""
 
 __change_log__ = """
 0.6.3 Load just a specified plugin
@@ -718,14 +720,21 @@ _Links:_
             
             # DOING: 0.9.3 Run in background the Flask webhook endpoint for receive paypal events
             def run_app():
-                paypal.app.run(debug=False)
+                try:
+                    # Run flask web server API 
+                    # paypal.app.run(debug=False)
+                    paypal.app.run(host="0.0.0.0", debug=False)  # listen to all IP addresses
+                except Exception as e:
+                    logger.error(f"Error running Flask web server: {e}")
 
             # set callbacks for paypal events
             paypal.execute_payment_callback = self.execute_payment_callback
 
             # Run the app in a separate thread
-            thread = threading.Thread(target=run_app)
-            thread.start()            
+            # thread = threading.Thread(target=run_app)
+            thread = threading.Thread(target=paypal.main, kwargs={'host': '0.0.0.0', 'load_dotenv': True})
+            thread.start()    
+            # sudo ss -tuln | grep :5000        
             
             # -------------------------------------------
             
@@ -832,7 +841,11 @@ _Links:_
             
             # Command to generate Paypal payment links
             generate_paypal_link_handler = CommandHandler('paypal', self.cmd_generate_paypal_link)
-            self.application.add_handler(generate_paypal_link_handler)       
+            self.application.add_handler(generate_paypal_link_handler)  
+            
+            # Add a command handler that lists all PayPal pending links, restricted to admin users
+            list_paypal_links_handler = CommandHandler('listpaypal', self.cmd_list_paypal_links, filters=filters.User(user_id=self.admins_owner))
+            self.application.add_handler(list_paypal_links_handler)
             
             self.application.add_handler(MessageHandler(filters.COMMAND, self.default_unknown_command))
             
@@ -906,6 +919,35 @@ _Links:_
     
     @with_writing_action
     @with_log_admin
+    async def cmd_list_paypal_links(self, update: Update, context: CallbackContext):
+        """List all pending PayPal payment links
+
+        Args:
+            update (Update): The update object
+            context (CallbackContext): The callback context
+        """
+        try:
+            # Get the PayPal links dictionary from bot data
+            bot_data = self.application.bot_data
+            paypal_links = bot_data.get('paypal_links', {})
+
+            if not paypal_links:
+                await update.message.reply_text("No pending PayPal links found.")
+                return
+
+            # Create a message with all pending PayPal links
+            message = "_Pending PayPal Links:_\n"
+            for link, user_id in paypal_links.items():
+                message += f"User ID: {user_id}, Link: {link}\n"
+
+            await update.message.reply_text(message, parse_mode=None)
+
+        except Exception as e:
+            logger.error(f"Error listing PayPal links: {e}")
+            await update.message.reply_text(f"Sorry, we encountered an error: {e}")
+    
+    @with_writing_action
+    @with_log_admin
     async def cmd_generate_paypal_link(self, update: Update, context: CallbackContext):
         """Generate a PayPal payment link
 
@@ -928,7 +970,12 @@ _Links:_
             if webhook_url:
                 paypal_link = paypal.create_payment(return_url=webhook_url, cancel_url=webhook_url, total=total, currency=currency)
             else:                
-                paypal_link = paypal.create_payment(total=total, currency=currency)
+                # paypal_link = paypal.create_payment(total=total, currency=currency)
+                paypal_link = paypal.create_payment(
+                    total=total, currency=currency,
+                    paypal_mode="sandbox", # live
+                    use_ngrok=False, 
+                    )                
                 
             if not paypal_link:
                 await update.message.reply_text("Sorry, we encountered an error generating the PayPal link.")
