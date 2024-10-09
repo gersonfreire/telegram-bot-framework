@@ -930,6 +930,9 @@ _Links:_
             # Get the PayPal links dictionary from bot data
             bot_data = self.application.bot_data
             paypal_links = bot_data.get('paypal_links', {})
+            
+            # Define the message with MarkdownV2 formatting
+            message_markdown = "[Link Name](http://example.com)"            
 
             if not paypal_links:
                 await update.message.reply_text("_No pending PayPal links found._")
