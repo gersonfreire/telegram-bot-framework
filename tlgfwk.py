@@ -841,7 +841,11 @@ _Links:_
             
             # Command to generate Paypal payment links
             generate_paypal_link_handler = CommandHandler('paypal', self.cmd_generate_paypal_link)
-            self.application.add_handler(generate_paypal_link_handler)       
+            self.application.add_handler(generate_paypal_link_handler)  
+            
+            # Add a command handler that List all paypal pending links
+            list_paypal_links_handler = CommandHandler('listpaypal', self.cmd_list_paypal_links)
+            self.application.add_handler(list_paypal_links_handler)     
             
             self.application.add_handler(MessageHandler(filters.COMMAND, self.default_unknown_command))
             
