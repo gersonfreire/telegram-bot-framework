@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # ------------------------------------------
 
-__version__ = """0.9.4 List all paypal pending links"""
+__version__ = """0.9.5 Command to remove paypal links"""
 
 __todos__ = """
 0.7.9 Command to Manage links
@@ -16,6 +16,7 @@ __todos__ = """
 0.9.0 Command to show how to create a simple bot and instantiate from token another on the fly
 0.9.1 Sort command help by command name
 0.9.3 Run in background the Flask webhook endpoint for receive paypal events0.9.4 Test with paypal Live/production environment and get token from .env file
+0.9.4 List all paypal pending links
 """
 
 __change_log__ = """
