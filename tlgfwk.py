@@ -933,6 +933,10 @@ _Links:_
             context (CallbackContext): The callback context
         """
         try:
+            # load the bot data from json file
+            with open('bot_data.json', 'r') as file:
+                bot_data = json.load(file)
+                
             if len(context.args) == 0:
                 await update.message.reply_text("Usage: /removepaypal [link]")
                 return
@@ -946,14 +950,22 @@ _Links:_
             if link_to_remove in paypal_links:
                 del paypal_links[link_to_remove]
                 bot_data['paypal_links'] = paypal_links
-                await self.application.persistence.update_bot_data(bot_data)
-                await update.message.reply_text(f"PayPal link removed: {link_to_remove}")
+                # await self.application.persistence.update_bot_data(bot_data)
+                
+                # Save bot_data dictionary to bot_dat.json data file using json.dumps
+                with open('bot_data.json', 'w') as file:
+                    json.dump(bot_data, file, indent=4)  
+                
+                await update.message.reply_text(f"PayPal link removed: {link_to_remove}", parse_mode=None)
             else:
-                await update.message.reply_text(f"PayPal link not found: {link_to_remove}")
+                await update.message.reply_text(f"PayPal link not found: {link_to_remove}", parse_mode=None)
 
         except Exception as e:
-            logger.error(f"Error removing PayPal link: {e}")
-            await update.message.reply_text(f"Sorry, we encountered an error: {e}")
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            error_message = f"Error removing PayPal link in {fname} at line {exc_tb.tb_lineno}: {e}"
+            logger.error(error_message)
+            await update.message.reply_text(error_message, parse_mode=None)
     
     @with_writing_action
     @with_log_admin
