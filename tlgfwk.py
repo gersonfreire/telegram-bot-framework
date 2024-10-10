@@ -17,6 +17,7 @@ __todos__ = """
 0.9.1 Sort command help by command name
 0.9.3 Run in background the Flask webhook endpoint for receive paypal events0.9.4 Test with paypal Live/production environment and get token from .env file
 0.9.4 List all paypal pending links
+1.0.0 Scheduling tasks with APScheduler
 """
 
 __change_log__ = """
@@ -848,6 +849,10 @@ _Links:_
             list_paypal_links_handler = CommandHandler('listpaypal', self.cmd_list_paypal_links, filters=filters.User(user_id=self.admins_owner))
             self.application.add_handler(list_paypal_links_handler)
             
+            #  Command to remove paypal links
+            remove_paypal_link_handler = CommandHandler('removepaypal', self.cmd_remove_paypal_link, filters=filters.User(user_id=self.admins_owner))
+            self.application.add_handler(remove_paypal_link_handler)
+            
             self.application.add_handler(MessageHandler(filters.COMMAND, self.default_unknown_command))
             
         except Exception as e:
@@ -917,6 +922,38 @@ _Links:_
         return response          
        
     # -------- Default command handlers --------
+    
+    @with_writing_action
+    @with_log_admin
+    async def cmd_remove_paypal_link(self, update: Update, context: CallbackContext):
+        """Remove a PayPal payment link
+
+        Args:
+            update (Update): The update object
+            context (CallbackContext): The callback context
+        """
+        try:
+            if len(context.args) == 0:
+                await update.message.reply_text("Usage: /removepaypal [link]")
+                return
+
+            link_to_remove = context.args[0]
+
+            # Get the PayPal links dictionary from bot data
+            bot_data = self.application.bot_data
+            paypal_links = bot_data.get('paypal_links', {})
+
+            if link_to_remove in paypal_links:
+                del paypal_links[link_to_remove]
+                bot_data['paypal_links'] = paypal_links
+                await self.application.persistence.update_bot_data(bot_data)
+                await update.message.reply_text(f"PayPal link removed: {link_to_remove}")
+            else:
+                await update.message.reply_text(f"PayPal link not found: {link_to_remove}")
+
+        except Exception as e:
+            logger.error(f"Error removing PayPal link: {e}")
+            await update.message.reply_text(f"Sorry, we encountered an error: {e}")
     
     @with_writing_action
     @with_log_admin
