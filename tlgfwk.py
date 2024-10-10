@@ -933,9 +933,8 @@ _Links:_
             context (CallbackContext): The callback context
         """
         try:
-            # load the bot data from json file
-            with open('bot_data.json', 'r') as file:
-                bot_data = json.load(file)
+            # load the bot data from persistence
+            bot_data = self.application.bot_data
                 
             if len(context.args) == 0:
                 await update.message.reply_text("Usage: /removepaypal [link]")
@@ -948,13 +947,11 @@ _Links:_
             paypal_links = bot_data.get('paypal_links', {})
 
             if link_to_remove in paypal_links:
-                del paypal_links[link_to_remove]
+                del paypal_links[link_to_remove]                
                 bot_data['paypal_links'] = paypal_links
-                # await self.application.persistence.update_bot_data(bot_data)
                 
-                # Save bot_data dictionary to bot_dat.json data file using json.dumps
-                with open('bot_data.json', 'w') as file:
-                    json.dump(bot_data, file, indent=4)  
+                # force persistence of bot data
+                self.application.persistence.flush() if self.application.persistence else None
                 
                 await update.message.reply_text(f"PayPal link removed: {link_to_remove}", parse_mode=None)
             else:
@@ -1023,7 +1020,7 @@ _Links:_
             if webhook_url:
                 paypal_link = paypal.create_payment(return_url=webhook_url, cancel_url=webhook_url, total=total, currency=currency)
             else:                
-                # paypal_link = paypal.create_payment(total=total, currency=currency)
+                # TODO: get paypal mode from .env file
                 paypal_link = paypal.create_payment(
                     total=total, currency=currency,
                     paypal_mode="sandbox", # live

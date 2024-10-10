@@ -188,7 +188,7 @@ def create_payment(
                 "items": [{
                 "name": "item",
                 "sku": "item",
-                "price": "5.00",
+                "price": total, # "5.00",
                 "currency": "BRL",
                 "quantity": 1}]},
             "amount": {
