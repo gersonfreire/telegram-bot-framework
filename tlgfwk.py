@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # ------------------------------------------
 
-__version__ = """0.9.5 Command to remove paypal links"""
+__version__ = """0.9.8 Example of a simple echo bot using the framework"""
 
 __todos__ = """
 0.7.9 Command to Manage links
@@ -17,7 +17,11 @@ __todos__ = """
 0.9.1 Sort command help by command name
 0.9.3 Run in background the Flask webhook endpoint for receive paypal events0.9.4 Test with paypal Live/production environment and get token from .env file
 0.9.4 List all paypal pending links
+0.9.5 Command to remove paypal links
+0.9.8 Example of a simple echo bot using the framework
+0.9.7 Echo command for testing with reply the same message received
 1.0.0 Scheduling tasks with APScheduler
+0.9.6 Command to switch between paypal live and sandbox environments
 """
 
 __change_log__ = """
