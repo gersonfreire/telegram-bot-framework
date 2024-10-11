@@ -16,11 +16,11 @@ from util.util_telegram import *
 
 class EchoBot(TlgBotFwk):  
     
-    def __init__(self, token: str = None, env_file: str = None,bot_owner: str = None):        
-        super().__init__(token=token, env_file=env_file, bot_owner=bot_owner)
+    def __init__(self, token: str = None):        
+        super().__init__(token=token, disable_command_not_implemented=True)
             
     async def cmd_echo_super_class(self, update: Update, context: CallbackContext):
-        if len(update.message.text.split(" ")) >= 1:
+        if len(update.message.text.split(" ")) >= 2:
             await update.message.reply_text(f'Echo: {update.message.text.split(" ", 1)[1:]}')    
         else:    
             await update.message.reply_text('Usage: /echo <message>') 

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # ------------------------------------------
 
-__version__ = """0.9.8 Example of a simple echo bot using the framework"""
+__version__ = """0.9.9 Optional disable to command not implemented yet"""
 
 __todos__ = """
 0.7.9 Command to Manage links
@@ -20,6 +20,7 @@ __todos__ = """
 0.9.5 Command to remove paypal links
 0.9.8 Example of a simple echo bot using the framework
 0.9.7 Echo command for testing with reply the same message received
+0.9.9 Optional disable to command not implemented yet
 1.0.0 Scheduling tasks with APScheduler
 0.9.6 Command to switch between paypal live and sandbox environments
 """
@@ -633,7 +634,8 @@ _Links:_
         sort_commands = True,
         enable_plugins = False,
         admin_filters  = None,
-        force_common_commands = []
+        force_common_commands = [],
+        disable_command_not_implemented = False,
         ):
         
         try: 
@@ -692,6 +694,7 @@ _Links:_
             self.admin_filters = admin_filters if admin_filters else filters.User(user_id=self.admins_owner) 
             
             self.force_common_commands = force_common_commands  
+            self.disable_command_not_implemented = disable_command_not_implemented
             
             # ---------- Build the bot application ------------
               
@@ -860,7 +863,8 @@ _Links:_
             remove_paypal_link_handler = CommandHandler('removepaypal', self.cmd_remove_paypal_link, filters=filters.User(user_id=self.admins_owner))
             self.application.add_handler(remove_paypal_link_handler)
             
-            self.application.add_handler(MessageHandler(filters.COMMAND, self.default_unknown_command))
+            if not self.disable_command_not_implemented:
+                self.application.add_handler(MessageHandler(filters.COMMAND, self.default_unknown_command))
             
         except Exception as e:
             logger.error(f"Error initializing handlers: {e}")
