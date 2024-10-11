@@ -4,35 +4,34 @@
 # ------------------------------------------
 
 """
-This is an example of an echo bot using this Telegram Bot Framework.
+This is a sample bot using this Telegram Bot Framwork that 
+overloads the initialize_handlers method to add a help command handler.
 """
 
 import __init__
 
 from tlgfwk import *
 
-class EchoBot(TlgBotFwk):
-    def __init__(self, token):
-        super().__init__(token)
+from util.util_telegram import *
 
-    def setup_handlers(self):
-        # Add handlers
-        self.add_handler(CommandHandler("start", self.start))
-        self.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, self.echo))
-
-    async def start(self, update: Update, context: CallbackContext) -> None:
-        await update.message.reply_text('Hello! I am an echo bot. Send me any message and I will echo it back!')
-
-    async def echo(self, update: Update, context: CallbackContext) -> None:
-        await update.message.reply_text(update.message.text)
-
-def main():
-    # Replace with your bot token
-    BOT_TOKEN = 'YOUR_BOT_TOKEN'
+class EchoBot(TlgBotFwk):  
     
-    # Initialize and start the bot
-    bot = EchoBot(BOT_TOKEN)
-    bot.run()
+    def __init__(self, token: str = None, env_file: str = None,bot_owner: str = None):        
+        super().__init__(token=token, env_file=env_file, bot_owner=bot_owner)
+            
+    async def cmd_echo_super_class(self, update: Update, context: CallbackContext):
+        if len(update.message.text.split(" ")) >= 1:
+            await update.message.reply_text(f'Echo: {update.message.text.split(" ", 1)[1:]}')    
+        else:    
+            await update.message.reply_text('Usage: /echo <message>') 
+
+    def initialize_handlers(self):        
+        super().initialize_handlers()
+        
+        echo_handler_super_class = CommandHandler('echo', self.cmd_echo_super_class)
+        self.application.add_handler(echo_handler_super_class, group=-1)      
 
 if __name__ == '__main__':
-    main()
+    
+    app = EchoBot()    
+    app.run()

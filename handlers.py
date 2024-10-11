@@ -7,7 +7,7 @@ from telegram.ext import CallbackContext
 
 # @with_writing_action
 # @with_log_admin
-async def external_start(update: Update, context: CallbackContext): # , self:None, *args, **kwargs):
+async def overloaded_echo_function(update: Update, context: CallbackContext): # , self:None, *args, **kwargs):
         
     # A simple start command response
     await update.message.reply_text('Hello! Welcome to My Telegram Bot.')

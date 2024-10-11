@@ -733,14 +733,17 @@ _Links:_
                 except Exception as e:
                     logger.error(f"Error running Flask web server: {e}")
 
-            # set callbacks for paypal events
-            paypal.execute_payment_callback = self.execute_payment_callback
+            try:
+                # set callbacks for paypal events
+                paypal.execute_payment_callback = self.execute_payment_callback
 
-            # Run the app in a separate thread
-            # thread = threading.Thread(target=run_app)
-            thread = threading.Thread(target=paypal.main, kwargs={'host': '0.0.0.0', 'load_dotenv': True})
-            thread.start()    
-            # sudo ss -tuln | grep :5000        
+                # Run the app in a separate thread
+                # thread = threading.Thread(target=run_app)
+                thread = threading.Thread(target=paypal.main, kwargs={'host': '0.0.0.0', 'load_dotenv': True})
+                thread.start()    
+                # sudo ss -tuln | grep :5000
+            except Exception as e:
+                logger.error(f"Error running PayPal app: {e}")
             
             # -------------------------------------------
             
