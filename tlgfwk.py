@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # ------------------------------------------
 
-__version__ = """0.9.4 List all paypal pending links"""
+__version__ = """0.9.9 Optional disable to command not implemented yet"""
 
 __todos__ = """
 0.7.9 Command to Manage links
@@ -16,6 +16,13 @@ __todos__ = """
 0.9.0 Command to show how to create a simple bot and instantiate from token another on the fly
 0.9.1 Sort command help by command name
 0.9.3 Run in background the Flask webhook endpoint for receive paypal events0.9.4 Test with paypal Live/production environment and get token from .env file
+0.9.4 List all paypal pending links
+0.9.5 Command to remove paypal links
+0.9.8 Example of a simple echo bot using the framework
+0.9.7 Echo command for testing with reply the same message received
+0.9.9 Optional disable to command not implemented yet
+1.0.0 Scheduling tasks with APScheduler
+0.9.6 Command to switch between paypal live and sandbox environments
 """
 
 __change_log__ = """
@@ -627,7 +634,8 @@ _Links:_
         sort_commands = True,
         enable_plugins = False,
         admin_filters  = None,
-        force_common_commands = []
+        force_common_commands = [],
+        disable_command_not_implemented = False,
         ):
         
         try: 
@@ -686,6 +694,7 @@ _Links:_
             self.admin_filters = admin_filters if admin_filters else filters.User(user_id=self.admins_owner) 
             
             self.force_common_commands = force_common_commands  
+            self.disable_command_not_implemented = disable_command_not_implemented
             
             # ---------- Build the bot application ------------
               
@@ -727,14 +736,17 @@ _Links:_
                 except Exception as e:
                     logger.error(f"Error running Flask web server: {e}")
 
-            # set callbacks for paypal events
-            paypal.execute_payment_callback = self.execute_payment_callback
+            try:
+                # set callbacks for paypal events
+                paypal.execute_payment_callback = self.execute_payment_callback
 
-            # Run the app in a separate thread
-            # thread = threading.Thread(target=run_app)
-            thread = threading.Thread(target=paypal.main, kwargs={'host': '0.0.0.0', 'load_dotenv': True})
-            thread.start()    
-            # sudo ss -tuln | grep :5000        
+                # Run the app in a separate thread
+                # thread = threading.Thread(target=run_app)
+                thread = threading.Thread(target=paypal.main, kwargs={'host': '0.0.0.0', 'load_dotenv': True})
+                thread.start()    
+                # sudo ss -tuln | grep :5000
+            except Exception as e:
+                logger.error(f"Error running PayPal app: {e}")
             
             # -------------------------------------------
             
@@ -847,7 +859,12 @@ _Links:_
             list_paypal_links_handler = CommandHandler('listpaypal', self.cmd_list_paypal_links, filters=filters.User(user_id=self.admins_owner))
             self.application.add_handler(list_paypal_links_handler)
             
-            self.application.add_handler(MessageHandler(filters.COMMAND, self.default_unknown_command))
+            #  Command to remove paypal links
+            remove_paypal_link_handler = CommandHandler('removepaypal', self.cmd_remove_paypal_link, filters=filters.User(user_id=self.admins_owner))
+            self.application.add_handler(remove_paypal_link_handler)
+            
+            if not self.disable_command_not_implemented:
+                self.application.add_handler(MessageHandler(filters.COMMAND, self.default_unknown_command))
             
         except Exception as e:
             logger.error(f"Error initializing handlers: {e}")
@@ -919,6 +936,47 @@ _Links:_
     
     @with_writing_action
     @with_log_admin
+    async def cmd_remove_paypal_link(self, update: Update, context: CallbackContext):
+        """Remove a PayPal payment link
+
+        Args:
+            update (Update): The update object
+            context (CallbackContext): The callback context
+        """
+        try:
+            # load the bot data from persistence
+            bot_data = self.application.bot_data
+                
+            if len(context.args) == 0:
+                await update.message.reply_text("Usage: /removepaypal [link]")
+                return
+
+            link_to_remove = context.args[0]
+
+            # Get the PayPal links dictionary from bot data
+            bot_data = self.application.bot_data
+            paypal_links = bot_data.get('paypal_links', {})
+
+            if link_to_remove in paypal_links:
+                del paypal_links[link_to_remove]                
+                bot_data['paypal_links'] = paypal_links
+                
+                # force persistence of bot data
+                self.application.persistence.flush() if self.application.persistence else None
+                
+                await update.message.reply_text(f"PayPal link removed: {link_to_remove}", parse_mode=None)
+            else:
+                await update.message.reply_text(f"PayPal link not found: {link_to_remove}", parse_mode=None)
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            error_message = f"Error removing PayPal link in {fname} at line {exc_tb.tb_lineno}: {e}"
+            logger.error(error_message)
+            await update.message.reply_text(error_message, parse_mode=None)
+    
+    @with_writing_action
+    @with_log_admin
     async def cmd_list_paypal_links(self, update: Update, context: CallbackContext):
         """List all pending PayPal payment links
 
@@ -930,15 +988,18 @@ _Links:_
             # Get the PayPal links dictionary from bot data
             bot_data = self.application.bot_data
             paypal_links = bot_data.get('paypal_links', {})
+            
+            # Define the message with MarkdownV2 formatting
+            message_markdown = "[Link Name](http://example.com)"            
 
             if not paypal_links:
-                await update.message.reply_text("No pending PayPal links found.")
+                await update.message.reply_text("_No pending PayPal links found._")
                 return
 
             # Create a message with all pending PayPal links
-            message = "_Pending PayPal Links:_\n"
+            message = f"Pending PayPal Links:{os.linesep}"
             for link, user_id in paypal_links.items():
-                message += f"User ID: {user_id}, Link: {link}\n"
+                message += f"{user_id}: {link}{os.linesep}"
 
             await update.message.reply_text(message, parse_mode=None)
 
@@ -970,7 +1031,7 @@ _Links:_
             if webhook_url:
                 paypal_link = paypal.create_payment(return_url=webhook_url, cancel_url=webhook_url, total=total, currency=currency)
             else:                
-                # paypal_link = paypal.create_payment(total=total, currency=currency)
+                # TODO: get paypal mode from .env file
                 paypal_link = paypal.create_payment(
                     total=total, currency=currency,
                     paypal_mode="sandbox", # live
