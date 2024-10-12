@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # ------------------------------------------
 
-__version__ = """0.9.6 Command to switch between paypal live and sandbox environments"""
+__version__ = """1.0.0 Scheduling tasks with APScheduler"""
 
 __todos__ = """
 1.0.0 Scheduling tasks with APScheduler
