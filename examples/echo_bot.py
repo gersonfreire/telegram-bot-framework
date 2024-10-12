@@ -4,9 +4,11 @@
 # ------------------------------------------
 
 """
-This is a sample bot using this Telegram Bot Framwork that 
+This is a sample bot using this Telegram Bot Framework that 
 overloads the initialize_handlers method to add a help command handler.
 """
+
+__version__ = '0.1.0'
 
 import __init__
 
