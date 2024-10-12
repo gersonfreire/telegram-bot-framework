@@ -5,24 +5,7 @@
 __version__ = """0.9.6 Command to switch between paypal live and sandbox environments"""
 
 __todos__ = """
-0.7.9 Command to Manage links
-0.8.0 Manage TODO´s
-0.8.1 Manage products
-0.8.2 Manage commands
-0.8.3 Send broadcast messages to all admin users and common users
-0.8.4 Show description besides each link 
-0.8.5 Delete links from the .env file and add them to the bot configuration settings
-0.8.7 Created the simplest example of a bot with the framework
-0.9.0 Command to show how to create a simple bot and instantiate from token another on the fly
-0.9.1 Sort command help by command name
-0.9.3 Run in background the Flask webhook endpoint for receive paypal events0.9.4 Test with paypal Live/production environment and get token from .env file
-0.9.4 List all paypal pending links
-0.9.5 Command to remove paypal links
-0.9.8 Example of a simple echo bot using the framework
-0.9.7 Echo command for testing with reply the same message received
-0.9.9 Optional disable to command not implemented yet
 1.0.0 Scheduling tasks with APScheduler
-0.9.6 Command to switch between paypal live and sandbox environments
 """
 
 __change_log__ = """
@@ -42,7 +25,24 @@ __change_log__ = """
 0.7.7 Change payment tokens
 0.7.8 Add user into the user list from the decorator of the command handler
 0.8.6 Created an examples folder
-0.9.2 Command to generate Paypal payment links"""
+0.9.2 Command to generate Paypal payment links
+0.7.9 Command to Manage links
+0.8.0 Manage TODO´s
+0.8.1 Manage products
+0.8.2 Manage commands
+0.8.3 Send broadcast messages to all admin users and common users
+0.8.4 Show description besides each link 
+0.8.5 Delete links from the .env file and add them to the bot configuration settings
+0.8.7 Created the simplest example of a bot with the framework
+0.9.0 Command to show how to create a simple bot and instantiate from token another on the fly
+0.9.1 Sort command help by command name
+0.9.3 Run in background the Flask webhook endpoint for receive paypal events0.9.4 Test with paypal Live/production environment and get token from .env file
+0.9.4 List all paypal pending links
+0.9.5 Command to remove paypal links
+0.9.6 Command to switch between paypal live and sandbox environments
+0.9.7 Echo command for testing with reply the same message received
+0.9.8 Example of a simple echo bot using the framework
+0.9.9 Optional disable to command not implemented yet"""
 
 from __init__ import *
 
