@@ -947,6 +947,51 @@ _Links:_
     
     @with_writing_action
     @with_log_admin
+    async def cmd_schedule_function(self, update: Update, context: CallbackContext):
+        """Schedule a function call recurrently
+
+        Args:
+            update (Update): The update object
+            context (CallbackContext): The callback context
+        """
+        try:
+            if len(context.args) < 3:
+                await update.message.reply_text("Usage: /schedule [module] [function] [interval_in_seconds]")
+                return
+
+            module_name = context.args[0]
+            function_name = context.args[1]
+            interval = int(context.args[2])
+
+            # Dynamically import the module and get the function
+            module = __import__(module_name)
+            function = getattr(module, function_name)
+
+            # Schedule the function to run recurrently
+            async def scheduled_function():
+                while True:
+                    try:
+                        function()
+                    except Exception as e:
+                        logger.error(f"Error executing scheduled function {function_name}: {e}")
+                    await asyncio.sleep(interval)
+
+            # Start the scheduled function in the background
+            context.job_queue.run_repeating(scheduled_function, interval=interval, first=0)
+
+            await update.message.reply_text(f"Scheduled {function_name} from {module_name} to run every {interval} seconds.")
+
+        except Exception as e:
+            if __debug__:
+                breakpoint()
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            error_message = f"Error scheduling function in {fname} at line {exc_tb.tb_lineno}: {e}"
+            logger.error(error_message)
+            await update.message.reply_text(error_message)
+
+    @with_writing_action
+    @with_log_admin
     async def cmd_switch_paypal_env(self, update: Update, context: CallbackContext):
         """Switch between PayPal live and sandbox environments
 
