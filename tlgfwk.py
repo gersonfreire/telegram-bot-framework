@@ -1090,10 +1090,7 @@ _Links:_
         try:
             # Get the PayPal links dictionary from bot data
             bot_data = self.application.bot_data
-            paypal_links = bot_data.get('paypal_links', {})
-            
-            # Define the message with MarkdownV2 formatting
-            message_markdown = "[Link Name](http://example.com)"            
+            paypal_links = bot_data.get('paypal_links', {})          
 
             if not paypal_links:
                 await update.message.reply_text("_No pending PayPal links found._")
@@ -1101,8 +1098,10 @@ _Links:_
 
             # Create a message with all pending PayPal links
             message = f"Pending PayPal Links:{os.linesep}"
-            for link, user_id in paypal_links.items():
-                message += f"{user_id}: {link}{os.linesep}"
+            for link, user_id in paypal_links.items():            
+                # Define the message with MarkdownV2 formatting
+                markdown_link = f"[Link Name]({link})"  
+                message += f"{user_id}: {markdown_link}{os.linesep}"
 
             await update.message.reply_text(message, parse_mode=None)
 
