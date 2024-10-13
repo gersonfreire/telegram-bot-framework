@@ -44,11 +44,21 @@ __change_log__ = """
 0.9.8 Example of a simple echo bot using the framework
 0.9.9 Optional disable to command not implemented yet"""
 
+import inspect
 from __init__ import *
         
 class TlgBotFwk(Application): 
     
     # ------------- util functions ------------------
+    async def example_scheduled_function2(callback_context: CallbackContext):
+        try:
+            args = callback_context.job.data['args']
+            tlg_bot_fwk: TlgBotFwk = args[0]
+            await tlg_bot_fwk.application.bot.send_message(chat_id=tlg_bot_fwk.bot_owner, text="Scheduled task executed!")
+            # tlg_bot_fwk.send_message_by_api(chat_id=tlg_bot_fwk.bot_owner, message="Scheduled task executed!")
+            
+        except Exception as e:
+            logger.error(f"Error executing scheduled task: {e}")    
     
     async def get_set_user_data(self, dict_name = 'user_status', user_id: int = None, user_item_name = 'balance', default_value = None, set_data = False, context = None):
         
@@ -942,9 +952,9 @@ _Links:_
 
             # Check the response
             if response.status_code == 200:
-                print('Message sent successfully')
+                logger.debug('Message sent successfully')
             else:
-                print('Failed to send message') 
+                logger.error('Failed to send message') 
                 
         except Exception as e:
             logger.error(f"Error sending message by API: {e}") 
@@ -976,16 +986,15 @@ _Links:_
             # Dynamically import the module and get the function
             module = __import__(module_name) if module_name in sys.modules else None
             # function = getattr(module, function_name) 
-            function = getattr(module, function_name) if module else globals()[function_name] 
-
-            # Schedule the function to run recurrently
-            async def scheduled_function(self):
-                # while True:
-                    try:
-                        function(self)
-                    except Exception as e:
-                        logger.error(f"Error executing scheduled function {function_name}: {e}")
-                    # await asyncio.sleep(interval)
+            function = getattr(module, function_name) if module else globals()[function_name] if function_name in globals() else None            
+            
+            # get all functions of current class
+            class_methods = inspect.getmembers(TlgBotFwk, inspect.isfunction)            
+            # search for the function in the class methods
+            function = next((method[1] for method in class_methods if method[0] == function_name), function)
+            
+            # get a list of already imported modules
+            modules = list(sys.modules.keys())
 
             # Start the scheduled function in the background
             context.job_queue.run_repeating(function, interval=interval, first=0, name=None, data={'args': (self,)})
@@ -1000,7 +1009,7 @@ _Links:_
             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
             error_message = f"Error scheduling function in {fname} at line {exc_tb.tb_lineno}: {e}"
             logger.error(error_message)
-            await update.message.reply_text(error_message)
+            await update.message.reply_text(error_message, parse_mode=None)
 
     @with_writing_action
     @with_log_admin
@@ -1710,9 +1719,8 @@ _Links:_
             error_message = f"{__file__} at line {sys.exc_info()[-1].tb_lineno}: {context.error.__module__}"  
         
         except Exception as e:            
-            error_message = f"{__file__} at line {sys.exc_info()[-1].tb_lineno}: {context.error.__module__}"
-            logger.error(error_message)
-            await update.message.reply_text(error_message, parse_mode=None)   
+            logger.error(e)
+            await update.message.reply_text(e, parse_mode=None)   
 
     @with_writing_action
     @with_log_admin        
