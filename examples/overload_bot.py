@@ -38,7 +38,7 @@ class SampleBot(TlgBotFwk):
         help_handler = CommandHandler('help', self.help)
         self.application.add_handler(help_handler, group=-1) 
         
-        external_start_handler = CommandHandler('start', external_start)
+        external_start_handler = CommandHandler('start', overloaded_echo_function)
         self.application.add_handler(external_start_handler, group=-1) 
         
         # self.show_default_start_message = False           

@@ -2,21 +2,9 @@
 # -*- coding: utf-8 -*-
 # ------------------------------------------
 
-__version__ = """0.9.5 Command to remove paypal links"""
+__version__ = """1.0.0 Scheduling tasks with APScheduler"""
 
 __todos__ = """
-0.7.9 Command to Manage links
-0.8.0 Manage TODO´s
-0.8.1 Manage products
-0.8.2 Manage commands
-0.8.3 Send broadcast messages to all admin users and common users
-0.8.4 Show description besides each link 
-0.8.5 Delete links from the .env file and add them to the bot configuration settings
-0.8.7 Created the simplest example of a bot with the framework
-0.9.0 Command to show how to create a simple bot and instantiate from token another on the fly
-0.9.1 Sort command help by command name
-0.9.3 Run in background the Flask webhook endpoint for receive paypal events0.9.4 Test with paypal Live/production environment and get token from .env file
-0.9.4 List all paypal pending links
 1.0.0 Scheduling tasks with APScheduler
 """
 
@@ -37,7 +25,24 @@ __change_log__ = """
 0.7.7 Change payment tokens
 0.7.8 Add user into the user list from the decorator of the command handler
 0.8.6 Created an examples folder
-0.9.2 Command to generate Paypal payment links"""
+0.9.2 Command to generate Paypal payment links
+0.7.9 Command to Manage links
+0.8.0 Manage TODO´s
+0.8.1 Manage products
+0.8.2 Manage commands
+0.8.3 Send broadcast messages to all admin users and common users
+0.8.4 Show description besides each link 
+0.8.5 Delete links from the .env file and add them to the bot configuration settings
+0.8.7 Created the simplest example of a bot with the framework
+0.9.0 Command to show how to create a simple bot and instantiate from token another on the fly
+0.9.1 Sort command help by command name
+0.9.3 Run in background the Flask webhook endpoint for receive paypal events0.9.4 Test with paypal Live/production environment and get token from .env file
+0.9.4 List all paypal pending links
+0.9.5 Command to remove paypal links
+0.9.6 Command to switch between paypal live and sandbox environments
+0.9.7 Echo command for testing with reply the same message received
+0.9.8 Example of a simple echo bot using the framework
+0.9.9 Optional disable to command not implemented yet"""
 
 from __init__ import *
 
@@ -629,7 +634,9 @@ _Links:_
         sort_commands = True,
         enable_plugins = False,
         admin_filters  = None,
-        force_common_commands = []
+        force_common_commands = [],
+        disable_commands_list = [],
+        disable_command_not_implemented = False,
         ):
         
         try: 
@@ -688,6 +695,8 @@ _Links:_
             self.admin_filters = admin_filters if admin_filters else filters.User(user_id=self.admins_owner) 
             
             self.force_common_commands = force_common_commands  
+            self.disable_command_not_implemented = disable_command_not_implemented
+            self.disable_commands_list = disable_commands_list
             
             # ---------- Build the bot application ------------
               
@@ -729,14 +738,17 @@ _Links:_
                 except Exception as e:
                     logger.error(f"Error running Flask web server: {e}")
 
-            # set callbacks for paypal events
-            paypal.execute_payment_callback = self.execute_payment_callback
+            try:
+                # set callbacks for paypal events
+                paypal.execute_payment_callback = self.execute_payment_callback
 
-            # Run the app in a separate thread
-            # thread = threading.Thread(target=run_app)
-            thread = threading.Thread(target=paypal.main, kwargs={'host': '0.0.0.0', 'load_dotenv': True})
-            thread.start()    
-            # sudo ss -tuln | grep :5000        
+                # Run the app in a separate thread
+                # thread = threading.Thread(target=run_app)
+                thread = threading.Thread(target=paypal.main, kwargs={'host': '0.0.0.0', 'load_dotenv': True})
+                thread.start()    
+                # sudo ss -tuln | grep :5000
+            except Exception as e:
+                logger.error(f"Error running PayPal app: {e}")
             
             # -------------------------------------------
             
@@ -853,7 +865,17 @@ _Links:_
             remove_paypal_link_handler = CommandHandler('removepaypal', self.cmd_remove_paypal_link, filters=filters.User(user_id=self.admins_owner))
             self.application.add_handler(remove_paypal_link_handler)
             
-            self.application.add_handler(MessageHandler(filters.COMMAND, self.default_unknown_command))
+            # Add a command handler that switches between PayPal live and sandbox environments
+            switch_paypal_env_command = 'switchpaypal'
+            switch_paypal_env_handler = CommandHandler(switch_paypal_env_command, self.cmd_switch_paypal_env, filters=filters.User(user_id=self.admins_owner))
+            self.application.add_handler(switch_paypal_env_handler) 
+            
+            # Loop removing the command handlers from the list which are in the disable_commands_list
+            for command in self.disable_commands_list:
+                self.application.remove_handler(command)
+            
+            if not self.disable_command_not_implemented:
+                self.application.add_handler(MessageHandler(filters.COMMAND, self.default_unknown_command))
             
         except Exception as e:
             logger.error(f"Error initializing handlers: {e}")
@@ -922,6 +944,82 @@ _Links:_
         return response          
        
     # -------- Default command handlers --------
+    
+    @with_writing_action
+    @with_log_admin
+    async def cmd_schedule_function(self, update: Update, context: CallbackContext):
+        """Schedule a function call recurrently
+
+        Args:
+            update (Update): The update object
+            context (CallbackContext): The callback context
+        """
+        try:
+            if len(context.args) < 3:
+                await update.message.reply_text("Usage: /schedule [module] [function] [interval_in_seconds]")
+                return
+
+            module_name = context.args[0]
+            function_name = context.args[1]
+            interval = int(context.args[2])
+
+            # Dynamically import the module and get the function
+            module = __import__(module_name)
+            function = getattr(module, function_name)
+
+            # Schedule the function to run recurrently
+            async def scheduled_function():
+                while True:
+                    try:
+                        function()
+                    except Exception as e:
+                        logger.error(f"Error executing scheduled function {function_name}: {e}")
+                    await asyncio.sleep(interval)
+
+            # Start the scheduled function in the background
+            context.job_queue.run_repeating(scheduled_function, interval=interval, first=0)
+
+            await update.message.reply_text(f"Scheduled {function_name} from {module_name} to run every {interval} seconds.")
+
+        except Exception as e:
+            if __debug__:
+                breakpoint()
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            error_message = f"Error scheduling function in {fname} at line {exc_tb.tb_lineno}: {e}"
+            logger.error(error_message)
+            await update.message.reply_text(error_message)
+
+    @with_writing_action
+    @with_log_admin
+    async def cmd_switch_paypal_env(self, update: Update, context: CallbackContext):
+        """Switch between PayPal live and sandbox environments
+
+        Args:
+            update (Update): The update object
+            context (CallbackContext): The callback context
+        """
+        try:
+            if len(context.args) == 0:
+                current_env = os.environ.get('PAYPAL_MODE', 'sandbox')
+                await update.message.reply_text(f"Current PayPal environment: `{current_env}`")
+                return
+
+            new_env = context.args[0].lower()
+            if new_env not in ['live', 'sandbox']:
+                await update.message.reply_text("Usage: /switchpaypal [live|sandbox]")
+                return
+
+            dotenv.set_key(self.env_file, 'PAYPAL_MODE', new_env)
+            os.environ['PAYPAL_MODE'] = new_env
+            await update.message.reply_text(f"PayPal environment switched to: `{new_env}`")
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            error_message = f"Error switching PayPal environment in {fname} at line {exc_tb.tb_lineno}: {e}"
+            logger.error(error_message)
+            await update.message.reply_text(error_message)
     
     @with_writing_action
     @with_log_admin
@@ -1020,10 +1118,12 @@ _Links:_
             if webhook_url:
                 paypal_link = paypal.create_payment(return_url=webhook_url, cancel_url=webhook_url, total=total, currency=currency)
             else:                
-                # TODO: get paypal mode from .env file
+                # Get paypal mode from .env file
+                paypal_mode = os.environ.get('PAYPAL_MODE', 'sandbox')
+                
                 paypal_link = paypal.create_payment(
                     total=total, currency=currency,
-                    paypal_mode="sandbox", # live
+                    paypal_mode=paypal_mode, # "sandbox", # live
                     use_ngrok=False, 
                     )                
                 
