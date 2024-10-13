@@ -994,7 +994,7 @@ _Links:_
 
             # Start the scheduled function in the background
             context.job_queue.run_repeating(scheduled_function, interval=interval, first=0, name=None, data=None)
-            await update.message.reply_text(f"Scheduled {function_name} from {module_name} to run every {interval} seconds.")
+            await update.message.reply_text(f"Scheduled {function_name} from {module_name} to run every {interval} seconds.", parse_mode=None)
 
         except Exception as e:
             # ("'NoneType' object has no attribute 'run_repeating'",)
