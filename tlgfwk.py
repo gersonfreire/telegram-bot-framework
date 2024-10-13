@@ -1851,7 +1851,6 @@ def example_scheduled_function(callback_context: CallbackContext):
         tlg_bot_fwk: TlgBotFwk = args[0]
         # await callback_context.application.(chat_id=tlg_bot_fwk.bot_owner, text="Scheduled task executed!")
         tlg_bot_fwk.send_message_by_api(chat_id=tlg_bot_fwk.bot_owner, message="Scheduled task executed!")
-        print("ok")
         
     except Exception as e:
         logger.error(f"Error executing scheduled task: {e}")
