@@ -988,7 +988,8 @@ _Links:_
                     # await asyncio.sleep(interval)
 
             # Start the scheduled function in the background
-            context.job_queue.run_repeating(scheduled_function, interval=interval, first=0, name=None, data=None)
+            context.job_queue.run_repeating(function, interval=interval, first=0, name=None, data={'args': (self,)})
+            # context.job_queue.run_repeating(scheduled_function, interval=interval, first=0, name=None, data={'args': (self,)}))
             await update.message.reply_text(f"Scheduled {function_name} from {module_name} to run every {interval} seconds.", parse_mode=None)
 
         except Exception as e:
@@ -1844,9 +1845,11 @@ _Links:_
         self.application.run_polling()
 
 # Example function for scheduling tasks with APScheduler
-def example_scheduled_function(self: TlgBotFwk):
+def example_scheduled_function(callback_context: CallbackContext):
     try:
-        self.application.bot.send_message(chat_id=self.bot_owner, text="Scheduled task executed!")
+        args = callback_context.job.data['args']
+        tlg_bot_fwk = args[0]
+        callback_context.application.bot.send_message(chat_id=tlg_bot_fwk.bot_owner, text="Scheduled task executed!")
         print("ok")
     except Exception as e:
         logger.error(f"Error executing scheduled task: {e}")
