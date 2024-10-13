@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # ------------------------------------------
 
-__version__ = """1.0.0 Scheduling tasks with APScheduler"""
+__version__ = """1.0.1 Scheduling tasks with APScheduler"""
 
 __todos__ = """
 1.0.0 Scheduling tasks with APScheduler
@@ -46,6 +46,11 @@ __change_log__ = """
 
 from __init__ import *
 
+    
+# Example function for scheduling tasks with APScheduler
+def example_scheduled_function():
+    print("ok")
+        
 class TlgBotFwk(Application):
     
     # ------------- util functions ------------------
@@ -705,9 +710,10 @@ _Links:_
             self.persistence_file = f"{script_path}{os.sep}{self.bot_info.username + '.pickle'}" if not persistence_file else persistence_file
             persistence = PicklePersistence(filepath=self.persistence_file, update_interval=self.default_persistence_interval) if not disable_persistence else None
             
-            # Create an Application instance using the builder pattern            
-            self.application = Application.builder().defaults(bot_defaults_build).token(self.token).post_init(self.post_init).post_stop(self.post_stop).persistence(persistence).build() 
-            
+            # Create an Application instance using the builder pattern  
+            # ('To use `JobQueue`, PTB must be installed via `pip install "python-telegram-bot[job-queue]"`.',)    
+            self.application = Application.builder().defaults(bot_defaults_build).token(self.token).post_init(self.post_init).post_stop(self.post_stop).persistence(persistence).job_queue(JobQueue()).build()
+           
             # --------------------------------------------------
             
             # save botname to .env file
@@ -753,7 +759,9 @@ _Links:_
             # -------------------------------------------
             
         except Exception as e:
-            logger.error(f"Error initializing bot: {e}")
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            logger.error(f"Error initializing bot in {fname} at line {exc_tb.tb_lineno}: {e}")
             input_with_timeout("Enter to close: ", 10)
             quit()
 
@@ -870,6 +878,11 @@ _Links:_
             switch_paypal_env_handler = CommandHandler(switch_paypal_env_command, self.cmd_switch_paypal_env, filters=filters.User(user_id=self.admins_owner))
             self.application.add_handler(switch_paypal_env_handler) 
             
+            # Add a command handler that schedules a function to run recurrently
+            schedule_function_command = 'schedule'
+            schedule_function_handler = CommandHandler(schedule_function_command, self.cmd_schedule_function, filters=filters.User(user_id=self.admins_owner))
+            self.application.add_handler(schedule_function_handler)
+            
             # Loop removing the command handlers from the list which are in the disable_commands_list
             for command in self.disable_commands_list:
                 self.application.remove_handler(command)
@@ -943,7 +956,7 @@ _Links:_
             
         return response          
        
-    # -------- Default command handlers --------
+    # -------- Default command handlers --------      
     
     @with_writing_action
     @with_log_admin
@@ -956,20 +969,23 @@ _Links:_
         """
         try:
             if len(context.args) < 3:
-                await update.message.reply_text("Usage: /schedule [module] [function] [interval_in_seconds]")
+                await update.message.reply_text(f"_Usage:_{os.linesep}/schedule [module] [function] [interval_in_seconds]")
                 return
 
-            module_name = context.args[0]
-            function_name = context.args[1]
+            module_name = context.args[0] # 
+            function_name = context.args[1] # example_scheduled_function
             interval = int(context.args[2])
+            
+            # manager.execute_plugin_by_name("ExamplePlugin", "execute_message", "Hello World!")
 
             # Dynamically import the module and get the function
-            module = __import__(module_name)
-            function = getattr(module, function_name)
+            module = __import__(module_name) if module_name in sys.modules else None
+            # function = getattr(module, function_name) 
+            function = getattr(module, function_name) if module else globals()[function_name] 
 
             # Schedule the function to run recurrently
-            async def scheduled_function():
-                while True:
+            async def scheduled_function(self):
+                # while True:
                     try:
                         function()
                     except Exception as e:
@@ -977,11 +993,11 @@ _Links:_
                     await asyncio.sleep(interval)
 
             # Start the scheduled function in the background
-            context.job_queue.run_repeating(scheduled_function, interval=interval, first=0)
-
+            context.job_queue.run_repeating(scheduled_function, interval=interval, first=0, name=None, data=None)
             await update.message.reply_text(f"Scheduled {function_name} from {module_name} to run every {interval} seconds.")
 
         except Exception as e:
+            # ("'NoneType' object has no attribute 'run_repeating'",)
             if __debug__:
                 breakpoint()
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -1690,18 +1706,18 @@ _Links:_
             
         await update.message.reply_text(f"_User language code set to:_ `{context.user_data.get('language_code', update.effective_user.language_code)}`")
              
-    @with_writing_action
-    @with_log_admin     
+    # @with_writing_action
+    # @with_log_admin     
     async def error_handler(self, update: Update, context: CallbackContext) -> None:
         try:
             self.logger.error(context.error)
-            await self.application.bot.send_message(chat_id=self.bot_owner, text=str(context.error)) 
+            await self.application.bot.send_message(chat_id=self.bot_owner, text=str(context.error), parse_mode=None) 
             error_message = f"{__file__} at line {sys.exc_info()[-1].tb_lineno}: {context.error.__module__}"  
         
         except Exception as e:            
             error_message = f"{__file__} at line {sys.exc_info()[-1].tb_lineno}: {context.error.__module__}"
             logger.error(error_message)
-            await update.message.reply_text(error_message)   
+            await update.message.reply_text(error_message, parse_mode=None)   
 
     @with_writing_action
     @with_log_admin        
