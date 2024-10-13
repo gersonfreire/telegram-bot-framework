@@ -45,15 +45,6 @@ __change_log__ = """
 0.9.9 Optional disable to command not implemented yet"""
 
 from __init__ import *
-
-    
-# Example function for scheduling tasks with APScheduler
-def example_scheduled_function(self):
-    try:
-        self.application.bot.send_message(chat_id=self.bot_owner, text="Scheduled task executed!")
-        print("ok")
-    except Exception as e:
-        logger.error(f"Error executing scheduled task: {e}")
         
 class TlgBotFwk(Application): 
     
@@ -1851,6 +1842,14 @@ _Links:_
     def run(self):
         # Run the bot using the run_polling method
         self.application.run_polling()
+
+# Example function for scheduling tasks with APScheduler
+def example_scheduled_function(self: TlgBotFwk):
+    try:
+        self.application.bot.send_message(chat_id=self.bot_owner, text="Scheduled task executed!")
+        print("ok")
+    except Exception as e:
+        logger.error(f"Error executing scheduled task: {e}")
         
 if __name__ == '__main__':
     
