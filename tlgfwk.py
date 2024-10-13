@@ -48,14 +48,14 @@ from __init__ import *
 
     
 # Example function for scheduling tasks with APScheduler
-async def example_scheduled_function():
+def example_scheduled_function():
     print("ok")
         
 class TlgBotFwk(Application):
 
 
     # Example function for scheduling tasks with APScheduler
-    async def example_scheduled_function(self):
+    def example_scheduled_function(self):
         print("ok")    
     
     # ------------- util functions ------------------
