@@ -50,12 +50,11 @@ from __init__ import *
 class TlgBotFwk(Application): 
     
     # ------------- util functions ------------------
-    async def example_scheduled_function2(callback_context: CallbackContext):
+    async def example_scheduled_function(callback_context: CallbackContext):
         try:
             args = callback_context.job.data['args']
             tlg_bot_fwk: TlgBotFwk = args[0]
             await tlg_bot_fwk.application.bot.send_message(chat_id=tlg_bot_fwk.bot_owner, text="Scheduled task executed!")
-            # tlg_bot_fwk.send_message_by_api(chat_id=tlg_bot_fwk.bot_owner, message="Scheduled task executed!")
             
         except Exception as e:
             logger.error(f"Error executing scheduled task: {e}")    
