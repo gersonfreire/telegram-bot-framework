@@ -3,6 +3,7 @@ import base64
 from datetime import timedelta
 
 from telegram import Bot, Chat, Message, User
+from telegram.ext import JobQueue      
 
 from handlers import *
 import translations as translations

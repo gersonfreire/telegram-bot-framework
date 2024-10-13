@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # ------------------------------------------
 
-__version__ = """1.0.0 Scheduling tasks with APScheduler"""
+__version__ = """1.0.1 Scheduling tasks with APScheduler"""
 
 __todos__ = """
 1.0.0 Scheduling tasks with APScheduler
@@ -44,11 +44,20 @@ __change_log__ = """
 0.9.8 Example of a simple echo bot using the framework
 0.9.9 Optional disable to command not implemented yet"""
 
+import inspect
 from __init__ import *
-
-class TlgBotFwk(Application):
+        
+class TlgBotFwk(Application): 
     
     # ------------- util functions ------------------
+    async def example_scheduled_function(callback_context: CallbackContext):
+        try:
+            args = callback_context.job.data['args']
+            tlg_bot_fwk: TlgBotFwk = args[0]
+            await tlg_bot_fwk.application.bot.send_message(chat_id=tlg_bot_fwk.bot_owner, text="Scheduled task executed!")
+            
+        except Exception as e:
+            logger.error(f"Error executing scheduled task: {e}")    
     
     async def get_set_user_data(self, dict_name = 'user_status', user_id: int = None, user_item_name = 'balance', default_value = None, set_data = False, context = None):
         
@@ -705,9 +714,10 @@ _Links:_
             self.persistence_file = f"{script_path}{os.sep}{self.bot_info.username + '.pickle'}" if not persistence_file else persistence_file
             persistence = PicklePersistence(filepath=self.persistence_file, update_interval=self.default_persistence_interval) if not disable_persistence else None
             
-            # Create an Application instance using the builder pattern            
-            self.application = Application.builder().defaults(bot_defaults_build).token(self.token).post_init(self.post_init).post_stop(self.post_stop).persistence(persistence).build() 
-            
+            # Create an Application instance using the builder pattern  
+            # ('To use `JobQueue`, PTB must be installed via `pip install "python-telegram-bot[job-queue]"`.',)    
+            self.application = Application.builder().defaults(bot_defaults_build).token(self.token).post_init(self.post_init).post_stop(self.post_stop).persistence(persistence).job_queue(JobQueue()).build()
+           
             # --------------------------------------------------
             
             # save botname to .env file
@@ -753,7 +763,9 @@ _Links:_
             # -------------------------------------------
             
         except Exception as e:
-            logger.error(f"Error initializing bot: {e}")
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            logger.error(f"Error initializing bot in {fname} at line {exc_tb.tb_lineno}: {e}")
             input_with_timeout("Enter to close: ", 10)
             quit()
 
@@ -870,6 +882,11 @@ _Links:_
             switch_paypal_env_handler = CommandHandler(switch_paypal_env_command, self.cmd_switch_paypal_env, filters=filters.User(user_id=self.admins_owner))
             self.application.add_handler(switch_paypal_env_handler) 
             
+            # Add a command handler that schedules a function to run recurrently
+            schedule_function_command = 'schedule'
+            schedule_function_handler = CommandHandler(schedule_function_command, self.cmd_schedule_function, filters=filters.User(user_id=self.admins_owner))
+            self.application.add_handler(schedule_function_handler)
+            
             # Loop removing the command handlers from the list which are in the disable_commands_list
             for command in self.disable_commands_list:
                 self.application.remove_handler(command)
@@ -934,16 +951,16 @@ _Links:_
 
             # Check the response
             if response.status_code == 200:
-                print('Message sent successfully')
+                logger.debug('Message sent successfully')
             else:
-                print('Failed to send message') 
+                logger.error('Failed to send message') 
                 
         except Exception as e:
             logger.error(f"Error sending message by API: {e}") 
             
         return response          
        
-    # -------- Default command handlers --------
+    # -------- Default command handlers --------      
     
     @with_writing_action
     @with_log_admin
@@ -956,39 +973,42 @@ _Links:_
         """
         try:
             if len(context.args) < 3:
-                await update.message.reply_text("Usage: /schedule [module] [function] [interval_in_seconds]")
+                await update.message.reply_text(f"_Usage:_{os.linesep}/schedule [module] [function] [interval_in_seconds]")
                 return
 
-            module_name = context.args[0]
-            function_name = context.args[1]
+            module_name = context.args[0] # 
+            function_name = context.args[1] # example_scheduled_function
             interval = int(context.args[2])
+            
+            # manager.execute_plugin_by_name("ExamplePlugin", "execute_message", "Hello World!")
 
             # Dynamically import the module and get the function
-            module = __import__(module_name)
-            function = getattr(module, function_name)
-
-            # Schedule the function to run recurrently
-            async def scheduled_function():
-                while True:
-                    try:
-                        function()
-                    except Exception as e:
-                        logger.error(f"Error executing scheduled function {function_name}: {e}")
-                    await asyncio.sleep(interval)
+            module = __import__(module_name) if module_name in sys.modules else None
+            # function = getattr(module, function_name) 
+            function = getattr(module, function_name) if module else globals()[function_name] if function_name in globals() else None            
+            
+            # get all functions of current class
+            class_methods = inspect.getmembers(TlgBotFwk, inspect.isfunction)            
+            # search for the function in the class methods
+            function = next((method[1] for method in class_methods if method[0] == function_name), function)
+            
+            # get a list of already imported modules
+            modules = list(sys.modules.keys())
 
             # Start the scheduled function in the background
-            context.job_queue.run_repeating(scheduled_function, interval=interval, first=0)
-
-            await update.message.reply_text(f"Scheduled {function_name} from {module_name} to run every {interval} seconds.")
+            context.job_queue.run_repeating(function, interval=interval, first=0, name=None, data={'args': (self,)})
+            # context.job_queue.run_repeating(scheduled_function, interval=interval, first=0, name=None, data={'args': (self,)}))
+            await update.message.reply_text(f"Scheduled {function_name} from {module_name} to run every {interval} seconds.", parse_mode=None)
 
         except Exception as e:
+            # ("'NoneType' object has no attribute 'run_repeating'",)
             if __debug__:
                 breakpoint()
             exc_type, exc_obj, exc_tb = sys.exc_info()
             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
             error_message = f"Error scheduling function in {fname} at line {exc_tb.tb_lineno}: {e}"
             logger.error(error_message)
-            await update.message.reply_text(error_message)
+            await update.message.reply_text(error_message, parse_mode=None)
 
     @with_writing_action
     @with_log_admin
@@ -1074,10 +1094,7 @@ _Links:_
         try:
             # Get the PayPal links dictionary from bot data
             bot_data = self.application.bot_data
-            paypal_links = bot_data.get('paypal_links', {})
-            
-            # Define the message with MarkdownV2 formatting
-            message_markdown = "[Link Name](http://example.com)"            
+            paypal_links = bot_data.get('paypal_links', {})          
 
             if not paypal_links:
                 await update.message.reply_text("_No pending PayPal links found._")
@@ -1085,8 +1102,10 @@ _Links:_
 
             # Create a message with all pending PayPal links
             message = f"Pending PayPal Links:{os.linesep}"
-            for link, user_id in paypal_links.items():
-                message += f"{user_id}: {link}{os.linesep}"
+            for link, user_id in paypal_links.items():            
+                # Define the message with MarkdownV2 formatting
+                markdown_link = f"[Link Name]({link})"  
+                message += f"{user_id}: {markdown_link}{os.linesep}"
 
             await update.message.reply_text(message, parse_mode=None)
 
@@ -1690,18 +1709,17 @@ _Links:_
             
         await update.message.reply_text(f"_User language code set to:_ `{context.user_data.get('language_code', update.effective_user.language_code)}`")
              
-    @with_writing_action
-    @with_log_admin     
+    # @with_writing_action
+    # @with_log_admin     
     async def error_handler(self, update: Update, context: CallbackContext) -> None:
         try:
             self.logger.error(context.error)
-            await self.application.bot.send_message(chat_id=self.bot_owner, text=str(context.error)) 
+            await self.application.bot.send_message(chat_id=self.bot_owner, text=str(context.error), parse_mode=None) 
             error_message = f"{__file__} at line {sys.exc_info()[-1].tb_lineno}: {context.error.__module__}"  
         
         except Exception as e:            
-            error_message = f"{__file__} at line {sys.exc_info()[-1].tb_lineno}: {context.error.__module__}"
-            logger.error(error_message)
-            await update.message.reply_text(error_message)   
+            logger.error(e)
+            await update.message.reply_text(e, parse_mode=None)   
 
     @with_writing_action
     @with_log_admin        
@@ -1832,6 +1850,17 @@ _Links:_
     def run(self):
         # Run the bot using the run_polling method
         self.application.run_polling()
+
+# Example function for scheduling tasks with APScheduler
+def example_scheduled_function(callback_context: CallbackContext):
+    try:
+        args = callback_context.job.data['args']
+        tlg_bot_fwk: TlgBotFwk = args[0]
+        # await callback_context.application.(chat_id=tlg_bot_fwk.bot_owner, text="Scheduled task executed!")
+        tlg_bot_fwk.send_message_by_api(chat_id=tlg_bot_fwk.bot_owner, message="Scheduled task executed!")
+        
+    except Exception as e:
+        logger.error(f"Error executing scheduled task: {e}")
         
 if __name__ == '__main__':
     
