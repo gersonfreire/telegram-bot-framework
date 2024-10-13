@@ -55,13 +55,7 @@ def example_scheduled_function(self):
     except Exception as e:
         logger.error(f"Error executing scheduled task: {e}")
         
-class TlgBotFwk(Application):
-
-
-    # Example function for scheduling tasks with APScheduler
-    def example_scheduled_function(self):
-        print("ok")    
-        
+class TlgBotFwk(Application): 
     
     # ------------- util functions ------------------
     
