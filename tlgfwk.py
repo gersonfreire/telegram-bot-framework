@@ -49,7 +49,11 @@ from __init__ import *
     
 # Example function for scheduling tasks with APScheduler
 def example_scheduled_function(self):
-    print("ok")
+    try:
+        self.application.bot.send_message(chat_id=self.bot_owner, text="Scheduled task executed!")
+        print("ok")
+    except Exception as e:
+        logger.error(f"Error executing scheduled task: {e}")
         
 class TlgBotFwk(Application):
 
