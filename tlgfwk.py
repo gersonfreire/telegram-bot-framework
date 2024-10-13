@@ -48,7 +48,7 @@ from __init__ import *
 
     
 # Example function for scheduling tasks with APScheduler
-def example_scheduled_function():
+def example_scheduled_function(self):
     print("ok")
         
 class TlgBotFwk(Application):
@@ -57,6 +57,7 @@ class TlgBotFwk(Application):
     # Example function for scheduling tasks with APScheduler
     def example_scheduled_function(self):
         print("ok")    
+        
     
     # ------------- util functions ------------------
     
@@ -992,7 +993,7 @@ _Links:_
             async def scheduled_function(self):
                 # while True:
                     try:
-                        function()
+                        function(self)
                     except Exception as e:
                         logger.error(f"Error executing scheduled function {function_name}: {e}")
                     # await asyncio.sleep(interval)
