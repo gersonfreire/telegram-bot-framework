@@ -1845,11 +1845,11 @@ _Links:_
         self.application.run_polling()
 
 # Example function for scheduling tasks with APScheduler
-def example_scheduled_function(callback_context: CallbackContext):
+async def example_scheduled_function(callback_context: CallbackContext):
     try:
         args = callback_context.job.data['args']
         tlg_bot_fwk = args[0]
-        callback_context.application.bot.send_message(chat_id=tlg_bot_fwk.bot_owner, text="Scheduled task executed!")
+        await callback_context.application.bot.(chat_id=tlg_bot_fwk.bot_owner, text="Scheduled task executed!")
         print("ok")
     except Exception as e:
         logger.error(f"Error executing scheduled task: {e}")
