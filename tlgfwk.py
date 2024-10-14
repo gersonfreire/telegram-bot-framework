@@ -888,6 +888,11 @@ _Links:_
             schedule_function_handler = CommandHandler(schedule_function_command, self.cmd_schedule_function, filters=filters.User(user_id=self.admins_owner))
             self.application.add_handler(schedule_function_handler)
             
+            # add a command handler that unschedules a previously scheduled function
+            unschedule_function_command = 'unschedule'
+            unschedule_function_handler = CommandHandler(unschedule_function_command, self.cmd_unschedule_function, filters=filters.User(user_id=self.admins_owner))
+            self.application.add_handler(unschedule_function_handler)
+            
             # Loop removing the command handlers from the list which are in the disable_commands_list
             for command in self.disable_commands_list:
                 self.application.remove_handler(command)
