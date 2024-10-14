@@ -1145,7 +1145,7 @@ _Links:_
                 markdown_link = f"[Link Name]({link})"  
                 message += f"{user_id}: {markdown_link}{os.linesep}"
 
-            await update.message.reply_text(message, parse_mode=None)
+            await update.message.reply_text(message, parse_mode=ParseMode.MARKDOWN_V2)
 
         except Exception as e:
             logger.error(f"Error listing PayPal links: {e}")
