@@ -159,7 +159,7 @@ python tlgfwk.py
 * [X] Command to load plugin system ✓
 * [X] Plugin system ✓
 * [X] Show to admin user which commands is common or admin ✓
-* *** Allow task scheduling***  ***- in progress***
+* [ ] Allow task scheduling  ***- in progress***
 * [ ] Initialize a minimum balance for new users
 * [ ] Set last message date for all commands
 * [ ] Add a command to manage user's balance
