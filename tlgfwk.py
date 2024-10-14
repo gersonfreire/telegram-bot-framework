@@ -44,7 +44,6 @@ __change_log__ = """
 0.9.8 Example of a simple echo bot using the framework
 0.9.9 Optional disable to command not implemented yet"""
 
-import inspect
 from __init__ import *
         
 class TlgBotFwk(Application): 
@@ -1891,17 +1890,6 @@ _Links:_
     def run(self):
         # Run the bot using the run_polling method
         self.application.run_polling()
-
-# Example function for scheduling tasks with APScheduler
-def example_scheduled_function(callback_context: CallbackContext):
-    try:
-        args = callback_context.job.data['args']
-        tlg_bot_fwk: TlgBotFwk = args[0]
-        # await callback_context.application.(chat_id=tlg_bot_fwk.bot_owner, text="Scheduled task executed!")
-        tlg_bot_fwk.send_message_by_api(chat_id=tlg_bot_fwk.bot_owner, message="Scheduled task executed!")
-        
-    except Exception as e:
-        logger.error(f"Error executing scheduled task: {e}")
         
 if __name__ == '__main__':
     
