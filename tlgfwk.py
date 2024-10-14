@@ -1000,7 +1000,6 @@ _Links:_
             error_message = f"Error unscheduling function in {fname} at line {exc_tb.tb_lineno}: {e}"
             logger.error(error_message)
             await update.message.reply_text(error_message, parse_mode=None)
-
     
     @with_writing_action
     @with_log_admin
