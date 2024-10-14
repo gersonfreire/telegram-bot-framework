@@ -992,7 +992,7 @@ _Links:_
             for job in jobs:
                 job.schedule_removal()
 
-            await update.message.reply_text(f"Unscheduled job(s) with the name: {function_name}")
+            await update.message.reply_text(f"Unscheduled job(s) with the name: {function_name}", parse_mode=None)
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
