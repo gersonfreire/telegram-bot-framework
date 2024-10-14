@@ -50,6 +50,7 @@ from __init__ import *
 class TlgBotFwk(Application): 
     
     # ------------- util functions ------------------
+    
     async def example_scheduled_function(callback_context: CallbackContext):
         try:
             args = callback_context.job.data['args']
@@ -887,6 +888,11 @@ _Links:_
             schedule_function_handler = CommandHandler(schedule_function_command, self.cmd_schedule_function, filters=filters.User(user_id=self.admins_owner))
             self.application.add_handler(schedule_function_handler)
             
+            # add a command handler that unschedules a previously scheduled function
+            unschedule_function_command = 'unschedule'
+            unschedule_function_handler = CommandHandler(unschedule_function_command, self.cmd_unschedule_function, filters=filters.User(user_id=self.admins_owner))
+            self.application.add_handler(unschedule_function_handler)
+            
             # Loop removing the command handlers from the list which are in the disable_commands_list
             for command in self.disable_commands_list:
                 self.application.remove_handler(command)
@@ -960,7 +966,40 @@ _Links:_
             
         return response          
        
-    # -------- Default command handlers --------      
+    # -------- Default command handlers --------
+       
+    @with_writing_action
+    @with_log_admin
+    async def cmd_unschedule_function(self, update: Update, context: CallbackContext):
+        """Unschedule a previously scheduled function
+
+                context (CallbackContext): The callback context
+        """
+        
+        try:
+            if len(context.args) < 1:
+                await update.message.reply_text(f"_Usage:_{os.linesep}/unschedule [function_name]")
+                return
+
+            function_name = context.args[0]
+
+            # Find the job by function name
+            jobs = context.job_queue.get_jobs_by_name(function_name)
+            if not jobs:    
+                return
+
+            # Remove the job
+            for job in jobs:
+                job.schedule_removal()
+
+            await update.message.reply_text(f"Unscheduled job(s) with the name: {function_name}", parse_mode=None)
+
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            error_message = f"Error unscheduling function in {fname} at line {exc_tb.tb_lineno}: {e}"
+            logger.error(error_message)
+            await update.message.reply_text(error_message, parse_mode=None)
     
     @with_writing_action
     @with_log_admin
@@ -1614,6 +1653,8 @@ _Links:_
                 else:
                     self.links_list.remove(link)
                     await update.message.reply_text(f"_Link removed:_ {link}")
+                
+                # markdown_link = f"[Link Name]({link})" 
                 
                 #  save the new list of useful links to the .env file
                 self.links_string = ','.join(self.links_list)

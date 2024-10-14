@@ -135,6 +135,7 @@ python tlgfwk.py
 * [X] Add handlers to telegram menu commands ✓
 * [X] Auto-update by git pull ✓
 * [X] Command to restart the bot ✓
+* [X] Allow tasks schedulling with APScheduler
 * [X] Encrypt/decrypt the bot token from/to .env file ✓
 * [X] Optional disable_encryption parameter on class creation to Encrypt/decrypt .env file ✓
 * [X] Create an empty .env file at run time if it does not exist ✓
@@ -158,6 +159,7 @@ python tlgfwk.py
 * [X] Command to load plugin system ✓
 * [X] Plugin system ✓
 * [X] Show to admin user which commands is common or admin ✓
+* [ ] Allow task scheduling  ***- in progress***
 * [ ] Initialize a minimum balance for new users
 * [ ] Set last message date for all commands
 * [ ] Add a command to manage user's balance
