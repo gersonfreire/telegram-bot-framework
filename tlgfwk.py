@@ -44,7 +44,6 @@ __change_log__ = """
 0.9.8 Example of a simple echo bot using the framework
 0.9.9 Optional disable to command not implemented yet"""
 
-import inspect
 from __init__ import *
         
 class TlgBotFwk(Application): 
@@ -1141,12 +1140,14 @@ _Links:_
 
             # Create a message with all pending PayPal links
             message = f"Pending PayPal Links:{os.linesep}"
-            for link, user_id in paypal_links.items():            
+            link_count = 0
+            for link, user_id in paypal_links.items():    
+                link_count += 1        
                 # Define the message with MarkdownV2 formatting
-                markdown_link = f"[Link Name]({link})"  
-                message += f"{user_id}: {markdown_link}{os.linesep}"
+                markdown_link = f"[Paypal link #{link_count}]({link})"  
+                message += f"{user_id}: {link}{os.linesep}"
 
-            await update.message.reply_text(message, parse_mode=None)
+            await update.message.reply_text(message, parse_mode=None) #ParseMode.MARKDOWN_V2)
 
         except Exception as e:
             logger.error(f"Error listing PayPal links: {e}")
@@ -1195,9 +1196,11 @@ _Links:_
             # If there is not a dictionary for paypal links, create it
             bot_data = self.application.bot_data
             bot_data['paypal_links'] = {} if 'paypal_links' not in bot_data else bot_data['paypal_links']
-            bot_data['paypal_links'][paypal_link] = update.effective_user.id if 'paypal_links' in bot_data else {paypal_link: update.effective_user.id}     
+            bot_data['paypal_links'][paypal_link] = update.effective_user.id if 'paypal_links' in bot_data else {paypal_link: update.effective_user.id} 
+            
+            markdown_link = f"[Click here to pay]({paypal_link})"     
 
-            await update.message.reply_text(f"PayPal payment link:{os.linesep}{paypal_link}", parse_mode=None)
+            await update.message.reply_text(f"PayPal payment link:{os.linesep}{markdown_link}", parse_mode=ParseMode.MARKDOWN_V2)
 
         except Exception as e:
             logger.error(f"Error generating PayPal link: {e}")
@@ -1654,7 +1657,7 @@ _Links:_
                     self.links_list.remove(link)
                     await update.message.reply_text(f"_Link removed:_ {link}")
                 
-                # markdown_link = f"[Link Name]({link})" 
+                # markdown_link = f"[Util Link]({link})" 
                 
                 #  save the new list of useful links to the .env file
                 self.links_string = ','.join(self.links_list)
@@ -1891,17 +1894,6 @@ _Links:_
     def run(self):
         # Run the bot using the run_polling method
         self.application.run_polling()
-
-# Example function for scheduling tasks with APScheduler
-def example_scheduled_function(callback_context: CallbackContext):
-    try:
-        args = callback_context.job.data['args']
-        tlg_bot_fwk: TlgBotFwk = args[0]
-        # await callback_context.application.(chat_id=tlg_bot_fwk.bot_owner, text="Scheduled task executed!")
-        tlg_bot_fwk.send_message_by_api(chat_id=tlg_bot_fwk.bot_owner, message="Scheduled task executed!")
-        
-    except Exception as e:
-        logger.error(f"Error executing scheduled task: {e}")
         
 if __name__ == '__main__':
     
