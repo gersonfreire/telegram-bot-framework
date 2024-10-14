@@ -1654,6 +1654,8 @@ _Links:_
                     self.links_list.remove(link)
                     await update.message.reply_text(f"_Link removed:_ {link}")
                 
+                # markdown_link = f"[Link Name]({link})" 
+                
                 #  save the new list of useful links to the .env file
                 self.links_string = ','.join(self.links_list)
                 dotenv.set_key(self.env_file, 'USEFUL_LINKS', ','.join(self.links_list))
