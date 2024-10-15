@@ -44,8 +44,12 @@ class HostMonitorBot(TlgBotFwk):
         self.application.job_queue.run_repeating(self.job, interval=20, first=0, name=None) 
 
     async def job(self, callback_context: CallbackContext):
-        # Job logic here
-        pass
+        try:
+            self.send_message_by_api(self.bot_owner, f"Pinging {self.ip_address}...") if self.show_success else None
+            self.ping_host(self.ip_address)
+        except Exception as e:
+            self.send_message_by_api(self.bot_owner, f"An error occurred: {e}")
+
 
     def ping_host(self, ip_address):
         # Ping logic here
