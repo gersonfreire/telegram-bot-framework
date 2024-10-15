@@ -1,6 +1,5 @@
 import os
 import time
-import schedule
 from tlgfwk import TlgBotFwk
 
 def ping_host(ip_address):
@@ -35,8 +34,8 @@ bot.schedule.every(10).minutes.do(bot.job)
 bot.run()
 
 # Schedule the job every 10 minutes
-schedule.every(10).minutes.do(job)
+# schedule.every(10).minutes.do(job)
 
-while True:
-    schedule.run_pending()
-    time.sleep(1)
+# while True:
+#     schedule.run_pending()
+#     time.sleep(1)
