@@ -10,16 +10,11 @@ This version is inspired on and more elaborated than host_monitor because contro
 
 __version__ = '0.1.0'
 
-import os
+import os, platform, time
 from telegram import Update
 from telegram.ext import CommandHandler, CallbackContext
 
-
 __version__ = '0.1.0'
-
-import os
-import platform
-import time
 
 import __init__
 from tlgfwk import *
