@@ -3,7 +3,9 @@
 # ------------------------------------------
 
 """
-Host Monitor Bot
+This is a sample bot using the Telegram Bot Framework that 
+overrides the initialize_handlers method to add a help command handler.
+This version is inspired on and more elaborated than host_monitor because controls each host by user.
 """
 
 __version__ = '0.1.0'
@@ -12,15 +14,6 @@ import os
 from telegram import Update
 from telegram.ext import CommandHandler, CallbackContext
 
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-# ------------------------------------------
-
-"""
-This is a sample bot using the Telegram Bot Framework that 
-overrides the initialize_handlers method to add a help command handler.
-This version is inspired on and more elaborated than host_monitor because controls each host by user.
-"""
 
 __version__ = '0.1.0'
 
