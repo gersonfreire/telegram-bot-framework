@@ -21,7 +21,7 @@ class HostMonitorBot(TlgBotFwk):
     
     def __init__(self, ip_address, show_success = False,*args, **kwargs):
         
-        super().__init__(disable_error_handler=True)
+        super().__init__()
         
         self.ip_address = ip_address
         self.show_success = show_success
@@ -29,7 +29,7 @@ class HostMonitorBot(TlgBotFwk):
         # Run the job every 20 seconds
         self.application.job_queue.run_repeating(self.job, interval=20, first=0, name=None) 
 
-    def job(self, callback_context: CallbackContext):
+    async def job(self, callback_context: CallbackContext):
         try:
             self.send_message_by_api(self.bot_owner, f"Pinging {self.ip_address}...") if self.show_success else None
             self.ping_host(self.ip_address)
@@ -47,7 +47,7 @@ class HostMonitorBot(TlgBotFwk):
             self.send_message_by_api(self.bot_owner, f"{ip_address} is down!")
 
 # Create an instance of the bot
-bot = HostMonitorBot("8.8.8.8", show_success=False)
+bot = HostMonitorBot("8.8.8.8", show_success=True)
     
 # Start the bot's main loop
 bot.run()
