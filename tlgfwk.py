@@ -717,6 +717,8 @@ _Links:_
             # Create an Application instance using the builder pattern  
             # ('To use `JobQueue`, PTB must be installed via `pip install "python-telegram-bot[job-queue]"`.',)    
             self.application = Application.builder().defaults(bot_defaults_build).token(self.token).post_init(self.post_init).post_stop(self.post_stop).persistence(persistence).job_queue(JobQueue()).build()
+            
+            # self.job_queue = self.application.job_queue
            
             # --------------------------------------------------
             

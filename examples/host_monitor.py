@@ -42,8 +42,13 @@ class HostMonitorBot(TlgBotFwk):
 # Create an instance of the bot
 bot = HostMonitorBot("8.8.8.8")
 
+def function(callback_context: CallbackContext):
+    # self.ping_host(self.ip_address)
+    print("Hello")
+
 # Schedule the job every 10 minutes using the bot's scheduling method
-bot.schedule.every(10).minutes.do(bot.job)
+# bot.job_queue.every(10).minutes.do(bot.job)
+bot.application.job_queue.run_repeating(function, interval=20, first=0, name=None) # , data={'args': (self,)})
 
 # Start the bot's main loop
 bot.run()
