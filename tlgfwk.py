@@ -646,6 +646,7 @@ _Links:_
         force_common_commands = [],
         disable_commands_list = [],
         disable_command_not_implemented = False,
+        disable_error_handler = False,
         ):
         
         try: 
@@ -706,6 +707,7 @@ _Links:_
             self.force_common_commands = force_common_commands  
             self.disable_command_not_implemented = disable_command_not_implemented
             self.disable_commands_list = disable_commands_list
+            self.disable_error_handler = disable_error_handler
             
             # ---------- Build the bot application ------------
               
@@ -772,8 +774,9 @@ _Links:_
     def initialize_handlers(self):
         
         try:
-            # handles global errors
-            self.application.add_error_handler(self.error_handler)
+            # handles global errors if enabled
+            if not self.disable_error_handler:
+                self.application.add_error_handler(self.error_handler)
             
             if not self.disable_default_handlers:
                 self.logger.info("Default handlers enabled")

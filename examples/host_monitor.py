@@ -16,23 +16,13 @@ import time
 import __init__
 from tlgfwk import *
 
-
-def ping_host(ip_address):
-    response = os.system(f"ping -c 1 {ip_address}")
-    if response == 0:
-        print(f"{ip_address} is up!")
-    else:
-        print(f"{ip_address} is down!")
-
 class HostMonitorBot(TlgBotFwk):
     def __init__(self, ip_address):
         super().__init__()
         self.ip_address = ip_address
         
+        # Run the job every 20 seconds
         self.application.job_queue.run_repeating(self.job, interval=20, first=0, name=None) 
-        
-        # Avoid the error handler to be called when the job raises an exception
-        self.application.remove_error_handler(self.error_handler)
 
     def job(self, callback_context: CallbackContext):
         try:
