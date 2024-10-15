@@ -19,9 +19,12 @@ from tlgfwk import *
 
 class HostMonitorBot(TlgBotFwk):
     
-    def __init__(self, ip_address):
+    def __init__(self, ip_address, show_success = False,*args, **kwargs):
+        
         super().__init__(disable_error_handler=True)
+        
         self.ip_address = ip_address
+        self.show_success = show_success
         
         # Run the job every 20 seconds
         self.application.job_queue.run_repeating(self.job, interval=20, first=0, name=None) 
@@ -34,16 +37,17 @@ class HostMonitorBot(TlgBotFwk):
             self.send_message_by_api(self.bot_owner, f"An error occurred: {e}")
 
     def ping_host(self, ip_address):
+        
         param = "-n 1" if platform.system().lower() == "windows" else "-c 1"
-        response = os.system(f"ping {param} {ip_address}")        
-        # response = os.system(f"ping -c 1 {ip_address}")
+        response = os.system(f"ping {param} {ip_address}") # Returns 0 if the host is up, 1 if the host is down
+        
         if response == 0:
-            self.send_message_by_api(self.bot_owner, f"{ip_address} is up!")
+            self.send_message_by_api(self.bot_owner, f"{ip_address} is up!") if self.show_success else None
         else:
             self.send_message_by_api(self.bot_owner, f"{ip_address} is down!")
 
 # Create an instance of the bot
-bot = HostMonitorBot("8.8.8.8")
+bot = HostMonitorBot("8.8.8.8", show_success=True)
     
 # Start the bot's main loop
 bot.run()
