@@ -17,8 +17,9 @@ import __init__
 from tlgfwk import *
 
 class HostMonitorBot(TlgBotFwk):
+    
     def __init__(self, ip_address):
-        super().__init__()
+        super().__init__(disable_error_handler=True)
         self.ip_address = ip_address
         
         # Run the job every 20 seconds
