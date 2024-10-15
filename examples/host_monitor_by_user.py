@@ -72,8 +72,8 @@ class HostMonitorBot(TlgBotFwk):
                 return
             
             job = self.application.job_queue.run_repeating(
-            self.job, interval=interval, first=0, name=job_name, context=ip_address
-            )
+            self.job, interval=interval, first=0, name=job_name, data=ip_address
+            ) # , data={'args': (self,)})
             self.jobs[job_name] = job
             
             context.user_data[job_name] = job
