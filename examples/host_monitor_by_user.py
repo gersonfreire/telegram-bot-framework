@@ -34,7 +34,8 @@ from tlgfwk import *
 class HostMonitorBot(TlgBotFwk):
     
     def __init__(self, ip_address, show_success=False, *args, **kwargs):
-        super().__init__(disable_command_not_implemented=True, *args, **kwargs)
+        
+        super().__init__(disable_command_not_implemented=True, disable_error_handler=True, *args, **kwargs)
         
         self.ip_address = ip_address
         self.show_success = show_success
@@ -56,24 +57,31 @@ class HostMonitorBot(TlgBotFwk):
         pass
 
     async def add_job(self, update: Update, context: CallbackContext):
-        if len(context.args) != 2:
-            await update.message.reply_text("Usage: /addjob <ip_address> <interval_in_seconds>", parse_mode=None)
-            return
-        
-        ip_address = context.args[0]
-        interval = int(context.args[1])
-        
-        job_name = f"ping_{ip_address}"
-        
-        if job_name in self.jobs:
-            await update.message.reply_text(f"Job for {ip_address} already exists.")
-            return
-        
-        job = self.application.job_queue.run_repeating(
+        try:
+            if len(context.args) != 2:
+                await update.message.reply_text("Usage: /addjob <ip_address> <interval_in_seconds>", parse_mode=None)
+                return
+            
+            ip_address = context.args[0]
+            interval = int(context.args[1])
+            
+            job_name = f"ping_{ip_address}"
+            
+            if job_name in self.jobs:
+                await update.message.reply_text(f"Job for {ip_address} already exists.")
+                return
+            
+            job = self.application.job_queue.run_repeating(
             self.job, interval=interval, first=0, name=job_name, context=ip_address
-        )
-        self.jobs[job_name] = job
-        await update.message.reply_text(f"Job added for {ip_address} with interval {interval} seconds.")
+            )
+            self.jobs[job_name] = job
+            
+            context.user_data[job_name] = job
+            
+            await update.message.reply_text(f"Job added for {ip_address} with interval {interval} seconds.")
+            
+        except Exception as e:
+            await update.message.reply_text(f"An error occurred: {e}", parse_mode=None)
 
     async def delete_job(self, update: Update, context: CallbackContext):
         if len(context.args) != 1:
