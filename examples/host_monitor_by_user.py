@@ -68,7 +68,7 @@ class HostMonitorBot(TlgBotFwk):
             job_name = f"ping_{ip_address}"
             
             if job_name in self.jobs:
-                await update.message.reply_text(f"Job for {ip_address} already exists.")
+                await update.message.reply_text(f"Job for {ip_address} already exists.", parse_mode=None)
                 return
             
             job = self.application.job_queue.run_repeating(
@@ -78,26 +78,26 @@ class HostMonitorBot(TlgBotFwk):
             
             context.user_data[job_name] = job
             
-            await update.message.reply_text(f"Job added for {ip_address} with interval {interval} seconds.")
+            await update.message.reply_text(f"Job added for {ip_address} with interval {interval} seconds.", parse_mode=None)
             
         except Exception as e:
             await update.message.reply_text(f"An error occurred: {e}", parse_mode=None)
 
     async def delete_job(self, update: Update, context: CallbackContext):
         if len(context.args) != 1:
-            await update.message.reply_text("Usage: /deletejob <ip_address>")
+            await update.message.reply_text("Usage: /deletejob <ip_address>", parse_mode=None)
             return
         
         ip_address = context.args[0]
         job_name = f"ping_{ip_address}"
         
         if job_name not in self.jobs:
-            update.message.reply_text(f"No job found for {ip_address}.")
+            update.message.reply_text(f"No job found for {ip_address}.", parse_mode=None)
             return
         
         job = self.jobs.pop(job_name)
         job.schedule_removal()
-        update.message.reply_text(f"Job for {ip_address} deleted.")
+        update.message.reply_text(f"Job for {ip_address} deleted.", parse_mode=None)
 
     def run(self):
         self.application.add_handler(CommandHandler("addjob", self.add_job), group=-1)
