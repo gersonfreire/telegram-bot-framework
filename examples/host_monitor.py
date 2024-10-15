@@ -30,7 +30,7 @@ class HostMonitorBot(TlgBotFwk):
             self.send_message_by_api(self.bot_owner, f"Pinging {self.ip_address}...")
             self.ping_host(self.ip_address)
         except Exception as e:
-            print(f"An error occurred: {e}")
+            self.send_message_by_api(self.bot_owner, f"An error occurred: {e}")
 
     def ping_host(self, ip_address):
         response = os.system(f"ping -c 1 {ip_address}")
