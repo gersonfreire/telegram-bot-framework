@@ -1,6 +1,22 @@
+
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+# ------------------------------------------
+
+"""
+This is a sample bot using this Telegram Bot Framework that 
+overloads the initialize_handlers method to add a help command handler.
+"""
+
+__version__ = '0.1.0'
+
 import os
 import time
-from tlgfwk import TlgBotFwk
+
+import __init__
+
+from tlgfwk import *
+
 
 def ping_host(ip_address):
     response = os.system(f"ping -c 1 {ip_address}")
