@@ -3,6 +3,7 @@ import base64
 from datetime import timedelta
 
 from telegram import Bot, Chat, Message, User
+from telegram.ext import JobQueue
 
 # ---- Add parent folder to import path ----
 script_path = os.path.dirname(os.path.realpath(__file__))
