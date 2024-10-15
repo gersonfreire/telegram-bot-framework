@@ -28,34 +28,28 @@ class HostMonitorBot(TlgBotFwk):
     def __init__(self, ip_address):
         super().__init__()
         self.ip_address = ip_address
+        
+        self.application.job_queue.run_repeating(self.job, interval=20, first=0, name=None) 
+        
+        # Avoid the error handler to be called when the job raises an exception
+        self.application.remove_error_handler(self.error_handler)
 
-    def job(self):
-        self.ping_host(self.ip_address)
+    def job(self, callback_context: CallbackContext):
+        try:
+            self.send_message_by_api(self.bot_owner, f"Pinging {self.ip_address}...")
+            self.ping_host(self.ip_address)
+        except Exception as e:
+            print(f"An error occurred: {e}")
 
     def ping_host(self, ip_address):
         response = os.system(f"ping -c 1 {ip_address}")
         if response == 0:
-            print(f"{ip_address} is up!")
+            self.send_message_by_api(self.bot_owner, f"{ip_address} is up!")
         else:
-            print(f"{ip_address} is down!")
+            self.send_message_by_api(self.bot_owner, f"{ip_address} is down!")
 
 # Create an instance of the bot
 bot = HostMonitorBot("8.8.8.8")
-
-def function(callback_context: CallbackContext):
-    # self.ping_host(self.ip_address)
-    print("Hello")
-
-# Schedule the job every 10 minutes using the bot's scheduling method
-# bot.job_queue.every(10).minutes.do(bot.job)
-bot.application.job_queue.run_repeating(function, interval=20, first=0, name=None) # , data={'args': (self,)})
-
+    
 # Start the bot's main loop
 bot.run()
-
-# Schedule the job every 10 minutes
-# schedule.every(10).minutes.do(job)
-
-# while True:
-#     schedule.run_pending()
-#     time.sleep(1)

@@ -717,8 +717,6 @@ _Links:_
             # Create an Application instance using the builder pattern  
             # ('To use `JobQueue`, PTB must be installed via `pip install "python-telegram-bot[job-queue]"`.',)    
             self.application = Application.builder().defaults(bot_defaults_build).token(self.token).post_init(self.post_init).post_stop(self.post_stop).persistence(persistence).job_queue(JobQueue()).build()
-            
-            # self.job_queue = self.application.job_queue
            
             # --------------------------------------------------
             
@@ -1759,13 +1757,16 @@ _Links:_
     # @with_log_admin     
     async def error_handler(self, update: Update, context: CallbackContext) -> None:
         try:
-            self.logger.error(context.error)
-            await self.application.bot.send_message(chat_id=self.bot_owner, text=str(context.error), parse_mode=None) 
-            error_message = f"{__file__} at line {sys.exc_info()[-1].tb_lineno}: {context.error.__module__}"  
+            # self.logger.error(context.error)
+            # error_message = f"{__file__} at line {sys.exc_info()[-1].tb_lineno}: {context.error.__module__}" 
+            error_message = f"{__file__} at line {str(sys.exc_info()[-1])}: {str(context.error)}" 
+            self.logger.error(error_message) 
+            await self.application.bot.send_message(chat_id=self.bot_owner, text=error_message, parse_mode=None) 
         
         except Exception as e:            
             logger.error(e)
-            await update.message.reply_text(e, parse_mode=None)   
+            # await update.message.reply_text(e, parse_mode=None)   
+            await self.application.bot.send_message(chat_id=self.bot_owner, text=str(e))
 
     @with_writing_action
     @with_log_admin        
