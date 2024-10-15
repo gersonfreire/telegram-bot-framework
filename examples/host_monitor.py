@@ -11,6 +11,7 @@ overloads the initialize_handlers method to add a help command handler.
 __version__ = '0.1.0'
 
 import os
+import platform
 import time
 
 import __init__
@@ -33,7 +34,9 @@ class HostMonitorBot(TlgBotFwk):
             self.send_message_by_api(self.bot_owner, f"An error occurred: {e}")
 
     def ping_host(self, ip_address):
-        response = os.system(f"ping -c 1 {ip_address}")
+        param = "-n 1" if platform.system().lower() == "windows" else "-c 1"
+        response = os.system(f"ping {param} {ip_address}")        
+        # response = os.system(f"ping -c 1 {ip_address}")
         if response == 0:
             self.send_message_by_api(self.bot_owner, f"{ip_address} is up!")
         else:
