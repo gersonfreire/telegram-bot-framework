@@ -130,6 +130,8 @@ python tlgfwk.py
 
 ## TODOs:
 
+(Please add wish-list and follow the updated list at [this project issues at Github ](https://github.com/gersonfreire/telegram-bot-framework/issues "this project issues at Github "))
+
 * [X] Last Stable Version: 0.7.4 *✓*
 * [X] Deploy a demo instance - Bot running on [Demo Bot](https://t.me/TecVitoriaBot) ✓
 * [X] Add handlers to telegram menu commands ✓
