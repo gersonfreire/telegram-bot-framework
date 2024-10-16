@@ -8,7 +8,7 @@ overrides the initialize_handlers method to add a help command handler.
 This version is inspired on and more elaborated than host_monitor because controls each host by user.
 """
 
-__version__ = '0.1.0'
+__version__ = '0.2.0'
 
 import os, platform, time, asyncio
 from telegram import Update
@@ -49,11 +49,10 @@ class HostMonitorBot(TlgBotFwk):
             logger.error(f"Failed to restore jobs: {e}")
             self.send_message_by_api(self.bot_owner, f"Failed to restore jobs: {e}", parse_mode=None)           
     
-    def __init__(self, ip_address, show_success=False, *args, **kwargs):
+    def __init__(self, show_success=False, *args, **kwargs):
         
         super().__init__(disable_command_not_implemented=True, disable_error_handler=True, *args, **kwargs)
         
-        self.ip_address = ip_address
         self.show_success = show_success
         self.jobs = {}
         
@@ -132,7 +131,7 @@ class HostMonitorBot(TlgBotFwk):
         super().run()
 
 # Create an instance of the bot
-bot = HostMonitorBot("8.8.8.8", show_success=True) 
+bot = HostMonitorBot(show_success=True) 
 
 # Start the bot's main loop
 bot.run()
