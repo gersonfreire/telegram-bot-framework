@@ -59,6 +59,8 @@ class HostMonitorBot(TlgBotFwk):
         self.show_success = show_success
         self.jobs = {}
         
+        self.external_post_init = self.load_all_user_data
+        
         # loop = self.loop # asyncio.get_event_loop()
         # asyncio.set_event_loop(loop)        
         # asyncio.run(self.load_all_user_data())

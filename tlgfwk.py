@@ -542,6 +542,9 @@ _Links:_
             # for all admin users set the scope of the commands to chat_id
             await self.send_admins_message(message=post_init_message)
             
+            if self.external_post_init:
+                await self.external_post_init()
+            
         except Exception as e:
             logger.error(f"Error: {e}")
 
@@ -647,6 +650,7 @@ _Links:_
         disable_commands_list = [],
         disable_command_not_implemented = False,
         disable_error_handler = False,
+        external_post_init = None
         ):
         
         try: 
@@ -708,6 +712,8 @@ _Links:_
             self.disable_command_not_implemented = disable_command_not_implemented
             self.disable_commands_list = disable_commands_list
             self.disable_error_handler = disable_error_handler
+            
+            self.external_post_init = external_post_init
             
             # ---------- Build the bot application ------------
               
