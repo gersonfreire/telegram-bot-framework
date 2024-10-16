@@ -27,14 +27,21 @@ class HostMonitorBot(TlgBotFwk):
             # restore all persisted jobs already added by the user
             user_data = await self.application.persistence.get_user_data() if self.application.persistence else {}     
             
-            for user_id, job_params in user_data.items():
+            for user_id, jobs_dic in user_data.items():
                 try:
-                    job_name = job_params.keys()[0]
-                    if job_name.startswith('ping_'):
-                        ip_address = user_id.replace('ping_', '')
-                        self.jobs[user_id] = self.application.job_queue.run_repeating(
-                            self.job, interval=job_params.interval, first=0, name=user_id, data=ip_address
-                        )
+                    # for each item in jobs dictionary, add a job
+                    for job_name, job_param in jobs_dic.values():
+                        try:
+                            if job_name.startswith('ping_'):
+                                ip_address = user_id.replace('ping_', '')
+                                self.jobs[user_id] = self.application.job_queue.run_repeating(
+                                    self.job, interval=job_param['interval'], first=0, name=user_id, data=ip_address
+                                )
+                                
+                        except Exception as e:
+                            logger.error(f"Failed to add job {job_name} for user {user_id}: {e}")
+                            self.send_message_by_api(self.bot_owner, f"Failed to add job {job_name} for user {user_id}: {e}", parse_mode=None)
+                        
                 except Exception as e:
                     logger.error(f"Failed to restore job {user_id}: {e}")
                     self.send_message_by_api(self.bot_owner, f"Failed to restore job {user_id}: {e}", parse_mode=None) 
