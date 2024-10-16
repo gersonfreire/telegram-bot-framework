@@ -29,7 +29,7 @@ class HostMonitorBot(TlgBotFwk):
             
             for user_id, jobs_dic in user_data.items():
                 try:
-                    # for each item in jobs dictionary, add a job
+                    # for each job item in user´s jobs dictionary, add a job
                     for job_name, job_param in jobs_dic.values():
                         try:
                             if job_name.startswith('ping_'):
