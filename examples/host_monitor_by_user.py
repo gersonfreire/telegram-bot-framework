@@ -29,7 +29,8 @@ class HostMonitorBot(TlgBotFwk):
             
             for user_id, job_params in user_data.items():
                 try:
-                    if job_params.startswith('ping_'):
+                    job_name = job_params.keys()[0]
+                    if job_name.startswith('ping_'):
                         ip_address = user_id.replace('ping_', '')
                         self.jobs[user_id] = self.application.job_queue.run_repeating(
                             self.job, interval=job_params.interval, first=0, name=user_id, data=ip_address
