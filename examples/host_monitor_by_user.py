@@ -30,12 +30,13 @@ class HostMonitorBot(TlgBotFwk):
             for user_id, jobs_dic in user_data.items():
                 try:
                     # for each job item in user´s jobs dictionary, add a job to the job queue
-                    for job_name, job_param in jobs_dic.items():
+                    for job_name, job_params in jobs_dic.items():
                         try:
                             if job_name.startswith('ping_'):
-                                ip_address = user_id.replace('ping_', '')
+                                ip_address = job_params['ip_address']
+                                interval = job_params['interval']
                                 self.jobs[user_id] = self.application.job_queue.run_repeating(
-                                    self.job, interval=job_param['interval'], first=0, name=user_id, data=ip_address
+                                    self.job, interval=interval, first=0, name=user_id, data=ip_address
                                 )
                                 
                         except Exception as e:
