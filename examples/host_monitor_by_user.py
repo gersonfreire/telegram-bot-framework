@@ -140,7 +140,7 @@ bot = HostMonitorBot("8.8.8.8", show_success=True)
 
 loop = bot.loop # asyncio.get_event_loop()
 asyncio.set_event_loop(loop)        
-asyncio.run(bot.load_all_user_data())
+# asyncio.run(bot.load_all_user_data())
 
 # Start the bot's main loop
 bot.run()
