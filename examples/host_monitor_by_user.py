@@ -29,8 +29,8 @@ class HostMonitorBot(TlgBotFwk):
             
             for user_id, jobs_dic in user_data.items():
                 try:
-                    # for each job item in user´s jobs dictionary, add a job
-                    for job_name, job_param in jobs_dic:
+                    # for each job item in user´s jobs dictionary, add a job to the job queue
+                    for job_name, job_param in jobs_dic.items():
                         try:
                             if job_name.startswith('ping_'):
                                 ip_address = user_id.replace('ping_', '')
