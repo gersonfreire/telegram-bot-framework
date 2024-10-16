@@ -1898,8 +1898,8 @@ _Links:_
     # ------------------------------------------
 
     def run(self):
-        # Run the bot using the run_polling method
         self.application.run_polling()
+        # There is no current event loop in thread 'MainThread'.
         
 if __name__ == '__main__':
     
