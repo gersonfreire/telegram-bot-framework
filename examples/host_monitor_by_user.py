@@ -97,7 +97,7 @@ class HostMonitorBot(TlgBotFwk):
             context.user_data[job_name] = job
             
             # force persistence update of the user data
-            self.application.persistence.update_user_data(update.effective_user.id, context.user_data) if self.application.persistence else None  
+            await self.application.persistence.update_user_data(update.effective_user.id, context.user_data) if self.application.persistence else None  
             
             await update.message.reply_text(f"Job added for {ip_address} with interval {interval} seconds.", parse_mode=None)
             
