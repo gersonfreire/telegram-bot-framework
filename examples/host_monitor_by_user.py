@@ -60,8 +60,9 @@ class HostMonitorBot(TlgBotFwk):
 
     async def job(self, callback_context: CallbackContext):
         try:
-            self.send_message_by_api(self.bot_owner, f"Pinging {self.ip_address}...") if self.show_success else None
-            self.ping_host(self.ip_address)
+            job_param = callback_context.job.data
+            self.send_message_by_api(self.bot_owner, f"Pinging {job_param}...") if self.show_success else None
+            self.ping_host(job_param)
         except Exception as e:
             self.send_message_by_api(self.bot_owner, f"An error occurred: {e}", parse_mode=None) 
 
