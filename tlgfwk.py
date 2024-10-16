@@ -122,7 +122,7 @@ class TlgBotFwk(Application):
             language_code = context.user_data['language_code'] if 'language_code' in context.user_data else update.effective_user.language_code
             
             # force persistence update of the user data
-            self.application.persistence.update_user_data(update.effective_user.id, context.user_data) if self.application.persistence else None          
+            await self.application.persistence.update_user_data(update.effective_user.id, context.user_data) if self.application.persistence else None          
             
             # get user data from persistence
             user_data = await self.application.persistence.get_user_data() if self.application.persistence else None
@@ -1798,7 +1798,7 @@ _Links:_
             language_code = context.user_data['language_code'] if 'language_code' in context.user_data else update.effective_user.language_code
             
             # force persistence update of the user data
-            self.application.persistence.update_user_data(update.effective_user.id, context.user_data) if self.application.persistence else None          
+            await self.application.persistence.update_user_data(update.effective_user.id, context.user_data) if self.application.persistence else None          
             
             # get user data from persistence
             user_data = await self.application.persistence.get_user_data() if self.application.persistence else None
