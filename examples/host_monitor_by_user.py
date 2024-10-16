@@ -36,7 +36,7 @@ class HostMonitorBot(TlgBotFwk):
                                 ip_address = job_params['ip_address']
                                 interval = job_params['interval']
                                 self.jobs[user_id] = self.application.job_queue.run_repeating(
-                                    self.job, interval=interval, first=0, name=user_id, data=ip_address
+                                    self.job, interval=interval, first=0, name=job_name, data=ip_address
                                 )
                                 
                         except Exception as e:
@@ -67,7 +67,6 @@ class HostMonitorBot(TlgBotFwk):
             self.ping_host(self.ip_address)
         except Exception as e:
             self.send_message_by_api(self.bot_owner, f"An error occurred: {e}", parse_mode=None) 
-
 
     def ping_host(self, ip_address):
         # Ping logic here
