@@ -126,6 +126,23 @@ class HostMonitorBot(TlgBotFwk):
         job.schedule_removal()
         update.message.reply_text(f"Job for {ip_address} deleted.", parse_mode=None)
 
+    async def list_jobs(self, update: Update, context: CallbackContext):
+        try:
+            if not self.jobs:
+                await update.message.reply_text("No active jobs.", parse_mode=None)
+                return
+            
+            message = "Active jobs:\n"
+            for job_name, job in self.jobs.items():
+                ip_address = job.data
+                interval = job.interval.total_seconds()
+                message += f"{job_name}: IP Address = {ip_address}, Interval = {interval} seconds\n"
+            
+            await update.message.reply_text(message, parse_mode=None)
+            
+        except Exception as e:
+            await update.message.reply_text(f"An error occurred: {e}", parse_mode=None)
+
     def run(self):
         self.application.add_handler(CommandHandler("addjob", self.add_job), group=-1)
         self.application.add_handler(CommandHandler("deletejob", self.delete_job), group=-1)
