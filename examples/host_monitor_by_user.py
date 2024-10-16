@@ -59,9 +59,9 @@ class HostMonitorBot(TlgBotFwk):
         self.show_success = show_success
         self.jobs = {}
         
-        loop = self.loop # asyncio.get_event_loop()
-        asyncio.set_event_loop(loop)        
-        asyncio.run(self.load_all_user_data())
+        # loop = self.loop # asyncio.get_event_loop()
+        # asyncio.set_event_loop(loop)        
+        # asyncio.run(self.load_all_user_data())
 
     async def job(self, callback_context: CallbackContext):
         try:
@@ -137,6 +137,10 @@ class HostMonitorBot(TlgBotFwk):
 
 # Create an instance of the bot
 bot = HostMonitorBot("8.8.8.8", show_success=True) 
+
+loop = bot.loop # asyncio.get_event_loop()
+asyncio.set_event_loop(loop)        
+asyncio.run(bot.load_all_user_data())
 
 # Start the bot's main loop
 bot.run()
