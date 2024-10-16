@@ -29,8 +29,20 @@ class HostMonitorBot(TlgBotFwk):
         self.show_success = show_success
         self.jobs = {}
         
+        # restore all persisted jobs already added by the user
+        for job_name, job in self.application.persistence.user_data.items():
+            try:
+                if job_name.startswith('ping_'):
+                    ip_address = job_name.replace('ping_', '')
+                    self.jobs[job_name] = self.application.job_queue.run_repeating(
+                        self.job, interval=job.interval, first=0, name=job_name, data=ip_address
+                    )
+            except Exception as e:
+                logger.error(f"Failed to restore job {job_name}: {e}")
+                self.send_message_by_api(self.bot_owner, f"Failed to restore job {job_name}: {e}", parse_mode=None)
+        
         # Run the job every 20 seconds
-        self.application.job_queue.run_repeating(self.job, interval=20, first=0, name=None) 
+        # self.application.job_queue.run_repeating(self.job, interval=20, first=0, name=None) 
 
     async def job(self, callback_context: CallbackContext):
         try:
@@ -71,6 +83,9 @@ class HostMonitorBot(TlgBotFwk):
             self.jobs[job_name] = job
             
             context.user_data[job_name] = job
+            
+            # force persistence update of the user data
+            self.application.persistence.update_user_data(update.effective_user.id, context.user_data) if self.application.persistence else None  
             
             await update.message.reply_text(f"Job added for {ip_address} with interval {interval} seconds.", parse_mode=None)
             
