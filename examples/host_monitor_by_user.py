@@ -21,6 +21,30 @@ from tlgfwk import *
 
 class HostMonitorBot(TlgBotFwk):
     
+    async def load_all_user_data(self):
+        try:
+      
+            # restore all persisted jobs already added by the user
+            user_data = await self.application.persistence.get_user_data() if self.application.persistence else {}
+            # Run the app in a separate thread
+            # user_data = threading.Thread(target=self.application.persistence.get_user_data())
+            # user_data.start()        
+            
+            for job_name, job in user_data.items():
+                try:
+                    if job_name.startswith('ping_'):
+                        ip_address = job_name.replace('ping_', '')
+                        self.jobs[job_name] = self.application.job_queue.run_repeating(
+                            self.job, interval=job.interval, first=0, name=job_name, data=ip_address
+                        )
+                except Exception as e:
+                    logger.error(f"Failed to restore job {job_name}: {e}")
+                    self.send_message_by_api(self.bot_owner, f"Failed to restore job {job_name}: {e}", parse_mode=None) 
+            
+        except Exception as e:
+            logger.error(f"Failed to restore jobs: {e}")
+            self.send_message_by_api(self.bot_owner, f"Failed to restore jobs: {e}", parse_mode=None)           
+    
     def __init__(self, ip_address, show_success=False, *args, **kwargs):
         
         super().__init__(disable_command_not_implemented=True, disable_error_handler=True, *args, **kwargs)
@@ -28,18 +52,6 @@ class HostMonitorBot(TlgBotFwk):
         self.ip_address = ip_address
         self.show_success = show_success
         self.jobs = {}
-        
-        # restore all persisted jobs already added by the user
-        for job_name, job in self.application.persistence.user_data.items():
-            try:
-                if job_name.startswith('ping_'):
-                    ip_address = job_name.replace('ping_', '')
-                    self.jobs[job_name] = self.application.job_queue.run_repeating(
-                        self.job, interval=job.interval, first=0, name=job_name, data=ip_address
-                    )
-            except Exception as e:
-                logger.error(f"Failed to restore job {job_name}: {e}")
-                self.send_message_by_api(self.bot_owner, f"Failed to restore job {job_name}: {e}", parse_mode=None)
         
         # Run the job every 20 seconds
         # self.application.job_queue.run_repeating(self.job, interval=20, first=0, name=None) 
