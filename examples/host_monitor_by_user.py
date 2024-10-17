@@ -258,7 +258,6 @@ class HostMonitorBot(TlgBotFwk):
             else:
                 await update.message.reply_text(f"No jobs found.{os.linesep}Usages:{os.linesep}/listjobs (no param=list all jobs){os.linesep}/listjobs <job_name>")
 
-
     async def toggle_success(self, update: Update, context: CallbackContext):
         
         try:
@@ -282,6 +281,7 @@ class HostMonitorBot(TlgBotFwk):
             self.application.add_handler(CommandHandler("deletejob", self.delete_job), group=-1)
             self.application.add_handler(CommandHandler("listjobs", self.list_jobs), group=-1)  
             self.application.add_handler(CommandHandler("togglesuccess", self.toggle_success), group=-1)
+            self.application.add_handler(CommandHandler("listalljobs", self.list_all_jobs), group=-1)
             
             super().run()
             
