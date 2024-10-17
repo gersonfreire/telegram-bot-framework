@@ -97,11 +97,13 @@ class HostMonitorBot(TlgBotFwk):
             job_param = callback_context.job.data
             
             # Get the current value of the show_success flag from context user data
-            # TODO: pass user_id as parameter
             show_success = await self.get_user_data(callback_context.job.user_id, "show_success", False)
             
+            # Get job owner user id from the job context
+            user_id = callback_context.job.user_id
+            
             if show_success:
-                self.send_message_by_api(self.bot_owner, f"Pinging {job_param}...") if show_success else None
+                self.send_message_by_api(user_id, f"Pinging {job_param}...") if show_success else None
                 
             self.ping_host(job_param, show_success=show_success)
             
