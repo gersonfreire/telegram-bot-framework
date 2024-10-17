@@ -261,21 +261,26 @@ class HostMonitorBot(TlgBotFwk):
                 jobs = context.job_queue.jobs()
                 effective_user_id = update.effective_user.id
                 
-                if not jobs or len(jobs) == 0:
-                    await update.message.reply_text("_No active jobs._", parse_mode=ParseMode.MARKDOWN)
-                    return
+                # if not jobs or len(jobs) == 0:
+                #     await update.message.reply_text("_No active jobs._", parse_mode=ParseMode.MARKDOWN)
+                #     return
                 
                 # for each job item in user´s jobs queue collection, add a line to the message to be sent
                 message = f"_Active jobs:_{os.linesep}"
+                    
+                all_user_data = await self.application.persistence.get_user_data() if self.application.persistence else {}
                 
-                for job in jobs:
+                #for job in jobs:
+                for job_name, user_data in all_user_data.items():
                     
                     if effective_user_id != self.bot_owner and effective_user_id != job.user_id:
                         continue
                     
-                    interval = context.user_data[job.name]['interval'] if job.name in context.user_data else None
-                    ip_address = context.user_data[job.name]['ip_address'] if job.name in context.user_data else None
-                    job_owner = context.user_data[job.name]['job_owner'] if job.name in context.user_data else None
+                    # user_data = all_user_data[job.user_id] if job.user_id in all_user_data else {job.user_id : {}}
+                    
+                    interval = user_data[job.name]['interval'] if job.name in user_data else None
+                    ip_address = user_data[job.name]['ip_address'] if job.name in user_data else None
+                    job_owner = job.user_id # context.user_data[job.name]['job_owner'] if job.name in context.user_data else None
                     
                     next_time = (job.next_t - datetime.timedelta(hours=3)).strftime("%H:%M UTC-3") if job.next_t else "N/A"
                     
@@ -315,7 +320,7 @@ class HostMonitorBot(TlgBotFwk):
             
         except Exception as e:
             logger.error(f"An error occurred while adding handlers or running the bot: {e}")
-            self.send_message_by_api(self.bot_owner, f"An error occurred while adding handlers or running the bot: {e}", parse_mode=None)
+            self.send_message_by_api(self.bot_owner, f"An error occurred while adding handlers or running the bot: {e}")
 
 # Create an instance of the bot
 bot = HostMonitorBot() # show_success=True
