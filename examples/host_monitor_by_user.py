@@ -286,13 +286,12 @@ class HostMonitorBot(TlgBotFwk):
                             next_time = (job.next_t - datetime.timedelta(hours=3)).strftime("%H:%M UTC-3") if job.next_t else "N/A"
                         except IndexError:
                             logger.error(f"No job found with name {job_name}")
-                            continue
                         
                         # user_data = all_user_data[job.user_id] if job.user_id in all_user_data else {job.user_id : {}}
                         
                         interval = user_data[job_name]['interval'] if job_name in user_data else None
                         ip_address = user_data[job_name]['ip_address'] if job_name in user_data else None
-                        job_owner = owner_id #job.user_id # context.user_data[job.name]['job_owner'] if job.name in context.user_data else None
+                        job_owner = owner_id
                         
                         message += f"`{job_owner}` _{interval}s_ `{ip_address}` `{next_time}`{os.linesep}" 
                     
