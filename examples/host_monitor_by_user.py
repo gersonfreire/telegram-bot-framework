@@ -66,8 +66,9 @@ class HostMonitorBot(TlgBotFwk):
                                 
                                 ip_address = job_params['ip_address']
                                 interval = job_params['interval']
-                                self.jobs[user_id] = self.application.job_queue.run_repeating(
-                                    self.job, interval=interval, first=0, name=job_name, data=ip_address,
+                                # self.jobs[user_id] = 
+                                self.application.job_queue.run_repeating(
+                                    self.job_event_handler, interval=interval, first=0, name=job_name, data=ip_address,
                                     user_id=user_id, chat_id=user_id, 
                                     # job_kwargs={'user_id': user_id, 'chat_id': user_id}
                                 ) # , data={'args': (self,)})
@@ -92,7 +93,7 @@ class HostMonitorBot(TlgBotFwk):
         
         self.external_post_init = self.load_all_user_data
 
-    async def job(self, callback_context: CallbackContext):
+    async def job_event_handler(self, callback_context: CallbackContext):
         
         try:     
             # TODO: get owner user id of job     
@@ -144,14 +145,22 @@ class HostMonitorBot(TlgBotFwk):
                 await update.message.reply_text(f"Job for {ip_address} already exists.", parse_mode=None)
                 return
             
-            if job_name in self.jobs:
-                await update.message.reply_text(f"Job for {ip_address} already exists.", parse_mode=None)
-                return
+            # if job_name in self.jobs:
+            #     await update.message.reply_text(f"Job for {ip_address} already exists.", parse_mode=None)
+            #     return
             
-            job = self.application.job_queue.run_repeating(
-            self.job, interval=interval, first=0, name=job_name, data=ip_address
+            self.application.job_queue.run_repeating(
+            self.job_event_handler, interval=interval, first=0, name=job_name, data=ip_address
             ) # , data={'args': (self,)})
-            self.jobs[job_name] = job
+            # self.jobs[job_name] = job
+            
+            # ip_address = job_params['ip_address']
+            # interval = job_params['interval']
+            # self.jobs[user_id] = self.application.job_queue.run_repeating(
+            #     self.job, interval=interval, first=0, name=job_name, data=ip_address,
+            #     user_id=user_id, chat_id=user_id, 
+            #     # job_kwargs={'user_id': user_id, 'chat_id': user_id}
+            # ) # , data={'args': (self,)})            
             
             # replace job object by ping parameters in user data
             context.user_data[job_name] = {'interval': interval, 'ip_address': ip_address}
