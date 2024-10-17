@@ -70,8 +70,18 @@ class HostMonitorBot(TlgBotFwk):
             self.send_message_by_api(self.bot_owner, f"An error occurred: {e}", parse_mode=None) 
 
     def ping_host(self, ip_address):
-        # Ping logic here
-        pass
+        try:
+            # Ping logic here
+            param = "-n 1" if platform.system().lower() == "windows" else "-c 1"
+            response = os.system(f"ping {param} {ip_address}") # Returns 0 if the host is up, 1 if the host is down
+            
+            if response == 0:
+                self.send_message_by_api(self.bot_owner, f"{ip_address} is up!") if self.show_success else None
+            else:
+                self.send_message_by_api(self.bot_owner, f"{ip_address} is down!")
+                
+        except Exception as e:
+            self.send_message_by_api(self.bot_owner, f"An error occurred while pinging {ip_address}: {e}", parse_mode=None)
 
     async def add_job(self, update: Update, context: CallbackContext):
         try:
@@ -140,9 +150,9 @@ class HostMonitorBot(TlgBotFwk):
                 try:
                     ip_address = job.data
                     interval = context.user_data[job.name]['interval'] if job.name in context.user_data else None
-                    next_t = job.next_t.strftime('%d/%m-%H:%M:%S') if job.next_t else 'N/A'
+                    next_t = (job.next_t - timedelta(hours=3)).strftime('%d/%m %H:%M:%S') if job.next_t else 'N/A'
                     # message += f"`{user_id}`:`{job.name}``{ip_address}`:`{interval}s`:{next_t}{os.linesep}"
-                    message += f"`{user_id}` _{interval}s_ `{ip_address}` `{next_t}{os.linesep}`"
+                    message += f"`{user_id}` _{interval}s_ `{ip_address}` _{next_t}{os.linesep}_"
                     
                 except Exception as e:
                     logger.error(f"Failed to list job {job.name}: {e}")
@@ -153,12 +163,21 @@ class HostMonitorBot(TlgBotFwk):
         except Exception as e:
             await update.message.reply_text(f"An error occurred: {e}", parse_mode=None)
 
+    async def toggle_success(self, update: Update, context: CallbackContext):
+        try:
+            self.show_success = not self.show_success
+            status = "enabled" if self.show_success else "disabled"
+            await update.message.reply_text(f"Success messages are now {status}.", parse_mode=None)
+        except Exception as e:
+            await update.message.reply_text(f"An error occurred: {e}", parse_mode=None)
+
     def run(self):
         
         try:
             self.application.add_handler(CommandHandler("addjob", self.add_job), group=-1)
             self.application.add_handler(CommandHandler("deletejob", self.delete_job), group=-1)
             self.application.add_handler(CommandHandler("listjobs", self.list_jobs), group=-1)  
+            self.application.add_handler(CommandHandler("togglesuccess", self.toggle_success), group=-1)
             
             super().run()
             
