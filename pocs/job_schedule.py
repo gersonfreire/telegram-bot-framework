@@ -18,7 +18,14 @@ async def list_jobs(update: Update, context: CallbackContext) -> None:
         else:
             await update.message.reply_text(f"No jobs found with name '{job_name}'.")
     else:
-        await update.message.reply_text("Usage: /listjobs <job_name>")
+        # await update.message.reply_text("Usage: /listjobs <job_name>")
+        
+        # list all jobs
+        jobs = context.job_queue.jobs()
+        if jobs:
+            await update.message.reply_text(f"Jobs: {[job.name for job in jobs]}")
+        else:
+            await update.message.reply_text("No jobs found.")
 
 # Command handler to add a job
 async def add_job(update: Update, context: CallbackContext) -> None:
@@ -48,7 +55,7 @@ async def delete_job(update: Update, context: CallbackContext) -> None:
         await update.message.reply_text(f"No jobs found with name '{job_name}'.")
 
 # Example job callback function
-def job_callback(context: CallbackContext) -> None:
+async def job_callback(context: CallbackContext) -> None:
     print("Job executed")
     
 def main() -> None:
