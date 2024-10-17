@@ -269,13 +269,27 @@ class HostMonitorBot(TlgBotFwk):
                 # no param list all jobs, with param list jobs by name
                 jobs = context.job_queue.jobs()
                 user_id = update.effective_user.id
-                if jobs:
-                    # Get interval from user data item for this specific user and job
-                    interval = context.user_data[job_name]['interval'] if job_name in context.user_data else None
+                
+                if not jobs or len(jobs) == 0:
+                    await update.message.reply_text("_No active jobs._", parse_mode=None)
+                    return
+                
+                # for each job item in user´s jobs queue collection, add a line to the message to be sent
+                for job in jobs:
+                    interval = context.user_data[job.name]['interval'] if job.name in context.user_data else None
+                    ip_address = context.user_data[job.name]['ip_address'] if job.name in context.user_data else None
                     
-                    await update.message.reply_text(f"_Current active jobs:_{os.linesep}{[self.format_job_line(job, user_id, interval) for job in jobs]}")
-                else:
-                    await update.message.reply_text(f"_No jobs found._{os.linesep}_Usages:_{os.linesep}/listjobs (no param=list all jobs){os.linesep}/listjobs <job_name>")
+                    message += f"`{user_id}` _{interval}s_ `{ip_address}`{os.linesep}" 
+                    
+                await update.message.reply_text(text=message) 
+                
+                # if jobs:
+                #     # Get interval from user data item for this specific user and job
+                #     interval = context.user_data[job_name]['interval'] if job_name in context.user_data else None
+                    
+                #     await update.message.reply_text(f"_Current active jobs:_{os.linesep}{[self.format_job_line(job, user_id, interval) for job in jobs]}")
+                # else:
+                #     await update.message.reply_text(f"_No jobs found._{os.linesep}_Usages:_{os.linesep}/listjobs (no param=list all jobs){os.linesep}/listjobs <job_name>")
                     
         except Exception as e:
             await update.message.reply_text(f"An error occurred: {e}", parse_mode=None)
