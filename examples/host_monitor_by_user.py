@@ -97,6 +97,7 @@ class HostMonitorBot(TlgBotFwk):
             job_param = callback_context.job.data
             
             # Get the current value of the show_success flag from context user data
+            # TODO: get show_success from user data
             show_success = await self.get_user_data(callback_context.job.user_id, "show_success", False)
             
             # Get job owner user id from the job context
