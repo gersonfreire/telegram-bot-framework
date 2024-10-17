@@ -23,7 +23,9 @@ class HostMonitorBot(TlgBotFwk):
     
         try:
             # Get user data from the context
-            user_data = await self.application.persistence.get_user_data(user_id) if self.application.persistence else {}
+            all_user_data = await self.application.persistence.get_user_data() if self.application.persistence else {}
+            
+            user_data = all_user_data[user_id] if user_id in all_user_data else {}
             
             # Get the current value of the show_success flag
             user_data_item = user_data.get(user_item_name, default_value)
@@ -36,21 +38,33 @@ class HostMonitorBot(TlgBotFwk):
     
     async def load_all_user_data(self):
         try:
+            logger.info("Restoring jobs...")
+            await self.application.bot.send_message(self.bot_owner, "_Restoring jobs..._") if self.bot_owner else None            
       
             # restore all persisted jobs already added by the user
             user_data = await self.application.persistence.get_user_data() if self.application.persistence else {}     
             
             for user_id, jobs_dic in user_data.items():
                 try:
+                    log_message = f"_Restoring jobs for user_ `{user_id}`..."
+                    logger.debug(log_message)
+                    await self.application.bot.send_message(self.bot_owner, log_message) if user_id else None
+                    
                     # for each job item in user´s jobs dictionary, add a job to the job queue
                     for job_name, job_params in jobs_dic.items():
+                        
                         try:
+                            logger.debug(f"Adding job {job_name} for user {user_id}...")
+                            await self.application.bot.send_message(self.bot_owner, f"_Adding job_ `{job_name}` _for user_ `{user_id}`...") if user_id else None
+                            
                             if job_name.startswith('ping_'):
                                 ip_address = job_params['ip_address']
                                 interval = job_params['interval']
                                 self.jobs[user_id] = self.application.job_queue.run_repeating(
-                                    self.job, interval=interval, first=0, name=job_name, data=ip_address
-                                )
+                                    self.job, interval=interval, first=0, name=job_name, data=ip_address,
+                                    user_id=user_id, chat_id=user_id, 
+                                    # job_kwargs={'user_id': user_id, 'chat_id': user_id}
+                                ) # , data={'args': (self,)})
                                 
                         except Exception as e:
                             logger.error(f"Failed to add job {job_name} for user {user_id}: {e}")
@@ -77,7 +91,8 @@ class HostMonitorBot(TlgBotFwk):
             job_param = callback_context.job.data
             
             # Get the current value of the show_success flag from context user data
-            show_success = await self.get_user_data(callback_context.job.name, "show_success", False)
+            # TODO: pass user_id as parameter
+            show_success = await self.get_user_data(callback_context.job.user_id, "show_success", False)
             
             if show_success:
                 self.send_message_by_api(self.bot_owner, f"Pinging {job_param}...") if show_success else None
