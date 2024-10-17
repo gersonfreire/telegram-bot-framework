@@ -180,20 +180,27 @@ class HostMonitorBot(TlgBotFwk):
             await update.message.reply_text(f"An error occurred: {e}", parse_mode=None)
 
     async def delete_job(self, update: Update, context: CallbackContext):
-        if len(context.args) != 1:
-            await update.message.reply_text("Usage: /deletejob <ip_address>", parse_mode=None)
-            return
         
-        ip_address = context.args[0]
-        job_name = f"ping_{ip_address}"
+        try:
+            user_id = update.effective_user.id
+            
+            if len(context.args) != 1:
+                await update.message.reply_text("Usage: /deletejob <ip_address>", parse_mode=None)
+                return
+            
+            ip_address = context.args[0]
+            job_name = f"ping_{ip_address}"
+            
+            if job_name not in self.jobs:
+                await update.message.reply_text(f"No job found for {ip_address}.", parse_mode=None)
+                return
+            
+            job = self.jobs.pop(job_name)
+            job.schedule_removal()
+            await update.message.reply_text(f"Job for {ip_address} deleted.", parse_mode=None)
         
-        if job_name not in self.jobs:
-            update.message.reply_text(f"No job found for {ip_address}.", parse_mode=None)
-            return
-        
-        job = self.jobs.pop(job_name)
-        job.schedule_removal()
-        update.message.reply_text(f"Job for {ip_address} deleted.", parse_mode=None)
+        except Exception as e:
+            await update.message.reply_text(f"An error occurred: {e}", parse_mode=None)
 
     async def list_jobs(self, update: Update, context: CallbackContext):
         try:
