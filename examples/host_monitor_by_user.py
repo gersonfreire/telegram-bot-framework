@@ -58,10 +58,12 @@ class HostMonitorBot(TlgBotFwk):
                     for job_name, job_params in jobs_dic.items():
                         
                         try:
-                            logger.debug(f"Adding job {job_name} for user {user_id}...")
-                            await self.application.bot.send_message(self.bot_owner, f"_Adding job_ `{job_name}` _for user_ `{user_id}`...") if user_id else None
                             
                             if job_name.startswith('ping_'):
+                                
+                                logger.debug(f"Adding job {job_name} for user {user_id}...")
+                                await self.application.bot.send_message(self.bot_owner, f"_Adding job_ `{job_name}` _for user_ `{user_id}`...") if user_id else None
+                                
                                 ip_address = job_params['ip_address']
                                 interval = job_params['interval']
                                 self.jobs[user_id] = self.application.job_queue.run_repeating(
@@ -208,6 +210,7 @@ class HostMonitorBot(TlgBotFwk):
             
             # Update the show_success flag in the user data
             await self.application.persistence.update_user_data(update.effective_user.id, {"show_success": show_success}) if self.application.persistence else None
+            context.user_data["show_success"] = show_success
             
             status = "enabled" if show_success else "disabled"
             await update.message.reply_text(f"_Success messages are now:_ `{status}`.")
