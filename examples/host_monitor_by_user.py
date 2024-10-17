@@ -45,8 +45,13 @@ class HostMonitorBot(TlgBotFwk):
             logger.info("Restoring jobs...")
             await self.application.bot.send_message(self.bot_owner, "_Restoring jobs..._") if self.bot_owner else None            
       
-            # restore all persisted jobs already added by the user
-            user_data = await self.application.persistence.get_user_data() if self.application.persistence else {}     
+            # Get all persisted jobs already added by all users
+            user_data = await self.application.persistence.get_user_data() if self.application.persistence else {}
+            
+            if not user_data or len(user_data) == 0:
+                logger.info("No jobs found.")
+                await self.application.bot.send_message(self.bot_owner, "_No jobs found to restore._") if self.bot_owner else None
+                return     
             
             for user_id, jobs_dic in user_data.items():
                 try:
@@ -66,12 +71,16 @@ class HostMonitorBot(TlgBotFwk):
                                 
                                 ip_address = job_params['ip_address']
                                 interval = job_params['interval']
-                                # self.jobs[user_id] = 
-                                self.application.job_queue.run_repeating(
-                                    self.job_event_handler, interval=interval, first=0, name=job_name, data=ip_address,
-                                    user_id=user_id, chat_id=user_id, 
+                                
+                                new_job = self.application.job_queue.run_repeating(
+                                        self.job_event_handler, interval=interval, first=0, name=job_name, data=ip_address,
+                                        user_id=user_id, chat_id=user_id
+                                    )
                                     # job_kwargs={'user_id': user_id, 'chat_id': user_id}
-                                ) # , data={'args': (self,)})
+                                # , data={'args': (self,)})
+                                    
+                                self.jobs[user_id] = self.jobs[user_id] if user_id in self.jobs else {user_id: {}}
+                                self.jobs[user_id][job_name] = new_job if user_id in self.jobs else {job_name: new_job}                                
                                 
                         except Exception as e:
                             logger.error(f"Failed to add job {job_name} for user {user_id}: {e}")
@@ -129,7 +138,10 @@ class HostMonitorBot(TlgBotFwk):
             self.send_message_by_api(self.bot_owner, f"An error occurred while pinging {ip_address}: {e}", parse_mode=None)
 
     async def add_job(self, update: Update, context: CallbackContext):
+        
         try:
+            user_id = update.effective_user.id
+            
             if len(context.args) != 2:
                 await update.message.reply_text("Usage: /addjob <ip_address> <interval_in_seconds>", parse_mode=None)
                 return
@@ -145,22 +157,13 @@ class HostMonitorBot(TlgBotFwk):
                 await update.message.reply_text(f"Job for {ip_address} already exists.", parse_mode=None)
                 return
             
-            # if job_name in self.jobs:
-            #     await update.message.reply_text(f"Job for {ip_address} already exists.", parse_mode=None)
-            #     return
+            new_job = self.application.job_queue.run_repeating(
+                self.job_event_handler, interval=interval, first=0, name=job_name, data=ip_address,
+                user_id=user_id, chat_id=user_id
+            )
             
-            self.application.job_queue.run_repeating(
-            self.job_event_handler, interval=interval, first=0, name=job_name, data=ip_address
-            ) # , data={'args': (self,)})
-            # self.jobs[job_name] = job
-            
-            # ip_address = job_params['ip_address']
-            # interval = job_params['interval']
-            # self.jobs[user_id] = self.application.job_queue.run_repeating(
-            #     self.job, interval=interval, first=0, name=job_name, data=ip_address,
-            #     user_id=user_id, chat_id=user_id, 
-            #     # job_kwargs={'user_id': user_id, 'chat_id': user_id}
-            # ) # , data={'args': (self,)})            
+            self.jobs[user_id] = self.jobs[user_id] if user_id in self.jobs else {user_id: {}}
+            self.jobs[user_id][job_name] = new_job if user_id in self.jobs else {job_name: new_job}            
             
             # replace job object by ping parameters in user data
             context.user_data[job_name] = {'interval': interval, 'ip_address': ip_address}
