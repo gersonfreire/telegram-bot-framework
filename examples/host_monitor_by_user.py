@@ -166,7 +166,11 @@ class HostMonitorBot(TlgBotFwk):
             self.jobs[user_id][job_name] = new_job if user_id in self.jobs else {job_name: new_job}            
             
             # replace job object by ping parameters in user data
-            context.user_data[job_name] = {'interval': interval, 'ip_address': ip_address}
+            context.user_data[job_name] = {
+                'interval': interval, 
+                'ip_address': ip_address,
+                'job_owner': user_id
+            }
             
             # force persistence update of the user data
             await self.application.persistence.update_user_data(update.effective_user.id, context.user_data) if self.application.persistence else None              
@@ -271,10 +275,11 @@ class HostMonitorBot(TlgBotFwk):
                     
                     interval = context.user_data[job.name]['interval'] if job.name in context.user_data else None
                     ip_address = context.user_data[job.name]['ip_address'] if job.name in context.user_data else None
+                    job_owner = context.user_data[job.name]['job_owner'] if job.name in context.user_data else None
                     
                     next_time = (job.next_t - datetime.timedelta(hours=3)).strftime("%H:%M UTC-3") if job.next_t else "N/A"
                     
-                    message += f"`{effective_user_id}` _{interval}s_ `{ip_address}` `{next_time}`{os.linesep}" 
+                    message += f"`{job_owner}` _{interval}s_ `{ip_address}` `{next_time}`{os.linesep}" 
                     
                 await update.message.reply_text(text=message) 
                     
