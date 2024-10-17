@@ -59,7 +59,7 @@ class HostMonitorBot(TlgBotFwk):
                         
                         try:
                             
-                            if job_name.startswith('ping_'):
+                            if job_name and job_name.startswith('ping_'):
                                 
                                 logger.debug(f"Adding job {job_name} for user {user_id}...")
                                 await self.application.bot.send_message(self.bot_owner, f"_Adding job_ `{job_name}` _for user_ `{user_id}`...") if user_id else None
@@ -206,7 +206,7 @@ class HostMonitorBot(TlgBotFwk):
         
         try:
             # Get the current value of the show_success flag from context user data 
-            show_success = not bool(await self.get_user_data(update.effective_user.id, "show_success", False))
+            show_success = not bool(context.user_data["show_success"]) if "show_success" in context.user_data else False
             
             # Update the show_success flag in the user data
             await self.application.persistence.update_user_data(update.effective_user.id, {"show_success": show_success}) if self.application.persistence else None
