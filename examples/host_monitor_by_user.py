@@ -234,6 +234,13 @@ class HostMonitorBot(TlgBotFwk):
         except Exception as e:
             await update.message.reply_text(f"An error occurred: {e}", parse_mode=None)
 
+    def format_job_line(self, job):
+        try:
+            return f"`{job.name}`"
+        except Exception as e:
+            logger.error(f"Failed to format job line: {e}")
+            return f"Failed to format job line: {e}"
+
     async def list_all_jobs(self, update: Update, context: CallbackContext) -> None:
         """List all jobs in the job queue.
 
@@ -242,21 +249,26 @@ class HostMonitorBot(TlgBotFwk):
             context (CallbackContext): _description_
         """
         
-        job_name = context.args[0] if context.args else None
-        
-        if job_name:
-            jobs = context.job_queue.get_jobs_by_name(job_name)
-            if jobs:
-                await update.message.reply_text(f"Jobs with name '{job_name}': {[job.name for job in jobs]}")
+        try:
+            job_name = context.args[0] if context.args else None
+            
+            if job_name:
+                jobs = context.job_queue.get_jobs_by_name(job_name)
+                    
+                if jobs:
+                    await update.message.reply_text(f"Jobs with name '{job_name}': {[job.name for job in jobs]}")
+                else:
+                    await update.message.reply_text(f"No jobs found with name '{job_name}'.")
             else:
-                await update.message.reply_text(f"No jobs found with name '{job_name}'.")
-        else:
-            # no param list all jobs, with param list jobs by name
-            jobs = context.job_queue.jobs()
-            if jobs:
-                await update.message.reply_text(f"Jobs:{os.linesep}{[job.name for job in jobs]}")
-            else:
-                await update.message.reply_text(f"No jobs found.{os.linesep}Usages:{os.linesep}/listjobs (no param=list all jobs){os.linesep}/listjobs <job_name>")
+                # no param list all jobs, with param list jobs by name
+                jobs = context.job_queue.jobs()
+                if jobs:
+                    await update.message.reply_text(f"_Current active jobs:_{os.linesep}{[self.format_job_line(job) for job in jobs]}")
+                else:
+                    await update.message.reply_text(f"_No jobs found._{os.linesep}_Usages:_{os.linesep}/listjobs (no param=list all jobs){os.linesep}/listjobs <job_name>")
+                    
+        except Exception as e:
+            await update.message.reply_text(f"An error occurred: {e}", parse_mode=None)
 
     async def toggle_success(self, update: Update, context: CallbackContext):
         
