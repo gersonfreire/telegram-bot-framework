@@ -261,19 +261,17 @@ class HostMonitorBot(TlgBotFwk):
                 jobs = context.job_queue.jobs()
                 effective_user_id = update.effective_user.id
                 
-                # if not jobs or len(jobs) == 0:
-                #     await update.message.reply_text("_No active jobs._", parse_mode=ParseMode.MARKDOWN)
-                #     return
-                
                 # for each job item in user´s jobs queue collection, add a line to the message to be sent
                 message = f"_Active jobs:_{os.linesep}"
                     
                 all_user_data = await self.application.persistence.get_user_data() if self.application.persistence else {}
                 
                 #for job in jobs:
-                for owner_id, user_data in all_user_data.items():
+                for job_owner_id, user_data in all_user_data.items():
                     
-                    if owner_id != self.bot_owner and effective_user_id != self.bot_owner:
+                    # if user of chat is not admin or not owner of job
+                    is_allowed = effective_user_id == self.bot_owner or effective_user_id == job_owner_id
+                    if not is_allowed:
                         continue
                     
                     for job_name, job_params in user_data.items():
@@ -291,7 +289,7 @@ class HostMonitorBot(TlgBotFwk):
                         
                         interval = user_data[job_name]['interval'] if job_name in user_data else None
                         ip_address = user_data[job_name]['ip_address'] if job_name in user_data else None
-                        job_owner = owner_id
+                        job_owner = job_owner_id
                         
                         message += f"`{job_owner:<10}` _{interval}s_ `{ip_address}` `{next_time}`{os.linesep}"
                     
