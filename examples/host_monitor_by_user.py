@@ -186,6 +186,10 @@ class HostMonitorBot(TlgBotFwk):
     async def delete_job(self, update: Update, context: CallbackContext):
         
         try:
+            if len(context.args) < 1:
+                await update.message.reply_text("Usage: /deletejob <ip_address>", parse_mode=None)
+                return
+            
             user_id = update.effective_user.id
             
             ip_address = context.args[0]
@@ -204,6 +208,9 @@ class HostMonitorBot(TlgBotFwk):
             # job = context.user_data[job_name].pop(job_name)            
             
             job.schedule_removal()
+            
+            # remove this key from user data
+            context.user_data.pop(job_name) if job_name in context.user_data else None
             
             await update.message.reply_text(f"Job for {ip_address} deleted.", parse_mode=None)
         
