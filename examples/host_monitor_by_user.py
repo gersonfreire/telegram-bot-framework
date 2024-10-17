@@ -93,34 +93,36 @@ class HostMonitorBot(TlgBotFwk):
         self.external_post_init = self.load_all_user_data
 
     async def job(self, callback_context: CallbackContext):
-        try:
+        
+        try:     
+            # TODO: get owner user id of job     
+            user_id = callback_context.job.user_id   
+            
             job_param = callback_context.job.data
             
             # Get the current value of the show_success flag from context user data
-            # TODO: get show_success from user data
-            show_success = await self.get_user_data(callback_context.job.user_id, "show_success", False)
-            
-            # Get job owner user id from the job context
-            user_id = callback_context.job.user_id
+            # show_success = await self.get_user_data(callback_context.job.user_id, "show_success", False)
+            show_success = callback_context.user_data["show_success"] if "show_success" in callback_context.user_data else False
             
             if show_success:
                 self.send_message_by_api(user_id, f"Pinging {job_param}...") if show_success else None
                 
-            self.ping_host(job_param, show_success=show_success)
+            self.ping_host(job_param, show_success=show_success, user_id=user_id)
             
         except Exception as e:
             self.send_message_by_api(self.bot_owner, f"An error occurred: {e}", parse_mode=None) 
 
-    def ping_host(self, ip_address, show_success=True):
+    def ping_host(self, ip_address, show_success=True, user_id=None):
         try:
             # Ping logic here
             param = "-n 1" if platform.system().lower() == "windows" else "-c 1"
             response = os.system(f"ping {param} {ip_address}") # Returns 0 if the host is up, 1 if the host is down
             
+            # TODO: send message just to the job owner user
             if response == 0:
-                self.send_message_by_api(self.bot_owner, f"{ip_address} is up!") if show_success else None
+                self.send_message_by_api(user_id, f"{ip_address} is up!") if show_success else None
             else:
-                self.send_message_by_api(self.bot_owner, f"{ip_address} is down!")
+                self.send_message_by_api(user_id, f"{ip_address} is down!")
                 
         except Exception as e:
             self.send_message_by_api(self.bot_owner, f"An error occurred while pinging {ip_address}: {e}", parse_mode=None)
