@@ -191,7 +191,7 @@ class HostMonitorBot(TlgBotFwk):
             ip_address = context.args[0]
             job_name = f"ping_{ip_address}"
             
-            if job_name not in self.jobs:
+            if user_id not in self.jobs or job_name not in self.jobs[user_id]:
                 await update.message.reply_text(f"No job found for {ip_address}.", parse_mode=None)
                 return
             
