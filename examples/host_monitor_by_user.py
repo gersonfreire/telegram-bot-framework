@@ -184,19 +184,23 @@ class HostMonitorBot(TlgBotFwk):
         try:
             user_id = update.effective_user.id
             
+            ip_address = context.args[0]
+            job_name = f"ping_{ip_address}"
+            
             if len(context.args) != 1:
                 await update.message.reply_text("Usage: /deletejob <ip_address>", parse_mode=None)
                 return
-            
-            ip_address = context.args[0]
-            job_name = f"ping_{ip_address}"
             
             if job_name not in context.user_data[user_id]:
                 await update.message.reply_text(f"No job found for {ip_address}.", parse_mode=None)
                 return
             
-            job = self.jobs[user_id].pop(job_name)
+            job = self.application.job_queue.get_jobs_by_name(job_name)[0]
+            # job = self.jobs[user_id].pop(job_name)
+            # job = context.user_data[job_name].pop(job_name)            
+            
             job.schedule_removal()
+            
             await update.message.reply_text(f"Job for {ip_address} deleted.", parse_mode=None)
         
         except Exception as e:
