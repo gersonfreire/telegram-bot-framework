@@ -61,8 +61,11 @@ class HostMonitorBot(TlgBotFwk):
     async def job(self, callback_context: CallbackContext):
         try:
             job_param = callback_context.job.data
-            self.send_message_by_api(self.bot_owner, f"Pinging {job_param}...") if self.show_success else None
+            
+            if self.show_success:
+                self.send_message_by_api(self.bot_owner, f"Pinging {job_param}...") if self.show_success else None
             self.ping_host(job_param)
+            
         except Exception as e:
             self.send_message_by_api(self.bot_owner, f"An error occurred: {e}", parse_mode=None) 
 
@@ -132,24 +135,39 @@ class HostMonitorBot(TlgBotFwk):
                 await update.message.reply_text("No active jobs.", parse_mode=None)
                 return
             
-            message = "Active jobs:\n"
-            for job_name, job in self.jobs.items():
-                ip_address = job.data
-                interval = job.interval.total_seconds()
-                message += f"{job_name}: IP Address = {ip_address}, Interval = {interval} seconds\n"
+            message = f"_Active jobs:_{os.linesep}"
+            for user_id, job in self.jobs.items():
+                try:
+                    ip_address = job.data
+                    interval = context.user_data[job.name]['interval'] if job.name in context.user_data else None
+                    next_t = job.next_t.strftime('%d/%m-%H:%M:%S') if job.next_t else 'N/A'
+                    # message += f"`{user_id}`:`{job.name}``{ip_address}`:`{interval}s`:{next_t}{os.linesep}"
+                    message += f"`{user_id}` _{interval}s_ `{ip_address}` `{next_t}{os.linesep}`"
+                    
+                except Exception as e:
+                    logger.error(f"Failed to list job {job.name}: {e}")
+                    message += f"Failed to list job {job.name}: {e}\n"
             
-            await update.message.reply_text(message, parse_mode=None)
+            await update.message.reply_text(text=message)
             
         except Exception as e:
             await update.message.reply_text(f"An error occurred: {e}", parse_mode=None)
 
     def run(self):
-        self.application.add_handler(CommandHandler("addjob", self.add_job), group=-1)
-        self.application.add_handler(CommandHandler("deletejob", self.delete_job), group=-1)
-        super().run()
+        
+        try:
+            self.application.add_handler(CommandHandler("addjob", self.add_job), group=-1)
+            self.application.add_handler(CommandHandler("deletejob", self.delete_job), group=-1)
+            self.application.add_handler(CommandHandler("listjobs", self.list_jobs), group=-1)  
+            
+            super().run()
+            
+        except Exception as e:
+            logger.error(f"An error occurred while adding handlers or running the bot: {e}")
+            self.send_message_by_api(self.bot_owner, f"An error occurred while adding handlers or running the bot: {e}", parse_mode=None)
 
 # Create an instance of the bot
-bot = HostMonitorBot(show_success=True) 
+bot = HostMonitorBot() # show_success=True
 
 # Start the bot's main loop
 bot.run()
