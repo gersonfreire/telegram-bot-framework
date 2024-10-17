@@ -187,7 +187,7 @@ class HostMonitorBot(TlgBotFwk):
             message = f"_Active jobs:_{os.linesep}"
             for user_id, job in self.jobs.items():
                 try:
-                    if user_id != self.bot_owner and user_id != update.effective_user.id:
+                    if update.effective_user.id != self.bot_owner and user_id != update.effective_user.id:
                         continue
                     
                     ip_address = job.data
