@@ -340,7 +340,7 @@ class HostMonitorBot(TlgBotFwk):
 # Create an instance of the bot
 dotenv_path = os.path.join(os.path.dirname(__file__), 'my.env')
 dotenv.load_dotenv(dotenv_path)
-token = os.getenv("DEFAULT_BOT_TOKEN2", None)
+token = os.getenv("DEFAULT_BOT_TOKEN", None)
 
 bot = HostMonitorBot(token=token) # show_success=True
 
