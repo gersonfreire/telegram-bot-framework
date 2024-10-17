@@ -18,7 +18,7 @@ import __init__
 from tlgfwk import *
 
 class HostMonitorBot(TlgBotFwk):
-    
+          
     async def get_user_data(self, user_id: int, user_item_name: str, default_value=None):
     
         try:
@@ -233,6 +233,31 @@ class HostMonitorBot(TlgBotFwk):
             
         except Exception as e:
             await update.message.reply_text(f"An error occurred: {e}", parse_mode=None)
+
+    async def list_all_jobs(update: Update, context: CallbackContext) -> None:
+        """List all jobs in the job queue.
+
+        Args:
+            update (Update): _description_
+            context (CallbackContext): _description_
+        """
+        
+        job_name = context.args[0] if context.args else None
+        
+        if job_name:
+            jobs = context.job_queue.get_jobs_by_name(job_name)
+            if jobs:
+                await update.message.reply_text(f"Jobs with name '{job_name}': {[job.name for job in jobs]}")
+            else:
+                await update.message.reply_text(f"No jobs found with name '{job_name}'.")
+        else:
+            # no param list all jobs, with param list jobs by name
+            jobs = context.job_queue.jobs()
+            if jobs:
+                await update.message.reply_text(f"Jobs:{os.linesep}{[job.name for job in jobs]}")
+            else:
+                await update.message.reply_text(f"No jobs found.{os.linesep}Usages:{os.linesep}/listjobs (no param=list all jobs){os.linesep}/listjobs <job_name>")
+
 
     async def toggle_success(self, update: Update, context: CallbackContext):
         
