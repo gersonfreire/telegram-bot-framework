@@ -280,10 +280,10 @@ class HostMonitorBot(TlgBotFwk):
                         if not job_name.startswith('ping_'):
                             continue
                         
-                        next_time = "N/A"
+                        next_time = ""
                         try:
                             job = self.application.job_queue.get_jobs_by_name(job_name)[0]                        
-                            next_time = (job.next_t - datetime.timedelta(hours=3)).strftime("%H:%M UTC-3") if job.next_t else "N/A"
+                            next_time = (job.next_t - datetime.timedelta(hours=3)).strftime("%H:%M UTC-3") if job.next_t else ""
                         except IndexError:
                             logger.error(f"No job found with name {job_name}")
                         
@@ -293,7 +293,7 @@ class HostMonitorBot(TlgBotFwk):
                         ip_address = user_data[job_name]['ip_address'] if job_name in user_data else None
                         job_owner = owner_id
                         
-                        message += f"`{job_owner}` _{interval}s_ `{ip_address}` `{next_time}`{os.linesep}" 
+                        message += f"`{job_owner:<10}` _{interval}s_ `{ip_address}` `{next_time}`{os.linesep}"
                     
                 await update.message.reply_text(text=message) 
                     
