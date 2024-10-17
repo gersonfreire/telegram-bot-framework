@@ -234,19 +234,6 @@ class HostMonitorBot(TlgBotFwk):
         except Exception as e:
             await update.message.reply_text(f"An error occurred: {e}", parse_mode=None)
 
-    def format_job_line(self, job, interval) -> str:
-        
-        try:
-            user_id = job.user_id
-            ip_address = job.data
-            
-            message += f"`{user_id}` _{interval}s_ `{ip_address}`{os.linesep}"            
-            return message
-        
-        except Exception as e:
-            logger.error(f"Failed to format job line: {e}")
-            return f"Failed to format job line: {e}"
-
     async def list_all_jobs(self, update: Update, context: CallbackContext) -> None:
         """List all jobs in the job queue.
 
@@ -275,21 +262,16 @@ class HostMonitorBot(TlgBotFwk):
                     return
                 
                 # for each job item in user´s jobs queue collection, add a line to the message to be sent
+                message = f"_Active jobs:_{os.linesep}"
                 for job in jobs:
                     interval = context.user_data[job.name]['interval'] if job.name in context.user_data else None
                     ip_address = context.user_data[job.name]['ip_address'] if job.name in context.user_data else None
                     
-                    message += f"`{user_id}` _{interval}s_ `{ip_address}`{os.linesep}" 
+                    next_time = job.next_t.strftime("%m/%d %H:%M") if job.next_t else "N/A"
+                    
+                    message += f"`{user_id}` _{interval}s_ `{ip_address}` {next_time}{os.linesep}" 
                     
                 await update.message.reply_text(text=message) 
-                
-                # if jobs:
-                #     # Get interval from user data item for this specific user and job
-                #     interval = context.user_data[job_name]['interval'] if job_name in context.user_data else None
-                    
-                #     await update.message.reply_text(f"_Current active jobs:_{os.linesep}{[self.format_job_line(job, user_id, interval) for job in jobs]}")
-                # else:
-                #     await update.message.reply_text(f"_No jobs found._{os.linesep}_Usages:_{os.linesep}/listjobs (no param=list all jobs){os.linesep}/listjobs <job_name>")
                     
         except Exception as e:
             await update.message.reply_text(f"An error occurred: {e}", parse_mode=None)
