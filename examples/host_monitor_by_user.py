@@ -25,8 +25,12 @@ class HostMonitorBot(TlgBotFwk):
             # Get user data from the context
             all_user_data = await self.application.persistence.get_user_data() if self.application.persistence else {}
             
-            user_data = all_user_data[user_id] if user_id in all_user_data else {}
+            user_data = all_user_data[user_id] if user_id in all_user_data else {user_id : {}}
             
+            if user_item_name not in user_data:
+                user_data[user_item_name] = default_value
+                await self.application.persistence.update_user_data(user_id, user_data) if self.application.persistence else None
+                            
             # Get the current value of the show_success flag
             user_data_item = user_data.get(user_item_name, default_value)
             
@@ -200,7 +204,7 @@ class HostMonitorBot(TlgBotFwk):
         
         try:
             # Get the current value of the show_success flag from context user data 
-            show_success = not bool(await self.get_user_data("show_success", False))
+            show_success = not bool(await self.get_user_data(update.effective_user.id, "show_success", False))
             
             # Update the show_success flag in the user data
             await self.application.persistence.update_user_data(update.effective_user.id, {"show_success": show_success}) if self.application.persistence else None
