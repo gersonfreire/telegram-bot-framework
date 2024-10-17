@@ -267,9 +267,9 @@ class HostMonitorBot(TlgBotFwk):
                     interval = context.user_data[job.name]['interval'] if job.name in context.user_data else None
                     ip_address = context.user_data[job.name]['ip_address'] if job.name in context.user_data else None
                     
-                    next_time = (job.next_t - datetime.timedelta(hours=3)).strftime("%m/%d %H:%M UTC-3") if job.next_t else "N/A"
+                    next_time = (job.next_t - datetime.timedelta(hours=3)).strftime("%H:%M UTC-3") if job.next_t else "N/A"
                     
-                    message += f"`{user_id}` _{interval}s_ `{ip_address}` {next_time}{os.linesep}" 
+                    message += f"`{user_id}` _{interval}s_ `{ip_address}` `{next_time}`{os.linesep}" 
                     
                 await update.message.reply_text(text=message) 
                     
