@@ -101,7 +101,7 @@ class HostMonitorBot(TlgBotFwk):
             if show_success:
                 self.send_message_by_api(self.bot_owner, f"Pinging {job_param}...") if show_success else None
                 
-            self.ping_host(job_param)
+            self.ping_host(job_param, show_success=show_success)
             
         except Exception as e:
             self.send_message_by_api(self.bot_owner, f"An error occurred: {e}", parse_mode=None) 
