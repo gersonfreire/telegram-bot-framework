@@ -199,9 +199,9 @@ class HostMonitorBot(TlgBotFwk):
                 await update.message.reply_text("Usage: /deletejob <ip_address>", parse_mode=None)
                 return
             
-            if job_name not in context.user_data:
-                await update.message.reply_text(f"No job found for {ip_address}.", parse_mode=None)
-                return
+            # if job_name not in context.user_data:
+            #     await update.message.reply_text(f"No job found for {ip_address}.", parse_mode=None)
+            #     return
             
             try:
                 job = self.application.job_queue.get_jobs_by_name(job_name)[0]
