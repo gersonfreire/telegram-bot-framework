@@ -68,7 +68,6 @@ class HostMonitorBot(TlgBotFwk):
         
         super().__init__(disable_command_not_implemented=True, disable_error_handler=True, *args, **kwargs)
         
-        self.show_success = show_success
         self.jobs = {}
         
         self.external_post_init = self.load_all_user_data
@@ -77,21 +76,25 @@ class HostMonitorBot(TlgBotFwk):
         try:
             job_param = callback_context.job.data
             
-            if self.show_success:
-                self.send_message_by_api(self.bot_owner, f"Pinging {job_param}...") if self.show_success else None
+            # Get the current value of the show_success flag from context user data
+            show_success = await self.get_user_data(callback_context.job.name, "show_success", False)
+            
+            if show_success:
+                self.send_message_by_api(self.bot_owner, f"Pinging {job_param}...") if show_success else None
+                
             self.ping_host(job_param)
             
         except Exception as e:
             self.send_message_by_api(self.bot_owner, f"An error occurred: {e}", parse_mode=None) 
 
-    def ping_host(self, ip_address):
+    def ping_host(self, ip_address, show_success=True):
         try:
             # Ping logic here
             param = "-n 1" if platform.system().lower() == "windows" else "-c 1"
             response = os.system(f"ping {param} {ip_address}") # Returns 0 if the host is up, 1 if the host is down
             
             if response == 0:
-                self.send_message_by_api(self.bot_owner, f"{ip_address} is up!") if self.show_success else None
+                self.send_message_by_api(self.bot_owner, f"{ip_address} is up!") if show_success else None
             else:
                 self.send_message_by_api(self.bot_owner, f"{ip_address} is down!")
                 
