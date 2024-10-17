@@ -255,7 +255,7 @@ class HostMonitorBot(TlgBotFwk):
             else:
                 # no param list all jobs, with param list jobs by name
                 jobs = context.job_queue.jobs()
-                user_id = update.effective_user.id
+                effective_user_id = update.effective_user.id
                 
                 if not jobs or len(jobs) == 0:
                     await update.message.reply_text("_No active jobs._", parse_mode=None)
@@ -263,13 +263,18 @@ class HostMonitorBot(TlgBotFwk):
                 
                 # for each job item in user´s jobs queue collection, add a line to the message to be sent
                 message = f"_Active jobs:_{os.linesep}"
+                
                 for job in jobs:
+                    
+                    if effective_user_id != self.bot_owner and effective_user_id != job.user_id:
+                        continue
+                    
                     interval = context.user_data[job.name]['interval'] if job.name in context.user_data else None
                     ip_address = context.user_data[job.name]['ip_address'] if job.name in context.user_data else None
                     
                     next_time = (job.next_t - datetime.timedelta(hours=3)).strftime("%H:%M UTC-3") if job.next_t else "N/A"
                     
-                    message += f"`{user_id}` _{interval}s_ `{ip_address}` `{next_time}`{os.linesep}" 
+                    message += f"`{effective_user_id}` _{interval}s_ `{ip_address}` `{next_time}`{os.linesep}" 
                     
                 await update.message.reply_text(text=message) 
                     
