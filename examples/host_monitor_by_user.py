@@ -197,44 +197,26 @@ class HostMonitorBot(TlgBotFwk):
 
     async def list_jobs(self, update: Update, context: CallbackContext):
         try:
+            user_id = update.effective_user.id
+            
             if not self.jobs or len(self.jobs) == 0:
                 await update.message.reply_text("No active jobs.", parse_mode=None)
                 return            
             
             message = f"_Active jobs:_{os.linesep}"
             
-            # iterate for all jobs in the job queue
-            for user_id, user_jobs in self.jobs.items():
-                for job_name, job_item in user_jobs.items():
-                    try:
-                        if update.effective_user.id != self.bot_owner and user_id != update.effective_user.id:
-                            continue
+            # iterate through all item in the user_data dictionary
+            for job_name, job_params in context.user_data.items():
+                try:
+                    if not job_name.startswith('ping_'):
+                        continue
+                    ip_address = job_params['ip_address']
+                    interval = job_params['interval']
+                    message += f"`{user_id}` _{interval}s_ `{ip_address}`{os.linesep}"
 
-                        ip_address = job_item.data
-                        interval = context.user_data[job_name]['interval'] if job_name in context.user_data else None
-                        next_t = (job_item.next_t - timedelta(hours=3)).strftime('%d/%m %H:%M:%S') if job_item.next_t else 'N/A'
-                        message += f"`{user_id}` _{interval}s_ `{ip_address}` _{next_t}{os.linesep}_"
-
-                    except Exception as e:
-                        logger.error(f"Failed to list job {job_name}: {e}")
-                        message += f"Failed to list job {job_name}: {e}\n"
-                        
-            # for user_id, job_item in self.jobs.items():
-            #     try:
-            #         if update.effective_user.id != self.bot_owner and user_id != update.effective_user.id:
-            #             continue
-                    
-            #         # ip_address = job_item.data
-            #         ip_address = job_item.data
-                    
-            #         interval = context.user_data[job_item.name]['interval'] if job_item.name in context.user_data else None
-            #         next_t = (job_item.next_t - timedelta(hours=3)).strftime('%d/%m %H:%M:%S') if job_item.next_t else 'N/A'
-            #         # message += f"`{user_id}`:`{job.name}``{ip_address}`:`{interval}s`:{next_t}{os.linesep}"
-            #         message += f"`{user_id}` _{interval}s_ `{ip_address}` _{next_t}{os.linesep}_"
-                    
-            #     except Exception as e:
-            #         logger.error(f"Failed to list job {job_item.name}: {e}")
-            #         message += f"Failed to list job {job_item.name}: {e}\n"
+                except Exception as e:
+                    logger.error(f"Failed to list job {job_name}: {e}")
+                    message += f"Failed to list job {job_name}: {e}\n"
             
             await update.message.reply_text(text=message)
             
