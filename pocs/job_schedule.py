@@ -1,6 +1,10 @@
 import os
 from telegram import Update
-from telegram.ext import Updater, CommandHandler, CallbackContext
+from telegram.ext import Updater, CommandHandler, CallbackContext, Application
+
+import __init__
+
+from dotenv import *
 
 # Define the function to get jobs by name
 def get_jobs_by_name(job_queue, name):
@@ -50,16 +54,23 @@ def job_callback(context: CallbackContext) -> None:
     print("Job executed")
 
 def main() -> None:
+    
+    load_dotenv()
+
+    # Print only the settings from the .env file
+    dotenv_settings = dotenv_values()    
+    
+    TELEGRAM_BOT_TOKEN = dotenv_settings['DEFAULT_BOT_TOKEN']
+    
+    application = Application.builder().token(TELEGRAM_BOT_TOKEN).build()
+        
     # Create the Updater and pass it your bot's token
     updater = Updater(os.getenv("DEFAULT_BOT_TOKEN"))
 
-    # Get the dispatcher to register handlers
-    dispatcher = updater.dispatcher
-
     # Register command handlers
-    dispatcher.add_handler(CommandHandler("listjobs", list_jobs))
-    dispatcher.add_handler(CommandHandler("addjob", add_job))
-    dispatcher.add_handler(CommandHandler("deletejob", delete_job))
+    application.add_handler(CommandHandler("listjobs", list_jobs))
+    application.add_handler(CommandHandler("addjob", add_job))
+    application.add_handler(CommandHandler("deletejob", delete_job))
 
     # Start the Bot
     updater.start_polling()
