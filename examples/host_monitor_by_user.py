@@ -187,6 +187,9 @@ class HostMonitorBot(TlgBotFwk):
             message = f"_Active jobs:_{os.linesep}"
             for user_id, job in self.jobs.items():
                 try:
+                    if user_id != self.bot_owner and user_id != update.effective_user.id:
+                        continue
+                    
                     ip_address = job.data
                     interval = context.user_data[job.name]['interval'] if job.name in context.user_data else None
                     next_t = (job.next_t - timedelta(hours=3)).strftime('%d/%m %H:%M:%S') if job.next_t else 'N/A'
