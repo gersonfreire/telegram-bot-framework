@@ -1,8 +1,10 @@
 import sys, os, logging, socket, pdb, json, pickle, dotenv, datetime
 import base64
 from datetime import timedelta
+import requests, inspect
 
 from telegram import Bot, Chat, Message, User
+from telegram.ext import JobQueue
 
 # ---- Add parent folder to import path ----
 script_path = os.path.dirname(os.path.realpath(__file__))
@@ -34,6 +36,10 @@ import plugin_system.main as plugin_system_main
 from plugin_system.plugin_manager import PluginManager
 
 # ------------------------------------------
+
+# Construct the URL for the sendMessage endpoint
+bot_token = os.getenv('DEFAULT_BOT_TOKEN', None)
+telegram_api_base_url = f'https://api.telegram.org/bot{bot_token}/sendMessage' if bot_token else None
 
 def telegram_object_to_dict(obj):
     if isinstance(obj, User):

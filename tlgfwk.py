@@ -122,7 +122,7 @@ class TlgBotFwk(Application):
             language_code = context.user_data['language_code'] if 'language_code' in context.user_data else update.effective_user.language_code
             
             # force persistence update of the user data
-            self.application.persistence.update_user_data(update.effective_user.id, context.user_data) if self.application.persistence else None          
+            await self.application.persistence.update_user_data(update.effective_user.id, context.user_data) if self.application.persistence else None          
             
             # get user data from persistence
             user_data = await self.application.persistence.get_user_data() if self.application.persistence else None
@@ -542,6 +542,9 @@ _Links:_
             # for all admin users set the scope of the commands to chat_id
             await self.send_admins_message(message=post_init_message)
             
+            if self.external_post_init:
+                await self.external_post_init()
+            
         except Exception as e:
             logger.error(f"Error: {e}")
 
@@ -646,6 +649,8 @@ _Links:_
         force_common_commands = [],
         disable_commands_list = [],
         disable_command_not_implemented = False,
+        disable_error_handler = False,
+        external_post_init = None
         ):
         
         try: 
@@ -706,6 +711,9 @@ _Links:_
             self.force_common_commands = force_common_commands  
             self.disable_command_not_implemented = disable_command_not_implemented
             self.disable_commands_list = disable_commands_list
+            self.disable_error_handler = disable_error_handler
+            
+            self.external_post_init = external_post_init
             
             # ---------- Build the bot application ------------
               
@@ -772,8 +780,9 @@ _Links:_
     def initialize_handlers(self):
         
         try:
-            # handles global errors
-            self.application.add_error_handler(self.error_handler)
+            # handles global errors if enabled
+            if not self.disable_error_handler:
+                self.application.add_error_handler(self.error_handler)
             
             if not self.disable_default_handlers:
                 self.logger.info("Default handlers enabled")
@@ -1757,13 +1766,16 @@ _Links:_
     # @with_log_admin     
     async def error_handler(self, update: Update, context: CallbackContext) -> None:
         try:
-            self.logger.error(context.error)
-            await self.application.bot.send_message(chat_id=self.bot_owner, text=str(context.error), parse_mode=None) 
-            error_message = f"{__file__} at line {sys.exc_info()[-1].tb_lineno}: {context.error.__module__}"  
+            # self.logger.error(context.error)
+            # error_message = f"{__file__} at line {sys.exc_info()[-1].tb_lineno}: {context.error.__module__}" 
+            error_message = f"{__file__} at line {str(sys.exc_info()[-1])}: {str(context.error)}" 
+            self.logger.error(error_message) 
+            await self.application.bot.send_message(chat_id=self.bot_owner, text=error_message, parse_mode=None) 
         
         except Exception as e:            
             logger.error(e)
-            await update.message.reply_text(e, parse_mode=None)   
+            # await update.message.reply_text(e, parse_mode=None)   
+            await self.application.bot.send_message(chat_id=self.bot_owner, text=str(e))
 
     @with_writing_action
     @with_log_admin        
@@ -1792,7 +1804,7 @@ _Links:_
             language_code = context.user_data['language_code'] if 'language_code' in context.user_data else update.effective_user.language_code
             
             # force persistence update of the user data
-            self.application.persistence.update_user_data(update.effective_user.id, context.user_data) if self.application.persistence else None          
+            await self.application.persistence.update_user_data(update.effective_user.id, context.user_data) if self.application.persistence else None          
             
             # get user data from persistence
             user_data = await self.application.persistence.get_user_data() if self.application.persistence else None
@@ -1892,8 +1904,8 @@ _Links:_
     # ------------------------------------------
 
     def run(self):
-        # Run the bot using the run_polling method
         self.application.run_polling()
+        # There is no current event loop in thread 'MainThread'.
         
 if __name__ == '__main__':
     
