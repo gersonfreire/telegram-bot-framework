@@ -203,14 +203,17 @@ class HostMonitorBot(TlgBotFwk):
                 await update.message.reply_text(f"No job found for {ip_address}.", parse_mode=None)
                 return
             
-            job = self.application.job_queue.get_jobs_by_name(job_name)[0]
-            # job = self.jobs[user_id].pop(job_name)
-            # job = context.user_data[job_name].pop(job_name)            
+            try:
+                job = self.application.job_queue.get_jobs_by_name(job_name)[0]
+                job.schedule_removal()
+            except Exception as e:
+                logger.error(f"No job found with name {job_name}")            
             
-            job.schedule_removal()
-            
-            # remove this key from user data
-            context.user_data.pop(job_name) if job_name in context.user_data else None
+            try:
+                # remove this key from user data
+                context.user_data.pop(job_name) if job_name in context.user_data else None
+            except Exception as e:
+                logger.error(f"Failed to remove job {job_name} from user data: {e}")
             
             await update.message.reply_text(f"Job for {ip_address} deleted.", parse_mode=None)
         
