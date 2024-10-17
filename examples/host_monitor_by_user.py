@@ -258,7 +258,7 @@ class HostMonitorBot(TlgBotFwk):
                 effective_user_id = update.effective_user.id
                 
                 if not jobs or len(jobs) == 0:
-                    await update.message.reply_text("_No active jobs._", parse_mode=None)
+                    await update.message.reply_text("_No active jobs._", parse_mode=ParseMode.MARKDOWN)
                     return
                 
                 # for each job item in user´s jobs queue collection, add a line to the message to be sent
