@@ -234,9 +234,15 @@ class HostMonitorBot(TlgBotFwk):
         except Exception as e:
             await update.message.reply_text(f"An error occurred: {e}", parse_mode=None)
 
-    def format_job_line(self, job):
+    def format_job_line(self, job, interval) -> str:
+        
         try:
-            return f"`{job.name}`"
+            user_id = job.user_id
+            ip_address = job.data
+            
+            message += f"`{user_id}` _{interval}s_ `{ip_address}`{os.linesep}"            
+            return message
+        
         except Exception as e:
             logger.error(f"Failed to format job line: {e}")
             return f"Failed to format job line: {e}"
@@ -262,8 +268,12 @@ class HostMonitorBot(TlgBotFwk):
             else:
                 # no param list all jobs, with param list jobs by name
                 jobs = context.job_queue.jobs()
+                user_id = update.effective_user.id
                 if jobs:
-                    await update.message.reply_text(f"_Current active jobs:_{os.linesep}{[self.format_job_line(job) for job in jobs]}")
+                    # Get interval from user data item for this specific user and job
+                    interval = context.user_data[job_name]['interval'] if job_name in context.user_data else None
+                    
+                    await update.message.reply_text(f"_Current active jobs:_{os.linesep}{[self.format_job_line(job, user_id, interval) for job in jobs]}")
                 else:
                     await update.message.reply_text(f"_No jobs found._{os.linesep}_Usages:_{os.linesep}/listjobs (no param=list all jobs){os.linesep}/listjobs <job_name>")
                     
