@@ -234,7 +234,7 @@ class HostMonitorBot(TlgBotFwk):
         except Exception as e:
             await update.message.reply_text(f"An error occurred: {e}", parse_mode=None)
 
-    async def list_all_jobs(update: Update, context: CallbackContext) -> None:
+    async def list_all_jobs(self, update: Update, context: CallbackContext) -> None:
         """List all jobs in the job queue.
 
         Args:
