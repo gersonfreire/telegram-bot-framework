@@ -1,4 +1,3 @@
-
 In `python-telegram-bot` version 20.x and later, the initialization of the `Application` class has changed. The `Application` class does not accept a `token` directly in its constructor. Instead, you need to use the `Application.builder()` method to create an instance of `Application`. Here’s the corrected version of the code:
 
 ### Corrected Code
