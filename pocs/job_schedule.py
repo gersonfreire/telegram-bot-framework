@@ -2,8 +2,6 @@ import os
 from telegram import Update
 from telegram.ext import Updater, CommandHandler, CallbackContext, Application
 
-import __init__
-
 from dotenv import *
 
 # Define the function to get jobs by name
