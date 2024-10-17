@@ -8,7 +8,7 @@ overrides the initialize_handlers method to add a help command handler.
 This version is inspired on and more elaborated than host_monitor because controls each host by user.
 """
 
-__version__ = '0.2.0'
+__version__ = '0.2.1'
 
 import os, platform, time, asyncio
 from telegram import Update
@@ -18,6 +18,21 @@ import __init__
 from tlgfwk import *
 
 class HostMonitorBot(TlgBotFwk):
+    
+    async def get_user_data(self, user_id: int, user_item_name: str, default_value=None):
+    
+        try:
+            # Get user data from the context
+            user_data = await self.application.persistence.get_user_data(user_id) if self.application.persistence else {}
+            
+            # Get the current value of the show_success flag
+            user_data_item = user_data.get(user_item_name, default_value)
+            
+            return user_data_item
+                
+        except Exception as e:
+            logger.error(f"An error occurred while getting user data: {e}")
+            return None
     
     async def load_all_user_data(self):
         try:
@@ -164,10 +179,17 @@ class HostMonitorBot(TlgBotFwk):
             await update.message.reply_text(f"An error occurred: {e}", parse_mode=None)
 
     async def toggle_success(self, update: Update, context: CallbackContext):
+        
         try:
-            self.show_success = not self.show_success
-            status = "enabled" if self.show_success else "disabled"
-            await update.message.reply_text(f"Success messages are now {status}.", parse_mode=None)
+            # Get the current value of the show_success flag from context user data 
+            show_success = not bool(await self.get_user_data("show_success", False))
+            
+            # Update the show_success flag in the user data
+            await self.application.persistence.update_user_data(update.effective_user.id, {"show_success": show_success}) if self.application.persistence else None
+            
+            status = "enabled" if show_success else "disabled"
+            await update.message.reply_text(f"_Success messages are now:_ `{status}`.")
+            
         except Exception as e:
             await update.message.reply_text(f"An error occurred: {e}", parse_mode=None)
 
