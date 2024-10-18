@@ -11,9 +11,10 @@ This version is inspired on and more elaborated than host_monitor because contro
 __version__ = '0.3.0'
 
 import __init__
+
 from tlgfwk import *
 
-class HostMonitorBot(TlgBotFwk):
+class HostWatchBot(TlgBotFwk):
           
     async def get_user_data(self, user_id: int, user_item_name: str, default_value=None):
     
@@ -333,12 +334,17 @@ class HostMonitorBot(TlgBotFwk):
             logger.error(f"An error occurred while adding handlers or running the bot: {e}")
             self.send_message_by_api(self.bot_owner, f"An error occurred while adding handlers or running the bot: {e}")
 
-dotenv_path = os.path.join(os.path.dirname(__file__), '.env')
-dotenv.load_dotenv(dotenv_path)
-token = os.getenv("DEFAULT_BOT_TOKEN", None)
+def main():
+    # Load the bot token from the .env file
+    dotenv_path = os.path.join(os.path.dirname(__file__), '.env')
+    dotenv.load_dotenv(dotenv_path)
+    token = os.getenv("DEFAULT_BOT_TOKEN", None)
 
-# Create an instance of the bot
-bot = HostMonitorBot(token=token) 
+    # Create an instance of the bot
+    bot = HostWatchBot(token=token) 
 
-# Start the bot's main loop
-bot.run()
+    # Start the bot's main loop
+    bot.run()
+    
+if __name__ == '__main__':
+    main()
