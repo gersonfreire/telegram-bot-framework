@@ -1548,7 +1548,8 @@ _Links:_
                 message = "No users found in the persistence file."
             
             # Send the message to the user
-            await update.message.reply_text(message.replace("_","-"))
+            # await update.message.reply_text(message.replace("_","-"))
+            await update.message.reply_text(message, parse_mode=ParseMode.MARKDOWN_V2)
             
         except Exception as e:
             logger.error(f"Error in cmd_show_users: {e}")
