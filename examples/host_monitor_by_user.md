@@ -1,12 +1,6 @@
 The script
 
-host_monitor_by_user.py
-
-```
-pandoc .\host_monitor_by_user.md -o .\host_monitor_by_user.pdf --pdf-engine=wkhtmltopdf
-```
-
- is a Telegram bot designed to monitor remote hosts by periodically pinging them. It leverages the Telegram Bot Framework and includes several functionalities to manage and monitor hosts on a per-user basis. Below is a detailed analysis of the script:
+host_monitor_by_user.py is a Telegram bot designed to monitor remote hosts by periodically pinging them. It leverages the Telegram Bot Framework and includes several functionalities to manage and monitor hosts on a per-user basis. Below is a detailed analysis of the script:
 
 ### Overview
 
