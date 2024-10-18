@@ -1523,15 +1523,11 @@ _Links:_
             
             user_balance = f'${user_balance:,.0f}' 
             
-            # escape possible markdown formatting from user_names
-            user_full_name = user.full_name #.replace('_', '\_').replace('*', '\*').replace('[', '\[')
-            user_name = user.name # .replace('_', '\_').replace('*', '\*').replace('[', '\[')
-            
             # Get the user line
-            user_line = f"`{str(user.id):<11}` `{str(user_full_name)[:20]:<20}`  `{last_message}`  {format_string(user_name)}"
-            user_line = f"`{str(user_full_name)[:12]:<12}` `{last_message}` {format_string(user_name,15)}"
+            user_line = f"`{str(user.id):<11}` `{str(user.full_name)[:20]:<20}`  `{last_message}`  {format_string(user.name)}"
+            user_line = f"`{str(user.full_name)[:12]:<12}` `{last_message}` {format_string(user.name,15)}"
             
-            user_line = f"`{str(user.id)[:10]:<10}` `{str(user_balance)[:4]:<4}` `{last_message}` {user_name} {flag_admin}"
+            user_line = f"`{str(user.id)[:10]:<10}` `{str(user_balance)[:4]:<4}` `{last_message}` {user.name} {flag_admin}"
             
             return user_line
         
@@ -1546,10 +1542,9 @@ _Links:_
             
             # Check if there are any users in the dictionary
             if all_users_data:
-                user_names = [await get_user_line(user, persistence_user_data) for user in all_users_data.values()]     
-                
+                user_names = [await get_user_line(user, persistence_user_data) for user in all_users_data.values()]               
                 # Create a message with the user names
-                message = f"_Current active bot users:_{os.linesep}" + os.linesep.join(f'{user_names}')
+                message = f"_Current active bot users:_{os.linesep}" + os.linesep.join(user_names)
             else:
                 message = "No users found in the persistence file."
             
@@ -1559,7 +1554,7 @@ _Links:_
         except Exception as e:
             logger.error(f"Error in cmd_show_users: {e}")
             await update.message.reply_text(f"Sorry, we encountered an error: {e}")    
-    
+       
     @with_writing_action
     @with_log_admin
     async def cmd_force_persistence(self, update: Update, context: CallbackContext):
