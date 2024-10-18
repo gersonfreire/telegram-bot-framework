@@ -8,11 +8,7 @@ overrides the initialize_handlers method to add a help command handler.
 This version is inspired on and more elaborated than host_monitor because controls each host by user.
 """
 
-__version__ = '0.2.1'
-
-# import os, platform, time, asyncio
-# from telegram import Update
-# from telegram.ext import CommandHandler, CallbackContext
+__version__ = '0.3.0'
 
 import __init__
 from tlgfwk import *
@@ -338,7 +334,7 @@ class HostMonitorBot(TlgBotFwk):
             self.send_message_by_api(self.bot_owner, f"An error occurred while adding handlers or running the bot: {e}")
 
 # Create an instance of the bot
-dotenv_path = os.path.join(os.path.dirname(__file__), 'my.env')
+dotenv_path = os.path.join(os.path.dirname(__file__), '.env')
 dotenv.load_dotenv(dotenv_path)
 token = os.getenv("DEFAULT_BOT_TOKEN", None)
 
