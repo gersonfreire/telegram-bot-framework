@@ -23,6 +23,10 @@ from plugin_system.plugin_manager import PluginManager
 
 import requests, inspect
 
+import os, platform, time, asyncio
+from telegram import Update
+from telegram.ext import CommandHandler, CallbackContext
+
 # ------------------------------------------
 
 # Construct the URL for the sendMessage endpoint
