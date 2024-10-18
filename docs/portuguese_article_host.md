@@ -28,3 +28,5 @@ Se você quiser ver o bot ao vivo e a cores já rodando no Telegram, clique no l
 Ou vá no Github ver o código fonte, que está na pasta de exemplos do framework:
 
 [https://github.com/gersonfreire/telegram-bot-framework/blob/main/examples/host_monitor_by_user.py]()
+
+Obrigado pela leitura, faça bom uso e se quiser, junte-se a nós nesse empreitada aberta à comunidade!
