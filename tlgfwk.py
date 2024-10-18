@@ -1524,8 +1524,8 @@ _Links:_
             user_balance = f'${user_balance:,.0f}' 
             
             # escape possible markdown formatting from user_names
-            user_full_name = user.full_name.replace('_', '\_').replace('*', '\*').replace('[', '\[')
-            user_name = user.name.replace('_', '\_').replace('*', '\*').replace('[', '\[')
+            user_full_name = user.full_name #.replace('_', '\_').replace('*', '\*').replace('[', '\[')
+            user_name = user.name # .replace('_', '\_').replace('*', '\*').replace('[', '\[')
             
             # Get the user line
             user_line = f"`{str(user.id):<11}` `{str(user_full_name)[:20]:<20}`  `{last_message}`  {format_string(user_name)}"
