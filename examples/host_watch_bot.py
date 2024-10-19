@@ -217,34 +217,6 @@ class HostWatchBot(TlgBotFwk):
         except Exception as e:
             await update.message.reply_text(f"An error occurred: {e}", parse_mode=None)
 
-    async def list_jobs(self, update: Update, context: CallbackContext):
-        try:
-            user_id = update.effective_user.id
-            
-            if not self.jobs or len(self.jobs) == 0:
-                await update.message.reply_text("No active jobs.", parse_mode=None)
-                return            
-            
-            message = f"_Active jobs:_{os.linesep}"
-            
-            # iterate through all item in the user_data dictionary
-            for job_name, job_params in context.user_data.items():
-                try:
-                    if not job_name.startswith('ping_'):
-                        continue
-                    ip_address = job_params['ip_address']
-                    interval = job_params['interval']
-                    message += f"`{user_id}` _{interval}s_ `{ip_address}`{os.linesep}"
-
-                except Exception as e:
-                    logger.error(f"Failed to list job {job_name}: {e}")
-                    message += f"Failed to list job {job_name}: {e}\n"
-            
-            await update.message.reply_text(text=message)
-            
-        except Exception as e:
-            await update.message.reply_text(f"An error occurred: {e}", parse_mode=None)
-
     async def list_all_jobs(self, update: Update, context: CallbackContext) -> None:
         """List all jobs in the job queue.
 
