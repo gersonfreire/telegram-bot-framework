@@ -8,7 +8,9 @@ overrides the initialize_handlers method to add a help command handler.
 This version is inspired on and more elaborated than host_monitor because controls each host by user.
 """
 
-__version__ = '0.3.0'
+__version__ = '0.4.0 TODO: Remove  paypal and payment commands'
+
+# TODO: Remove  paypal and payment commands
 
 import __init__
 
