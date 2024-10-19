@@ -226,58 +226,50 @@ class HostWatchBot(TlgBotFwk):
         """
         
         try:
-            job_name = context.args[0] if context.args else None
-            command_name = update.message.text.split()[0]
+            command_scope = context.args[0] if context.args else None
+        
+            # no param list all jobs, with param list jobs by name
+            jobs = context.job_queue.jobs()
+            effective_user_id = update.effective_user.id
             
-            if job_name:
-                jobs = context.job_queue.get_jobs_by_name(job_name)
-                    
-                if jobs:
-                    await update.message.reply_text(f"Jobs with name '{job_name}': {[job.name for job in jobs]}")
-                else:
-                    await update.message.reply_text(f"No jobs found with name '{job_name}'.")
-            else:
-                # no param list all jobs, with param list jobs by name
-                jobs = context.job_queue.jobs()
-                effective_user_id = update.effective_user.id
+            # for each job item in user´s jobs queue collection, add a line to the message to be sent
+            message = f"_Active jobs:_{os.linesep}"
                 
-                # for each job item in user´s jobs queue collection, add a line to the message to be sent
-                message = f"_Active jobs:_{os.linesep}"
-                    
-                all_user_data = await self.application.persistence.get_user_data() if self.application.persistence else {}
+            all_user_data = await self.application.persistence.get_user_data() if self.application.persistence else {}
+            
+            for job_owner_id, user_data in all_user_data.items():
                 
-                for job_owner_id, user_data in all_user_data.items():
-                    
-                    # Show to the user a job in these 2 cases:
-                    # -The command is to list all jobs and the current user is the bot owner
-                    # OR
-                    # -The current user is the owner of the job
-                    is_allowed = (command_name == '/listalljobs' and effective_user_id == self.bot_owner) or (effective_user_id == job_owner_id)
-                    
-                    if not is_allowed:
+                # Show to the user a job in these 2 cases:
+                # -The command scope is to list all jobs and the current user is the bot owner
+                # OR
+                # -The current user is the owner of the job
+                is_allowed = (command_scope and command_scope.lower()=='all' 
+                              and effective_user_id == self.bot_owner) or (effective_user_id == job_owner_id)
+                
+                if not is_allowed:
+                    continue
+                
+                for job_name, job_params in user_data.items():
+                    if not job_name.startswith('ping_'):
                         continue
                     
-                    for job_name, job_params in user_data.items():
-                        if not job_name.startswith('ping_'):
-                            continue
-                        
-                        next_time = ""
-                        try:
-                            job = self.application.job_queue.get_jobs_by_name(job_name)[0]                        
-                            next_time = (job.next_t - datetime.timedelta(hours=3)).strftime("%H:%M UTC-3") if job.next_t else ""
-                        except IndexError:
-                            logger.error(f"No job found with name {job_name}")
-                        
-                        interval = user_data[job_name]['interval'] if job_name in user_data else None
-                        ip_address = user_data[job_name]['ip_address'] if job_name in user_data else None
-                        job_owner = job_owner_id
-                        
-                        message += f"`{job_owner:<10}` _{interval}s_ `{ip_address}` `{next_time}`{os.linesep}"                    
-                
-                # Escape possible markdown characters from user name
-                # message = re.sub(r'([_*\[\]()~`>#+\-=|{}.!])', r'\\\1', message)
-                                
-                await update.message.reply_text(text=message) 
+                    next_time = ""
+                    try:
+                        job = self.application.job_queue.get_jobs_by_name(job_name)[0]                        
+                        next_time = (job.next_t - datetime.timedelta(hours=3)).strftime("%H:%M UTC-3") if job.next_t else ""
+                    except IndexError:
+                        logger.error(f"No job found with name {job_name}")
+                    
+                    interval = user_data[job_name]['interval'] if job_name in user_data else None
+                    ip_address = user_data[job_name]['ip_address'] if job_name in user_data else None
+                    job_owner = job_owner_id
+                    
+                    message += f"`{job_owner:<10}` _{interval}s_ `{ip_address}` `{next_time}`{os.linesep}"                    
+            
+            # TODO: Escape possible markdown characters from user name
+            # message = re.sub(r'([_*\[\]()~`>#+\-=|{}.!])', r'\\\1', message)
+                            
+            await update.message.reply_text(text=message) 
                     
         except Exception as e:
             await update.message.reply_text(f"An error occurred: {e}", parse_mode=None)
