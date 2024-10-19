@@ -135,6 +135,12 @@ class HostWatchBot(TlgBotFwk):
             self.send_message_by_api(self.bot_owner, f"An error occurred while pinging {ip_address}: {e}", parse_mode=None)
 
     async def add_job(self, update: Update, context: CallbackContext):
+        """Add a new host to be monitored by the bot.
+
+        Args:
+            update (Update): _description_
+            context (CallbackContext): _description_
+        """
         
         try:
             user_id = update.effective_user.id
@@ -181,6 +187,12 @@ class HostWatchBot(TlgBotFwk):
             await update.message.reply_text(f"An error occurred: {e}", parse_mode=None)
 
     async def delete_job(self, update: Update, context: CallbackContext):
+        """Remove a host from the bot´s monitoring list.
+
+        Args:
+            update (Update): _description_
+            context (CallbackContext): _description_
+        """
         
         try:
             if len(context.args) < 1:
@@ -217,36 +229,8 @@ class HostWatchBot(TlgBotFwk):
         except Exception as e:
             await update.message.reply_text(f"An error occurred: {e}", parse_mode=None)
 
-    async def list_jobs(self, update: Update, context: CallbackContext):
-        try:
-            user_id = update.effective_user.id
-            
-            if not self.jobs or len(self.jobs) == 0:
-                await update.message.reply_text("No active jobs.", parse_mode=None)
-                return            
-            
-            message = f"_Active jobs:_{os.linesep}"
-            
-            # iterate through all item in the user_data dictionary
-            for job_name, job_params in context.user_data.items():
-                try:
-                    if not job_name.startswith('ping_'):
-                        continue
-                    ip_address = job_params['ip_address']
-                    interval = job_params['interval']
-                    message += f"`{user_id}` _{interval}s_ `{ip_address}`{os.linesep}"
-
-                except Exception as e:
-                    logger.error(f"Failed to list job {job_name}: {e}")
-                    message += f"Failed to list job {job_name}: {e}\n"
-            
-            await update.message.reply_text(text=message)
-            
-        except Exception as e:
-            await update.message.reply_text(f"An error occurred: {e}", parse_mode=None)
-
-    async def list_all_jobs(self, update: Update, context: CallbackContext) -> None:
-        """List all jobs in the job queue.
+    async def list_jobs(self, update: Update, context: CallbackContext) -> None:
+        """List the hosts being monitored by the bot.
 
         Args:
             update (Update): _description_
@@ -254,55 +238,50 @@ class HostWatchBot(TlgBotFwk):
         """
         
         try:
-            job_name = context.args[0] if context.args else None
-            command_name = update.message.text.split()[0]
+            command_scope = context.args[0] if context.args else None
+        
+            # no param list all jobs, with param list jobs by name
+            jobs = context.job_queue.jobs()
+            effective_user_id = update.effective_user.id
             
-            if job_name:
-                jobs = context.job_queue.get_jobs_by_name(job_name)
-                    
-                if jobs:
-                    await update.message.reply_text(f"Jobs with name '{job_name}': {[job.name for job in jobs]}")
-                else:
-                    await update.message.reply_text(f"No jobs found with name '{job_name}'.")
-            else:
-                # no param list all jobs, with param list jobs by name
-                jobs = context.job_queue.jobs()
-                effective_user_id = update.effective_user.id
+            # for each job item in user´s jobs queue collection, add a line to the message to be sent
+            message = f"_Active jobs:_{os.linesep}"
                 
-                # for each job item in user´s jobs queue collection, add a line to the message to be sent
-                message = f"_Active jobs:_{os.linesep}"
-                    
-                all_user_data = await self.application.persistence.get_user_data() if self.application.persistence else {}
+            all_user_data = await self.application.persistence.get_user_data() if self.application.persistence else {}
+            
+            for job_owner_id, user_data in all_user_data.items():
                 
-                #for job in jobs:
-                for job_owner_id, user_data in all_user_data.items():
-                    
-                    # if user of chat is not admin or not owner of job
-                    is_allowed = (command_name == 'listalljobs' and effective_user_id == self.bot_owner) or (effective_user_id == job_owner_id)
-                    if not is_allowed:
+                # Show to the user a job in these 2 cases:
+                # -The command scope is to list all jobs and the current user is the bot owner
+                # OR
+                # -The current user is the owner of the job
+                is_allowed = (command_scope and command_scope.lower()=='all' 
+                              and effective_user_id == self.bot_owner) or (effective_user_id == job_owner_id)
+                
+                if not is_allowed:
+                    continue
+                
+                for job_name, job_params in user_data.items():
+                    if not job_name.startswith('ping_'):
                         continue
                     
-                    for job_name, job_params in user_data.items():
-                        if not job_name.startswith('ping_'):
-                            continue
-                        
-                        next_time = ""
-                        try:
-                            job = self.application.job_queue.get_jobs_by_name(job_name)[0]                        
-                            next_time = (job.next_t - datetime.timedelta(hours=3)).strftime("%H:%M UTC-3") if job.next_t else ""
-                        except IndexError:
-                            logger.error(f"No job found with name {job_name}")
-                        
-                        interval = user_data[job_name]['interval'] if job_name in user_data else None
-                        ip_address = user_data[job_name]['ip_address'] if job_name in user_data else None
-                        job_owner = job_owner_id
-                        
-                        message += f"`{job_owner:<10}` _{interval}s_ `{ip_address}` `{next_time}`{os.linesep}"                    
-                
-                # Escape possible markdown characters from user name
-                # message = re.sub(r'([_*\[\]()~`>#+\-=|{}.!])', r'\\\1', message)
-                                
-                await update.message.reply_text(text=message) 
+                    next_time = ""
+                    try:
+                        job = self.application.job_queue.get_jobs_by_name(job_name)[0]                        
+                        next_time = (job.next_t - datetime.timedelta(hours=3)).strftime("%H:%M UTC-3") if job.next_t else ""
+                    except IndexError:
+                        logger.error(f"No job found with name {job_name}")
+                    
+                    interval = user_data[job_name]['interval'] if job_name in user_data else None
+                    ip_address = user_data[job_name]['ip_address'] if job_name in user_data else None
+                    job_owner = job_owner_id
+                    
+                    message += f"`{job_owner:<10}` _{interval}s_ `{ip_address}` `{next_time}`{os.linesep}"                    
+            
+            # TODO: Escape possible markdown characters from user name
+            # message = re.sub(r'([_*\[\]()~`>#+\-=|{}.!])', r'\\\1', message)
+                            
+            await update.message.reply_text(text=message) 
                     
         except Exception as e:
             await update.message.reply_text(f"An error occurred: {e}", parse_mode=None)
@@ -326,11 +305,10 @@ class HostWatchBot(TlgBotFwk):
     def run(self):
         
         try:
-            self.application.add_handler(CommandHandler("addjob", self.add_job), group=-1)
-            self.application.add_handler(CommandHandler("deletejob", self.delete_job), group=-1)
-            self.application.add_handler(CommandHandler("listjobs", self.list_all_jobs), group=-1)  
+            self.application.add_handler(CommandHandler("pingadd", self.add_job), group=-1)
+            self.application.add_handler(CommandHandler("pingdelete", self.delete_job), group=-1)
+            self.application.add_handler(CommandHandler("pinglist", self.list_jobs), group=-1)  
             self.application.add_handler(CommandHandler("togglesuccess", self.toggle_success), group=-1)
-            self.application.add_handler(CommandHandler("listalljobs", self.list_all_jobs), group=-1)
             
             super().run()
             
