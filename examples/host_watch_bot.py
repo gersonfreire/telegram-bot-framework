@@ -274,11 +274,14 @@ class HostWatchBot(TlgBotFwk):
                     
                 all_user_data = await self.application.persistence.get_user_data() if self.application.persistence else {}
                 
-                #for job in jobs:
                 for job_owner_id, user_data in all_user_data.items():
                     
-                    # if user of chat is not admin or not owner of job
+                    # Show to the user a job in these 2 cases:
+                    # -The command is to list all jobs and the current user is the bot owner
+                    # OR
+                    # -The current user is the owner of the job
                     is_allowed = (command_name == 'listalljobs' and effective_user_id == self.bot_owner) or (effective_user_id == job_owner_id)
+                    
                     if not is_allowed:
                         continue
                     
