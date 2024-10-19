@@ -252,7 +252,7 @@ class HostWatchBot(TlgBotFwk):
                     # -The command is to list all jobs and the current user is the bot owner
                     # OR
                     # -The current user is the owner of the job
-                    is_allowed = (command_name == 'listalljobs' and effective_user_id == self.bot_owner) or (effective_user_id == job_owner_id)
+                    is_allowed = (command_name == '/listalljobs' and effective_user_id == self.bot_owner) or (effective_user_id == job_owner_id)
                     
                     if not is_allowed:
                         continue
