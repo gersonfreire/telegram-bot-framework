@@ -3,6 +3,8 @@
 # ------------------------------------------
 
 """
+Deprecated Bot: please use host_watch_bot.py instead.
+
 This is a sample bot using the Telegram Bot Framework that 
 overrides the initialize_handlers method to add a help command handler.
 This version is inspired on and more elaborated than host_monitor because controls each host by user.
