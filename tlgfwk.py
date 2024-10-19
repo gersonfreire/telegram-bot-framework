@@ -44,6 +44,7 @@ __change_log__ = """
 0.9.8 Example of a simple echo bot using the framework
 0.9.9 Optional disable to command not implemented yet"""
 
+import re
 from __init__ import *
         
 class TlgBotFwk(Application): 
@@ -1526,7 +1527,11 @@ _Links:_
             user_line = f"`{str(user.id):<11}` `{str(user.full_name)[:20]:<20}`  `{last_message}`  {format_string(user.name)}"
             user_line = f"`{str(user.full_name)[:12]:<12}` `{last_message}` {format_string(user.name,15)}"
             
-            user_line = f"`{str(user.id)[:10]:<10}` `{str(user_balance)[:4]:<4}` `{last_message}` {user.name} {flag_admin}"
+            # Escape possible markdown characters from user name
+            # user_name = user.name.replace('_', '\_')
+            user_name = re.sub(r'([_*\[\]()~`>#+\-=|{}.!])', r'\\\1', user.name)
+            
+            user_line = f"`{str(user.id)[:10]:<10}` `{str(user_balance)[:4]:<4}` `{last_message}` {user_name} {flag_admin}"
             
             return user_line
         
@@ -1548,12 +1553,12 @@ _Links:_
                 message = "No users found in the persistence file."
             
             # Send the message to the user
-            await update.message.reply_text(message.replace("_","-"))
+            await update.message.reply_text(message)
             
         except Exception as e:
             logger.error(f"Error in cmd_show_users: {e}")
             await update.message.reply_text(f"Sorry, we encountered an error: {e}")    
-    
+       
     @with_writing_action
     @with_log_admin
     async def cmd_force_persistence(self, update: Update, context: CallbackContext):
