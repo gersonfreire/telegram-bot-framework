@@ -135,6 +135,12 @@ class HostWatchBot(TlgBotFwk):
             self.send_message_by_api(self.bot_owner, f"An error occurred while pinging {ip_address}: {e}", parse_mode=None)
 
     async def add_job(self, update: Update, context: CallbackContext):
+        """Add a new host to be monitored by the bot.
+
+        Args:
+            update (Update): _description_
+            context (CallbackContext): _description_
+        """
         
         try:
             user_id = update.effective_user.id
@@ -181,6 +187,12 @@ class HostWatchBot(TlgBotFwk):
             await update.message.reply_text(f"An error occurred: {e}", parse_mode=None)
 
     async def delete_job(self, update: Update, context: CallbackContext):
+        """Remove a host from the bot´s monitoring list.
+
+        Args:
+            update (Update): _description_
+            context (CallbackContext): _description_
+        """
         
         try:
             if len(context.args) < 1:
@@ -217,8 +229,8 @@ class HostWatchBot(TlgBotFwk):
         except Exception as e:
             await update.message.reply_text(f"An error occurred: {e}", parse_mode=None)
 
-    async def list_all_jobs(self, update: Update, context: CallbackContext) -> None:
-        """List all jobs in the job queue.
+    async def list_jobs(self, update: Update, context: CallbackContext) -> None:
+        """List the hosts being monitored by the bot.
 
         Args:
             update (Update): _description_
@@ -293,11 +305,10 @@ class HostWatchBot(TlgBotFwk):
     def run(self):
         
         try:
-            self.application.add_handler(CommandHandler("addjob", self.add_job), group=-1)
-            self.application.add_handler(CommandHandler("deletejob", self.delete_job), group=-1)
-            self.application.add_handler(CommandHandler("listjobs", self.list_all_jobs), group=-1)  
+            self.application.add_handler(CommandHandler("pingadd", self.add_job), group=-1)
+            self.application.add_handler(CommandHandler("pingdelete", self.delete_job), group=-1)
+            self.application.add_handler(CommandHandler("pinglist", self.list_jobs), group=-1)  
             self.application.add_handler(CommandHandler("togglesuccess", self.toggle_success), group=-1)
-            self.application.add_handler(CommandHandler("listalljobs", self.list_all_jobs), group=-1)
             
             super().run()
             
