@@ -1527,7 +1527,11 @@ _Links:_
             user_line = f"`{str(user.id):<11}` `{str(user.full_name)[:20]:<20}`  `{last_message}`  {format_string(user.name)}"
             user_line = f"`{str(user.full_name)[:12]:<12}` `{last_message}` {format_string(user.name,15)}"
             
-            user_line = f"`{str(user.id)[:10]:<10}` `{str(user_balance)[:4]:<4}` `{last_message}` {user.name} {flag_admin}"
+            # Escape possible markdown characters from user name
+            # user_name = user.name.replace('_', '\_')
+            user_name = re.sub(r'([_*\[\]()~`>#+\-=|{}.!])', r'\\\1', user.name)
+            
+            user_line = f"`{str(user.id)[:10]:<10}` `{str(user_balance)[:4]:<4}` `{last_message}` {user_name} {flag_admin}"
             
             return user_line
         
