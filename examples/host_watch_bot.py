@@ -255,6 +255,7 @@ class HostWatchBot(TlgBotFwk):
         
         try:
             job_name = context.args[0] if context.args else None
+            command_name = update.message.text.split()[0]
             
             if job_name:
                 jobs = context.job_queue.get_jobs_by_name(job_name)
@@ -277,7 +278,7 @@ class HostWatchBot(TlgBotFwk):
                 for job_owner_id, user_data in all_user_data.items():
                     
                     # if user of chat is not admin or not owner of job
-                    is_allowed = effective_user_id == self.bot_owner or effective_user_id == job_owner_id
+                    is_allowed = (command_name == 'listalljobs' and effective_user_id == self.bot_owner) or (effective_user_id == job_owner_id)
                     if not is_allowed:
                         continue
                     
@@ -296,8 +297,11 @@ class HostWatchBot(TlgBotFwk):
                         ip_address = user_data[job_name]['ip_address'] if job_name in user_data else None
                         job_owner = job_owner_id
                         
-                        message += f"`{job_owner:<10}` _{interval}s_ `{ip_address}` `{next_time}`{os.linesep}"
-                    
+                        message += f"`{job_owner:<10}` _{interval}s_ `{ip_address}` `{next_time}`{os.linesep}"                    
+                
+                # Escape possible markdown characters from user name
+                # message = re.sub(r'([_*\[\]()~`>#+\-=|{}.!])', r'\\\1', message)
+                                
                 await update.message.reply_text(text=message) 
                     
         except Exception as e:
@@ -324,7 +328,7 @@ class HostWatchBot(TlgBotFwk):
         try:
             self.application.add_handler(CommandHandler("addjob", self.add_job), group=-1)
             self.application.add_handler(CommandHandler("deletejob", self.delete_job), group=-1)
-            self.application.add_handler(CommandHandler("listjobs", self.list_jobs), group=-1)  
+            self.application.add_handler(CommandHandler("listjobs", self.list_all_jobs), group=-1)  
             self.application.add_handler(CommandHandler("togglesuccess", self.toggle_success), group=-1)
             self.application.add_handler(CommandHandler("listalljobs", self.list_all_jobs), group=-1)
             
