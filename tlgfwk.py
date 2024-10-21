@@ -44,8 +44,8 @@ __change_log__ = """
 0.9.8 Example of a simple echo bot using the framework
 0.9.9 Optional disable to command not implemented yet"""
 
-import re
 from __init__ import *
+# import re
         
 class TlgBotFwk(Application): 
     
@@ -679,7 +679,8 @@ _Links:_
                 # dotenv.set_key(self.env_file, 'DEFAULT_BOT_OWNER',self.bot_owner)            
             
             dotenv.load_dotenv(self.env_file)
-            self.token = os.environ.get('DEFAULT_BOT_TOKEN', None) if not self.token else self.token
+            self.token = os.environ.get('DEFAULT_BOT_TOKEN') # , None) if not self.token else self.token
+            # self.token = dotenv.get_key(self.env_file, 'DEFAULT_BOT_TOKEN', None) if not self.token else self.token
             self.bot_owner = int(os.environ.get('DEFAULT_BOT_OWNER', 999999)) if not self.bot_owner else self.bot_owner 
                  
             # read list of admin users from the .env file
@@ -960,6 +961,9 @@ _Links:_
                 'chat_id': chat_id,
                 'text': message
             }
+            
+            # Construct the URL for the sendMessage endpoint
+            telegram_api_base_url = f'https://api.telegram.org/bot{self.token}/sendMessage' if self.token else None
 
             # Send the POST request
             response = requests.post(telegram_api_base_url, data=payload)
