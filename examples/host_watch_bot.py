@@ -98,7 +98,7 @@ class HostWatchBot(TlgBotFwk):
         # Load the bot token from the .env file
         dotenv_path = os.path.join(os.path.dirname(__file__), '.env')     
         
-        super().__init__(disable_command_not_implemented=True, disable_error_handler=True, env_file='.env', token=token, *args, **kwargs)
+        super().__init__(disable_command_not_implemented=True, disable_error_handler=True, env_file=dotenv_path, token=token, *args, **kwargs)
         
         self.jobs = {}
         
