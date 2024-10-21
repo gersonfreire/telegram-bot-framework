@@ -1,5 +1,5 @@
 import sys, os, logging, socket, pdb, json, pickle, dotenv, datetime
-import base64
+import base64, re
 from datetime import timedelta
 
 from telegram import Bot, Chat, Message, User
@@ -30,6 +30,8 @@ from telegram.ext import CommandHandler, CallbackContext
 # ------------------------------------------
 
 # Construct the URL for the sendMessage endpoint
+dotenv_path = os.path.join(os.path.dirname(__file__), '.env')
+dotenv.load_dotenv(dotenv_path) 
 bot_token = os.getenv('DEFAULT_BOT_TOKEN', None)
 telegram_api_base_url = f'https://api.telegram.org/bot{bot_token}/sendMessage' if bot_token else None
 

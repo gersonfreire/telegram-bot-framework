@@ -44,7 +44,6 @@ __change_log__ = """
 0.9.8 Example of a simple echo bot using the framework
 0.9.9 Optional disable to command not implemented yet"""
 
-import re
 from __init__ import *
         
 class TlgBotFwk(Application): 
