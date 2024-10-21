@@ -45,7 +45,7 @@ __change_log__ = """
 0.9.9 Optional disable to command not implemented yet"""
 
 from __init__ import *
-import re
+# import re
         
 class TlgBotFwk(Application): 
     

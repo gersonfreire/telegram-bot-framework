@@ -13,7 +13,7 @@ __version__ = '0.4.0 TODO: Remove  paypal and payment commands'
 # TODO: Remove  paypal and payment commands
 
 import __init__
-import re
+# import re
 
 from tlgfwk import *
 
