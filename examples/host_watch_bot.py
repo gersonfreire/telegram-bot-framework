@@ -93,7 +93,12 @@ class HostWatchBot(TlgBotFwk):
             logger.error(f"Failed to restore jobs: {e}")
             self.send_message_by_api(self.bot_owner, f"Failed to restore jobs: {e}", parse_mode=None)           
     
-    def __init__(self, show_success=False, token=None, *args, **kwargs):
+    def __init__(self, token=None, *args, **kwargs):
+
+        # Load the bot token from the .env file
+        dotenv_path = os.path.join(os.path.dirname(__file__), '.env')
+        dotenv.load_dotenv(dotenv_path)
+        token = os.getenv("DEFAULT_BOT_TOKEN", None)        
         
         super().__init__(disable_command_not_implemented=True, disable_error_handler=True, token=token, *args, **kwargs)
         
@@ -319,13 +324,9 @@ class HostWatchBot(TlgBotFwk):
             self.send_message_by_api(self.bot_owner, f"An error occurred while adding handlers or running the bot: {e}")
 
 def main():
-    # Load the bot token from the .env file
-    dotenv_path = os.path.join(os.path.dirname(__file__), '.env')
-    dotenv.load_dotenv(dotenv_path)
-    token = os.getenv("DEFAULT_BOT_TOKEN", None)
 
     # Create an instance of the bot
-    bot = HostWatchBot(token=token) 
+    bot = HostWatchBot() 
 
     # Start the bot's main loop
     bot.run()
