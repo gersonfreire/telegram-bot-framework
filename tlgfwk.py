@@ -678,8 +678,8 @@ _Links:_
                 # dotenv.set_key(self.env_file, 'DEFAULT_BOT_OWNER',self.bot_owner)            
             
             dotenv.load_dotenv(self.env_file)
-            # self.token = os.environ.get('DEFAULT_BOT_TOKEN', None) if not self.token else self.token
-            self.token = dotenv.get_key(self.env_file, 'DEFAULT_BOT_TOKEN', None) if not self.token else self.token
+            self.token = os.environ.get('DEFAULT_BOT_TOKEN') # , None) if not self.token else self.token
+            # self.token = dotenv.get_key(self.env_file, 'DEFAULT_BOT_TOKEN', None) if not self.token else self.token
             self.bot_owner = int(os.environ.get('DEFAULT_BOT_OWNER', 999999)) if not self.bot_owner else self.bot_owner 
                  
             # read list of admin users from the .env file
