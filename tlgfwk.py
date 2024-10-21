@@ -959,6 +959,9 @@ _Links:_
                 'chat_id': chat_id,
                 'text': message
             }
+            
+            # Construct the URL for the sendMessage endpoint
+            telegram_api_base_url = f'https://api.telegram.org/bot{self.bot_token}/sendMessage' if self.bot_token else None
 
             # Send the POST request
             response = requests.post(telegram_api_base_url, data=payload)
