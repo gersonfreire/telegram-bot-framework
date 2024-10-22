@@ -177,6 +177,9 @@ _Path:_
         """
         
         try:
+            # remove from list self.all_commands the list of disabled commands
+            self.all_commands = [command for command in self.all_commands if command.command not in self.disable_commands_list]
+            
             # for all admin users set the scope of the commands to chat_id
             for admin_id in self.admins_owner:
                 await self.application.bot.set_my_commands(self.all_commands, scope={'type': 'chat', 'chat_id': admin_id})
@@ -378,7 +381,11 @@ _Links:_
                 help_header = self.help_text.split(os.linesep)[0]
                 help_text_list = self.help_text.split(os.linesep)[1:]
                 help_text_list = sorted(help_text_list)
-                self.help_text = f'{help_header}{os.linesep}{os.linesep.join(help_text_list)}'            
+                self.help_text = f'{help_header}{os.linesep}{os.linesep.join(help_text_list)}' 
+                
+            # remove from list self.all_commands the list of disabled commands                       
+            self.common_users_commands = [command for command in self.common_users_commands if command.command not in self.disable_commands_list]
+            self.all_commands = [command for command in self.all_commands if command.command not in self.disable_commands_list]
                 
             # set new commands to telegram bot menu
             await self.application.bot.set_my_commands(self.common_users_commands)
@@ -537,7 +544,13 @@ _Links:_
             self.common_users_commands = await application.bot.get_my_commands(scope=BotCommandScopeDefault())            
             logger.info(f"Get Current commands: {self.common_users_commands}")
             
+            # remove from the list of commands the list of disabled commands
+            self.common_users_commands = [command for command in self.common_users_commands if command.command not in self.disable_commands_list]
+            
             self.admin_commands = await application.bot.get_my_commands(scope={'type': 'chat', 'chat_id': self.admins_owner[0]}) if self.admins_owner else []
+            
+            # remove from the list of admin commands the list of disabled commands
+            self.admin_commands = [command for command in self.admin_commands if command.command not in self.disable_commands_list]
             
             self.all_commands = tuple(list(self.common_users_commands) + list(self.admin_commands))
             
