@@ -529,12 +529,12 @@ _Links:_
             post_init_message = await self.get_init_message() 
             logger.info(f"{post_init_message}") 
             
-            # Get list of all commands and remove disabled commands in self.disable_commands_list from the bot menu
-            all_commands = await self.application.bot.get_my_commands()
-            all_commands = [command for command in all_commands if command.command not in self.disable_commands_list] if self.disable_commands_list else all_commands
+            # TODO: # Get list of all commands and remove disabled commands in self.disable_commands_list from the bot menu
+            # all_commands = await self.application.bot.get_my_commands()
+            # all_commands = [command for command in all_commands if command.command not in self.disable_commands_list] if self.disable_commands_list else all_commands
             
-            # Set the bot commands menu
-            await self.application.bot.set_my_commands(all_commands)
+            # # Set the bot commands menu
+            # await self.application.bot.set_my_commands(all_commands)
             
             # Set the start message for all admin users 
             await self.set_start_message(self.default_language_code, 'Admin', self.admins_owner[0])
@@ -812,8 +812,10 @@ _Links:_
             self.application.add_handler(set_language_code_handler)
             
             # add handler for the /userlang command to set the user language code
-            set_user_language_handler = CommandHandler('userlang', self.set_user_language)
-            self.application.add_handler(set_user_language_handler)
+            command_text = 'userlang'
+            if command_text not in self.disable_commands_list:
+                set_user_language_handler = CommandHandler(command_text, self.set_user_language)
+                self.application.add_handler(set_user_language_handler)
             
             # add handler for the /git command to update the bot's code from a git repository
             git_handler = CommandHandler('git', self.cmd_git, filters=filters.User(user_id=self.admins_owner))
@@ -832,16 +834,20 @@ _Links:_
             self.application.add_handler(show_config_handler)
             
             # add version command handler
-            version_handler = CommandHandler('version', self.cmd_version_handler, filters=self.admin_filters if 'version' not in self.force_common_commands else None)
-            self.application.add_handler(version_handler)
+            command_text = 'version'
+            if command_text not in self.disable_commands_list:          
+                version_handler = CommandHandler(command_text, self.cmd_version_handler, filters=self.admin_filters if 'version' not in self.force_common_commands else None)
+                self.application.add_handler(version_handler)
             
             # add admin manage command handler
             admin_manage_handler = CommandHandler('admin', self.cmd_manage_admin, filters=filters.User(user_id=self.admins_owner))
             self.application.add_handler(admin_manage_handler)
             
             # add useful links command handler
-            useful_links_handler = CommandHandler('links', self.cmd_manage_links)
-            self.application.add_handler(useful_links_handler)
+            command_text = 'links'
+            if command_text not in self.disable_commands_list:                  
+                useful_links_handler = CommandHandler(command_text, self.cmd_manage_links)
+                self.application.add_handler(useful_links_handler)
             
             # add show env command handler
             show_env_handler = CommandHandler('showenv', self.cmd_show_env, filters=filters.User(user_id=self.admins_owner))
@@ -859,7 +865,9 @@ _Links:_
             show_users_handler = CommandHandler('showusers', self.cmd_show_users, filters=filters.User(user_id=self.admins_owner))
             self.application.add_handler(show_users_handler)
             
-            self.application.add_handler(CommandHandler("payment", self.cmd_payment)) 
+            command_text = 'payment'
+            if command_text not in self.disable_commands_list:             
+                self.application.add_handler(CommandHandler(command_text, self.cmd_payment)) 
             
             # add handler for the /loadplugin command to load a plugin dynamically
             load_plugin_handler = CommandHandler('loadplugin', self.cmd_load_plugin, filters=filters.User(user_id=self.admins_owner))
@@ -870,8 +878,10 @@ _Links:_
             self.application.add_handler(show_commands_handler)
             
             # Add handler for the /showbalance command to show the current user's balance
-            show_balance_handler = CommandHandler('showbalance', self.cmd_show_balance)
-            self.application.add_handler(show_balance_handler)
+            command_text = 'showbalance'
+            if command_text not in self.disable_commands_list:                 
+                show_balance_handler = CommandHandler(command_text, self.cmd_show_balance)
+                self.application.add_handler(show_balance_handler)
             
             # Pre-checkout handler to final check
             self.application.add_handler(PreCheckoutQueryHandler(self.precheckout_callback)) 
@@ -885,8 +895,10 @@ _Links:_
             self.application.add_handler(manage_stripe_token_handler)  
             
             # Command to generate Paypal payment links
-            generate_paypal_link_handler = CommandHandler('paypal', self.cmd_generate_paypal_link)
-            self.application.add_handler(generate_paypal_link_handler)  if 'paypal' not in self.disable_commands_list else None
+            command_text = 'paypal'
+            if command_text not in self.disable_commands_list:
+                generate_paypal_link_handler = CommandHandler(command_text, self.cmd_generate_paypal_link)
+                self.application.add_handler(generate_paypal_link_handler)  
             
             # Add a command handler that lists all PayPal pending links, restricted to admin users
             list_paypal_links_handler = CommandHandler('listpaypal', self.cmd_list_paypal_links, filters=filters.User(user_id=self.admins_owner))
@@ -910,10 +922,6 @@ _Links:_
             unschedule_function_command = 'unschedule'
             unschedule_function_handler = CommandHandler(unschedule_function_command, self.cmd_unschedule_function, filters=filters.User(user_id=self.admins_owner))
             self.application.add_handler(unschedule_function_handler)
-            
-            # Loop removing the command handlers from the list which are in the disable_commands_list
-            for command in self.disable_commands_list:
-                self.application.remove_handler(command)
             
             if not self.disable_command_not_implemented:
                 self.application.add_handler(MessageHandler(filters.COMMAND, self.default_unknown_command))
