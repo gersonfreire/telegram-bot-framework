@@ -679,8 +679,8 @@ _Links:_
                 # dotenv.set_key(self.env_file, 'DEFAULT_BOT_OWNER',self.bot_owner)            
             
             dotenv.load_dotenv(self.env_file)
-            self.token = os.environ.get('DEFAULT_BOT_TOKEN') # , None) if not self.token else self.token
-            # self.token = dotenv.get_key(self.env_file, 'DEFAULT_BOT_TOKEN', None) if not self.token else self.token
+            # self.token = os.environ.get('DEFAULT_BOT_TOKEN') # , None) if not self.token else self.token
+            self.token = dotenv.get_key(self.env_file, 'DEFAULT_BOT_TOKEN', None) if not self.token else self.token
             self.bot_owner = int(os.environ.get('DEFAULT_BOT_OWNER', 999999)) if not self.bot_owner else self.bot_owner 
                  
             # read list of admin users from the .env file
@@ -878,7 +878,7 @@ _Links:_
             
             # Command to generate Paypal payment links
             generate_paypal_link_handler = CommandHandler('paypal', self.cmd_generate_paypal_link)
-            self.application.add_handler(generate_paypal_link_handler)  
+            self.application.add_handler(generate_paypal_link_handler)  if 'paypal' not in self.disable_commands_list else None
             
             # Add a command handler that lists all PayPal pending links, restricted to admin users
             list_paypal_links_handler = CommandHandler('listpaypal', self.cmd_list_paypal_links, filters=filters.User(user_id=self.admins_owner))
