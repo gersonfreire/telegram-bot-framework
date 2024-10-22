@@ -8,9 +8,10 @@ overrides the initialize_handlers method to add a help command handler.
 This version is inspired on and more elaborated than host_monitor because controls each host by user.
 """
 
-__version__ = '0.3.0'
+__version__ = '0.4.0 TODO: Remove  paypal and payment commands'
 
 import __init__
+# import re
 
 from tlgfwk import *
 
@@ -91,9 +92,13 @@ class HostWatchBot(TlgBotFwk):
             logger.error(f"Failed to restore jobs: {e}")
             self.send_message_by_api(self.bot_owner, f"Failed to restore jobs: {e}", parse_mode=None)           
     
-    def __init__(self, show_success=False, token=None, *args, **kwargs):
+    def __init__(self, token=None, *args, **kwargs):
+
+        # Load the bot token from the .env file
+        dotenv_path = os.path.join(os.path.dirname(__file__), 'my.env')     
         
-        super().__init__(disable_command_not_implemented=True, disable_error_handler=True, token=token, *args, **kwargs)
+        # super().__init__(disable_error_handler=True, env_file=dotenv_path, token=token, *args, **kwargs)
+        super().__init__(env_file=dotenv_path, token=token, disable_commands_list=['paypal', 'payment','p','showbalance'], disable_command_not_implemented=True)
         
         self.jobs = {}
         
@@ -317,13 +322,9 @@ class HostWatchBot(TlgBotFwk):
             self.send_message_by_api(self.bot_owner, f"An error occurred while adding handlers or running the bot: {e}")
 
 def main():
-    # Load the bot token from the .env file
-    dotenv_path = os.path.join(os.path.dirname(__file__), '.env')
-    dotenv.load_dotenv(dotenv_path)
-    token = os.getenv("DEFAULT_BOT_TOKEN", None)
 
     # Create an instance of the bot
-    bot = HostWatchBot(token=token) 
+    bot = HostWatchBot() 
 
     # Start the bot's main loop
     bot.run()

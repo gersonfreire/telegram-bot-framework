@@ -44,8 +44,8 @@ __change_log__ = """
 0.9.8 Example of a simple echo bot using the framework
 0.9.9 Optional disable to command not implemented yet"""
 
-import re
 from __init__ import *
+# import re
         
 class TlgBotFwk(Application): 
     
@@ -177,6 +177,9 @@ _Path:_
         """
         
         try:
+            # remove from list self.all_commands the list of disabled commands
+            self.all_commands = [command for command in self.all_commands if command.command not in self.disable_commands_list]
+            
             # for all admin users set the scope of the commands to chat_id
             for admin_id in self.admins_owner:
                 await self.application.bot.set_my_commands(self.all_commands, scope={'type': 'chat', 'chat_id': admin_id})
@@ -378,7 +381,11 @@ _Links:_
                 help_header = self.help_text.split(os.linesep)[0]
                 help_text_list = self.help_text.split(os.linesep)[1:]
                 help_text_list = sorted(help_text_list)
-                self.help_text = f'{help_header}{os.linesep}{os.linesep.join(help_text_list)}'            
+                self.help_text = f'{help_header}{os.linesep}{os.linesep.join(help_text_list)}' 
+                
+            # remove from list self.all_commands the list of disabled commands                       
+            self.common_users_commands = [command for command in self.common_users_commands if command.command not in self.disable_commands_list]
+            self.all_commands = [command for command in self.all_commands if command.command not in self.disable_commands_list]
                 
             # set new commands to telegram bot menu
             await self.application.bot.set_my_commands(self.common_users_commands)
@@ -529,6 +536,7 @@ _Links:_
             post_init_message = await self.get_init_message() 
             logger.info(f"{post_init_message}") 
             
+            # Set the start message for all admin users 
             await self.set_start_message(self.default_language_code, 'Admin', self.admins_owner[0])
             
             post_init_message += f"{os.linesep}{os.linesep}{self.default_start_message}"
@@ -536,7 +544,13 @@ _Links:_
             self.common_users_commands = await application.bot.get_my_commands(scope=BotCommandScopeDefault())            
             logger.info(f"Get Current commands: {self.common_users_commands}")
             
+            # remove from the list of commands the list of disabled commands
+            self.common_users_commands = [command for command in self.common_users_commands if command.command not in self.disable_commands_list]
+            
             self.admin_commands = await application.bot.get_my_commands(scope={'type': 'chat', 'chat_id': self.admins_owner[0]}) if self.admins_owner else []
+            
+            # remove from the list of admin commands the list of disabled commands
+            self.admin_commands = [command for command in self.admin_commands if command.command not in self.disable_commands_list]
             
             self.all_commands = tuple(list(self.common_users_commands) + list(self.admin_commands))
             
@@ -679,7 +693,8 @@ _Links:_
                 # dotenv.set_key(self.env_file, 'DEFAULT_BOT_OWNER',self.bot_owner)            
             
             dotenv.load_dotenv(self.env_file)
-            self.token = os.environ.get('DEFAULT_BOT_TOKEN', None) if not self.token else self.token
+            # self.token = os.environ.get('DEFAULT_BOT_TOKEN') # , None) if not self.token else self.token
+            self.token = dotenv.get_key(self.env_file, 'DEFAULT_BOT_TOKEN', None) if not self.token else self.token
             self.bot_owner = int(os.environ.get('DEFAULT_BOT_OWNER', 999999)) if not self.bot_owner else self.bot_owner 
                  
             # read list of admin users from the .env file
@@ -803,8 +818,10 @@ _Links:_
             self.application.add_handler(set_language_code_handler)
             
             # add handler for the /userlang command to set the user language code
-            set_user_language_handler = CommandHandler('userlang', self.set_user_language)
-            self.application.add_handler(set_user_language_handler)
+            command_text = 'userlang'
+            if command_text not in self.disable_commands_list:
+                set_user_language_handler = CommandHandler(command_text, self.set_user_language)
+                self.application.add_handler(set_user_language_handler)
             
             # add handler for the /git command to update the bot's code from a git repository
             git_handler = CommandHandler('git', self.cmd_git, filters=filters.User(user_id=self.admins_owner))
@@ -823,16 +840,20 @@ _Links:_
             self.application.add_handler(show_config_handler)
             
             # add version command handler
-            version_handler = CommandHandler('version', self.cmd_version_handler, filters=self.admin_filters if 'version' not in self.force_common_commands else None)
-            self.application.add_handler(version_handler)
+            command_text = 'version'
+            if command_text not in self.disable_commands_list:          
+                version_handler = CommandHandler(command_text, self.cmd_version_handler, filters=self.admin_filters if 'version' not in self.force_common_commands else None)
+                self.application.add_handler(version_handler)
             
             # add admin manage command handler
             admin_manage_handler = CommandHandler('admin', self.cmd_manage_admin, filters=filters.User(user_id=self.admins_owner))
             self.application.add_handler(admin_manage_handler)
             
             # add useful links command handler
-            useful_links_handler = CommandHandler('links', self.cmd_manage_links)
-            self.application.add_handler(useful_links_handler)
+            command_text = 'links'
+            if command_text not in self.disable_commands_list:                  
+                useful_links_handler = CommandHandler(command_text, self.cmd_manage_links)
+                self.application.add_handler(useful_links_handler)
             
             # add show env command handler
             show_env_handler = CommandHandler('showenv', self.cmd_show_env, filters=filters.User(user_id=self.admins_owner))
@@ -850,7 +871,9 @@ _Links:_
             show_users_handler = CommandHandler('showusers', self.cmd_show_users, filters=filters.User(user_id=self.admins_owner))
             self.application.add_handler(show_users_handler)
             
-            self.application.add_handler(CommandHandler("payment", self.cmd_payment)) 
+            command_text = 'payment'
+            if command_text not in self.disable_commands_list:             
+                self.application.add_handler(CommandHandler(command_text, self.cmd_payment)) 
             
             # add handler for the /loadplugin command to load a plugin dynamically
             load_plugin_handler = CommandHandler('loadplugin', self.cmd_load_plugin, filters=filters.User(user_id=self.admins_owner))
@@ -861,8 +884,10 @@ _Links:_
             self.application.add_handler(show_commands_handler)
             
             # Add handler for the /showbalance command to show the current user's balance
-            show_balance_handler = CommandHandler('showbalance', self.cmd_show_balance)
-            self.application.add_handler(show_balance_handler)
+            command_text = 'showbalance'
+            if command_text not in self.disable_commands_list:                 
+                show_balance_handler = CommandHandler(command_text, self.cmd_show_balance)
+                self.application.add_handler(show_balance_handler)
             
             # Pre-checkout handler to final check
             self.application.add_handler(PreCheckoutQueryHandler(self.precheckout_callback)) 
@@ -876,8 +901,10 @@ _Links:_
             self.application.add_handler(manage_stripe_token_handler)  
             
             # Command to generate Paypal payment links
-            generate_paypal_link_handler = CommandHandler('paypal', self.cmd_generate_paypal_link)
-            self.application.add_handler(generate_paypal_link_handler)  
+            command_text = 'paypal'
+            if command_text not in self.disable_commands_list:
+                generate_paypal_link_handler = CommandHandler(command_text, self.cmd_generate_paypal_link)
+                self.application.add_handler(generate_paypal_link_handler)  
             
             # Add a command handler that lists all PayPal pending links, restricted to admin users
             list_paypal_links_handler = CommandHandler('listpaypal', self.cmd_list_paypal_links, filters=filters.User(user_id=self.admins_owner))
@@ -901,10 +928,6 @@ _Links:_
             unschedule_function_command = 'unschedule'
             unschedule_function_handler = CommandHandler(unschedule_function_command, self.cmd_unschedule_function, filters=filters.User(user_id=self.admins_owner))
             self.application.add_handler(unschedule_function_handler)
-            
-            # Loop removing the command handlers from the list which are in the disable_commands_list
-            for command in self.disable_commands_list:
-                self.application.remove_handler(command)
             
             if not self.disable_command_not_implemented:
                 self.application.add_handler(MessageHandler(filters.COMMAND, self.default_unknown_command))
@@ -960,6 +983,9 @@ _Links:_
                 'chat_id': chat_id,
                 'text': message
             }
+            
+            # Construct the URL for the sendMessage endpoint
+            telegram_api_base_url = f'https://api.telegram.org/bot{self.token}/sendMessage' if self.token else None
 
             # Send the POST request
             response = requests.post(telegram_api_base_url, data=payload)
