@@ -10,8 +10,6 @@ This version is inspired on and more elaborated than host_monitor because contro
 
 __version__ = '0.4.0 TODO: Remove  paypal and payment commands'
 
-# TODO: Remove  paypal and payment commands
-
 import __init__
 # import re
 
@@ -97,9 +95,10 @@ class HostWatchBot(TlgBotFwk):
     def __init__(self, token=None, *args, **kwargs):
 
         # Load the bot token from the .env file
-        dotenv_path = os.path.join(os.path.dirname(__file__), '.env')     
+        dotenv_path = os.path.join(os.path.dirname(__file__), 'my.env')     
         
-        super().__init__(disable_command_not_implemented=True, disable_error_handler=True, env_file=dotenv_path, token=token, *args, **kwargs)
+        # super().__init__(disable_error_handler=True, env_file=dotenv_path, token=token, *args, **kwargs)
+        super().__init__(env_file=dotenv_path, token=token, disable_commands_list=['paypal', 'payment','p','showbalance'], disable_command_not_implemented=True)
         
         self.jobs = {}
         
