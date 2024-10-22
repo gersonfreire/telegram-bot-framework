@@ -8,7 +8,7 @@ overrides the initialize_handlers method to add a help command handler.
 This version is inspired on and more elaborated than host_monitor because controls each host by user.
 """
 
-__version__ = '0.4.0 TODO: Remove  paypal and payment commands'
+__version__ = '0.4.1 Add last status to ping list'
 
 import __init__
 # import re
@@ -133,8 +133,16 @@ class HostWatchBot(TlgBotFwk):
             # TODO: send message just to the job owner user
             if response == 0:
                 self.send_message_by_api(user_id, f"{ip_address} is up!") if show_success else None
+                last_status = f"🔴"
+                
             else:
                 self.send_message_by_api(user_id, f"{ip_address} is down!")
+                last_status = f"🟢"
+                
+            # Add last status to ping list in user data
+            user_data = self.application.persistence.get_user_data(user_id) if self.application.persistence else {}
+            user_data['last_status'] = last_status
+            self.application.persistence.update_user_data(user_id, user_data) if self.application.persistence else None
                 
         except Exception as e:
             self.send_message_by_api(self.bot_owner, f"An error occurred while pinging {ip_address}: {e}", parse_mode=None)
