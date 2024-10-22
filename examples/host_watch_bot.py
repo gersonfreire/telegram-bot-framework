@@ -98,7 +98,7 @@ class HostWatchBot(TlgBotFwk):
         dotenv_path = os.path.join(os.path.dirname(__file__), 'my.env')     
         
         # super().__init__(disable_error_handler=True, env_file=dotenv_path, token=token, *args, **kwargs)
-        super().__init__(env_file=dotenv_path, token=token, disable_commands_list=['paypal', 'payment','p','showbalance'])
+        super().__init__(env_file=dotenv_path, token=token, disable_commands_list=['paypal', 'payment','p','showbalance'], disable_command_not_implemented=True)
         
         self.jobs = {}
         
@@ -313,10 +313,7 @@ class HostWatchBot(TlgBotFwk):
             self.application.add_handler(CommandHandler("pingadd", self.add_job), group=-1)
             self.application.add_handler(CommandHandler("pingdelete", self.delete_job), group=-1)
             self.application.add_handler(CommandHandler("pinglist", self.list_jobs), group=-1)  
-            self.application.add_handler(CommandHandler("togglesuccess", self.toggle_success), group=-1)            
-            
-            # TODO: Remove paypal and payment commands
-            self.application.remove_handler("paypal")
+            self.application.add_handler(CommandHandler("togglesuccess", self.toggle_success), group=-1)
             
             super().run()
             
