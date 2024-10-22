@@ -529,6 +529,14 @@ _Links:_
             post_init_message = await self.get_init_message() 
             logger.info(f"{post_init_message}") 
             
+            # Get list of all commands and remove disabled commands in self.disable_commands_list from the bot menu
+            all_commands = await self.application.bot.get_my_commands()
+            all_commands = [command for command in all_commands if command.command not in self.disable_commands_list] if self.disable_commands_list else all_commands
+            
+            # Set the bot commands menu
+            await self.application.bot.set_my_commands(all_commands)
+            
+            # Set the start message for all admin users 
             await self.set_start_message(self.default_language_code, 'Admin', self.admins_owner[0])
             
             post_init_message += f"{os.linesep}{os.linesep}{self.default_start_message}"
