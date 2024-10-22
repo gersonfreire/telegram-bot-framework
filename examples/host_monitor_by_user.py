@@ -86,15 +86,15 @@ class HostMonitorBot(TlgBotFwk):
                                 
                         except Exception as e:
                             logger.error(f"Failed to add job {job_name} for user {user_id}: {e}")
-                            self.send_message_by_api(self.bot_owner, f"Failed to add job {job_name} for user {user_id}: {e}", parse_mode=None)
+                            self.send_message_by_api(self.bot_owner, f"Failed to add job {job_name} for user {user_id}: {e}")
                         
                 except Exception as e:
                     logger.error(f"Failed to restore job {user_id}: {e}")
-                    self.send_message_by_api(self.bot_owner, f"Failed to restore job {user_id}: {e}", parse_mode=None) 
+                    self.send_message_by_api(self.bot_owner, f"Failed to restore job {user_id}: {e}") 
             
         except Exception as e:
             logger.error(f"Failed to restore jobs: {e}")
-            self.send_message_by_api(self.bot_owner, f"Failed to restore jobs: {e}", parse_mode=None)           
+            self.send_message_by_api(self.bot_owner, f"Failed to restore jobs: {e}")           
     
     def __init__(self, show_success=False, token=None, *args, **kwargs):
         
@@ -122,7 +122,7 @@ class HostMonitorBot(TlgBotFwk):
             self.ping_host(job_param, show_success=show_success, user_id=user_id)
             
         except Exception as e:
-            self.send_message_by_api(self.bot_owner, f"An error occurred: {e}", parse_mode=None) 
+            self.send_message_by_api(self.bot_owner, f"An error occurred: {e}") 
 
     def ping_host(self, ip_address, show_success=True, user_id=None):
         try:
@@ -137,7 +137,7 @@ class HostMonitorBot(TlgBotFwk):
                 self.send_message_by_api(user_id, f"{ip_address} is down!")
                 
         except Exception as e:
-            self.send_message_by_api(self.bot_owner, f"An error occurred while pinging {ip_address}: {e}", parse_mode=None)
+            self.send_message_by_api(self.bot_owner, f"An error occurred while pinging {ip_address}: {e}")
 
     async def add_job(self, update: Update, context: CallbackContext):
         
