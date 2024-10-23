@@ -126,6 +126,8 @@ class HostWatchBot(TlgBotFwk):
             else:
                 self.send_message_by_api(user_id, f"{ip_address} is down!")
                 
+            logger.debug(f"Ping result for {ip_address}: {ping_result}")
+                
             # Add last status to ping list in user data
             user_data = await self.application.persistence.get_user_data() #  if self.application.persistence else {}
             job_name = f"ping_{ip_address}"            
