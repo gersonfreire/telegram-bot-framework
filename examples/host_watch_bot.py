@@ -16,28 +16,7 @@ import __init__
 from tlgfwk import *
 
 class HostWatchBot(TlgBotFwk):
-          
-    async def get_user_data(self, user_id: int, user_item_name: str, default_value=None):
-    
-        try:
-            # Get user data from the context
-            all_user_data = await self.application.persistence.get_user_data() if self.application.persistence else {}
-            
-            user_data = all_user_data[user_id] if user_id in all_user_data else {user_id : {}}
-            
-            if user_item_name not in user_data:
-                user_data[user_item_name] = default_value
-                await self.application.persistence.update_user_data(user_id, user_data) if self.application.persistence else None
-                            
-            # Get the current value of the show_success flag
-            user_data_item = user_data.get(user_item_name, default_value)
-            
-            return user_data_item
-                
-        except Exception as e:
-            logger.error(f"An error occurred while getting user data: {e}")
-            return None
-    
+     
     async def load_all_user_data(self):
         try:
             logger.info("Restoring jobs...")
@@ -142,7 +121,7 @@ class HostWatchBot(TlgBotFwk):
                 last_status = f"🔴"
                 
             # Add last status to ping list in user data
-            user_data = await self.application.persistence.get_user_data() if self.application.persistence else {}
+            user_data = await self.application.persistence.get_user_data() #  if self.application.persistence else {}
             job_name = f"ping_{ip_address}"
             user_data[user_id][job_name]['last_status'] = last_status
             await self.application.persistence.update_user_data(user_id, user_data[user_id]) if self.application.persistence else None
