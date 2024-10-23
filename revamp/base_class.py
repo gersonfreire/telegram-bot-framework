@@ -80,8 +80,6 @@ class BaseTelegramBot(Application):
         token = token or os.getenv('DEFAULT_BOT_TOKEN')
         self.token = os.getenv('DEFAULT_BOT_TOKEN') # token
         
-        # super().__init__(**kwargs)
-        
         self.admin_id_list = admin_id_list or list(map(int, os.getenv('ADMIN_ID_LIST', '').split(',')))
         self.disable_persistence = disable_persistence
         self.disable_command_not_implemented = disable_command_not_implemented
