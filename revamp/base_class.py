@@ -3,7 +3,7 @@ import sys
 import logging
 from telegram import Update, BotCommandScopeDefault
 from telegram.constants import ParseMode
-from telegram.ext import Application, CommandHandler, MessageHandler, CallbackContext, ContextTypes
+from telegram.ext import Application, CommandHandler, MessageHandler, CallbackContext, ContextTypes, PicklePersistence, JobQueue, Defaults
 from dotenv import load_dotenv
 from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, filters
 
@@ -13,7 +13,6 @@ class BaseTelegramBot(Application):
     
     def __init__(self, 
                  token: str = None,
-                 bot_owner: int = None,
                  admin_id_list: list[int] = None,
                  disable_persistence: bool = False,
                  disable_command_not_implemented: bool = False,
@@ -24,11 +23,10 @@ class BaseTelegramBot(Application):
         load_dotenv()
 
         token = token or os.getenv('DEFAULT_BOT_TOKEN')
-        bot_owner = bot_owner or int(os.getenv('BOT_OWNER_ID'))
         
-        super().__init__(token=token, **kwargs)
-        self.bot_owner = bot_owner
-        self.admin_id_list = admin_id_list or []
+        # super().__init__(**kwargs)
+        
+        self.admin_id_list = admin_id_list
         self.disable_persistence = disable_persistence
         self.disable_command_not_implemented = disable_command_not_implemented
         self.disable_error_handler = disable_error_handler
@@ -43,6 +41,23 @@ class BaseTelegramBot(Application):
             self.add_error_handler(self.error_handler)
         
         self.initialize_handlers()
+        
+        # ---------- Build the bot application ------------
+            
+        # Making bot persistant from the base class      
+        # https://github.com/python-telegram-bot/python-telegram-bot/wiki/Making-your-bot-persistent
+        script_path = os.path.dirname(os.path.abspath(__file__))
+        persistence_file = kwargs.get('persistence_file', None)
+        self.persistence_file = f"{script_path}{os.sep}{self.bot_info.username + '.pickle'}" if not persistence_file else persistence_file
+        persistence = PicklePersistence(filepath=self.persistence_file, update_interval=self.default_persistence_interval) if not disable_persistence else None
+        
+        # Create an Application instance using the builder pattern  
+        # ('To use `JobQueue`, PTB must be installed via `pip install "python-telegram-bot[job-queue]"`.',)    
+        bot_defaults_build = kwargs.get('bot_defaults_build', Defaults(parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True))  # Get bot_defaults_build from kwargs or use an empty dictionary as default
+        
+        self.application = Application.builder().defaults(bot_defaults_build).token(self.token).post_init(self.post_init).post_stop(self.post_stop).persistence(persistence).job_queue(JobQueue()).build()
+        
+        # --------------------------------------------------        
 
     def initialize_handlers(self):
         try:
