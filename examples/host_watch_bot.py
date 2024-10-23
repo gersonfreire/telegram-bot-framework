@@ -140,9 +140,9 @@ class HostWatchBot(TlgBotFwk):
                 last_status = f"🟢"
                 
             # Add last status to ping list in user data
-            user_data = self.application.persistence.get_user_data(user_id) if self.application.persistence else {}
-            user_data['last_status'] = last_status
-            self.application.persistence.update_user_data(user_id, user_data) if self.application.persistence else None
+            # user_data = self.application.persistence.get_user_data(user_id) if self.application.persistence else {}
+            # user_data['last_status'] = last_status
+            # self.application.persistence.update_user_data(user_id, user_data) if self.application.persistence else None
                 
         except Exception as e:
             self.send_message_by_api(self.bot_owner, f"An error occurred while pinging {ip_address}: {e}")
