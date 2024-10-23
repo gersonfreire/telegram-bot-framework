@@ -100,7 +100,8 @@ class HostWatchBot(TlgBotFwk):
                 
             ping_result = await self.ping_host(job_param, show_success=show_success, user_id=user_id)
             
-            callback_context.user_data[job_param]['last_status'] = ping_result
+            job_name = f"ping_{job_param}"  
+            callback_context.user_data[job_name]['last_status'] = ping_result
             
             # Log the result of the ping
             logger.debug(f"Ping result for {job_param}: {ping_result} {ping_result}")
@@ -110,7 +111,7 @@ class HostWatchBot(TlgBotFwk):
 
     async def ping_host(self, ip_address, show_success=True, user_id=None):
         
-        ping_result = False
+        ping_result = False # f"🔴"
         
         try:
             # Ping logic here
@@ -121,11 +122,9 @@ class HostWatchBot(TlgBotFwk):
             ping_result = False
             if response == 0:
                 self.send_message_by_api(user_id, f"{ip_address} is up!") if show_success else None
-                ping_result = True # f"✅"  f"🟢"
-                
+                ping_result = True # f"✅"  f"🟢"                
             else:
                 self.send_message_by_api(user_id, f"{ip_address} is down!")
-                ping_result = False # f"🔴"
                 
             # Add last status to ping list in user data
             user_data = await self.application.persistence.get_user_data() #  if self.application.persistence else {}
@@ -138,9 +137,6 @@ class HostWatchBot(TlgBotFwk):
             await self.application.persistence.flush() if self.application.persistence else None
             
             user_data = await self.application.persistence.get_user_data() if self.application.persistence else {}
-        
-            # logger.debug(f"{user_id} {ip_address} {last_status}")
-            pass
                 
         except Exception as e:
             self.send_message_by_api(self.bot_owner, f"An error occurred while pinging {ip_address}: {e}")
