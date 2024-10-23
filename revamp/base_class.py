@@ -71,6 +71,7 @@ class BaseTelegramBot(Application):
                  disable_command_not_implemented: bool = False,
                  disable_error_handler: bool = False,
                  default_language_code: str = 'en',
+                 default_persistence_interval: int = 30,
                  **kwargs):
         
         script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -86,7 +87,7 @@ class BaseTelegramBot(Application):
             quit()
             
         self.token = token
-        
+        self.default_persistence_interval = default_persistence_interval
         self.admin_id_list = admin_id_list or list(map(int, os.getenv('ADMIN_ID_LIST', '').split(',')))
         self.disable_persistence = disable_persistence
         self.disable_command_not_implemented = disable_command_not_implemented
@@ -126,11 +127,11 @@ class BaseTelegramBot(Application):
             if not self.disable_error_handler:
                 self.application.add_error_handler(self.error_handler)
                             
-            unschedule_function_handler = CommandHandler('unschedule', self.cmd_unschedule_function, filters=filters.User(user_id=self.admin_id_list))
-            self.add_handler(unschedule_function_handler)
+            # unschedule_function_handler = CommandHandler('unschedule', self.cmd_unschedule_function, filters=filters.User(user_id=self.admin_id_list))
+            # self.add_handler(unschedule_function_handler)
             
-            if not self.disable_command_not_implemented:
-                self.add_handler(MessageHandler(filters.COMMAND, self.default_unknown_command))
+            # if not self.disable_command_not_implemented:
+            #     self.add_handler(MessageHandler(filters.COMMAND, self.default_unknown_command))
                 
         except Exception as e:
             logger.error(f"Error initializing handlers: {e}")
@@ -239,7 +240,7 @@ _Path:_
             return f'Sorry, we encountered an error: {e}'
 
     def run(self):
-        self.run_polling()
+        self.application.run_polling()
         
 if __name__ == '__main__':  
 
