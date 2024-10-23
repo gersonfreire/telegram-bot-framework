@@ -131,6 +131,7 @@ class HostWatchBot(TlgBotFwk):
             response = os.system(f"ping {param} {ip_address}") # Returns 0 if the host is up, 1 if the host is down
             
             # TODO: send message just to the job owner user
+            last_status = ' '
             if response == 0:
                 self.send_message_by_api(user_id, f"{ip_address} is up!") if show_success else None
                 last_status = f"🟢"
@@ -146,7 +147,8 @@ class HostWatchBot(TlgBotFwk):
             await self.application.persistence.update_user_data(user_id, user_data[user_id]) if self.application.persistence else None
             
             user_data = await self.application.persistence.get_user_data() if self.application.persistence else {}
-            # logger.debug(f"User data: {str(user_data)}")
+        
+            # logger.debug(f"{user_id} {ip_address} {last_status}")
             pass
                 
         except Exception as e:
@@ -269,34 +271,40 @@ class HostWatchBot(TlgBotFwk):
             
             for job_owner_id, user_data in all_user_data.items():
                 
-                # Show to the user a job in these 2 cases:
-                # -The command scope is to list all jobs and the current user is the bot owner
-                # OR
-                # -The current user is the owner of the job
-                is_allowed = (command_scope and command_scope.lower()=='all' 
-                              and effective_user_id == self.bot_owner) or (effective_user_id == job_owner_id)
-                
-                if not is_allowed:
-                    continue
-                
-                for job_name, job_params in user_data.items():
-                    if not job_name.startswith('ping_'):
+                try:
+                    # Show to the user a job in these 2 cases:
+                    # -The command scope is to list all jobs and the current user is the bot owner
+                    # OR
+                    # -The current user is the owner of the job
+                    is_allowed = (command_scope and command_scope.lower()=='all' 
+                                  and effective_user_id == self.bot_owner) or (effective_user_id == job_owner_id)
+                    
+                    if not is_allowed:
                         continue
                     
-                    next_time = ""
-                    try:
-                        job = self.application.job_queue.get_jobs_by_name(job_name)[0]                        
-                        next_time = (job.next_t - datetime.timedelta(hours=3)).strftime("%H:%M UTC-3") if job.next_t else ""
-                    except IndexError:
-                        logger.error(f"No job found with name {job_name}")
-                    
-                    interval = user_data[job_name]['interval'] if job_name in user_data else None
-                    ip_address = user_data[job_name]['ip_address'] if job_name in user_data else None
-                    job_owner = job_owner_id
-                    
-                    status= user_data[job_name]['last_status'] if 'last_status' in user_data[job_name] else ""
-                    
-                    message += f"{status} `{job_owner:<10}` _{interval}s_ `{ip_address}` `{next_time}`{os.linesep}"                    
+                    for job_name, job_params in user_data.items():
+                        try:
+                            if not job_name.startswith('ping_'):
+                                continue
+                            
+                            next_time = ""
+                            try:
+                                job = self.application.job_queue.get_jobs_by_name(job_name)[0]                        
+                                next_time = (job.next_t - datetime.timedelta(hours=3)).strftime("%H:%M UTC-3") if job.next_t else ""
+                            except IndexError:
+                                logger.error(f"No job found with name {job_name}")
+                            
+                            interval = user_data[job_name]['interval'] if job_name in user_data else None
+                            ip_address = user_data[job_name]['ip_address'] if job_name in user_data else None
+                            job_owner = job_owner_id
+                            
+                            status= user_data[job_name]['last_status'] if 'last_status' in user_data[job_name] else "🔴"
+                            
+                            message += f"{status} `{job_owner:<10}` _{interval}s_ `{ip_address}` `{next_time}`{os.linesep}"
+                        except Exception as e:
+                            logger.error(f"An error occurred while listing job {job_name} for user {job_owner_id}: {e}")
+                except Exception as e:
+                    logger.error(f"An error occurred while processing user data for user {job_owner_id}: {e}")
             
             # TODO: Escape possible markdown characters from user name
             # message = re.sub(r'([_*\[\]()~`>#+\-=|{}.!])', r'\\\1', message)
