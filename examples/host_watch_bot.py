@@ -320,7 +320,7 @@ class HostWatchBot(TlgBotFwk):
         except Exception as e:
             await update.message.reply_text(f"An error occurred: {e}", parse_mode=None)
 
-    async def toggle_success(self, update: Update, context: CallbackContext):
+    async def ping_log(self, update: Update, context: CallbackContext):
         
         try:
             # Get the current value of the show_success flag from context user data 
@@ -342,7 +342,7 @@ class HostWatchBot(TlgBotFwk):
             self.application.add_handler(CommandHandler("pingadd", self.add_job), group=-1)
             self.application.add_handler(CommandHandler("pingdelete", self.delete_job), group=-1)
             self.application.add_handler(CommandHandler("pinglist", self.list_jobs), group=-1)  
-            self.application.add_handler(CommandHandler("togglesuccess", self.toggle_success), group=-1)
+            self.application.add_handler(CommandHandler("pinglog", self.ping_log), group=-1)
             
             super().run()
             
