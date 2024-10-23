@@ -110,21 +110,33 @@ class HostWatchBot(TlgBotFwk):
             response = os.system(f"ping {param} {ip_address}") # Returns 0 if the host is up, 1 if the host is down
             
             # TODO: send message just to the job owner user
-            last_status = ' '
+            last_status = False
             if response == 0:
                 self.send_message_by_api(user_id, f"{ip_address} is up!") if show_success else None
-                last_status = f"🟢"
-                last_status = f"✅"
+                last_status = True # f"🟢"
+                # last_status = f"✅"
                 
             else:
                 self.send_message_by_api(user_id, f"{ip_address} is down!")
-                last_status = f"🔴"
+                last_status = False # f"🔴"
                 
             # Add last status to ping list in user data
             user_data = await self.application.persistence.get_user_data() #  if self.application.persistence else {}
             job_name = f"ping_{ip_address}"
+            
+            # set user data
+            user_data[user_id] = user_data[user_id] if user_id in user_data else {user_id: {}}
+            user_data[user_id][job_name] = user_data[user_id][job_name] if job_name in user_data[user_id] else {job_name: {}}
+            # create last_status key if not exists
+            if 'last_status' not in user_data[user_id][job_name]:
+                user_data[user_id][job_name]['last_status'] = None
+            
+            
             user_data[user_id][job_name]['last_status'] = last_status
             await self.application.persistence.update_user_data(user_id, user_data[user_id]) if self.application.persistence else None
+            
+            # force a flush of persistence to save the last status
+            await self.application.persistence.flush() if self.application.persistence else None
             
             user_data = await self.application.persistence.get_user_data() if self.application.persistence else {}
         
@@ -278,7 +290,8 @@ class HostWatchBot(TlgBotFwk):
                             ip_address = user_data[job_name]['ip_address'] if job_name in user_data else None
                             job_owner = job_owner_id
                             
-                            status= user_data[job_name]['last_status'] if 'last_status' in user_data[job_name] else "🔴"
+                            # status= user_data[job_name]['last_status'] if 'last_status' in user_data[job_name] else "🔴"
+                            status='✅' if job_name in user_data and 'last_status' in user_data[job_name] and user_data[job_name]['last_status'] else "🔴"
                             
                             message += f"{status} `{job_owner:<10}` _{interval}s_ `{ip_address}` `{next_time}`{os.linesep}"
                         except Exception as e:
