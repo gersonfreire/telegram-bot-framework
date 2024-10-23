@@ -144,6 +144,9 @@ class HostWatchBot(TlgBotFwk):
             job_name = f"ping_{ip_address}"
             user_data[user_id][job_name]['last_status'] = last_status
             self.application.persistence.update_user_data(user_id, user_data) if self.application.persistence else None
+            
+            user_data = await self.application.persistence.get_user_data() if self.application.persistence else {}
+            logger.debug(f"User data: {user_data}")
                 
         except Exception as e:
             self.send_message_by_api(self.bot_owner, f"An error occurred while pinging {ip_address}: {e}")
@@ -289,6 +292,8 @@ class HostWatchBot(TlgBotFwk):
                     interval = user_data[job_name]['interval'] if job_name in user_data else None
                     ip_address = user_data[job_name]['ip_address'] if job_name in user_data else None
                     job_owner = job_owner_id
+                    
+                    status= user_data[job_name]['last_status'] if 'last_status' in user_data[job_name] else ""
                     
                     message += f"`{job_owner:<10}` _{interval}s_ `{ip_address}` `{next_time}`{os.linesep}"                    
             
