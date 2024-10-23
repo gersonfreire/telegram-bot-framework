@@ -75,10 +75,17 @@ class BaseTelegramBot(Application):
         
         script_dir = os.path.dirname(os.path.abspath(__file__))
         env_path = os.path.join(script_dir, '.env')
-        load_dotenv(env_path)
+        if os.path.exists(env_path):
+            load_dotenv(env_path)
+        else:
+            logger.error(f".env file not found at {env_path}")
 
         token = token or os.getenv('DEFAULT_BOT_TOKEN')
-        self.token = os.getenv('DEFAULT_BOT_TOKEN') # token
+        if not token:
+            logger.error("DEFAULT_BOT_TOKEN not found in environment variables")
+            quit()
+            
+        self.token = token
         
         self.admin_id_list = admin_id_list or list(map(int, os.getenv('ADMIN_ID_LIST', '').split(',')))
         self.disable_persistence = disable_persistence
