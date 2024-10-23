@@ -109,12 +109,11 @@ class HostWatchBot(TlgBotFwk):
             param = "-n 1" if platform.system().lower() == "windows" else "-c 1"
             response = os.system(f"ping {param} {ip_address}") # Returns 0 if the host is up, 1 if the host is down
             
-            # TODO: send message just to the job owner user
+            # send message just to the job owner user
             last_status = False
             if response == 0:
                 self.send_message_by_api(user_id, f"{ip_address} is up!") if show_success else None
-                last_status = True # f"🟢"
-                # last_status = f"✅"
+                last_status = True # f"✅"  f"🟢"
                 
             else:
                 self.send_message_by_api(user_id, f"{ip_address} is down!")
