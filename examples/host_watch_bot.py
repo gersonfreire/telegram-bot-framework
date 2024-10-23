@@ -267,11 +267,7 @@ class HostWatchBot(TlgBotFwk):
                 
             all_user_data = await self.application.persistence.get_user_data() if self.application.persistence else {}
             
-            if not all_user_data or len(all_user_data) == 0:
-                message = "_No jobs found._"
-                logger.info(message)
-                await update.message.reply_text(text=message) 
-                return
+            has_jobs = False
             
             for job_owner_id, user_data in all_user_data.items():
                 
@@ -290,6 +286,8 @@ class HostWatchBot(TlgBotFwk):
                         try:
                             if not job_name.startswith('ping_'):
                                 continue
+                            
+                            has_jobs = True
                             
                             next_time = ""
                             try:
@@ -312,7 +310,11 @@ class HostWatchBot(TlgBotFwk):
                     logger.error(f"An error occurred while processing user data for user {job_owner_id}: {e}")
             
             # TODO: Escape possible markdown characters from user name
-            # message = re.sub(r'([_*\[\]()~`>#+\-=|{}.!])', r'\\\1', message)
+            # message = re.sub(r'([_*\[\]()~`>#+\-=|{}.!])', r'\\\1', message)           
+
+            if not has_jobs:
+                message = "_No jobs found._"
+                logger.info(message)          
                             
             await update.message.reply_text(text=message) 
                     
