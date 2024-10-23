@@ -126,13 +126,7 @@ class HostWatchBot(TlgBotFwk):
                 
             # Add last status to ping list in user data
             user_data = await self.application.persistence.get_user_data() #  if self.application.persistence else {}
-            job_name = f"ping_{ip_address}"
-            
-            # Save new status to user data
-            # create last_status key if not exists
-            if 'last_status' not in user_data[user_id][job_name]:
-                user_data[user_id][job_name]['last_status'] = None
-            
+            job_name = f"ping_{ip_address}"            
             
             user_data[user_id][job_name]['last_status'] = last_status
             await self.application.persistence.update_user_data(user_id, user_data[user_id]) if self.application.persistence else None
