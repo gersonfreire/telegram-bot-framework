@@ -267,6 +267,11 @@ class HostWatchBot(TlgBotFwk):
                 
             all_user_data = await self.application.persistence.get_user_data() if self.application.persistence else {}
             
+            if not all_user_data or len(all_user_data) == 0:
+                message = "_No jobs found._"
+                await update.message.reply_text(text=message) 
+                return
+            
             for job_owner_id, user_data in all_user_data.items():
                 
                 try:
