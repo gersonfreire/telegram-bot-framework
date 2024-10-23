@@ -315,7 +315,7 @@ class HostWatchBot(TlgBotFwk):
             # message = re.sub(r'([_*\[\]()~`>#+\-=|{}.!])', r'\\\1', message)           
 
             if not has_jobs:
-                message = "_No hosts monitored._{os.linesep}_Usage: /pingadd <ip_address> <interval_in_seconds>_{os.linesep}_Example: /pingadd 8.8.8.8 30"
+                message = f"_No hosts monitored._{os.linesep}_Usage: /pingadd <ip_address> <interval_in_seconds>_{os.linesep}_Example: /pingadd 8.8.8.8 30"
                 logger.info(message)          
                             
             await update.message.reply_text(text=message) 
