@@ -119,12 +119,12 @@ class HostWatchBot(TlgBotFwk):
             if show_success:
                 self.send_message_by_api(user_id, f"Pinging {job_param}...") if show_success else None
                 
-            self.ping_host(job_param, show_success=show_success, user_id=user_id)
+            await self.ping_host(job_param, show_success=show_success, user_id=user_id)
             
         except Exception as e:
             self.send_message_by_api(self.bot_owner, f"An error occurred: {e}") 
 
-    def ping_host(self, ip_address, show_success=True, user_id=None):
+    async def ping_host(self, ip_address, show_success=True, user_id=None):
         try:
             # Ping logic here
             param = "-n 1" if platform.system().lower() == "windows" else "-c 1"
@@ -140,7 +140,7 @@ class HostWatchBot(TlgBotFwk):
                 last_status = f"🟢"
                 
             # Add last status to ping list in user data
-            user_data = self.application.persistence.get_user_data(user_id) if self.application.persistence else {}
+            user_data = await self.application.persistence.get_user_data() if self.application.persistence else {}
             user_data['last_status'] = last_status
             self.application.persistence.update_user_data(user_id, user_data) if self.application.persistence else None
                 
