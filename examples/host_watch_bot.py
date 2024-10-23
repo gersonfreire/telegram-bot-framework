@@ -98,7 +98,12 @@ class HostWatchBot(TlgBotFwk):
             if show_success:
                 self.send_message_by_api(user_id, f"Pinging {job_param}...") if show_success else None
                 
-            await self.ping_host(job_param, show_success=show_success, user_id=user_id)
+            ping_result = await self.ping_host(job_param, show_success=show_success, user_id=user_id)
+            
+            # Log the result of the ping
+            logger.debug(f"Ping result for {job_param}: {ping_result}")
+            
+            pass
             
         except Exception as e:
             self.send_message_by_api(self.bot_owner, f"An error occurred: {e}") 
@@ -123,9 +128,7 @@ class HostWatchBot(TlgBotFwk):
             user_data = await self.application.persistence.get_user_data() #  if self.application.persistence else {}
             job_name = f"ping_{ip_address}"
             
-            # set user data
-            user_data[user_id] = user_data[user_id] if user_id in user_data else {user_id: {}}
-            user_data[user_id][job_name] = user_data[user_id][job_name] if job_name in user_data[user_id] else {job_name: {}}
+            # Save new status to user data
             # create last_status key if not exists
             if 'last_status' not in user_data[user_id][job_name]:
                 user_data[user_id][job_name]['last_status'] = None
