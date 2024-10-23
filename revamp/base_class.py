@@ -34,6 +34,7 @@ class BaseTelegramBot(Application):
         load_dotenv()
 
         token = token or os.getenv('DEFAULT_BOT_TOKEN')
+        self.token = token
         
         # super().__init__(**kwargs)
         
