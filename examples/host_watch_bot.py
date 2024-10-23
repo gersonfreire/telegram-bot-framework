@@ -101,34 +101,35 @@ class HostWatchBot(TlgBotFwk):
             ping_result = await self.ping_host(job_param, show_success=show_success, user_id=user_id)
             
             # Log the result of the ping
-            logger.debug(f"Ping result for {job_param}: {ping_result}")
-            
-            pass
+            logger.debug(f"Ping result for {job_param}: {ping_result} {ping_result}")
             
         except Exception as e:
             self.send_message_by_api(self.bot_owner, f"An error occurred: {e}") 
 
     async def ping_host(self, ip_address, show_success=True, user_id=None):
+        
+        ping_result = False
+        
         try:
             # Ping logic here
             param = "-n 1" if platform.system().lower() == "windows" else "-c 1"
             response = os.system(f"ping {param} {ip_address}") # Returns 0 if the host is up, 1 if the host is down
             
             # send message just to the job owner user
-            last_status = False
+            ping_result = False
             if response == 0:
                 self.send_message_by_api(user_id, f"{ip_address} is up!") if show_success else None
-                last_status = True # f"✅"  f"🟢"
+                ping_result = True # f"✅"  f"🟢"
                 
             else:
                 self.send_message_by_api(user_id, f"{ip_address} is down!")
-                last_status = False # f"🔴"
+                ping_result = False # f"🔴"
                 
             # Add last status to ping list in user data
             user_data = await self.application.persistence.get_user_data() #  if self.application.persistence else {}
             job_name = f"ping_{ip_address}"            
             
-            user_data[user_id][job_name]['last_status'] = last_status
+            user_data[user_id][job_name]['last_status'] = ping_result
             await self.application.persistence.update_user_data(user_id, user_data[user_id]) if self.application.persistence else None
             
             # force a flush of persistence to save the last status
@@ -141,6 +142,8 @@ class HostWatchBot(TlgBotFwk):
                 
         except Exception as e:
             self.send_message_by_api(self.bot_owner, f"An error occurred while pinging {ip_address}: {e}")
+            
+        return ping_result
 
     async def add_job(self, update: Update, context: CallbackContext):
         """Add a new host to be monitored by the bot.
