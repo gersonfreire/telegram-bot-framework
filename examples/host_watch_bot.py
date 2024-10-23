@@ -135,6 +135,7 @@ class HostWatchBot(TlgBotFwk):
             if response == 0:
                 self.send_message_by_api(user_id, f"{ip_address} is up!") if show_success else None
                 last_status = f"🟢"
+                last_status = f"✅"
                 
             else:
                 self.send_message_by_api(user_id, f"{ip_address} is down!")
