@@ -133,15 +133,16 @@ class HostWatchBot(TlgBotFwk):
             # TODO: send message just to the job owner user
             if response == 0:
                 self.send_message_by_api(user_id, f"{ip_address} is up!") if show_success else None
-                last_status = f"🔴"
+                last_status = f"🟢"
                 
             else:
                 self.send_message_by_api(user_id, f"{ip_address} is down!")
-                last_status = f"🟢"
+                last_status = f"🔴"
                 
             # Add last status to ping list in user data
             user_data = await self.application.persistence.get_user_data() if self.application.persistence else {}
-            user_data['last_status'] = last_status
+            job_name = f"ping_{ip_address}"
+            user_data[user_id][job_name]['last_status'] = last_status
             self.application.persistence.update_user_data(user_id, user_data) if self.application.persistence else None
                 
         except Exception as e:
