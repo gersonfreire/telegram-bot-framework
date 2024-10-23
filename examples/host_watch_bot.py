@@ -179,6 +179,8 @@ class HostWatchBot(TlgBotFwk):
                 user_id=user_id, chat_id=user_id
             )
             
+            logger.debug(f"Adding job {job_name} for user {user_id}...")
+            
             # If the user does not have any jobs yet, create a new dictionary for the user with the new job. 
             self.jobs[user_id] = self.jobs[user_id] if user_id in self.jobs else {user_id: {}}
             self.jobs[user_id][job_name] = new_job if user_id in self.jobs else {job_name: new_job}            
