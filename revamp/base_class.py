@@ -76,7 +76,7 @@ class BaseTelegramBot(Application):
         script_dir = os.path.dirname(os.path.abspath(__file__))
         env_path = os.path.join(script_dir, '.env')
         if os.path.exists(env_path):
-            load_dotenv(env_path)
+            load_dotenv(env_path, verbose=True, override=True)
         else:
             logger.error(f".env file not found at {env_path}")
 
