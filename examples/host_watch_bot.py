@@ -167,7 +167,7 @@ class HostWatchBot(TlgBotFwk):
             
             # check if job name already exists on the jobs list stored in user data persistence
             if job_name in context.user_data:
-                await update.message.reply_text(f"Job for {ip_address} already exists.", parse_mode=None)
+                await update.message.reply_text(f"Host {ip_address} already exists.", parse_mode=None)
                 return
             
             # Add the new job to the user's job dictionary. If the user already has jobs, add the new job to their existing job dictionary.        
@@ -196,7 +196,7 @@ class HostWatchBot(TlgBotFwk):
             # Ensure persistence is flushed to save the new job
             await self.application.persistence.flush() if self.application.persistence else None
             
-            await update.message.reply_text(f"Job added for {ip_address} with interval {interval} seconds.", parse_mode=None)
+            await update.message.reply_text(f"Hosted {ip_address} added with interval {interval} seconds.", parse_mode=None)
             
         except Exception as e:
             await update.message.reply_text(f"An error occurred: {e}", parse_mode=None)
@@ -239,7 +239,7 @@ class HostWatchBot(TlgBotFwk):
             except Exception as e:
                 logger.error(f"Failed to remove job {job_name} from user data: {e}")
             
-            await update.message.reply_text(f"Job for {ip_address} deleted.", parse_mode=None)
+            await update.message.reply_text(f"Host {ip_address} deleted.", parse_mode=None)
         
         except Exception as e:
             await update.message.reply_text(f"An error occurred: {e}", parse_mode=None)
@@ -331,7 +331,7 @@ class HostWatchBot(TlgBotFwk):
             context.user_data["show_success"] = show_success
             
             status = "enabled" if show_success else "disabled"
-            await update.message.reply_text(f"_Success messages are now:_ `{status}`.")
+            await update.message.reply_text(f"_Monitoring log is now_ `{status}`.")
             
         except Exception as e:
             await update.message.reply_text(f"An error occurred: {e}", parse_mode=None)
