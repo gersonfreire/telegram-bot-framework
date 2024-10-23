@@ -143,7 +143,7 @@ class HostWatchBot(TlgBotFwk):
             user_data = await self.application.persistence.get_user_data() if self.application.persistence else {}
             job_name = f"ping_{ip_address}"
             user_data[user_id][job_name]['last_status'] = last_status
-            self.application.persistence.update_user_data(user_id, user_data) if self.application.persistence else None
+            await self.application.persistence.update_user_data(user_id, user_data[user_id]) if self.application.persistence else None
             
             user_data = await self.application.persistence.get_user_data() if self.application.persistence else {}
             logger.debug(f"User data: {user_data}")
