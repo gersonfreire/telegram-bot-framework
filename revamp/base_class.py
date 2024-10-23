@@ -48,8 +48,6 @@ class BaseTelegramBot(Application):
         self.common_users_commands = []
         self.admin_commands = []
         self.all_commands = []
-                
-        self.initialize_handlers()
         
         # ---------- Build the bot application ------------
             
@@ -66,7 +64,9 @@ class BaseTelegramBot(Application):
         
         self.application = Application.builder().defaults(bot_defaults_build).token(self.token).post_init(self.post_init).post_stop(self.post_stop).persistence(persistence).job_queue(JobQueue()).build()
         
-        # --------------------------------------------------        
+        # --------------------------------------------------  
+                
+        self.initialize_handlers()      
 
     def initialize_handlers(self):
         try:
