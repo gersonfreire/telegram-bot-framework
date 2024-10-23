@@ -37,7 +37,7 @@ class BaseTelegramBot(Application):
         
         # super().__init__(**kwargs)
         
-        self.admin_id_list = admin_id_list
+        self.admin_id_list = admin_id_list or list(map(int, os.getenv('ADMIN_ID_LIST', '').split(',')))
         self.disable_persistence = disable_persistence
         self.disable_command_not_implemented = disable_command_not_implemented
         self.disable_error_handler = disable_error_handler
@@ -78,6 +78,7 @@ class BaseTelegramBot(Application):
             
             if not self.disable_command_not_implemented:
                 self.add_handler(MessageHandler(filters.COMMAND, self.default_unknown_command))
+                
         except Exception as e:
             logger.error(f"Error initializing handlers: {e}")
             for admin_id in self.admin_id_list:
