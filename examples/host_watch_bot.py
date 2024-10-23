@@ -269,6 +269,7 @@ class HostWatchBot(TlgBotFwk):
             
             if not all_user_data or len(all_user_data) == 0:
                 message = "_No jobs found._"
+                logger.info(message)
                 await update.message.reply_text(text=message) 
                 return
             
