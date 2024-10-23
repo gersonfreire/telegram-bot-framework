@@ -172,11 +172,13 @@ class HostWatchBot(TlgBotFwk):
                 await update.message.reply_text(f"Job for {ip_address} already exists.", parse_mode=None)
                 return
             
+            # Add the new job to the user's job dictionary. If the user already has jobs, add the new job to their existing job dictionary.        
             new_job = self.application.job_queue.run_repeating(
                 self.job_event_handler, interval=interval, first=0, name=job_name, data=ip_address,
                 user_id=user_id, chat_id=user_id
             )
             
+            # If the user does not have any jobs yet, create a new dictionary for the user with the new job. 
             self.jobs[user_id] = self.jobs[user_id] if user_id in self.jobs else {user_id: {}}
             self.jobs[user_id][job_name] = new_job if user_id in self.jobs else {job_name: new_job}            
             
