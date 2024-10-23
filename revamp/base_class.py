@@ -1,7 +1,8 @@
+import asyncio
 import os
 import sys
 import logging
-from telegram import Update, BotCommandScopeDefault
+from telegram import Bot, Update, BotCommandScopeDefault
 from telegram.constants import ParseMode
 from telegram.ext import Application, CommandHandler, MessageHandler, CallbackContext, ContextTypes, PicklePersistence, JobQueue, Defaults
 from dotenv import load_dotenv
@@ -10,6 +11,47 @@ from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, fil
 logger = logging.getLogger(__name__)
 
 class BaseTelegramBot(Application):
+    
+    def validate_token(self, token: str = None, quit_if_error = True, input_token = True):
+        
+        self.token_validated = False
+        self.bot_info = None       
+        
+        try:           
+            
+            bot = Bot(token=token)
+            self.loop = asyncio.get_event_loop()                
+            self.bot_info = self.loop.run_until_complete(bot.get_me())
+            # loop.close() 
+            self.token_validated = True  
+            
+            return True          
+        
+        except Exception as e:
+            logger.error(f"Error validating token: {e}")
+            
+            # if input_token:
+            #     token = input_with_timeout("You have 30 sec. to enter the bot token: ", 30)
+            #     if self.validate_token(token, quit_if_error, False):
+            #         self.token = token
+            #         # self.bot_owner = int(input_with_timeout("You have 30 sec. to enter the bot owner id: ", 30))
+            #         self.bot_owner = int(input_with_timeout("You have 30 sec. to enter the bot owner id: ", 30))
+            #         # clear entire .env file
+            #         os.remove(self.env_file)
+            #         open(self.env_file, 'w').close()
+            #         dotenv.set_key(self.env_file, 'DEFAULT_BOT_TOKEN', self.token)
+            #         # dotenv.set_key(self.env_file, 'DEFAULT_BOT_OWNER', int(self.bot_owner)) 
+            #         self.add_or_update_env_setting('DEFAULT_BOT_OWNER', self.bot_owner)
+                    
+            #         dotenv.load_dotenv(self.env_file)
+                                       
+            #         return True
+                
+            # if quit_if_error:
+            #     input_with_timeout("Enter to close: ", 10)
+            #     quit()
+                
+            return None    
     
     async def error_handler(self, update: Update, context: CallbackContext) -> None:
         
@@ -50,12 +92,15 @@ class BaseTelegramBot(Application):
         self.all_commands = []
         
         # ---------- Build the bot application ------------
+        
+        self.bot_info = None
+        self.validate_token(self.token)  
             
         # Making bot persistant from the base class      
         # https://github.com/python-telegram-bot/python-telegram-bot/wiki/Making-your-bot-persistent
         script_path = os.path.dirname(os.path.abspath(__file__))
         persistence_file = kwargs.get('persistence_file', None)
-        self.persistence_file = f"{script_path}{os.sep}{self.application.bot.username + '.pickle'}" if not persistence_file else persistence_file
+        self.persistence_file = f"{script_path}{os.sep}{self.bot_info.username + '.pickle'}" if not persistence_file else persistence_file
         persistence = PicklePersistence(filepath=self.persistence_file, update_interval=self.default_persistence_interval) if not disable_persistence else None
         
         # Create an Application instance using the builder pattern  
