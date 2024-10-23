@@ -184,7 +184,8 @@ class HostWatchBot(TlgBotFwk):
             context.user_data[job_name] = {
                 'interval': interval, 
                 'ip_address': ip_address,
-                'job_owner': user_id
+                'job_owner': user_id,
+                'last_status': False
             }
             
             # force persistence update of the user data
