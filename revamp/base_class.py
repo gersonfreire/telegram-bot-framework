@@ -1,7 +1,8 @@
 import os
 import sys
 import logging
-from telegram import Update, BotCommandScopeDefault, ParseMode
+from telegram import Update, BotCommandScopeDefault
+from telegram.constants import ParseMode
 from telegram.ext import Application, CommandHandler, MessageHandler, CallbackContext, ContextTypes
 from dotenv import load_dotenv
 from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, filters
