@@ -166,7 +166,6 @@ class HostWatchBot(TlgBotFwk):
             
             job_name = f"ping_{ip_address}"
             
-            # TODO: set bot persistence on build bot method
             # check if job name already exists on the jobs list stored in user data persistence
             if job_name in context.user_data:
                 await update.message.reply_text(f"Job for {ip_address} already exists.", parse_mode=None)
