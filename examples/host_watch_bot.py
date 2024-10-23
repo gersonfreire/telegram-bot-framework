@@ -146,7 +146,8 @@ class HostWatchBot(TlgBotFwk):
             await self.application.persistence.update_user_data(user_id, user_data[user_id]) if self.application.persistence else None
             
             user_data = await self.application.persistence.get_user_data() if self.application.persistence else {}
-            logger.debug(f"User data: {user_data}")
+            # logger.debug(f"User data: {str(user_data)}")
+            pass
                 
         except Exception as e:
             self.send_message_by_api(self.bot_owner, f"An error occurred while pinging {ip_address}: {e}")
@@ -295,7 +296,7 @@ class HostWatchBot(TlgBotFwk):
                     
                     status= user_data[job_name]['last_status'] if 'last_status' in user_data[job_name] else ""
                     
-                    message += f"`{job_owner:<10}` _{interval}s_ `{ip_address}` `{next_time}`{os.linesep}"                    
+                    message += f"{status} `{job_owner:<10}` _{interval}s_ `{ip_address}` `{next_time}`{os.linesep}"                    
             
             # TODO: Escape possible markdown characters from user name
             # message = re.sub(r'([_*\[\]()~`>#+\-=|{}.!])', r'\\\1', message)
