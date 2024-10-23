@@ -11,6 +11,17 @@ logger = logging.getLogger(__name__)
 
 class BaseTelegramBot(Application):
     
+    async def error_handler(self, update: Update, context: CallbackContext) -> None:
+        
+        try:
+            error_message = f"{__file__} at line {str(sys.exc_info()[-1])}: {str(context.error)}" 
+            self.logger.error(error_message) 
+            await self.application.bot.send_message(chat_id=self.bot_owner, text=error_message, parse_mode=None) 
+        
+        except Exception as e:            
+            logger.error(e)  
+            await self.application.bot.send_message(chat_id=self.bot_owner, text=str(e))
+       
     def __init__(self, 
                  token: str = None,
                  admin_id_list: list[int] = None,
@@ -36,10 +47,7 @@ class BaseTelegramBot(Application):
         self.common_users_commands = []
         self.admin_commands = []
         self.all_commands = []
-        
-        if not self.disable_error_handler:
-            self.add_error_handler(self.error_handler)
-        
+                
         self.initialize_handlers()
         
         # ---------- Build the bot application ------------
@@ -61,6 +69,10 @@ class BaseTelegramBot(Application):
 
     def initialize_handlers(self):
         try:
+
+            if not self.disable_error_handler:
+                self.application.add_error_handler(self.error_handler)
+                            
             unschedule_function_handler = CommandHandler('unschedule', self.cmd_unschedule_function, filters=filters.User(user_id=self.admin_id_list))
             self.add_handler(unschedule_function_handler)
             
