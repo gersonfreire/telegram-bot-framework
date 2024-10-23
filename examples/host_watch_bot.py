@@ -287,8 +287,6 @@ class HostWatchBot(TlgBotFwk):
                             if not job_name.startswith('ping_'):
                                 continue
                             
-                            has_jobs = True
-                            
                             next_time = ""
                             try:
                                 job = self.application.job_queue.get_jobs_by_name(job_name)[0]                        
@@ -304,8 +302,12 @@ class HostWatchBot(TlgBotFwk):
                             status='✅' if job_name in user_data and 'last_status' in user_data[job_name] and user_data[job_name]['last_status'] else "🔴"
                             
                             message += f"{status} `{job_owner:<10}` _{interval}s_ `{ip_address}` `{next_time}`{os.linesep}"
+                            
+                            has_jobs = True
+                            
                         except Exception as e:
                             logger.error(f"An error occurred while listing job {job_name} for user {job_owner_id}: {e}")
+                            
                 except Exception as e:
                     logger.error(f"An error occurred while processing user data for user {job_owner_id}: {e}")
             
