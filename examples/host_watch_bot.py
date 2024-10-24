@@ -104,7 +104,8 @@ class HostWatchBot(TlgBotFwk):
             http_ping_result = await self.http_ping(job_param, show_success=show_success, user_id=user_id)
             
             job_name = f"ping_{job_param}"  
-            callback_context.user_data[job_name]['last_status'] = ping_result and http_ping_result
+            callback_context.user_data[job_name]['last_status'] = ping_result # and http_ping_result
+            callback_context.user_data[job_name]['http_status'] = http_ping_result
             
             # Log the result of the ping
             logger.debug(f"Ping result for {job_param}: {ping_result} {ping_result}")
@@ -133,7 +134,7 @@ class HostWatchBot(TlgBotFwk):
                 user_data = await self.application.persistence.get_user_data() if self.application.persistence else {}
                 job_name = f"ping_{ip_address}"
                 
-                user_data[user_id][job_name]['last_status'] = http_result
+                user_data[user_id][job_name]['http_status'] = http_result
                 await self.application.persistence.update_user_data(user_id, user_data[user_id]) if self.application.persistence else None
                 
                 # Force a flush of persistence to save the last status
@@ -230,7 +231,8 @@ class HostWatchBot(TlgBotFwk):
                 'interval': interval, 
                 'ip_address': ip_address,
                 'job_owner': user_id,
-                'last_status': False
+                'last_status': False,
+                'http_status': False
             }
             
             # force persistence update of the user data
@@ -338,10 +340,10 @@ class HostWatchBot(TlgBotFwk):
                             ip_address = user_data[job_name]['ip_address'] if job_name in user_data else None
                             job_owner = job_owner_id
                             
-                            # status= user_data[job_name]['last_status'] if 'last_status' in user_data[job_name] else "🔴"
                             status='✅' if job_name in user_data and 'last_status' in user_data[job_name] and user_data[job_name]['last_status'] else "🔴"
+                            http_status='✅' if job_name in user_data and 'http_status' in user_data[job_name] and user_data[job_name]['http_status'] else "🔴"
                             
-                            message += f"{status} `{job_owner:<10}` _{interval}s_ `{ip_address}` `{next_time}`{os.linesep}"
+                            message += f"{status}{http_status} `{job_owner:<10}` _{interval}s_ `{ip_address}` `{next_time}`{os.linesep}"
                             
                             has_jobs = True
                             
