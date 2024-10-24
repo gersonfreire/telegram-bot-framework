@@ -8,36 +8,16 @@ overrides the initialize_handlers method to add a help command handler.
 This version is inspired on and more elaborated than host_monitor because controls each host by user.
 """
 
-__version__ = '0.4.0 TODO: Remove  paypal and payment commands'
+__version__ = '0.4.1 Add last status to ping list'
 
 import __init__
-# import re
+import httpx
 
 from tlgfwk import *
+import traceback
 
 class HostWatchBot(TlgBotFwk):
-          
-    async def get_user_data(self, user_id: int, user_item_name: str, default_value=None):
-    
-        try:
-            # Get user data from the context
-            all_user_data = await self.application.persistence.get_user_data() if self.application.persistence else {}
-            
-            user_data = all_user_data[user_id] if user_id in all_user_data else {user_id : {}}
-            
-            if user_item_name not in user_data:
-                user_data[user_item_name] = default_value
-                await self.application.persistence.update_user_data(user_id, user_data) if self.application.persistence else None
-                            
-            # Get the current value of the show_success flag
-            user_data_item = user_data.get(user_item_name, default_value)
-            
-            return user_data_item
-                
-        except Exception as e:
-            logger.error(f"An error occurred while getting user data: {e}")
-            return None
-    
+     
     async def load_all_user_data(self):
         try:
             logger.info("Restoring jobs...")
@@ -82,15 +62,15 @@ class HostWatchBot(TlgBotFwk):
                                 
                         except Exception as e:
                             logger.error(f"Failed to add job {job_name} for user {user_id}: {e}")
-                            self.send_message_by_api(self.bot_owner, f"Failed to add job {job_name} for user {user_id}: {e}", parse_mode=None)
+                            self.send_message_by_api(self.bot_owner, f"Failed to add job {job_name} for user {user_id}: {e}")
                         
                 except Exception as e:
                     logger.error(f"Failed to restore job {user_id}: {e}")
-                    self.send_message_by_api(self.bot_owner, f"Failed to restore job {user_id}: {e}", parse_mode=None) 
+                    self.send_message_by_api(self.bot_owner, f"Failed to restore job {user_id}: {e}") 
             
         except Exception as e:
             logger.error(f"Failed to restore jobs: {e}")
-            self.send_message_by_api(self.bot_owner, f"Failed to restore jobs: {e}", parse_mode=None)           
+            self.send_message_by_api(self.bot_owner, f"Failed to restore jobs: {e}")           
     
     def __init__(self, token=None, *args, **kwargs):
 
@@ -119,25 +99,95 @@ class HostWatchBot(TlgBotFwk):
             if show_success:
                 self.send_message_by_api(user_id, f"Pinging {job_param}...") if show_success else None
                 
-            self.ping_host(job_param, show_success=show_success, user_id=user_id)
+            ping_result = await self.ping_host(job_param, show_success=show_success, user_id=user_id)
+            
+            http_ping_result = await self.http_ping(job_param, show_success=show_success, user_id=user_id)
+            
+            job_name = f"ping_{job_param}"  
+            callback_context.user_data[job_name]['last_status'] = ping_result # and http_ping_result
+            callback_context.user_data[job_name]['http_status'] = http_ping_result
+            
+            # Log the result of the ping
+            logger.debug(f"Ping result for {job_param}: {ping_result} {ping_result}")
             
         except Exception as e:
-            self.send_message_by_api(self.bot_owner, f"An error occurred: {e}", parse_mode=None) 
+            self.send_message_by_api(self.bot_owner, f"An error occurred: {e}") 
+    
+    async def http_ping(self, ip_address, show_success=True, user_id=None, http_type='https'):
+        
+        http_result = False
+        url = f'{http_type}://{ip_address}'
+        
+        try:
+            async with httpx.AsyncClient() as client:
+                response = await client.get(url)
+                if response.status_code == 200 or response.status_code == 302 or response.status_code == 301: 
+                    # 302 is a redirect nd 301 is a permanent redirect
+                    self.send_message_by_api(user_id, f"{url} is reachable!") if show_success else None
+                    http_result = True
+                else:
+                    self.send_message_by_api(user_id, f"{url} is not reachable!")
+                
+                logger.debug(f"HTTP ping result for {url}: {http_result}")
+                
+                # Add last status to ping list in user data
+                user_data = await self.application.persistence.get_user_data() if self.application.persistence else {}
+                job_name = f"ping_{ip_address}"
+                
+                user_data[user_id][job_name]['http_status'] = http_result
+                await self.application.persistence.update_user_data(user_id, user_data[user_id]) if self.application.persistence else None
+                
+                # Force a flush of persistence to save the last status
+                await self.application.persistence.flush() if self.application.persistence else None
+                
+                user_data = await self.application.persistence.get_user_data() if self.application.persistence else {}
+                
+        except Exception as e:
+            tb = traceback.format_exc()
+            script_name = __file__
+            line_number = tb.splitlines()[-3].split(",")[1].strip().split(" ")[1]
+            error_location = f"Error in {script_name} at line {line_number}"
+            logger.error(error_location)
+            # self.send_message_by_api(self.bot_owner, f"An error occurred while checking {ip_address}: {e}")
+            # self.send_message_by_api(self.bot_owner, error_location)
+        
+        return http_result
 
-    def ping_host(self, ip_address, show_success=True, user_id=None):
+    async def ping_host(self, ip_address, show_success=True, user_id=None):
+        
+        ping_result = False # f"🔴"
+        
         try:
             # Ping logic here
             param = "-n 1" if platform.system().lower() == "windows" else "-c 1"
             response = os.system(f"ping {param} {ip_address}") # Returns 0 if the host is up, 1 if the host is down
             
-            # TODO: send message just to the job owner user
+            # send message just to the job owner user
+            ping_result = False
             if response == 0:
                 self.send_message_by_api(user_id, f"{ip_address} is up!") if show_success else None
+                ping_result = True # f"✅"  f"🟢"                
             else:
                 self.send_message_by_api(user_id, f"{ip_address} is down!")
                 
+            logger.debug(f"Ping result for {ip_address}: {ping_result}")
+                
+            # Add last status to ping list in user data
+            user_data = await self.application.persistence.get_user_data() #  if self.application.persistence else {}
+            job_name = f"ping_{ip_address}"            
+            
+            user_data[user_id][job_name]['last_status'] = ping_result
+            await self.application.persistence.update_user_data(user_id, user_data[user_id]) if self.application.persistence else None
+            
+            # force a flush of persistence to save the last status
+            await self.application.persistence.flush() if self.application.persistence else None
+            
+            user_data = await self.application.persistence.get_user_data() if self.application.persistence else {}
+                
         except Exception as e:
-            self.send_message_by_api(self.bot_owner, f"An error occurred while pinging {ip_address}: {e}", parse_mode=None)
+            self.send_message_by_api(self.bot_owner, f"An error occurred while pinging {ip_address}: {e}")
+            
+        return ping_result
 
     async def add_job(self, update: Update, context: CallbackContext):
         """Add a new host to be monitored by the bot.
@@ -159,17 +209,20 @@ class HostWatchBot(TlgBotFwk):
             
             job_name = f"ping_{ip_address}"
             
-            # TODO: set bot persistence on build bot method
             # check if job name already exists on the jobs list stored in user data persistence
             if job_name in context.user_data:
-                await update.message.reply_text(f"Job for {ip_address} already exists.", parse_mode=None)
+                await update.message.reply_text(f"Host {ip_address} already exists.", parse_mode=None)
                 return
             
+            # Add the new job to the user's job dictionary. If the user already has jobs, add the new job to their existing job dictionary.        
             new_job = self.application.job_queue.run_repeating(
                 self.job_event_handler, interval=interval, first=0, name=job_name, data=ip_address,
                 user_id=user_id, chat_id=user_id
             )
             
+            logger.debug(f"Adding job {job_name} for user {user_id}...")
+            
+            # If the user does not have any jobs yet, create a new dictionary for the user with the new job. 
             self.jobs[user_id] = self.jobs[user_id] if user_id in self.jobs else {user_id: {}}
             self.jobs[user_id][job_name] = new_job if user_id in self.jobs else {job_name: new_job}            
             
@@ -177,7 +230,9 @@ class HostWatchBot(TlgBotFwk):
             context.user_data[job_name] = {
                 'interval': interval, 
                 'ip_address': ip_address,
-                'job_owner': user_id
+                'job_owner': user_id,
+                'last_status': False,
+                'http_status': False
             }
             
             # force persistence update of the user data
@@ -186,7 +241,7 @@ class HostWatchBot(TlgBotFwk):
             # Ensure persistence is flushed to save the new job
             await self.application.persistence.flush() if self.application.persistence else None
             
-            await update.message.reply_text(f"Job added for {ip_address} with interval {interval} seconds.", parse_mode=None)
+            await update.message.reply_text(f"Hosted {ip_address} added with interval {interval} seconds.", parse_mode=None)
             
         except Exception as e:
             await update.message.reply_text(f"An error occurred: {e}", parse_mode=None)
@@ -229,7 +284,7 @@ class HostWatchBot(TlgBotFwk):
             except Exception as e:
                 logger.error(f"Failed to remove job {job_name} from user data: {e}")
             
-            await update.message.reply_text(f"Job for {ip_address} deleted.", parse_mode=None)
+            await update.message.reply_text(f"Host {ip_address} deleted.", parse_mode=None)
         
         except Exception as e:
             await update.message.reply_text(f"An error occurred: {e}", parse_mode=None)
@@ -254,44 +309,63 @@ class HostWatchBot(TlgBotFwk):
                 
             all_user_data = await self.application.persistence.get_user_data() if self.application.persistence else {}
             
+            has_jobs = False
+            
             for job_owner_id, user_data in all_user_data.items():
                 
-                # Show to the user a job in these 2 cases:
-                # -The command scope is to list all jobs and the current user is the bot owner
-                # OR
-                # -The current user is the owner of the job
-                is_allowed = (command_scope and command_scope.lower()=='all' 
-                              and effective_user_id == self.bot_owner) or (effective_user_id == job_owner_id)
-                
-                if not is_allowed:
-                    continue
-                
-                for job_name, job_params in user_data.items():
-                    if not job_name.startswith('ping_'):
+                try:
+                    # Show to the user a job in these 2 cases:
+                    # -The command scope is to list all jobs and the current user is the bot owner
+                    # OR
+                    # -The current user is the owner of the job
+                    is_allowed = (command_scope and command_scope.lower()=='all' 
+                                  and effective_user_id == self.bot_owner) or (effective_user_id == job_owner_id)
+                    
+                    if not is_allowed:
                         continue
                     
-                    next_time = ""
-                    try:
-                        job = self.application.job_queue.get_jobs_by_name(job_name)[0]                        
-                        next_time = (job.next_t - datetime.timedelta(hours=3)).strftime("%H:%M UTC-3") if job.next_t else ""
-                    except IndexError:
-                        logger.error(f"No job found with name {job_name}")
-                    
-                    interval = user_data[job_name]['interval'] if job_name in user_data else None
-                    ip_address = user_data[job_name]['ip_address'] if job_name in user_data else None
-                    job_owner = job_owner_id
-                    
-                    message += f"`{job_owner:<10}` _{interval}s_ `{ip_address}` `{next_time}`{os.linesep}"                    
+                    for job_name, job_params in user_data.items():
+                        try:
+                            if not job_name.startswith('ping_'):
+                                continue
+                            
+                            next_time = ""
+                            try:
+                                job = self.application.job_queue.get_jobs_by_name(job_name)[0]                        
+                                next_time = (job.next_t - datetime.timedelta(hours=3)).strftime("%H:%M UTC-3") if job.next_t else ""
+                            except IndexError:
+                                logger.error(f"No job found with name {job_name}")
+                            
+                            interval = user_data[job_name]['interval'] if job_name in user_data else None
+                            ip_address = user_data[job_name]['ip_address'] if job_name in user_data else None
+                            job_owner = job_owner_id
+                            
+                            status='✅' if job_name in user_data and 'last_status' in user_data[job_name] and user_data[job_name]['last_status'] else "🔴"
+                            http_status='✅' if job_name in user_data and 'http_status' in user_data[job_name] and user_data[job_name]['http_status'] else "🔴"
+                            
+                            message += f"{status}{http_status} `{job_owner:<10}` _{interval}s_ `{ip_address}` `{next_time}`{os.linesep}"
+                            
+                            has_jobs = True
+                            
+                        except Exception as e:
+                            logger.error(f"An error occurred while listing job {job_name} for user {job_owner_id}: {e}")
+                            
+                except Exception as e:
+                    logger.error(f"An error occurred while processing user data for user {job_owner_id}: {e}")
             
             # TODO: Escape possible markdown characters from user name
-            # message = re.sub(r'([_*\[\]()~`>#+\-=|{}.!])', r'\\\1', message)
+            # message = re.sub(r'([_*\[\]()~`>#+\-=|{}.!])', r'\\\1', message)           
+
+            if not has_jobs:
+                message = f"_No hosts monitored._{os.linesep}{os.linesep}_Usage: /pingadd <ip_address> <interval-in-seconds>_{os.linesep}_Example: `/pingadd 8.8.8.8 30`"
+                logger.info(message)          
                             
             await update.message.reply_text(text=message) 
                     
         except Exception as e:
             await update.message.reply_text(f"An error occurred: {e}", parse_mode=None)
 
-    async def toggle_success(self, update: Update, context: CallbackContext):
+    async def ping_log(self, update: Update, context: CallbackContext):
         
         try:
             # Get the current value of the show_success flag from context user data 
@@ -302,7 +376,7 @@ class HostWatchBot(TlgBotFwk):
             context.user_data["show_success"] = show_success
             
             status = "enabled" if show_success else "disabled"
-            await update.message.reply_text(f"_Success messages are now:_ `{status}`.")
+            await update.message.reply_text(f"_Monitoring log is now_ `{status}`.")
             
         except Exception as e:
             await update.message.reply_text(f"An error occurred: {e}", parse_mode=None)
@@ -313,7 +387,7 @@ class HostWatchBot(TlgBotFwk):
             self.application.add_handler(CommandHandler("pingadd", self.add_job), group=-1)
             self.application.add_handler(CommandHandler("pingdelete", self.delete_job), group=-1)
             self.application.add_handler(CommandHandler("pinglist", self.list_jobs), group=-1)  
-            self.application.add_handler(CommandHandler("togglesuccess", self.toggle_success), group=-1)
+            self.application.add_handler(CommandHandler("pinglog", self.ping_log), group=-1)
             
             super().run()
             

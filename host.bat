@@ -8,4 +8,5 @@ cd %~dp0
 call .venv\Scripts\Activate
 
 @REM Run the bot script repassing the arguments
-python examples\host_monitor_by_user.py %*
+@REM python examples\host_monitor_by_user.py %*
+python examples\host_watch_bot.py %*
