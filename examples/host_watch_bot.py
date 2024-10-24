@@ -11,8 +11,7 @@ This version is inspired on and more elaborated than host_monitor because contro
 __version__ = '0.4.1 Add last status to ping list'
 
 import __init__
-import aiohttp
-# import re
+import httpx
 
 from tlgfwk import *
 
@@ -101,11 +100,10 @@ class HostWatchBot(TlgBotFwk):
                 
             ping_result = await self.ping_host(job_param, show_success=show_success, user_id=user_id)
             
-            http_url = f"http://{job_param}"
-            http_ping_result = await self.http_ping(http_url, show_success=show_success, user_id=user_id)
+            http_ping_result = await self.http_ping(job_param, show_success=show_success, user_id=user_id)
             
             job_name = f"ping_{job_param}"  
-            callback_context.user_data[job_name]['last_status'] = ping_result
+            callback_context.user_data[job_name]['last_status'] = ping_result and http_ping_result
             
             # Log the result of the ping
             logger.debug(f"Ping result for {job_param}: {ping_result} {ping_result}")
@@ -113,35 +111,37 @@ class HostWatchBot(TlgBotFwk):
         except Exception as e:
             self.send_message_by_api(self.bot_owner, f"An error occurred: {e}") 
     
-    async def http_ping(self, url, show_success=True, user_id=None):
+    async def http_ping(self, ip_address, show_success=True, user_id=None):
         
         http_result = False
+        url = f'https://{ip_address}'
         
         try:
-            async with aiohttp.ClientSession() as session:
-                async with session.get(url) as response:
-                    if response.status == 200:
-                        self.send_message_by_api(user_id, f"{url} is reachable!") if show_success else None
-                        http_result = True
-                    else:
-                        self.send_message_by_api(user_id, f"{url} is not reachable!")
-                    
-                    logger.debug(f"HTTP ping result for {url}: {http_result}")
-                    
-                    # Add last status to ping list in user data
-                    user_data = await self.application.persistence.get_user_data() if self.application.persistence else {}
-                    job_name = f"http_ping_{url}"
-                    
-                    user_data[user_id][job_name]['last_status'] = http_result
-                    await self.application.persistence.update_user_data(user_id, user_data[user_id]) if self.application.persistence else None
-                    
-                    # Force a flush of persistence to save the last status
-                    await self.application.persistence.flush() if self.application.persistence else None
-                    
-                    user_data = await self.application.persistence.get_user_data() if self.application.persistence else {}
-                    
+            async with httpx.AsyncClient() as client:
+                response = await client.get(url)
+                if response.status_code == 200 or response.status_code == 302 or response.status_code == 301: 
+                    # 302 is a redirect nd 301 is a permanent redirect
+                    self.send_message_by_api(user_id, f"{url} is reachable!") if show_success else None
+                    http_result = True
+                else:
+                    self.send_message_by_api(user_id, f"{url} is not reachable!")
+                
+                logger.debug(f"HTTP ping result for {url}: {http_result}")
+                
+                # Add last status to ping list in user data
+                user_data = await self.application.persistence.get_user_data() if self.application.persistence else {}
+                job_name = f"ping_{ip_address}"
+                
+                user_data[user_id][job_name]['last_status'] = http_result
+                await self.application.persistence.update_user_data(user_id, user_data[user_id]) if self.application.persistence else None
+                
+                # Force a flush of persistence to save the last status
+                await self.application.persistence.flush() if self.application.persistence else None
+                
+                user_data = await self.application.persistence.get_user_data() if self.application.persistence else {}
+                
         except Exception as e:
-            self.send_message_by_api(self.bot_owner, f"An error occurred while checking {url}: {e}")
+            self.send_message_by_api(self.bot_owner, f"An error occurred while checking {ip_address}: {e}")
         
         return http_result
 
