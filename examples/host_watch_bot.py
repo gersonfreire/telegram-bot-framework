@@ -11,6 +11,7 @@ This version is inspired on and more elaborated than host_monitor because contro
 __version__ = '0.4.1 Add last status to ping list'
 
 import __init__
+import aiohttp
 # import re
 
 from tlgfwk import *
@@ -108,6 +109,38 @@ class HostWatchBot(TlgBotFwk):
             
         except Exception as e:
             self.send_message_by_api(self.bot_owner, f"An error occurred: {e}") 
+    
+    async def http_ping(self, url, show_success=True, user_id=None):
+        
+        http_result = False
+        
+        try:
+            async with aiohttp.ClientSession() as session:
+                async with session.get(url) as response:
+                    if response.status == 200:
+                        self.send_message_by_api(user_id, f"{url} is reachable!") if show_success else None
+                        http_result = True
+                    else:
+                        self.send_message_by_api(user_id, f"{url} is not reachable!")
+                    
+                    logger.debug(f"HTTP ping result for {url}: {http_result}")
+                    
+                    # Add last status to ping list in user data
+                    user_data = await self.application.persistence.get_user_data() if self.application.persistence else {}
+                    job_name = f"http_ping_{url}"
+                    
+                    user_data[user_id][job_name]['last_status'] = http_result
+                    await self.application.persistence.update_user_data(user_id, user_data[user_id]) if self.application.persistence else None
+                    
+                    # Force a flush of persistence to save the last status
+                    await self.application.persistence.flush() if self.application.persistence else None
+                    
+                    user_data = await self.application.persistence.get_user_data() if self.application.persistence else {}
+                    
+        except Exception as e:
+            self.send_message_by_api(self.bot_owner, f"An error occurred while checking {url}: {e}")
+        
+        return http_result
 
     async def ping_host(self, ip_address, show_success=True, user_id=None):
         
