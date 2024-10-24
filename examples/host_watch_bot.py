@@ -199,7 +199,7 @@ class HostWatchBot(TlgBotFwk):
             
         return ping_result
 
-    async def add_job(self, update: Update, context: CallbackContext):
+    async def ping_add(self, update: Update, context: CallbackContext):
         """Add a new host to be monitored by the bot.
 
         Args:
@@ -256,7 +256,7 @@ class HostWatchBot(TlgBotFwk):
         except Exception as e:
             await update.message.reply_text(f"An error occurred: {e}", parse_mode=None)
 
-    async def delete_job(self, update: Update, context: CallbackContext):
+    async def ping_delete(self, update: Update, context: CallbackContext):
         """Remove a host from the bot´s monitoring list.
 
         Args:
@@ -299,7 +299,7 @@ class HostWatchBot(TlgBotFwk):
         except Exception as e:
             await update.message.reply_text(f"An error occurred: {e}", parse_mode=None)
 
-    async def list_jobs(self, update: Update, context: CallbackContext) -> None:
+    async def ping_list(self, update: Update, context: CallbackContext) -> None:
         """List the hosts being monitored by the bot.
 
         Args:
@@ -354,7 +354,7 @@ class HostWatchBot(TlgBotFwk):
                             http_status='✅' if job_name in user_data and 'http_status' in user_data[job_name] and user_data[job_name]['http_status'] else "🔴"
                             
                             url = f'https://{ip_address}' 
-                            markdown_link = f"[{ip_address:<15}]({url})"  
+                            markdown_link = f"[{ip_address}]({url})"  
                             
                             message += f"{status}{http_status} `{job_owner:<10}` _{interval}s_ `{markdown_link}` `{next_time}`{os.linesep}"
                             
@@ -397,9 +397,9 @@ class HostWatchBot(TlgBotFwk):
     def run(self):
         
         try:
-            self.application.add_handler(CommandHandler("pingadd", self.add_job), group=-1)
-            self.application.add_handler(CommandHandler("pingdelete", self.delete_job), group=-1)
-            self.application.add_handler(CommandHandler("pinglist", self.list_jobs), group=-1)  
+            self.application.add_handler(CommandHandler("pingadd", self.ping_add), group=-1)
+            self.application.add_handler(CommandHandler("pingdelete", self.ping_delete), group=-1)
+            self.application.add_handler(CommandHandler("pinglist", self.ping_list), group=-1)  
             self.application.add_handler(CommandHandler("pinglog", self.ping_log), group=-1)
             
             super().run()
