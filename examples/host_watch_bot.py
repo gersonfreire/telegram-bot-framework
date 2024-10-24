@@ -105,7 +105,8 @@ class HostWatchBot(TlgBotFwk):
             
             job_name = f"ping_{job_param}"  
             callback_context.user_data[job_name]['last_status'] = ping_result # and http_ping_result
-            callback_context.user_data[job_name]['http_status'] = http_ping_result
+            callback_context.user_data[job_name]['http_status'] = http_ping_result     
+            callback_context.user_data[job_name]['http_ping_time'] = (datetime.datetime.now()).strftime("%H:%M")
             
             # Log the result of the ping
             logger.debug(f"Ping result for {job_param}: {ping_result} {ping_result}")
@@ -187,6 +188,8 @@ class HostWatchBot(TlgBotFwk):
             job_name = f"ping_{ip_address}"            
             
             user_data[user_id][job_name]['last_status'] = ping_result
+            user_data[user_id][job_name]['http_ping_time'] = (datetime.datetime.now()).strftime("%H:%M")
+            
             await self.application.persistence.update_user_data(user_id, user_data[user_id]) if self.application.persistence else None
             
             # force a flush of persistence to save the last status
@@ -242,7 +245,8 @@ class HostWatchBot(TlgBotFwk):
                 'ip_address': ip_address,
                 'job_owner': user_id,
                 'last_status': False,
-                'http_status': False
+                'http_status': False,
+                'http_ping_time': None
             }
             
             # force persistence update of the user data
@@ -355,7 +359,7 @@ class HostWatchBot(TlgBotFwk):
                             url = f'https://{ip_address}' 
                             markdown_link = f"[{ip_address}]({url})" 
                             
-                            http_ping_time = (datetime.datetime.now()).strftime("%H:%M")
+                            http_ping_time = user_data[job_name]['http_ping_time'] if job_name in user_data else None
                             
                             if effective_user_id == self.bot_owner:
                                 message += f"{status}{http_status} `{job_owner:<10}` _{interval}s_ `{next_time}` `{http_ping_time}` {markdown_link}{os.linesep}"
