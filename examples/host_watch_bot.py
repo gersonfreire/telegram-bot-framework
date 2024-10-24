@@ -315,7 +315,7 @@ class HostWatchBot(TlgBotFwk):
             effective_user_id = update.effective_user.id
             
             # for each job item in user´s jobs queue collection, add a line to the message to be sent
-            message = f"_Active jobs:_{os.linesep}"
+            message = f"_Active monitored host:_{os.linesep}`ping-https-interval-next-last-host`{os.linesep}"
                 
             all_user_data = await self.application.persistence.get_user_data() if self.application.persistence else {}
             
@@ -324,9 +324,8 @@ class HostWatchBot(TlgBotFwk):
             for job_owner_id, user_data in all_user_data.items():
                 
                 try:
-                    # Show to the user a job in these 2 cases:
+                    # User allowed in these 2 cases:
                     # -The command scope is to list all jobs and the current user is the bot owner
-                    # OR
                     # -The current user is the owner of the job
                     is_allowed = (command_scope and command_scope.lower()=='all' 
                                   and effective_user_id == self.bot_owner) or (effective_user_id == job_owner_id)
@@ -354,9 +353,14 @@ class HostWatchBot(TlgBotFwk):
                             http_status='✅' if job_name in user_data and 'http_status' in user_data[job_name] and user_data[job_name]['http_status'] else "🔴"
                             
                             url = f'https://{ip_address}' 
-                            markdown_link = f"[{ip_address}]({url})"  
+                            markdown_link = f"[{ip_address}]({url})" 
                             
-                            message += f"{status}{http_status} `{job_owner:<10}` _{interval}s_ `{next_time}` {markdown_link}{os.linesep}"
+                            http_ping_time = (datetime.datetime.now()).strftime("%H:%M")
+                            
+                            if effective_user_id == self.bot_owner:
+                                message += f"{status}{http_status} `{job_owner:<10}` _{interval}s_ `{next_time}` `{http_ping_time}` {markdown_link}{os.linesep}"
+                            else:
+                                message += f"{status}{http_status} _{interval}s_ `{next_time}` `{http_ping_time}` {markdown_link}{os.linesep}"
                             
                             has_jobs = True
                             
