@@ -101,7 +101,7 @@ class HostWatchBot(TlgBotFwk):
                 
             ping_result = await self.ping_host(job_param, show_success=show_success, user_id=user_id)
             
-            http_ping_result = await self.http_ping(job_param, show_success=show_success, user_id=user_id)
+            http_ping_result = await self.http_ping(job_param, log_status=show_success, user_id=user_id)
             
             job_name = f"ping_{job_param}"  
             callback_context.user_data[job_name]['last_status'] = ping_result # and http_ping_result
@@ -113,7 +113,7 @@ class HostWatchBot(TlgBotFwk):
         except Exception as e:
             self.send_message_by_api(self.bot_owner, f"An error occurred: {e}") 
     
-    async def http_ping(self, ip_address, show_success=True, user_id=None, http_type='https'):
+    async def http_ping(self, ip_address, log_status=True, user_id=None, http_type='https'):
         
         http_result = False
         url = f'{http_type}://{ip_address}'
@@ -132,10 +132,10 @@ class HostWatchBot(TlgBotFwk):
                 
                 if response and (response.status_code == 200 or response.status_code == 302 or response.status_code == 301): 
                     # 302 is a redirect nd 301 is a permanent redirect
-                    self.send_message_by_api(user_id, f"{url} is reachable!") if show_success else None
+                    self.send_message_by_api(user_id, f"{url} is reachable!") if log_status else None
                     http_result = True
                 else:
-                    self.send_message_by_api(user_id, f"{url} is not reachable!") if show_success else None
+                    self.send_message_by_api(user_id, f"{url} is not reachable!") if log_status else None
                 
                 logger.debug(f"HTTP ping result for {url}: {http_result}")
                 
