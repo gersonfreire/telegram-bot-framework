@@ -111,10 +111,10 @@ class HostWatchBot(TlgBotFwk):
         except Exception as e:
             self.send_message_by_api(self.bot_owner, f"An error occurred: {e}") 
     
-    async def http_ping(self, ip_address, show_success=True, user_id=None):
+    async def http_ping(self, ip_address, show_success=True, user_id=None, http_type='https'):
         
         http_result = False
-        url = f'https://{ip_address}'
+        url = f'{http_type}://{ip_address}'
         
         try:
             async with httpx.AsyncClient() as client:
