@@ -14,6 +14,7 @@ import __init__
 import httpx
 
 from tlgfwk import *
+import traceback
 
 class HostWatchBot(TlgBotFwk):
      
@@ -141,7 +142,13 @@ class HostWatchBot(TlgBotFwk):
                 user_data = await self.application.persistence.get_user_data() if self.application.persistence else {}
                 
         except Exception as e:
-            self.send_message_by_api(self.bot_owner, f"An error occurred while checking {ip_address}: {e}")
+            tb = traceback.format_exc()
+            script_name = __file__
+            line_number = tb.splitlines()[-3].split(",")[1].strip().split(" ")[1]
+            error_location = f"Error in {script_name} at line {line_number}"
+            logger.error(error_location)
+            # self.send_message_by_api(self.bot_owner, f"An error occurred while checking {ip_address}: {e}")
+            self.send_message_by_api(self.bot_owner, error_location)
         
         return http_result
 
