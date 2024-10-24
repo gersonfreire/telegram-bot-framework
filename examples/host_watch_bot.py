@@ -342,7 +342,7 @@ class HostWatchBot(TlgBotFwk):
                             next_time = ""
                             try:
                                 job = self.application.job_queue.get_jobs_by_name(job_name)[0]                        
-                                next_time = (job.next_t - datetime.timedelta(hours=3)).strftime("%H:%M UTC-3") if job.next_t else ""
+                                next_time = (job.next_t - datetime.timedelta(hours=3)).strftime("%H:%M") if job.next_t else ""
                             except IndexError:
                                 logger.error(f"No job found with name {job_name}")
                             
