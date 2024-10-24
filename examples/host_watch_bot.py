@@ -101,6 +101,9 @@ class HostWatchBot(TlgBotFwk):
                 
             ping_result = await self.ping_host(job_param, show_success=show_success, user_id=user_id)
             
+            http_url = f"http://{job_param}"
+            http_ping_result = await self.http_ping(http_url, show_success=show_success, user_id=user_id)
+            
             job_name = f"ping_{job_param}"  
             callback_context.user_data[job_name]['last_status'] = ping_result
             
