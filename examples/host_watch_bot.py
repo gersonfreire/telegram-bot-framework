@@ -359,7 +359,7 @@ class HostWatchBot(TlgBotFwk):
                             url = f'https://{ip_address}' 
                             markdown_link = f"[{ip_address}]({url})" 
                             
-                            http_ping_time = user_data[job_name]['http_ping_time'] if job_name in user_data else None
+                            http_ping_time = user_data[job_name]['http_ping_time'] if job_name in user_data and  'http_ping_time' in user_data[job_name] else None
                             
                             if effective_user_id == self.bot_owner:
                                 message += f"{status}{http_status} `{job_owner:<10}` _{interval}s_ `{next_time}` `{http_ping_time}` {markdown_link}{os.linesep}"
@@ -369,7 +369,8 @@ class HostWatchBot(TlgBotFwk):
                             has_jobs = True
                             
                         except Exception as e:
-                            logger.error(f"An error occurred while listing job {job_name} for user {job_owner_id}: {e}")
+                            tb = traceback.format_exc()
+                            logger.error(f"An error occurred while listing job {job_name} for user {job_owner_id}: {e}{os.linesep}{tb}")
                             
                 except Exception as e:
                     logger.error(f"An error occurred while processing user data for user {job_owner_id}: {e}")
