@@ -354,7 +354,7 @@ class HostWatchBot(TlgBotFwk):
                             http_status='✅' if job_name in user_data and 'http_status' in user_data[job_name] and user_data[job_name]['http_status'] else "🔴"
                             
                             url = f'https://{ip_address}' 
-                            markdown_link = f"[{ip_address}]({url})"  
+                            markdown_link = f"[{ip_address:<15}]({url})"  
                             
                             message += f"{status}{http_status} `{job_owner:<10}` _{interval}s_ `{markdown_link}` `{next_time}`{os.linesep}"
                             
