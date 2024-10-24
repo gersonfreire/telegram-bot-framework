@@ -101,7 +101,7 @@ class HostWatchBot(TlgBotFwk):
                 
             ping_result = await self.ping_host(job_param, show_success=show_success, user_id=user_id)
             
-            http_ping_result = await self.http_ping(job_param, show_success=show_success, user_id=user_id)
+            http_ping_result = await self.http_ping(job_param, debug_status=show_success, user_id=user_id)
             
             job_name = f"ping_{job_param}"  
             callback_context.user_data[job_name]['last_status'] = ping_result # and http_ping_result
@@ -113,20 +113,29 @@ class HostWatchBot(TlgBotFwk):
         except Exception as e:
             self.send_message_by_api(self.bot_owner, f"An error occurred: {e}") 
     
-    async def http_ping(self, ip_address, show_success=True, user_id=None, http_type='https'):
+    async def http_ping(self, ip_address, debug_status=True, user_id=None, http_type='https'):
         
         http_result = False
         url = f'{http_type}://{ip_address}'
         
         try:
             async with httpx.AsyncClient() as client:
-                response = await client.get(url)
-                if response.status_code == 200 or response.status_code == 302 or response.status_code == 301: 
+                
+                response = None
+                
+                try:
+                    response = await client.get(url)
+                # except httpx.RequestError as exc:
+                except Exception as e:
+                    # logger.error(f"An error occurred while requesting {exc.request.url!r}.")
+                    logger.error(f"An error occurred while requesting {url}{os.linesep}{e}")
+                
+                if response and (response.status_code == 200 or response.status_code == 302 or response.status_code == 301): 
                     # 302 is a redirect nd 301 is a permanent redirect
-                    self.send_message_by_api(user_id, f"{url} is reachable!") if show_success else None
+                    self.send_message_by_api(user_id, f"{url} is reachable!") if debug_status else None
                     http_result = True
                 else:
-                    self.send_message_by_api(user_id, f"{url} is not reachable!")
+                    self.send_message_by_api(user_id, f"{url} is not reachable!") if debug_status else None
                 
                 logger.debug(f"HTTP ping result for {url}: {http_result}")
                 
@@ -145,9 +154,10 @@ class HostWatchBot(TlgBotFwk):
         except Exception as e:
             tb = traceback.format_exc()
             script_name = __file__
-            line_number = tb.splitlines()[-3].split(",")[1].strip().split(" ")[1]
-            error_location = f"Error in {script_name} at line {line_number}"
-            logger.error(error_location)
+            # line_number = tb.splitlines()[-3].split(",")[1].strip().split(" ")[1]
+            # error_location = f"Error in {script_name} at line {line_number}"
+            # logger.error(error_location)
+            logger.error(str(tb))
             # self.send_message_by_api(self.bot_owner, f"An error occurred while checking {ip_address}: {e}")
             # self.send_message_by_api(self.bot_owner, error_location)
         
@@ -189,7 +199,7 @@ class HostWatchBot(TlgBotFwk):
             
         return ping_result
 
-    async def add_job(self, update: Update, context: CallbackContext):
+    async def ping_add(self, update: Update, context: CallbackContext):
         """Add a new host to be monitored by the bot.
 
         Args:
@@ -246,7 +256,7 @@ class HostWatchBot(TlgBotFwk):
         except Exception as e:
             await update.message.reply_text(f"An error occurred: {e}", parse_mode=None)
 
-    async def delete_job(self, update: Update, context: CallbackContext):
+    async def ping_delete(self, update: Update, context: CallbackContext):
         """Remove a host from the bot´s monitoring list.
 
         Args:
@@ -289,7 +299,7 @@ class HostWatchBot(TlgBotFwk):
         except Exception as e:
             await update.message.reply_text(f"An error occurred: {e}", parse_mode=None)
 
-    async def list_jobs(self, update: Update, context: CallbackContext) -> None:
+    async def ping_list(self, update: Update, context: CallbackContext) -> None:
         """List the hosts being monitored by the bot.
 
         Args:
@@ -332,7 +342,7 @@ class HostWatchBot(TlgBotFwk):
                             next_time = ""
                             try:
                                 job = self.application.job_queue.get_jobs_by_name(job_name)[0]                        
-                                next_time = (job.next_t - datetime.timedelta(hours=3)).strftime("%H:%M UTC-3") if job.next_t else ""
+                                next_time = (job.next_t - datetime.timedelta(hours=3)).strftime("%H:%M") if job.next_t else ""
                             except IndexError:
                                 logger.error(f"No job found with name {job_name}")
                             
@@ -343,7 +353,10 @@ class HostWatchBot(TlgBotFwk):
                             status='✅' if job_name in user_data and 'last_status' in user_data[job_name] and user_data[job_name]['last_status'] else "🔴"
                             http_status='✅' if job_name in user_data and 'http_status' in user_data[job_name] and user_data[job_name]['http_status'] else "🔴"
                             
-                            message += f"{status}{http_status} `{job_owner:<10}` _{interval}s_ `{ip_address}` `{next_time}`{os.linesep}"
+                            url = f'https://{ip_address}' 
+                            markdown_link = f"[{ip_address}]({url})"  
+                            
+                            message += f"{status}{http_status} `{job_owner:<10}` _{interval}s_ `{next_time}` {markdown_link}{os.linesep}"
                             
                             has_jobs = True
                             
@@ -384,9 +397,9 @@ class HostWatchBot(TlgBotFwk):
     def run(self):
         
         try:
-            self.application.add_handler(CommandHandler("pingadd", self.add_job), group=-1)
-            self.application.add_handler(CommandHandler("pingdelete", self.delete_job), group=-1)
-            self.application.add_handler(CommandHandler("pinglist", self.list_jobs), group=-1)  
+            self.application.add_handler(CommandHandler("pingadd", self.ping_add), group=-1)
+            self.application.add_handler(CommandHandler("pingdelete", self.ping_delete), group=-1)
+            self.application.add_handler(CommandHandler("pinglist", self.ping_list), group=-1)  
             self.application.add_handler(CommandHandler("pinglog", self.ping_log), group=-1)
             
             super().run()
