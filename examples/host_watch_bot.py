@@ -120,13 +120,22 @@ class HostWatchBot(TlgBotFwk):
         
         try:
             async with httpx.AsyncClient() as client:
-                response = await client.get(url)
-                if response.status_code == 200 or response.status_code == 302 or response.status_code == 301: 
+                
+                response = None
+                
+                try:
+                    response = await client.get(url)
+                # except httpx.RequestError as exc:
+                except Exception as e:
+                    # logger.error(f"An error occurred while requesting {exc.request.url!r}.")
+                    logger.error(f"An error occurred while requesting {url}{os.linesep}{e}")
+                
+                if response and (response.status_code == 200 or response.status_code == 302 or response.status_code == 301): 
                     # 302 is a redirect nd 301 is a permanent redirect
                     self.send_message_by_api(user_id, f"{url} is reachable!") if show_success else None
                     http_result = True
                 else:
-                    self.send_message_by_api(user_id, f"{url} is not reachable!")
+                    self.send_message_by_api(user_id, f"{url} is not reachable!") if show_success else None
                 
                 logger.debug(f"HTTP ping result for {url}: {http_result}")
                 
@@ -145,9 +154,10 @@ class HostWatchBot(TlgBotFwk):
         except Exception as e:
             tb = traceback.format_exc()
             script_name = __file__
-            line_number = tb.splitlines()[-3].split(",")[1].strip().split(" ")[1]
-            error_location = f"Error in {script_name} at line {line_number}"
-            logger.error(error_location)
+            # line_number = tb.splitlines()[-3].split(",")[1].strip().split(" ")[1]
+            # error_location = f"Error in {script_name} at line {line_number}"
+            # logger.error(error_location)
+            logger.error(str(tb))
             # self.send_message_by_api(self.bot_owner, f"An error occurred while checking {ip_address}: {e}")
             # self.send_message_by_api(self.bot_owner, error_location)
         
