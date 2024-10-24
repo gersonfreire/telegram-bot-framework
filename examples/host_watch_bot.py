@@ -149,7 +149,7 @@ class HostWatchBot(TlgBotFwk):
             error_location = f"Error in {script_name} at line {line_number}"
             logger.error(error_location)
             # self.send_message_by_api(self.bot_owner, f"An error occurred while checking {ip_address}: {e}")
-            self.send_message_by_api(self.bot_owner, error_location)
+            # self.send_message_by_api(self.bot_owner, error_location)
         
         return http_result
 
