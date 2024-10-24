@@ -356,7 +356,7 @@ class HostWatchBot(TlgBotFwk):
                             url = f'https://{ip_address}' 
                             markdown_link = f"[{ip_address}]({url})"  
                             
-                            message += f"{status}{http_status} `{job_owner:<10}` _{interval}s_ {markdown_link} `{next_time}`{os.linesep}"
+                            message += f"{status}{http_status} `{job_owner:<10}` _{interval}s_ `{next_time}` {markdown_link}{os.linesep}"
                             
                             has_jobs = True
                             
