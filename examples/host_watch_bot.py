@@ -363,9 +363,9 @@ class HostWatchBot(TlgBotFwk):
                             
                             interval = f"{interval}s" if interval else None
                             if effective_user_id == self.bot_owner:
-                                message += f"{status}{http_status} `{job_owner:<10}` _{interval:<6}_ `{next_time}` `{http_ping_time}` {markdown_link}{os.linesep}"
+                                message += f"{status}{http_status} `{job_owner:<10}` `{interval:<6}` `{next_time}` `{http_ping_time}` {markdown_link}{os.linesep}"
                             else:
-                                message += f"{status}{http_status} _{interval:<6}_ `{next_time}` `{http_ping_time}` {markdown_link}{os.linesep}"
+                                message += f"{status}{http_status} `{interval:<6}` `{next_time}` `{http_ping_time}` {markdown_link}{os.linesep}"
                             
                             has_jobs = True
                             
