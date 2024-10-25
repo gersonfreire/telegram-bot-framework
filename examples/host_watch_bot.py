@@ -83,7 +83,7 @@ class HostWatchBot(TlgBotFwk):
         dotenv_path = os.path.join(os.path.dirname(__file__), 'my.env')     
         
         # super().__init__(disable_error_handler=True, env_file=dotenv_path, token=token, *args, **kwargs)
-        super().__init__(env_file=dotenv_path, token=token, disable_commands_list=['paypal', 'payment','p','showbalance'], disable_command_not_implemented=True) 
+        super().__init__(env_file=dotenv_path, token=token, disable_commands_list=['paypal', 'payment','p','showbalance']) 
         
         self.jobs = {}
         
