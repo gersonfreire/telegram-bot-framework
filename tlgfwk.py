@@ -1813,6 +1813,7 @@ _Links:_
     async def default_unknown_command(self, update: Update, context: CallbackContext, *args, **kwargs):
         
         # TODO: fix false unknown commands check if command is not an item in commands list
+        command = update.message.text.lower().replace('/','').split(' ')[0]
         if update.message.text in self.commands:
             logger.info(f"Command {update.message.text} is in commands list")
             return
