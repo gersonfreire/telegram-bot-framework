@@ -10,7 +10,7 @@ This version is inspired on and more elaborated than host_monitor because contro
 
 __version__ = '0.4.3 Enable and fix unknown commands'
 
-# TODO: Enable and fix unkown commands
+# TODO: Enable and fix unknown commands
 # TODO: Open links in internal telegram browser
 # TODO: Improve pinglist message formatting with header and table
 # TODO: Pagination
