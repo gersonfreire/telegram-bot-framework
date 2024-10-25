@@ -1814,7 +1814,8 @@ _Links:_
         
         # TODO: fix false unknown commands check if command is not an item in commands list
         command = update.message.text.lower().replace('/','').split(' ')[0]
-        if update.message.text in self.commands:
+        command_list = [cmd.command for cmd in self.common_users_commands] + [cmd.command for cmd in self.admin_commands]
+        if command in command_list:
             logger.info(f"Command {update.message.text} is in commands list")
             return
         
