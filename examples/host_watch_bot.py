@@ -328,6 +328,14 @@ class HostWatchBot(TlgBotFwk):
             message = f"_Active monitored host:_{os.linesep}`ping-https-interval-next-last-host`{os.linesep}"
             
             # TODO: Improve the formatting of Ping List messages with header and table
+            message = f"""_Active monitored host:_
+`ping-https-interval-next-last-host`{os.linesep}"""
+
+            """
+            ping-https       interv next  last  host
+            ✅🔴 438429121  300s   13:18 13:13 prod.monitor.eco.br (https://prod.monitor.eco.br/)
+            ✅✅ 438429121  900s   13:28 13:13 dev2.monitor.eco.br (https://dev2.monitor.eco.br/)
+            """
                 
             all_user_data = await self.application.persistence.get_user_data() if self.application.persistence else {}
             
