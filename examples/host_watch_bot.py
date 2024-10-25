@@ -8,15 +8,15 @@ overrides the initialize_handlers method to add a help command handler.
 This version is inspired on and more elaborated than host_monitor because controls each host by user.
 """
 
-__version__ = '0.4.6 Enable and fix unknown commands "ainda não foi implementado" message'
+__version__ = '0.4.7 Enable and fix unknown commands "ainda não foi implementado" message'
 
-# DOING: Enable and fix unknown commands "ainda não foi implementado" message
+# DONE: Enable and fix unknown commands "ainda não foi implementado" message
 # DONE: Open URL links at internal telegram browser, it is enough to format the URL as a markdown link
-# TODO: Improve pinglist message formatting with header and table
+# DONE: Improve pinglist message formatting with header and table
 # TODO: Pagination
 
 import __init__
-import httpx
+# import httpx
 
 from tlgfwk import *
 import traceback
@@ -336,6 +336,8 @@ class HostWatchBot(TlgBotFwk):
             
             has_jobs = False
             
+            hosts_counter = 0
+            max_listed_hosts = 50
             for job_owner_id, user_data in all_user_data.items():
                 
                 try:
@@ -352,6 +354,11 @@ class HostWatchBot(TlgBotFwk):
                         try:
                             if not job_name.startswith('ping_'):
                                 continue
+                            
+                            # limit the number of jobs to be listed
+                            hosts_counter = hosts_counter + 1
+                            if hosts_counter > max_listed_hosts:
+                                break
                             
                             next_time = ""
                             try:
@@ -392,7 +399,11 @@ class HostWatchBot(TlgBotFwk):
 
             if not has_jobs:
                 message = f"_No hosts monitored._{os.linesep}{os.linesep}_Usage: /pingadd <ip_address> <interval-in-seconds>_{os.linesep}_Example: `/pingadd 8.8.8.8 30`"
-                logger.info(message)          
+                logger.info(message)  
+            
+            else:
+                logger.info(message)
+                message += f"{os.linesep}_Total of monitored hosts: {len(jobs)}_"        
                             
             await update.message.reply_text(text=message) 
                     

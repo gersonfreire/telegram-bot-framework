@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # ------------------------------------------
 
-__version__ = """1.0.1 Scheduling tasks with APScheduler"""
+__version__ = """1.0.2 total of users at the end of the list of users"""
 
 __todos__ = """
 1.0.0 Scheduling tasks with APScheduler
@@ -42,7 +42,8 @@ __change_log__ = """
 0.9.6 Command to switch between paypal live and sandbox environments
 0.9.7 Echo command for testing with reply the same message received
 0.9.8 Example of a simple echo bot using the framework
-0.9.9 Optional disable to command not implemented yet"""
+0.9.9 Optional disable to command not implemented yet
+1.0.1 Scheduling tasks with APScheduler"""
 
 from __init__ import *
 # import re
@@ -1572,9 +1573,15 @@ _Links:_
             
             # Check if there are any users in the dictionary
             if all_users_data:
-                user_names = [await get_user_line(user, persistence_user_data) for user in all_users_data.values()]               
+                user_names = [await get_user_line(user, persistence_user_data) for user in all_users_data.values()] 
+                
+                # limit the number of users to show
+                max_users = 50 if len(user_names) > 50 else len(user_names)
+                user_names = user_names[:max_users]
+                              
                 # Create a message with the user names
                 message = f"_Current active bot users:_{os.linesep}" + os.linesep.join(user_names)
+                message+= f"{os.linesep}_Total users qty: _`{len(user_names)}`"
             else:
                 message = "No users found in the persistence file."
             
