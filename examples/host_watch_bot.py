@@ -8,7 +8,12 @@ overrides the initialize_handlers method to add a help command handler.
 This version is inspired on and more elaborated than host_monitor because controls each host by user.
 """
 
-__version__ = '0.4.2 adjusted pinglist message layout'
+__version__ = '0.4.5 Improve pinglist message formatting with header and table'
+
+# DONE: Enable and fix unknown commands "ainda não foi implementado" message
+# DONE: Open URL links at internal telegram browser, it is enough to format the URL as a markdown link
+# TODO: Improve pinglist message formatting with header and table
+# TODO: Pagination
 
 import __init__
 import httpx
@@ -78,7 +83,7 @@ class HostWatchBot(TlgBotFwk):
         dotenv_path = os.path.join(os.path.dirname(__file__), 'my.env')     
         
         # super().__init__(disable_error_handler=True, env_file=dotenv_path, token=token, *args, **kwargs)
-        super().__init__(env_file=dotenv_path, token=token, disable_commands_list=['paypal', 'payment','p','showbalance'], disable_command_not_implemented=True)
+        super().__init__(env_file=dotenv_path, token=token, disable_commands_list=['paypal', 'payment','p','showbalance'], disable_command_not_implemented=True) 
         
         self.jobs = {}
         
@@ -261,6 +266,7 @@ class HostWatchBot(TlgBotFwk):
             await update.message.reply_text(f"An error occurred: {e}", parse_mode=None)
 
     async def ping_delete(self, update: Update, context: CallbackContext):
+        
         """Remove a host from the bot´s monitoring list.
 
         Args:
@@ -318,8 +324,25 @@ class HostWatchBot(TlgBotFwk):
             jobs = context.job_queue.jobs()
             effective_user_id = update.effective_user.id
             
-            # for each job item in user´s jobs queue collection, add a line to the message to be sent
-            message = f"_Active monitored host:_{os.linesep}`ping-https-interval-next-last-host`{os.linesep}"
+            # Header of monitored hosts list in case of common user
+            message = f"""_Active monitored host:_
+`stat  interv next  last  host`{os.linesep}"""
+            
+            # header of monitored hosts list in case of bot owner
+            if effective_user_id == self.bot_owner:
+                message = f"_Active monitored host:_{os.linesep}`p  h user-id    interv next last host`{os.linesep}"
+
+            """
+             p h  user-id    interv next  last  host
+            ✅🔴 438429121  300s   13:18 13:13 www.mon.eco.br (https://www.monitor.eco.br/)
+            ✅✅ 438429121  900s   13:28 13:13 www2.mon.eco.br (https://www2.monitor.eco.br/)
+            
+Active monitored host:
+stat  interv next  last  host
+✅✅ 60s    14:16 21:27 8.8.8.8 (https://8.8.8.8/)
+🔴🔴 800s   14:29 None etaure.com (https://etaure.com/)
+🔴🔴 1000s  14:32 None gov.br (https://gov.br/)          
+            """
                 
             all_user_data = await self.application.persistence.get_user_data() if self.application.persistence else {}
             
@@ -411,6 +434,9 @@ class HostWatchBot(TlgBotFwk):
             self.application.add_handler(CommandHandler("pingdelete", self.ping_delete), group=-1)
             self.application.add_handler(CommandHandler("pinglist", self.ping_list), group=-1)  
             self.application.add_handler(CommandHandler("pinglog", self.ping_log), group=-1)
+            
+            # TODO: Enable and fix unknown commands: "ainda não foi implementado" message
+            self.application.add_handler(MessageHandler(filters.COMMAND, self.default_unknown_command), group=-1)
             
             super().run()
             
