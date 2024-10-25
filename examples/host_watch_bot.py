@@ -10,7 +10,7 @@ This version is inspired on and more elaborated than host_monitor because contro
 
 __version__ = '0.4.3 Enable and fix unknown commands'
 
-# TODO: Enable and fix unknown commands
+# TODO: Enable and fix unknown commands (ainda não foi implementado)
 # TODO: Open links in internal telegram browser
 # TODO: Improve pinglist message formatting with header and table
 # TODO: Pagination
@@ -83,7 +83,7 @@ class HostWatchBot(TlgBotFwk):
         dotenv_path = os.path.join(os.path.dirname(__file__), 'my.env')     
         
         # super().__init__(disable_error_handler=True, env_file=dotenv_path, token=token, *args, **kwargs)
-        super().__init__(env_file=dotenv_path, token=token, disable_commands_list=['paypal', 'payment','p','showbalance'], disable_command_not_implemented=True)
+        super().__init__(env_file=dotenv_path, token=token, disable_commands_list=['paypal', 'payment','p','showbalance']) # , disable_command_not_implemented=True)
         
         self.jobs = {}
         
