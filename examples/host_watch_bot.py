@@ -10,6 +10,8 @@ This version is inspired on and more elaborated than host_monitor because contro
 
 __version__ = '0.4.3 Enable and fix unkown commands'
 
+# TODO: Enable and fix unkown commands
+
 import __init__
 import httpx
 
