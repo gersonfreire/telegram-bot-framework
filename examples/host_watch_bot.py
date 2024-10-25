@@ -8,7 +8,7 @@ overrides the initialize_handlers method to add a help command handler.
 This version is inspired on and more elaborated than host_monitor because controls each host by user.
 """
 
-__version__ = '0.4.1 Add last status to ping list'
+__version__ = '0.4.2 adjusted pinglist message layout'
 
 import __init__
 import httpx
@@ -362,9 +362,9 @@ class HostWatchBot(TlgBotFwk):
                             http_ping_time = user_data[job_name]['http_ping_time'] if job_name in user_data and  'http_ping_time' in user_data[job_name] else None
                             
                             if effective_user_id == self.bot_owner:
-                                message += f"{status}{http_status} `{job_owner:<10}` _{interval}s_ `{next_time}` `{http_ping_time}` {markdown_link}{os.linesep}"
+                                message += f"{status}{http_status} `{job_owner:<10}` _{interval:<6}s_ `{next_time}` `{http_ping_time}` {markdown_link}{os.linesep}"
                             else:
-                                message += f"{status}{http_status} _{interval}s_ `{next_time}` `{http_ping_time}` {markdown_link}{os.linesep}"
+                                message += f"{status}{http_status} _{interval:<6}s_ `{next_time}` `{http_ping_time}` {markdown_link}{os.linesep}"
                             
                             has_jobs = True
                             
