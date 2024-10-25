@@ -12,6 +12,8 @@ __version__ = '0.4.3 Enable and fix unknown commands'
 
 # TODO: Enable and fix unkown commands
 # TODO: Open links in internal telegram browser
+# TODO: Improve pinglist message formatting with header and table
+# TODO: Pagination
 
 import __init__
 import httpx
