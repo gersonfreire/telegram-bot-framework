@@ -336,10 +336,11 @@ class HostWatchBot(TlgBotFwk):
             ✅🔴 438429121  300s   13:18 13:13 www.mon.eco.br (https://www.monitor.eco.br/)
             ✅✅ 438429121  900s   13:28 13:13 www2.mon.eco.br (https://www2.monitor.eco.br/)
             
-            Active monitored host:
-            stat  interv next  last  host
-            ✅✅ 800s   21:28 21:24 ibm.com (https://ibm.com/)
-            ✅✅ 1000s  21:42 21:25 microsoft.com (https://microsoft.com/)            
+Active monitored host:
+stat  interv next  last  host
+✅✅ 60s    14:16 21:27 8.8.8.8 (https://8.8.8.8/)
+🔴🔴 800s   14:29 None etaure.com (https://etaure.com/)
+🔴🔴 1000s  14:32 None gov.br (https://gov.br/)          
             """
                 
             all_user_data = await self.application.persistence.get_user_data() if self.application.persistence else {}
