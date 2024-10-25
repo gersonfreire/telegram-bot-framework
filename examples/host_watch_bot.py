@@ -326,6 +326,8 @@ class HostWatchBot(TlgBotFwk):
             
             # for each job item in user´s jobs queue collection, add a line to the message to be sent
             message = f"_Active monitored host:_{os.linesep}`ping-https-interval-next-last-host`{os.linesep}"
+            
+            # TODO: Improve the formatting of Ping List messages with header and table
                 
             all_user_data = await self.application.persistence.get_user_data() if self.application.persistence else {}
             
