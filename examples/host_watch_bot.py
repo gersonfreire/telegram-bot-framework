@@ -333,8 +333,13 @@ class HostWatchBot(TlgBotFwk):
 
             """
             ping-https       interv next  last  host
-            ✅🔴 438429121  300s   13:18 13:13 prod.monitor.eco.br (https://prod.monitor.eco.br/)
-            ✅✅ 438429121  900s   13:28 13:13 dev2.monitor.eco.br (https://dev2.monitor.eco.br/)
+            ✅🔴 438429121  300s   13:18 13:13 www.mon.eco.br (https://www.monitor.eco.br/)
+            ✅✅ 438429121  900s   13:28 13:13 www2.mon.eco.br (https://www2.monitor.eco.br/)
+            
+            Active monitored host:
+            ping-https-interval-next-last-host
+            ✅✅ 800s   21:28 21:24 ibm.com (https://ibm.com/)
+            ✅✅ 1000s  21:42 21:25 microsoft.com (https://microsoft.com/)            
             """
                 
             all_user_data = await self.application.persistence.get_user_data() if self.application.persistence else {}
