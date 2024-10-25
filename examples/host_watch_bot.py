@@ -266,6 +266,7 @@ class HostWatchBot(TlgBotFwk):
             await update.message.reply_text(f"An error occurred: {e}", parse_mode=None)
 
     async def ping_delete(self, update: Update, context: CallbackContext):
+        
         """Remove a host from the bot´s monitoring list.
 
         Args:
@@ -418,7 +419,7 @@ class HostWatchBot(TlgBotFwk):
             self.application.add_handler(CommandHandler("pinglog", self.ping_log), group=-1)
             
             # TODO: Enable and fix unknown commands "ainda não foi implementado" message
-            self.application.add_handler(MessageHandler(filters.COMMAND, self.default_unknown_command))
+            self.application.add_handler(MessageHandler(filters.COMMAND, self.default_unknown_command), group=-1)
             
             super().run()
             
