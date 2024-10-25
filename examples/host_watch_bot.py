@@ -330,7 +330,7 @@ class HostWatchBot(TlgBotFwk):
             
             # header of monitored hosts list in case of bot owner
             if effective_user_id == self.bot_owner:
-                message = f"_Active monitored host:_{os.linesep}` p h  user-id    interv next  last  host`{os.linesep}"
+                message = f"_Active monitored host:_{os.linesep}`p  h user-id    interv next last host`{os.linesep}"
 
             """
              p h  user-id    interv next  last  host
