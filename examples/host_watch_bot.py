@@ -329,7 +329,7 @@ class HostWatchBot(TlgBotFwk):
             
             # TODO: Improve the formatting of Ping List messages with header and table
             message = f"""_Active monitored host:_
-`ping-https-interval-next-last-host`{os.linesep}"""
+`stat  interv next  last  host`{os.linesep}"""
 
             """
             ping-https       interv next  last  host
