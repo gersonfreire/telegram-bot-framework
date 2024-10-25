@@ -8,7 +8,7 @@ overrides the initialize_handlers method to add a help command handler.
 This version is inspired on and more elaborated than host_monitor because controls each host by user.
 """
 
-__version__ = '0.4.6 Improve pinglist message formatting with header and table'
+__version__ = '0.4.6 Enable and fix unknown commands "ainda não foi implementado" message'
 
 # DOING: Enable and fix unknown commands "ainda não foi implementado" message
 # DONE: Open URL links at internal telegram browser, it is enough to format the URL as a markdown link
