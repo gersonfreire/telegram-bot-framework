@@ -418,7 +418,7 @@ class HostWatchBot(TlgBotFwk):
             self.application.add_handler(CommandHandler("pinglist", self.ping_list), group=-1)  
             self.application.add_handler(CommandHandler("pinglog", self.ping_log), group=-1)
             
-            # TODO: Enable and fix unknown commands "ainda não foi implementado" message
+            # TODO: Enable and fix unknown commands: "ainda não foi implementado" message
             self.application.add_handler(MessageHandler(filters.COMMAND, self.default_unknown_command), group=-1)
             
             super().run()
