@@ -324,15 +324,19 @@ class HostWatchBot(TlgBotFwk):
             jobs = context.job_queue.jobs()
             effective_user_id = update.effective_user.id
             
-            # for each job item in user´s jobs queue collection, add a line to the message to be sent
+            # Header of monitored hosts list in case of common user
             message = f"_Active monitored host:_{os.linesep}`ping-https-interval-next-last-host`{os.linesep}"
+            
+            # header of monitored hosts list in case of bot owner
+            if effective_user_id == self.bot_owner:
+                message = f"_Active monitored host:_{os.linesep}` p h  user-id    interv next  last  host`{os.linesep}"
             
             # TODO: Improve the formatting of Ping List messages with header and table
             message = f"""_Active monitored host:_
 `stat  interv next  last  host`{os.linesep}"""
 
             """
-            ping-https       interv next  last  host
+             p h  user-id    interv next  last  host
             ✅🔴 438429121  300s   13:18 13:13 www.mon.eco.br (https://www.monitor.eco.br/)
             ✅✅ 438429121  900s   13:28 13:13 www2.mon.eco.br (https://www2.monitor.eco.br/)
             
