@@ -8,9 +8,9 @@ overrides the initialize_handlers method to add a help command handler.
 This version is inspired on and more elaborated than host_monitor because controls each host by user.
 """
 
-__version__ = '0.4.5 Improve pinglist message formatting with header and table'
+__version__ = '0.4.6 Enable and fix unknown commands "ainda não foi implementado" message'
 
-# DONE: Enable and fix unknown commands "ainda não foi implementado" message
+# DOING: Enable and fix unknown commands "ainda não foi implementado" message
 # DONE: Open URL links at internal telegram browser, it is enough to format the URL as a markdown link
 # TODO: Improve pinglist message formatting with header and table
 # TODO: Pagination
@@ -83,7 +83,7 @@ class HostWatchBot(TlgBotFwk):
         dotenv_path = os.path.join(os.path.dirname(__file__), 'my.env')     
         
         # super().__init__(disable_error_handler=True, env_file=dotenv_path, token=token, *args, **kwargs)
-        super().__init__(env_file=dotenv_path, token=token, disable_commands_list=['paypal', 'payment','p','showbalance'], disable_command_not_implemented=True) 
+        super().__init__(env_file=dotenv_path, token=token, disable_commands_list=['paypal', 'payment','p','showbalance']) 
         
         self.jobs = {}
         
@@ -421,10 +421,7 @@ class HostWatchBot(TlgBotFwk):
             self.application.add_handler(CommandHandler("pingadd", self.ping_add), group=-1)
             self.application.add_handler(CommandHandler("pingdelete", self.ping_delete), group=-1)
             self.application.add_handler(CommandHandler("pinglist", self.ping_list), group=-1)  
-            self.application.add_handler(CommandHandler("pinglog", self.ping_log), group=-1)
-            
-            # TODO: Enable and fix unknown commands: "ainda não foi implementado" message
-            self.application.add_handler(MessageHandler(filters.COMMAND, self.default_unknown_command), group=-1)
+            self.application.add_handler(CommandHandler("pinglog", self.ping_log), group=-1)            
             
             super().run()
             

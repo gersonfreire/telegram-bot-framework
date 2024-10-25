@@ -1812,6 +1812,13 @@ _Links:_
     @with_log_admin        
     async def default_unknown_command(self, update: Update, context: CallbackContext, *args, **kwargs):
         
+        # TODO: fix false unknown commands check if command is not an item in commands list
+        command = update.message.text.lower().replace('/','').split(' ')[0]
+        command_list = [cmd.command for cmd in self.common_users_commands] + [cmd.command for cmd in self.admin_commands]
+        if update.effective_user.id == self.bot_owner and command in command_list:
+            logger.info(f"Command {update.message.text} is in commands list")
+            return
+        
         self.logger.info(f"Unknown command received from {update.effective_user.name}")
         
         language_code = context.user_data.get('language_code', update.effective_user.language_code)
