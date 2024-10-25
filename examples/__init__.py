@@ -1,7 +1,7 @@
 import sys, os, logging, socket, pdb, json, pickle, dotenv, datetime, platform, re
 import base64
 from datetime import timedelta
-import requests, inspect
+import requests, inspect, httpx
 
 from telegram import Bot, Chat, Message, User
 from telegram.ext import JobQueue
