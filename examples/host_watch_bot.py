@@ -8,12 +8,19 @@ overrides the initialize_handlers method to add a help command handler.
 This version is inspired on and more elaborated than host_monitor because controls each host by user.
 """
 
-__version__ = '0.4.9 Ping command added'
+__version__ = '0.5.0 Add a command to change the interval of a ping job'
 
-# DONE: Enable and fix unknown commands "ainda não foi implementado" message
-# DONE: Open URL links at internal telegram browser, it is enough to format the URL as a markdown link
-# DONE: Improve pinglist message formatting with header and table
-# TODO: Pagination
+__changelog__ = """
+DONE: 
+Enable and fix unknown commands "ainda não foi implementado" message
+Open URL links at internal telegram browser, it is enough to format the URL as a markdown link
+Improve pinglist message formatting with header and table
+0.4.9 Ping command added
+
+TODO: 
+0.5.0 Add a command to change the interval of a ping job
+Pagination
+"""
 
 import __init__
 
