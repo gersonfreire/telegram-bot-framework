@@ -30,6 +30,13 @@ import traceback
 class HostWatchBot(TlgBotFwk):
     
     async def ping_host_command(self, update: Update, context: CallbackContext) -> None:
+        """Check if a host is up or down.
+
+        Args:
+            update (Update): _description_
+            context (CallbackContext): _description_
+        """
+        
         try:
             # Extract the host name from the command parameters
             host_name = context.args[0] if context.args else None
@@ -50,6 +57,59 @@ class HostWatchBot(TlgBotFwk):
         except Exception as e:
             await update.message.reply_text(f"An error occurred: {e}")
             logger.error(f"Error in ping_host_command: {e}")
+    
+    async def ping_interval(self, update: Update, context: CallbackContext) -> None:
+        """Change the interval to check a monitored host.
+
+        Args:
+            update (Update): _description_
+            context (CallbackContext): _description_
+        """
+        
+        try:
+            # Extract the host name and new interval from the command parameters
+            if len(context.args) != 2:
+                await update.message.reply_text("Usage: /pinginterval <host_name> <new_interval_in_seconds>")
+                return
+            
+            host_name = context.args[0]
+            new_interval = int(context.args[1])
+            user_id = update.effective_user.id
+            
+            job_name = f"ping_{host_name}"
+            
+            user_data = await self.application.persistence.get_user_data() if self.application.persistence else {}
+            user_hosts = user_data[update.effective_user.id] if update.effective_user.id in user_data else {}
+            
+            # Check if the job exists
+            if job_name not in user_hosts: # self.jobs:
+                await update.message.reply_text(f"No job found for {host_name}.")
+                return
+            
+            # Get the existing job
+            # job = self.jobs[job_name]            
+            ping_parameters = user_hosts[job_name] if job_name in user_hosts else {}
+            
+            # get job from job queue
+            host_job = self.application.job_queue.get_jobs_by_name(job_name)[0]
+            
+            # Remove the existing job
+            host_job.schedule_removal()
+            
+            # Add a new job with the updated interval
+            new_job = self.application.job_queue.run_repeating(
+                self.job_event_handler, interval=new_interval, first=0, name=job_name, data=host_name,
+                                        user_id=user_id, chat_id=user_id
+            )
+            self.jobs[job_name] = new_job
+            
+            context.user_data[job_name]['interval'] = new_interval
+            
+            await update.message.reply_text(f"Interval for {host_name} changed to {new_interval} seconds.")
+        
+        except Exception as e:
+            await update.message.reply_text(f"An error occurred: {e}")
+            logger.error(f"Error in change_ping_interval: {e}")
      
     async def load_all_user_data(self):
         try:
@@ -461,7 +521,8 @@ class HostWatchBot(TlgBotFwk):
             self.application.add_handler(CommandHandler("pingdelete", self.ping_delete), group=-1)
             self.application.add_handler(CommandHandler("pinglist", self.ping_list), group=-1)  
             self.application.add_handler(CommandHandler("pinglog", self.ping_log), group=-1)
-            self.application.add_handler(CommandHandler("pinghost", self.ping_host_command), group=-1)  # Register the new command handler
+            self.application.add_handler(CommandHandler("pinghost", self.ping_host_command), group=-1)
+            self.application.add_handler(CommandHandler("pinginterval", self.ping_interval), group=-1)
             
             super().run()
             
