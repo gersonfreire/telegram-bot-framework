@@ -22,7 +22,7 @@
 
 [Demo Bot](https://t.me/TecVitoriaBot)
 
-This is the legacy version although fully functional. [Go to new repository](gersonfreire/telegram_framework_bolt "New repository") that is under development.
+This is the legacy version although fully functional. [Go to new repository ](https://github.com/gersonfreire/telegram_framework_bolt)that is under development.
 
 ## 📝 Table of Contents
 
