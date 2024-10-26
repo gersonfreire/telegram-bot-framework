@@ -8,7 +8,7 @@ overrides the initialize_handlers method to add a help command handler.
 This version is inspired on and more elaborated than host_monitor because controls each host by user.
 """
 
-__version__ = '0.4.8'
+__version__ = '0.4.9 Ping command added'
 
 # DONE: Enable and fix unknown commands "ainda não foi implementado" message
 # DONE: Open URL links at internal telegram browser, it is enough to format the URL as a markdown link
@@ -21,6 +21,28 @@ from tlgfwk import *
 import traceback
 
 class HostWatchBot(TlgBotFwk):
+    
+    async def ping_host_command(self, update: Update, context: CallbackContext) -> None:
+        try:
+            # Extract the host name from the command parameters
+            host_name = context.args[0] if context.args else None
+            
+            if not host_name:
+                await update.message.reply_text("Please provide a host name to ping.")
+                return
+            
+            # Ping the host
+            ping_result = await self.ping_host(host_name, show_success=True, user_id=update.effective_user.id)
+            
+            # Send the result back to the user
+            # if ping_result:
+            #     await update.message.reply_text(f"{host_name} is up!")
+            # else:
+            #     await update.message.reply_text(f"{host_name} is down!")
+        
+        except Exception as e:
+            await update.message.reply_text(f"An error occurred: {e}")
+            logger.error(f"Error in ping_host_command: {e}")
      
     async def load_all_user_data(self):
         try:
@@ -431,7 +453,8 @@ class HostWatchBot(TlgBotFwk):
             self.application.add_handler(CommandHandler("pingadd", self.ping_add), group=-1)
             self.application.add_handler(CommandHandler("pingdelete", self.ping_delete), group=-1)
             self.application.add_handler(CommandHandler("pinglist", self.ping_list), group=-1)  
-            self.application.add_handler(CommandHandler("pinglog", self.ping_log), group=-1)            
+            self.application.add_handler(CommandHandler("pinglog", self.ping_log), group=-1)
+            self.application.add_handler(CommandHandler("pinghost", self.ping_host_command), group=-1)  # Register the new command handler
             
             super().run()
             
