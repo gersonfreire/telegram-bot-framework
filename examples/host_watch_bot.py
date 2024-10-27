@@ -307,7 +307,7 @@ class HostWatchBot(TlgBotFwk):
             user_id = update.effective_user.id
             
             if len(context.args) != 2:
-                await update.message.reply_text("Usage: /addjob <ip_address> <interval_in_seconds>", parse_mode=None)
+                await update.message.reply_text("Usage: /pingadd <ip_address> <interval_in_seconds>", parse_mode=None)
                 return
             
             ip_address = context.args[0]
@@ -364,7 +364,7 @@ class HostWatchBot(TlgBotFwk):
         
         try:
             if len(context.args) < 1:
-                await update.message.reply_text("Usage: /deletejob <ip_address>", parse_mode=None)
+                await update.message.reply_text("Usage: /pingdelete <ip_address>", parse_mode=None)
                 return
             
             user_id = update.effective_user.id
@@ -373,7 +373,7 @@ class HostWatchBot(TlgBotFwk):
             job_name = f"ping_{ip_address}"
             
             if len(context.args) != 1:
-                await update.message.reply_text("Usage: /deletejob <ip_address>", parse_mode=None)
+                await update.message.reply_text("Usage: /pingdelete <ip_address>", parse_mode=None)
                 return
             
             # if job_name not in context.user_data:
