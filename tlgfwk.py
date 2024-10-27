@@ -338,6 +338,9 @@ _Links:_
             
             self.all_commands = tuple(list(self.common_users_commands) + list(self.admin_commands))
             
+            # TODO: hotfix remove addjob and deletejob from the list of commands
+            self.disable_commands_list = ['addjob', 'deletejob']
+            
             language_code = self.default_language_code if not language_code else language_code
             
             self.help_text = translations.get_translated_message(language_code, 'help_message', self.default_language_code, self.application.bot.name)           
