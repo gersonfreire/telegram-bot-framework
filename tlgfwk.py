@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # ------------------------------------------
 
-__version__ = """1.0.2 total of users at the end of the list of users"""
+__version__ = """1.0.3 Clear previous command menus"""
 
 __todos__ = """
 1.0.0 Scheduling tasks with APScheduler
@@ -797,6 +797,9 @@ _Links:_
     def initialize_handlers(self):
         
         try:
+            # Clear previous command menus
+            self.application.bot.set_my_commands([])
+            
             # handles global errors if enabled
             if not self.disable_error_handler:
                 self.application.add_error_handler(self.error_handler)
