@@ -145,7 +145,7 @@ class HostMonitorBot(TlgBotFwk):
             user_id = update.effective_user.id
             
             if len(context.args) != 2:
-                await update.message.reply_text("Usage: /addjob <ip_address> <interval_in_seconds>", parse_mode=None)
+                await update.message.reply_text("Usage: /pingadd <ip_address> <interval_in_seconds>", parse_mode=None)
                 return
             
             ip_address = context.args[0]
