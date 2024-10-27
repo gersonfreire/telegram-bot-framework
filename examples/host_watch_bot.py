@@ -169,9 +169,9 @@ class HostWatchBot(TlgBotFwk):
 
         # Load the bot token from the .env file
         dotenv_path = os.path.join(os.path.dirname(__file__), 'my.env')     
-        
-        # super().__init__(disable_error_handler=True, env_file=dotenv_path, token=token, *args, **kwargs)
-        super().__init__(env_file=dotenv_path, token=token, disable_commands_list=['paypal', 'payment','p','showbalance']) 
+    
+        # TODO: hotfix remove addjob and deletejob from the list of commands    
+        super().__init__(env_file=dotenv_path, token=token, disable_commands_list=['paypal', 'payment','p','showbalance','addjob', 'deletejob', 'lisjobs','listalljobs']) 
         
         self.jobs = {}
         

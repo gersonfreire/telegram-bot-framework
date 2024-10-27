@@ -339,7 +339,7 @@ _Links:_
             self.all_commands = tuple(list(self.common_users_commands) + list(self.admin_commands))
             
             # TODO: hotfix remove addjob and deletejob from the list of commands
-            self.disable_commands_list = ['addjob', 'deletejob']
+            # self.disable_commands_list = ['addjob', 'deletejob', 'lisjobs','listalljobs']
             
             language_code = self.default_language_code if not language_code else language_code
             
