@@ -1822,25 +1822,37 @@ _Links:_
     @with_log_admin        
     async def default_unknown_command(self, update: Update, context: CallbackContext, *args, **kwargs):
         
-        # TODO: fix false unknown commands check if command is not an item in commands list
-        
-        # get all command handlers from the bot
-        all_command_handlers = context.dispatcher.handlers
-        for command_hadler in all_command_handlers:
-            print(command_hadler)
-        
-        command = update.message.text.lower().replace('/','').split(' ')[0]
-        command_list = [cmd.command for cmd in self.common_users_commands] + [cmd.command for cmd in self.admin_commands]
-        if update.effective_user.id == self.bot_owner and command in command_list:
-            logger.info(f"Command {update.message.text} is in commands list")
-            return
-        
-        self.logger.info(f"Unknown command received from {update.effective_user.name}")
-        
-        language_code = context.user_data.get('language_code', update.effective_user.language_code)
-        reply_message = translations.get_translated_message(language_code, 'command_not_implemented', 'en', update.message.text)   
-        
-        await update.message.reply_text(reply_message)
+        try:
+            # TODO: fix false unknown commands check if command is not an item in commands list       
+            command = update.message.text.lower().replace('/','').split(' ')[0]
+            # command_list = [cmd.command for cmd in self.common_users_commands] + [cmd.command for cmd in self.admin_commands]
+            # if update.effective_user.id == self.bot_owner and command in command_list:
+            #     logger.info(f"Command {update.message.text} is in commands list")
+            #     return
+           
+            # get all command handlers from the bot
+            all_command_handlers = self.application.handlers
+            for command_hadler in all_command_handlers.values():
+                for handler in command_hadler:
+                    try:
+                        logger.debug(f"Handler: {handler}")
+                        command_text = list(handler.commands)[0] if handler.commands else None 
+                        if command_text == command:
+                            logger.info(f"Command {update.message.text} is in commands list")
+                            return
+                    except Exception as e:
+                        logger.error(f"Error processing handler: {e}")
+                        continue
+                 
+            self.logger.info(f"Unknown command received from {update.effective_user.name}")
+            
+            language_code = context.user_data.get('language_code', update.effective_user.language_code)
+            reply_message = translations.get_translated_message(language_code, 'command_not_implemented', 'en', update.message.text)   
+            
+            await update.message.reply_text(reply_message)
+        except Exception as e:
+            logger.error(f"Error in default_unknown_command: {e}")
+            await update.message.reply_text(f"Sorry, we encountered an error: {e}")
 
     @with_writing_action
     @with_log_admin
