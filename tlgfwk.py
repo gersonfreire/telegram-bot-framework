@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # ------------------------------------------
 
-__version__ = """1.0.3 Clear previous command menus"""
+__version__ = """1.0.4 Hotfix for false command not implemented"""
 
 __todos__ = """
 1.0.0 Scheduling tasks with APScheduler
@@ -1823,6 +1823,12 @@ _Links:_
     async def default_unknown_command(self, update: Update, context: CallbackContext, *args, **kwargs):
         
         # TODO: fix false unknown commands check if command is not an item in commands list
+        
+        # get all command handlers from the bot
+        all_command_handlers = context.dispatcher.handlers
+        for command_hadler in all_command_handlers:
+            print(command_hadler)
+        
         command = update.message.text.lower().replace('/','').split(' ')[0]
         command_list = [cmd.command for cmd in self.common_users_commands] + [cmd.command for cmd in self.admin_commands]
         if update.effective_user.id == self.bot_owner and command in command_list:
