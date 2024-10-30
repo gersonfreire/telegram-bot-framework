@@ -194,7 +194,7 @@ def create_payment(
         return e
 
 
-def start_webhook(debug=False, port=def_http_port, host=def_http_host, load_dotenv=False, def_ssl_cert=def_ssl_cert, def_ssl_key=def_ssl_key):
+def start_webhook(debug=False, port=DEF_HTTP_PORT, host=DEF_HTTP_HOST, load_dotenv=False, def_ssl_cert=DEF_SSL_CERT, def_ssl_key=DEF_SSL_KEY):
     """Runs the web application on a local development server.
     """
     
@@ -207,11 +207,11 @@ def start_webhook(debug=False, port=def_http_port, host=def_http_host, load_dote
             app.run(host=host, port=port, debug=debug, ssl_context=ssl_context, load_dotenv=load_dotenv)
             
         else:
-            logger.debug(f"Running the app without SSL context: {def_http_host}:{def_http_port}")
+            logger.debug(f"Running the app without SSL context: {DEF_HTTP_HOST}:{DEF_HTTP_PORT}")
             app.run(host=host, port=port, debug=debug, load_dotenv=load_dotenv)
         
         def_http_mode = 'https' if USE_SSL else 'http'
-        logger.debug(f"Active Endpoint: {def_http_mode}://{def_http_host}:{def_http_port}")
+        logger.debug(f"Active Endpoint: {def_http_mode}://{DEF_HTTP_HOST}:{DEF_HTTP_PORT}")
         
     except Exception as e:
         logger.error(f"An error occurred in {__file__} at line {e.__traceback__.tb_lineno}: {e}")
