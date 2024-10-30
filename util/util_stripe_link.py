@@ -115,6 +115,12 @@ CANCEL_URL = os.getenv('CANCEL_URL', 'https://yourdomain.com/cancel')
 USE_NGROK = os.getenv('USE_NGROK', 'False').lower() in ('true', '1', 't')
 USE_SSL = os.getenv('USE_SSL', 'False').lower() in ('true', '1', 't')
 
+# Define default values for HTTP and SSL parameters
+DEF_HTTP_PORT = int(os.getenv('DEF_HTTP_PORT', 5000))
+DEF_HTTP_HOST = os.getenv('DEF_HTTP_HOST', '0.0.0.0')
+DEF_SSL_CERT = os.getenv('DEF_SSL_CERT', 'path/to/ssl_cert.pem')
+DEF_SSL_KEY = os.getenv('DEF_SSL_KEY', 'path/to/ssl_key.pem')
+
 # --- Create a Checkout Session ---
 
 def create_checkout_session(
@@ -187,11 +193,6 @@ def create_payment(
         logger.error(f"An error occurred in {__file__} at line {e.__traceback__.tb_lineno}: {e}")
         return e
 
-# Define default values for HTTP and SSL parameters
-def_http_port = 5000
-def_http_host = '0.0.0.0'
-def_ssl_cert = 'path/to/ssl_cert.pem'
-def_ssl_key = 'path/to/ssl_key.pem'
 
 def start_webhook(debug=False, port=def_http_port, host=def_http_host, load_dotenv=False, def_ssl_cert=def_ssl_cert, def_ssl_key=def_ssl_key):
     """Runs the web application on a local development server.
