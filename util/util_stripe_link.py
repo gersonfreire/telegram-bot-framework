@@ -186,6 +186,7 @@ def create_payment(
         
         if payment_link:
             logger.info(f"Checkout payment link: {payment_link}")
+            return payment_link
         else:
             logger.info("Failed to create checkout session.")
             
