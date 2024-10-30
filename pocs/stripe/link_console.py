@@ -45,6 +45,8 @@ def create_checkout_session(
     
 ):
     try:
+        stripe.api_key = os.getenv('STRIPE_SECRET_KEY')
+        
         session = stripe.checkout.Session.create(
             payment_method_types=payment_method_types,
             line_items=[{
