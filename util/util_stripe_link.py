@@ -31,6 +31,7 @@ handler.setFormatter(CustomFormatter())
 logging.basicConfig(level=logging.DEBUG, handlers=[handler])
 logger = logging.getLogger(__name__)
 logger.debug(f'Starting the {__file__}...')
+
 # ----------------Start ngrok ----------------
 
 def start_ngrok(ngrok_port=5000):
