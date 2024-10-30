@@ -108,8 +108,8 @@ PRODUCT_NAME = os.getenv('PRODUCT_NAME', 'Adicionar creditos')
 UNIT_AMOUNT = int(os.getenv('UNIT_AMOUNT', 500))
 QUANTITY = int(os.getenv('QUANTITY', 1))
 MODE = os.getenv('MODE', 'payment')
-SUCCESS_URL = os.getenv('SUCCESS_URL', 'https://yourdomain.com/success?session_id={CHECKOUT_SESSION_ID}')
-CANCEL_URL = os.getenv('CANCEL_URL', 'https://yourdomain.com/cancel')
+SUCCESS_URL = os.getenv('SUCCESS_URL', 'https://localhost:5000/stripe/webhook?session_id={CHECKOUT_SESSION_ID}')
+CANCEL_URL = os.getenv('CANCEL_URL', 'https://localhost:5000/cancel')
 
 # Define USE_NGROK and USE_SSL variables
 USE_NGROK = os.getenv('USE_NGROK', 'False').lower() in ('true', '1', 't')
@@ -164,6 +164,35 @@ def create_checkout_session(
 from flask import Flask, request, redirect, url_for
 app = Flask(__name__)
 app.logger = logger
+
+# Handle the webhook from Stripe
+@app.route('/stripe/webhook', methods=['GET','POST'])
+def stripe_webhook():
+    
+  try:
+    
+    # invalid request.data
+    event = stripe.Event.construct_from(json.loads(requests.request.data), stripe.api_key)
+    
+    if event.type == 'checkout.session.completed':
+      session = event.data.object
+      stripe_token = session['payment_intent']['id']
+      # Use the Stripe token to process the payment
+      # ...
+      
+      return 'Webhook received and processed', 200
+  
+  except Exception as e:
+    logger.error(f"An error occurred: {e}")
+
+@app.route('/stripe/cancel', methods=['GET'])
+def stripe_cancel():
+    try:
+        logger.info("Payment was canceled by the user.")
+        return "Payment was canceled.", 200
+    except Exception as e:
+        logger.error(f"An error occurred: {e}")
+        return "An error occurred while processing the cancellation.", 500
 
 @app.route('/payment/link', methods=['GET'])
 def create_payment(
