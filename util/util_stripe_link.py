@@ -121,6 +121,9 @@ DEF_HTTP_HOST = os.getenv('DEF_HTTP_HOST', '0.0.0.0')
 DEF_SSL_CERT = os.getenv('DEF_SSL_CERT', 'path/to/ssl_cert.pem')
 DEF_SSL_KEY = os.getenv('DEF_SSL_KEY', 'path/to/ssl_key.pem')
 
+# Dictionary of created payment sessions
+payment_sessions = {}
+
 # --- Create a Checkout Session ---
 
 def create_checkout_session(
@@ -171,11 +174,17 @@ app.logger = logger
 
 @app.route('/stripe/success', methods=['GET'])
 def stripe_success():
+    
     try:
         session_id = request.args.get('session_id')
         if not session_id:
             logger.error("Missing session_id in request.")
             return "Missing session_id in request.", 400
+        else:
+            logger.info(f"Session ID: {session_id}")
+            if session_id not in payment_sessions:
+                logger.error(f"Session ID not found in payment sessions: {session_id}")
+                return f"Session ID not found in payment sessions: {session_id}", 404
 
         session = stripe.checkout.Session.retrieve(session_id)
         payment_intent_id = session.payment_intent
@@ -213,11 +222,25 @@ def create_payment(
 
     try:  
 
-        payment_link, session = create_checkout_session()
+        payment_link, session = create_checkout_session(
+            stripe_api_key=stripe_api_key,
+            payment_method_types=payment_method_types,
+            currency=currency,
+            product_name=product_name,
+            unit_amount=unit_amount,
+            quantity=quantity,
+            mode=mode,
+            success_url=success_url,
+            cancel_url=cancel_url          
+        )
         
-        if payment_link:
+        if payment_link and session:
+            
+            payment_sessions[session.id] = session
+            
             logger.info(f"Checkout payment link: {payment_link}")
             return redirect(payment_link)
+        
         else:
             
             logger.info("Failed to create checkout session.")
