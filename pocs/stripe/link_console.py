@@ -7,8 +7,21 @@ from dotenv import load_dotenv
 # Load environment variables from a .env file
 load_dotenv(override=True)
 
+# --- Get default environment variables ---
+
+PAYMENT_METHOD_TYPES = os.getenv('PAYMENT_METHOD_TYPES', 'card').split(',')
+CURRENCY = os.getenv('CURRENCY', 'brl')
+PRODUCT_NAME = os.getenv('PRODUCT_NAME', 'Adicionar credito para consultas no Bot')
+UNIT_AMOUNT = int(os.getenv('UNIT_AMOUNT', 500))
+QUANTITY = int(os.getenv('QUANTITY', 1))
+MODE = os.getenv('MODE', 'payment')
+SUCCESS_URL = os.getenv('SUCCESS_URL', 'https://yourdomain.com/success?session_id={CHECKOUT_SESSION_ID}')
+CANCEL_URL = os.getenv('CANCEL_URL', 'https://yourdomain.com/cancel')
+
 # Set your secret key. Remember to switch to your live secret key in production!
 stripe.api_key = os.getenv('STRIPE_SECRET_KEY')
+
+# --- Create a Checkout Session ---
 
 def create_test_checkout_session():
     try:
@@ -64,6 +77,7 @@ def create_checkout_session(
             cancel_url=cancel_url,
         )
         return session.url
+    
     except Exception as e:
         print(f"An error occurred: {e}")
         return None
