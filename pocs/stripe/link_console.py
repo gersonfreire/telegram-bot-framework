@@ -37,7 +37,7 @@ def create_checkout_session(
     payment_method_types=['card'],
     currency= 'brl',
     product_name = 'Adicionar credito para consultas no Bot',
-    unit_amount = 1000,
+    unit_amount = 500,
     quantity = 1,
     mode='payment',
     success_url='https://yourdomain.com/success?session_id={CHECKOUT_SESSION_ID}',
