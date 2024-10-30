@@ -193,7 +193,6 @@ def create_payment(
         logger.error(f"An error occurred in {__file__} at line {e.__traceback__.tb_lineno}: {e}")
         return e
 
-
 def start_webhook(debug=False, port=DEF_HTTP_PORT, host=DEF_HTTP_HOST, load_dotenv=False, def_ssl_cert=DEF_SSL_CERT, def_ssl_key=DEF_SSL_KEY):
     """Runs the web application on a local development server.
     """
