@@ -9,6 +9,9 @@ load_dotenv(override=True)
 
 # --- Get default environment variables ---
 
+# Set your secret key. Remember to switch to your live secret key in production!
+STRIPE_API_KEY = stripe.api_key = os.getenv('STRIPE_SECRET_KEY')
+
 PAYMENT_METHOD_TYPES = os.getenv('PAYMENT_METHOD_TYPES', 'card').split(',')
 CURRENCY = os.getenv('CURRENCY', 'brl')
 PRODUCT_NAME = os.getenv('PRODUCT_NAME', 'Adicionar credito para consultas no Bot')
@@ -17,9 +20,6 @@ QUANTITY = int(os.getenv('QUANTITY', 1))
 MODE = os.getenv('MODE', 'payment')
 SUCCESS_URL = os.getenv('SUCCESS_URL', 'https://yourdomain.com/success?session_id={CHECKOUT_SESSION_ID}')
 CANCEL_URL = os.getenv('CANCEL_URL', 'https://yourdomain.com/cancel')
-
-# Set your secret key. Remember to switch to your live secret key in production!
-stripe.api_key = os.getenv('STRIPE_SECRET_KEY')
 
 # --- Create a Checkout Session ---
 
