@@ -40,27 +40,27 @@ def start_ngrok(ngrok_port=5000):
     Returns:
         _type_: ngrok URL if successful, None otherwise.
     """
-    
+
     try:
-        
+
         # check if ngrok is already running
         response = None
         try:
             response = requests.get(f'http://localhost:4040/api/tunnels')
         except requests.exceptions.RequestException as e:
             logger.error(f"ngrok is not running! An error occurred while checking ngrok tunnels: {e}")
-        
-        if not response or response.status_code != 200:            
+
+        if not response or response.status_code != 200:
             logger.debug("Ngrok is not running. Starting ngrok...")
-                        
+
             # Start ngrok process
             ngrok_path = os.path.join(os.path.dirname(__file__), '..', 'ngrok', 'ngrok')
-            ngrok_yml_path = os.path.join(os.path.dirname(__file__), '..', 'ngrok', 'ngrok.yml')             
-            
+            ngrok_yml_path = os.path.join(os.path.dirname(__file__), '..', 'ngrok', 'ngrok.yml')
+
             # Set and send an `ngrok-skip-browser-warning` request header with any value
             # ngrok http 5000 --host-header="ngrok-skip-browser-warning:any-value"
-            command = [ngrok_path, '--config', ngrok_yml_path, 'http', str(ngrok_port), '--host-header="ngrok-skip-browser-warning:any-value"'] 
-            
+            command = [ngrok_path, '--config', ngrok_yml_path, 'http', str(ngrok_port), '--host-header="ngrok-skip-browser-warning:any-value"']
+
             subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             time.sleep(5)  # Wait for ngrok to initialize
 
@@ -70,22 +70,22 @@ def start_ngrok(ngrok_port=5000):
                 response = requests.get(f'http://localhost:4040/api/tunnels')
             except requests.exceptions.RequestException as e:
                 logger.error(f"ngrok is not running! An error occurred while checking ngrok tunnels: {e}")
-                
+
             if not response or response.status_code != 200:
                 logger.error(f"Failed to start ngrok: {response.text}")
                 return None
-        
+
         else:
             logger.debug(f"Ngrok is already running! {response.json()}")
-            
+
         tunnels = response.json()['tunnels']
         for tunnel in tunnels:
             if tunnel['proto'] == 'https':
                 return tunnel['public_url']
-          
-        logger.error(f"Failed to start ngrok: {response.text}")  
+
+        logger.error(f"Failed to start ngrok: {response.text}")
         return None
-    
+
     except Exception as e:
         logger.error(f"An error occurred in {__file__} at line {e.__traceback__.tb_lineno}: {e}")
         return None
@@ -139,7 +139,7 @@ def create_checkout_session(
 ):
     try:
         stripe.api_key = stripe_api_key
-        
+
         session = stripe.checkout.Session.create(
             payment_method_types=payment_method_types,
             line_items=[{
@@ -156,12 +156,12 @@ def create_checkout_session(
             success_url=success_url,
             cancel_url=cancel_url,
         )
-        
+
         payment_intent_id = session.payment_intent
         logger.info(f"Payment Intent ID: {payment_intent_id}")
-        
+
         return session.url, session
-    
+
     except Exception as e:
         logger.error(f"An error occurred: {e}")
         return None
@@ -174,7 +174,7 @@ app.logger = logger
 
 @app.route('/stripe/success', methods=['GET'])
 def stripe_success():
-    
+
     try:
         session_id = request.args.get('session_id')
         if not session_id:
@@ -190,7 +190,7 @@ def stripe_success():
 
         session = stripe.checkout.Session.retrieve(session_id)
         payment_intent_id = session.payment_intent
-                
+
         # update session with session_id in the sessions dictionary
         payment_sessions[session_id] = session
 
@@ -223,9 +223,9 @@ def create_payment(
     cancel_url=CANCEL_URL,
     use_ngrok=USE_NGROK,
     ngrok_port=5000,
-    ): 
+    ):
 
-    try:  
+    try:
 
         payment_link, session = create_checkout_session(
             stripe_api_key=stripe_api_key,
@@ -236,22 +236,24 @@ def create_payment(
             quantity=quantity,
             mode=mode,
             success_url=success_url,
-            cancel_url=cancel_url          
+            cancel_url=cancel_url
         )
-        
+
+        # 'http://localhost:5000/stripe/success?session_id={CHECKOUT_SESSION_ID}'
+
         if payment_link and session:
-            
+
             payment_sessions[session.id] = session
-            
+
             logger.info(f"Checkout payment link: {payment_link}")
             return redirect(payment_link)
-        
+
         else:
-            
+
             logger.info("Failed to create checkout session.")
             # return redirect(url_for('create_payment'))
             return redirect(url_for(cancel_url))
-    
+
     except Exception as e:
         logger.error(f"An error occurred in {__file__} at line {e.__traceback__.tb_lineno}: {e}")
         # return e
@@ -260,22 +262,22 @@ def create_payment(
 def start_webhook(debug=False, port=DEF_HTTP_PORT, host=DEF_HTTP_HOST, load_dotenv=False, def_ssl_cert=DEF_SSL_CERT, def_ssl_key=DEF_SSL_KEY):
     """Runs the web application on a local development server.
     """
-    
-    try:        
-        
+
+    try:
+
         # Run the app with SSL context or not
         if USE_SSL:
             ssl_context = (def_ssl_cert, def_ssl_key)
             logger.debug(f"Running the app with SSL context: {ssl_context}")
             app.run(host=host, port=port, debug=debug, ssl_context=ssl_context, load_dotenv=load_dotenv)
-            
+
         else:
             logger.debug(f"Running the app without SSL context: {DEF_HTTP_HOST}:{DEF_HTTP_PORT}")
             app.run(host=host, port=port, debug=debug, load_dotenv=load_dotenv)
-        
+
         def_http_mode = 'https' if USE_SSL else 'http'
         logger.debug(f"Active Endpoint: {def_http_mode}://{DEF_HTTP_HOST}:{DEF_HTTP_PORT}")
-        
+
     except Exception as e:
         logger.error(f"An error occurred in {__file__} at line {e.__traceback__.tb_lineno}: {e}")
 
@@ -284,15 +286,15 @@ def start_webhook(debug=False, port=DEF_HTTP_PORT, host=DEF_HTTP_HOST, load_dote
 # --- If script is called directly then test the create checkout function ---
 
 if __name__ == "__main__":
-    
+
     # get the run mode from the environment variable, if is webhook or console mode
     run_mode = os.getenv('RUN_MODE', 'webhook')
-    
+
     if run_mode == 'webhook':
         start_webhook()
-    else: 
+    else:
         payment_link = create_checkout_session()
-        
+
         if payment_link:
             logger.info(f"Checkout payment link: {payment_link}")
         else:
