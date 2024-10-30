@@ -14,7 +14,7 @@ STRIPE_API_KEY = stripe.api_key = os.getenv('STRIPE_SECRET_KEY')
 
 PAYMENT_METHOD_TYPES = os.getenv('PAYMENT_METHOD_TYPES', 'card').split(',')
 CURRENCY = os.getenv('CURRENCY', 'brl')
-PRODUCT_NAME = os.getenv('PRODUCT_NAME', 'Adicionar credito para consultas no Bot')
+PRODUCT_NAME = os.getenv('PRODUCT_NAME', 'Adicionar creditos')
 UNIT_AMOUNT = int(os.getenv('UNIT_AMOUNT', 500))
 QUANTITY = int(os.getenv('QUANTITY', 1))
 MODE = os.getenv('MODE', 'payment')
@@ -47,15 +47,15 @@ def create_test_checkout_session():
         return None
 
 def create_checkout_session(
-    stripe_api_key = os.getenv('STRIPE_SECRET_KEY'),
-    payment_method_types=['card'],
-    currency= 'brl',
-    product_name = 'Adicionar credito para consultas no Bot',
-    unit_amount = 500,
-    quantity = 1,
-    mode='payment',
-    success_url='https://yourdomain.com/success?session_id={CHECKOUT_SESSION_ID}',
-    cancel_url='https://yourdomain.com/cancel',
+    stripe_api_key=STRIPE_API_KEY,
+    payment_method_types=PAYMENT_METHOD_TYPES,
+    currency=CURRENCY,
+    product_name=PRODUCT_NAME,
+    unit_amount=UNIT_AMOUNT,
+    quantity=QUANTITY,
+    mode=MODE,
+    success_url=SUCCESS_URL,
+    cancel_url=CANCEL_URL,
 ):
     try:
         stripe.api_key = stripe_api_key
