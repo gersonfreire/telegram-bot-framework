@@ -43,7 +43,6 @@ def create_checkout_session(
     mode='payment',
     success_url='https://yourdomain.com/success?session_id={CHECKOUT_SESSION_ID}',
     cancel_url='https://yourdomain.com/cancel',
-    
 ):
     try:
         stripe.api_key = stripe_api_key
