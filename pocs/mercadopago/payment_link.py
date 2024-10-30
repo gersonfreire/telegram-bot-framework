@@ -6,11 +6,14 @@ import mercadopago
 import dotenv
 import os
 
+dotenv.load_dotenv()
+
 YOUR_PUBLIC_KEY=os.getenv("YOUR_PUBLIC_KEY")
 YOUR_PRIVATE_KEY=os.getenv("YOUR_PRIVATE_KEY")
 
 # Replace 'YOUR_PUBLIC_KEY' and 'YOUR_PRIVATE_KEY' with your actual keys
-sdk = mercadopago.SDK(YOUR_PUBLIC_KEY, YOUR_PRIVATE_KEY)
+# sdk = mercadopago.SDK(YOUR_PUBLIC_KEY, YOUR_PRIVATE_KEY)
+sdk = mercadopago.SDK(YOUR_PRIVATE_KEY)
 
 data = {
     "items": [
@@ -27,6 +30,7 @@ data = {
     "notification_url": "http://your-website.com/notification"
 }
 
-preference = sdk.preference.create(data)
+# 'function' object has no attribute 'create'
+preference = sdk.preference().create(data)
 
 print(preference['response']['sandbox_init_point'])
