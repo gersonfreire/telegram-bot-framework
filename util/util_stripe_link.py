@@ -186,13 +186,17 @@ def create_payment(
         
         if payment_link:
             logger.info(f"Checkout payment link: {payment_link}")
-            return payment_link
+            return redirect(payment_link)
         else:
-            logger.info("Failed to create checkout session.")
             
+            logger.info("Failed to create checkout session.")
+            # return redirect(url_for('create_payment'))
+            return redirect(url_for(cancel_url))
+    
     except Exception as e:
         logger.error(f"An error occurred in {__file__} at line {e.__traceback__.tb_lineno}: {e}")
-        return e
+        # return e
+        return Exception(json.dumps(e))
 
 def start_webhook(debug=False, port=DEF_HTTP_PORT, host=DEF_HTTP_HOST, load_dotenv=False, def_ssl_cert=DEF_SSL_CERT, def_ssl_key=DEF_SSL_KEY):
     """Runs the web application on a local development server.
@@ -223,7 +227,7 @@ def start_webhook(debug=False, port=DEF_HTTP_PORT, host=DEF_HTTP_HOST, load_dote
 if __name__ == "__main__":
     
     # get the run mode from the environment variable, if is webhook or console mode
-    run_mode = os.getenv('RUN_MODE', 'webhook')
+    run_mode = os.getenv('RUN_MODE', 'console')
     
     if run_mode == 'webhook':
         start_webhook()
