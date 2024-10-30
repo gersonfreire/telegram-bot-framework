@@ -1,3 +1,4 @@
+import json
 import subprocess
 import time
 import stripe
@@ -10,17 +11,26 @@ from dotenv import load_dotenv
 import logging
 
 import requests
-logging.basicConfig(level=logging.DEBUG)
+class CustomFormatter(logging.Formatter):
+    """Custom formatter to add colors to log levels."""
+    def format(self, record):
+        log_colors = {
+            logging.ERROR: "\033[91m",  # Red
+            logging.WARNING: "\033[94m",  # Blue
+            logging.INFO: "\033[92m",  # Green
+            logging.DEBUG: "\033[93m",  # Yellow
+        }
+        reset_color = "\033[0m"
+        log_fmt = log_colors.get(record.levelno, "") + "%(levelname)s: %(message)s" + reset_color
+        formatter = logging.Formatter(log_fmt)
+        return formatter.format(record)
+
+# Set up logging
+handler = logging.StreamHandler()
+handler.setFormatter(CustomFormatter())
+logging.basicConfig(level=logging.DEBUG, handlers=[handler])
 logger = logging.getLogger(__name__)
-
-# test logger
 logger.debug(f'Starting the {__file__}...')
-
-# ------------- Stripe Webhook using flask ------------------
-
-from flask import Flask, request, redirect, url_for
-app = Flask(__name__)
-
 # ----------------Start ngrok ----------------
 
 def start_ngrok(ngrok_port=5000):
@@ -100,6 +110,9 @@ MODE = os.getenv('MODE', 'payment')
 SUCCESS_URL = os.getenv('SUCCESS_URL', 'https://yourdomain.com/success?session_id={CHECKOUT_SESSION_ID}')
 CANCEL_URL = os.getenv('CANCEL_URL', 'https://yourdomain.com/cancel')
 
+# Define USE_NGROK variable
+USE_NGROK = os.getenv('USE_NGROK', 'False').lower() in ('true', '1', 't')
+
 # --- Create a Checkout Session ---
 
 def create_checkout_session(
@@ -137,6 +150,41 @@ def create_checkout_session(
     except Exception as e:
         logger.error(f"An error occurred: {e}")
         return None
+
+# ------------- Stripe Webhook using flask ------------------
+
+from flask import Flask, request, redirect, url_for
+app = Flask(__name__)
+app.logger = logger
+
+@app.route('/payment/link', methods=['GET'])
+def create_payment(
+    return_url=SUCCESS_URL, 
+    cancel_url=CANCEL_URL, 
+    total="5.00", 
+    currency="BRL", 
+    description="This is the payment transaction description.",
+    client_id = os.getenv("PAYPAL_CLIENT_ID") ,
+    client_secret = os.getenv("PAYPAL_CLIENT_SECRET"),
+    use_ngrok=USE_NGROK,
+    ngrok_port=5000,
+    paypal_mode="sandbox" # sandbox or live
+    ): 
+
+    try:  
+
+        payment_link = create_checkout_session()
+        
+        if payment_link:
+            logger.info(f"Checkout payment link: {payment_link}")
+        else:
+            logger.info("Failed to create checkout session.")
+            
+    except Exception as e:
+        logger.error(f"An error occurred in {__file__} at line {e.__traceback__.tb_lineno}: {e}")
+        return e
+
+# --- If script is called directly then test the create checkout function ---
 
 if __name__ == "__main__":
     
