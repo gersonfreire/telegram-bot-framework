@@ -161,16 +161,17 @@ app.logger = logger
 
 @app.route('/payment/link', methods=['GET'])
 def create_payment(
-    return_url=SUCCESS_URL, 
-    cancel_url=CANCEL_URL, 
-    total="5.00", 
-    currency="BRL", 
-    description="This is the payment transaction description.",
-    client_id = os.getenv("PAYPAL_CLIENT_ID") ,
-    client_secret = os.getenv("PAYPAL_CLIENT_SECRET"),
+    stripe_api_key=STRIPE_API_KEY,
+    payment_method_types=PAYMENT_METHOD_TYPES,
+    currency=CURRENCY,
+    product_name=PRODUCT_NAME,
+    unit_amount=UNIT_AMOUNT,
+    quantity=QUANTITY,
+    mode=MODE,
+    success_url=SUCCESS_URL,
+    cancel_url=CANCEL_URL,
     use_ngrok=USE_NGROK,
     ngrok_port=5000,
-    paypal_mode="sandbox" # sandbox or live
     ): 
 
     try:  
