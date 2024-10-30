@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 # https://dashboard.stripe.com/test/developers
 
 # Load environment variables from a .env file
-load_dotenv()
+load_dotenv(override=True)
 
 # Set your secret key. Remember to switch to your live secret key in production!
 stripe.api_key = os.getenv('STRIPE_SECRET_KEY')
