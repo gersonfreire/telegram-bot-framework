@@ -185,6 +185,24 @@ def stripe_webhook():
   except Exception as e:
     logger.error(f"An error occurred: {e}")
 
+@app.route('/stripe/success', methods=['GET'])
+def stripe_success():
+    try:
+        session_id = request.args.get('session_id')
+        if not session_id:
+            logger.error("Missing session_id in request.")
+            return "Missing session_id in request.", 400
+
+        session = stripe.checkout.Session.retrieve(session_id)
+        payment_intent_id = session.payment_intent
+
+        logger.info(f"Payment successful. Payment Intent ID: {payment_intent_id}")
+        return f"Payment successful. Payment Intent ID: {payment_intent_id}", 200
+
+    except Exception as e:
+        logger.error(f"An error occurred: {e}")
+        return "An error occurred while processing the payment success.", 500
+
 @app.route('/stripe/cancel', methods=['GET'])
 def stripe_cancel():
     try:
