@@ -34,6 +34,7 @@ def create_test_checkout_session():
         return None
 
 def create_checkout_session(
+    stripe_api_key = os.getenv('STRIPE_SECRET_KEY'),
     payment_method_types=['card'],
     currency= 'brl',
     product_name = 'Adicionar credito para consultas no Bot',
@@ -45,7 +46,7 @@ def create_checkout_session(
     
 ):
     try:
-        stripe.api_key = os.getenv('STRIPE_SECRET_KEY')
+        stripe.api_key = stripe_api_key
         
         session = stripe.checkout.Session.create(
             payment_method_types=payment_method_types,
