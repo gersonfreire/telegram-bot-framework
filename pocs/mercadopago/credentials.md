@@ -2,7 +2,7 @@ To generate public and private API keys from your Mercado Pago account settings,
 
 1. **Log in to Mercado Pago**:
 
-   - Go to the [Mercado Pago Developer Portal](https://www.mercadopago.com.ar/developers/en/guides/overview).
+   - Go to the [Mercado Pago Developer Portal](https://www.mercadopago.com.ar/developers/en/guides/overview). [https://www.mercadopago.com.br/developers](https://www.mercadopago.com.br/developers/panel/app/6526364132755046/credentials/sandbox)
    - Log in with your Mercado Pago account credentials.
 2. **Navigate to Your Account Settings**:
 

@@ -4,6 +4,8 @@
 
 Mercado Pago provides a robust API to integrate payment solutions into your applications. To create a payment link, we'll use its REST API.
 
+[https://www.mercadopago.com.br/developers/](https://www.mercadopago.com.br/developers/panel/app/6526364132755046/credentials/sandbox)
+
 ### Setting Up
 
 1. **Create a Mercado Pago Account:** If you don't have one, create a free account on the Mercado Pago developer portal.
