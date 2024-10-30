@@ -16,6 +16,11 @@ logger.debug(f'Starting the {__file__}...')
 
 # --------------------------------
 
+from flask import Flask, request, redirect, url_for
+app = Flask(__name__)
+
+# --- Set up Stripe API keys ---
+
 # https://dashboard.stripe.com/test/developers
 
 # Load environment variables from a .env file
