@@ -165,26 +165,6 @@ from flask import Flask, request, redirect, url_for
 app = Flask(__name__)
 app.logger = logger
 
-# Handle the webhook from Stripe
-@app.route('/stripe/webhook', methods=['GET','POST'])
-def stripe_webhook():
-    
-  try:
-    
-    # invalid request.data
-    event = stripe.Event.construct_from(json.loads(requests.request.data), stripe.api_key)
-    
-    if event.type == 'checkout.session.completed':
-      session = event.data.object
-      stripe_token = session['payment_intent']['id']
-      # Use the Stripe token to process the payment
-      # ...
-      
-      return 'Webhook received and processed', 200
-  
-  except Exception as e:
-    logger.error(f"An error occurred: {e}")
-
 @app.route('/stripe/success', methods=['GET'])
 def stripe_success():
     try:
