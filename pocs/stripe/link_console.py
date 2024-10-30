@@ -2,6 +2,8 @@ import stripe
 import os
 from dotenv import load_dotenv
 
+# https://dashboard.stripe.com/test/developers
+
 # Load environment variables from a .env file
 load_dotenv()
 
