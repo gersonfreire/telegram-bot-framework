@@ -36,7 +36,7 @@ def create_test_checkout_session():
 def create_checkout_session(
     payment_method_types=['card'],
     currency= 'brl',
-    product_name = 'Credito RFB Bot',
+    product_name = 'Adicionar credito para consultas no Bot',
     unit_amount = 2000,
     quantity = 1,
     mode='payment',
