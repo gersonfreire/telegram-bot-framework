@@ -111,8 +111,9 @@ MODE = os.getenv('MODE', 'payment')
 SUCCESS_URL = os.getenv('SUCCESS_URL', 'https://yourdomain.com/success?session_id={CHECKOUT_SESSION_ID}')
 CANCEL_URL = os.getenv('CANCEL_URL', 'https://yourdomain.com/cancel')
 
-# Define USE_NGROK variable
+# Define USE_NGROK and USE_SSL variables
 USE_NGROK = os.getenv('USE_NGROK', 'False').lower() in ('true', '1', 't')
+USE_SSL = os.getenv('USE_SSL', 'False').lower() in ('true', '1', 't')
 
 # --- Create a Checkout Session ---
 
@@ -184,6 +185,36 @@ def create_payment(
     except Exception as e:
         logger.error(f"An error occurred in {__file__} at line {e.__traceback__.tb_lineno}: {e}")
         return e
+
+# Define default values for HTTP and SSL parameters
+def_http_port = 5000
+def_http_host = '0.0.0.0'
+def_ssl_cert = 'path/to/ssl_cert.pem'
+def_ssl_key = 'path/to/ssl_key.pem'
+
+def start_webhook(debug=False, port=def_http_port, host=def_http_host, load_dotenv=False, def_ssl_cert=def_ssl_cert, def_ssl_key=def_ssl_key):
+    """Runs the web application on a local development server.
+    """
+    
+    try:        
+        
+        # Run the app with SSL context or not
+        if USE_SSL:
+            ssl_context = (def_ssl_cert, def_ssl_key)
+            logger.debug(f"Running the app with SSL context: {ssl_context}")
+            app.run(host=host, port=port, debug=debug, ssl_context=ssl_context, load_dotenv=load_dotenv)
+            
+        else:
+            logger.debug(f"Running the app without SSL context: {def_http_host}:{def_http_port}")
+            app.run(host=host, port=port, debug=debug, load_dotenv=load_dotenv)
+        
+        def_http_mode = 'https' if USE_SSL else 'http'
+        logger.debug(f"Active Endpoint: {def_http_mode}://{def_http_host}:{def_http_port}")
+        
+    except Exception as e:
+        logger.error(f"An error occurred in {__file__} at line {e.__traceback__.tb_lineno}: {e}")
+
+# -------------- End of Stripe Webhook using flask ------------------
 
 # --- If script is called directly then test the create checkout function ---
 
