@@ -221,9 +221,15 @@ def start_webhook(debug=False, port=DEF_HTTP_PORT, host=DEF_HTTP_HOST, load_dote
 
 if __name__ == "__main__":
     
-    payment_link = create_checkout_session()
+    # get the run mode from the environment variable, if is webhook or console mode
+    run_mode = os.getenv('RUN_MODE', 'webhook')
     
-    if payment_link:
-        logger.info(f"Checkout payment link: {payment_link}")
-    else:
-        logger.info("Failed to create checkout session.")
+    if run_mode == 'webhook':
+        start_webhook()
+    else: 
+        payment_link = create_checkout_session()
+        
+        if payment_link:
+            logger.info(f"Checkout payment link: {payment_link}")
+        else:
+            logger.info("Failed to create checkout session.")
