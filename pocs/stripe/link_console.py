@@ -67,7 +67,10 @@ def create_checkout_session(
         return None
 
 if __name__ == "__main__":
-    payment_link = create_test_checkout_session()
+    
+    # payment_link = create_test_checkout_session()
+    payment_link = create_checkout_session()
+    
     if payment_link:
         print(f"Checkout payment link: {payment_link}")
     else:
