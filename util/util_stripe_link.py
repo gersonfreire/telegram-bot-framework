@@ -184,10 +184,15 @@ def stripe_success():
             logger.info(f"Session ID: {session_id}")
             if session_id not in payment_sessions:
                 logger.error(f"Session ID not found in payment sessions: {session_id}")
-                return f"Session ID not found in payment sessions: {session_id}", 404
+            else:
+                session = payment_sessions[session_id]
+                logger.info(f"Payment successful. Payment Intent ID: {session.payment_intent}")
 
         session = stripe.checkout.Session.retrieve(session_id)
         payment_intent_id = session.payment_intent
+                
+        # update session with session_id in the sessions dictionary
+        payment_sessions[session_id] = session
 
         logger.info(f"Payment successful. Payment Intent ID: {payment_intent_id}")
         return f"Payment successful. Payment Intent ID: {payment_intent_id}", 200
