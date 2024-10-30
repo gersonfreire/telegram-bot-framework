@@ -2,6 +2,20 @@ import stripe
 import os
 from dotenv import load_dotenv
 
+# --------------------------------
+
+# set and build logging
+import logging
+
+import requests
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
+
+# test logger
+logger.debug(f'Starting the {__file__}...')
+
+# --------------------------------
+
 # https://dashboard.stripe.com/test/developers
 
 # Load environment variables from a .env file
