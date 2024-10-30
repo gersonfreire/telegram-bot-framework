@@ -153,7 +153,11 @@ def create_checkout_session(
             success_url=success_url,
             cancel_url=cancel_url,
         )
-        return session.url
+        
+        payment_intent_id = session.payment_intent
+        logger.info(f"Payment Intent ID: {payment_intent_id}")
+        
+        return session.url, session
     
     except Exception as e:
         logger.error(f"An error occurred: {e}")
@@ -209,7 +213,7 @@ def create_payment(
 
     try:  
 
-        payment_link = create_checkout_session()
+        payment_link, session = create_checkout_session()
         
         if payment_link:
             logger.info(f"Checkout payment link: {payment_link}")
