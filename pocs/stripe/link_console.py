@@ -57,9 +57,9 @@ def create_checkout_session(
                 },
                 'quantity': quantity,
             }],
-            mode='payment',
-            success_url='https://yourdomain.com/success?session_id={CHECKOUT_SESSION_ID}',
-            cancel_url='https://yourdomain.com/cancel',
+            mode=mode,
+            success_url=success_url,
+            cancel_url=cancel_url,
         )
         return session.url
     except Exception as e:
