@@ -10,7 +10,12 @@ load_dotenv()
 # Set your secret key. Remember to switch to your live secret key in production!
 stripe.api_key = os.getenv('STRIPE_SECRET_KEY')
 
-def create_checkout_session():
+def create_checkout_session(
+    currency= 'brl',
+    success_url='https://yourdomain.com/success?session_id={CHECKOUT_SESSION_ID}',
+    cancel_url='https://yourdomain.com/cancel',
+    
+):
     try:
         session = stripe.checkout.Session.create(
             payment_method_types=['card'],
