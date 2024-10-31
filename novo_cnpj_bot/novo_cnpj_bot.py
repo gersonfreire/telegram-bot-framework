@@ -2,11 +2,9 @@ import os
 import re
 import dotenv
 from telegram import Update
-from telegram.constants import ParseMode
-from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
+from telegram.constants import ParseMode, ChatAction
+from telegram.ext import Application, CommandHandler, MessageHandler, filters, CallbackContext
 from functools import wraps
-from telegram.ext import CallbackContext
-from telegram.constants import ChatAction
 
 import logging
 from logging.handlers import TimedRotatingFileHandler
@@ -111,13 +109,22 @@ async def validar(update: Update, context: CallbackContext) -> None:
         logger.debug("CNPJ is invalid")
         await update.message.reply_text('CNPJ inválido.')
 
+async def post_init(application: Application) -> None:
+    logger.info("Bot is starting")
+    admin_user_id = dotenv.get_key(dotenv.find_dotenv(), "ADMIN_USER_ID")
+    start_message = "Bot is starting"
+    try:
+        await application.bot.send_message(chat_id=admin_user_id, text=start_message, parse_mode=ParseMode.MARKDOWN)
+    except Exception as e:
+        logger.error(f"Failed to send start message to admin: {e}")
+
 def main() -> None:
     logger.debug("Starting bot")
     dotenv.load_dotenv()
     
     token = dotenv.get_key(dotenv.find_dotenv(), "TOKEN")
     
-    application = Application.builder().token(token).build()
+    application = Application.builder().token(token).post_init(post_init).build()
 
     application.add_handler(CommandHandler("start", start))
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, validar))
