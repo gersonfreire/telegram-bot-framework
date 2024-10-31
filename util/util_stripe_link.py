@@ -224,6 +224,7 @@ def create_payment(
     cancel_url=CANCEL_URL,
     use_ngrok=USE_NGROK,
     ngrok_port=5000,
+    additional_params=None
     ):
 
     try:
@@ -238,6 +239,10 @@ def create_payment(
         # URL encode the query parameters
         encoded_query_params = urlencode({k: v for k, v in query_params.items() if k != 'session_id'}, doseq=True)
         encoded_query_params += f"&session_id={{CHECKOUT_SESSION_ID}}"
+        
+        # append additional parameters to the encoded query parameters
+        if additional_params:
+            encoded_query_params += f"&{urlencode(additional_params, doseq=True)}"
 
         # Reconstruct the URL with encoded query parameters
         success_url = urlunparse(parsed_url._replace(query=encoded_query_params))
