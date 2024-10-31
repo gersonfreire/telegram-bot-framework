@@ -169,6 +169,7 @@ def create_checkout_session(
 # ------------- Stripe Webhook using flask ------------------
 
 from flask import Flask, request, redirect, url_for
+from urllib.parse import urlencode, urlparse, urlunparse, parse_qs
 app = Flask(__name__)
 app.logger = logger
 
@@ -230,7 +231,16 @@ def create_payment(
         # 'http://localhost:5000/stripe/success?session_id={CHECKOUT_SESSION_ID}&param1=value1&param2=value2'
         # success_url = success_url.replace('{CHECKOUT_SESSION_ID}', session.id)
         # url encode the success_url to avoid errors
-        success_url = requests.utils.quote(success_url, safe='')        
+        # Parse the success_url
+        parsed_url = urlparse(success_url)
+        query_params = parse_qs(parsed_url.query)
+
+        # URL encode the query parameters
+        encoded_query_params = urlencode({k: v for k, v in query_params.items() if k != 'session_id'}, doseq=True)
+        encoded_query_params += f"&session_id={{CHECKOUT_SESSION_ID}}"
+
+        # Reconstruct the URL with encoded query parameters
+        success_url = urlunparse(parsed_url._replace(query=encoded_query_params))
 
         payment_link, session = create_checkout_session(
             stripe_api_key=stripe_api_key,
@@ -269,7 +279,8 @@ def start_webhook(debug=False, port=DEF_HTTP_PORT, host=DEF_HTTP_HOST, load_dote
     try:
 
         def_http_mode = 'https' if USE_SSL else 'http'
-        logger.debug(f"Active Endpoint: {def_http_mode}://{DEF_HTTP_HOST}:{DEF_HTTP_PORT}/payment/link")
+        http_host = "localhost" if host == '0.0.0.0' else host
+        logger.error(f"\033[91mActive Endpoint: {def_http_mode}://{http_host}:{DEF_HTTP_PORT}/payment/link\033[0m")
 
         # Run the app with SSL context or not
         if USE_SSL:
