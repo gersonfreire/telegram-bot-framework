@@ -280,7 +280,7 @@ def start_webhook(debug=False, port=DEF_HTTP_PORT, host=DEF_HTTP_HOST, load_dote
 
         def_http_mode = 'https' if USE_SSL else 'http'
         http_host = "localhost" if host == '0.0.0.0' else host
-        logger.error(f"\033[91mActive Endpoint: {def_http_mode}://{http_host}:{DEF_HTTP_PORT}/payment/link\033[0m")
+        logger.info(f"\033[91mActive Endpoint: {def_http_mode}://{http_host}:{DEF_HTTP_PORT}/payment/link\033[0m")
 
         # Run the app with SSL context or not
         if USE_SSL:
