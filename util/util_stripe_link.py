@@ -227,6 +227,11 @@ def create_payment(
 
     try:
 
+        # 'http://localhost:5000/stripe/success?session_id={CHECKOUT_SESSION_ID}&param1=value1&param2=value2'
+        # success_url = success_url.replace('{CHECKOUT_SESSION_ID}', session.id)
+        # url encode the success_url to avoid errors
+        success_url = requests.utils.quote(success_url, safe='')        
+
         payment_link, session = create_checkout_session(
             stripe_api_key=stripe_api_key,
             payment_method_types=payment_method_types,
@@ -238,8 +243,6 @@ def create_payment(
             success_url=success_url,
             cancel_url=cancel_url
         )
-
-        # 'http://localhost:5000/stripe/success?session_id={CHECKOUT_SESSION_ID}'
 
         if payment_link and session:
 
