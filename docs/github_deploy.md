@@ -10,35 +10,30 @@ Absolutely! You can automate this process using a tool like Git hooks or a CI/CD
 ### Using Git Hooks
 
 1. **SSH into Your Server** :
-   **bash**Copiar
 
 ```
    ssh yourUsername@yourServerIP
 ```
 
 1. **Navigate to Your Project Directory** :
-   **bash**Copiar
 
 ```
    cd/path/to/your/project
 ```
 
 1. **Create or Edit the Post-Receive Hook** : Navigate to the `hooks` directory inside your Git project:
-   **bash**Copiar
 
 ```
    cd.git/hooks
 ```
 
    Create or edit the `post-receive` hook:
-   **bash**Copiar
 
 ```
    nano post-receive
 ```
 
 1. **Add the Following Script** :
-   **bash**Copiar
 
 ```
    #!/bin/sh
@@ -48,7 +43,6 @@ Absolutely! You can automate this process using a tool like Git hooks or a CI/CD
 ```
 
 1. **Make the Hook Executable** :
-   **bash**Copiar
 
 ```
    chmod+x post-receive
@@ -63,7 +57,6 @@ Alternatively, you can set up a CI/CD pipeline using a service like GitHub Actio
  **Example with GitHub Actions** :
 
 1. **Create a ** `.github/workflows/deploy.yml` ** file in your GitHub repository** :
-   **yaml**Copiar
 
 ```
    name:Deploy
