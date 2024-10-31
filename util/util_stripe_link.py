@@ -201,7 +201,7 @@ def stripe_success():
 
         # update session with session_id in the sessions dictionary
         payment_sessions[session_id] = session
-        additional_query_params[session_id] = query_params
+        # additional_query_params[session_id] = query_params
 
         logger.info(f"Payment successful. Payment Intent ID: {payment_intent_id}")
         return f"Payment successful. Payment Intent ID: {payment_intent_id}", 200
@@ -269,7 +269,7 @@ def create_payment(
         if payment_link and session:
 
             payment_sessions[session.id] = session
-            additional_query_params[session.id] = query_params
+            # TODO: additional_query_params[session.id] = query_params
 
             logger.info(f"Checkout payment link: {payment_link}")
             return redirect(payment_link)
