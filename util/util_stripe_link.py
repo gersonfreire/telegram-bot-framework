@@ -268,6 +268,9 @@ def start_webhook(debug=False, port=DEF_HTTP_PORT, host=DEF_HTTP_HOST, load_dote
 
     try:
 
+        def_http_mode = 'https' if USE_SSL else 'http'
+        logger.debug(f"Active Endpoint: {def_http_mode}://{DEF_HTTP_HOST}:{DEF_HTTP_PORT}/payment/link")
+
         # Run the app with SSL context or not
         if USE_SSL:
             ssl_context = (def_ssl_cert, def_ssl_key)
@@ -277,9 +280,6 @@ def start_webhook(debug=False, port=DEF_HTTP_PORT, host=DEF_HTTP_HOST, load_dote
         else:
             logger.debug(f"Running the app without SSL context: {DEF_HTTP_HOST}:{DEF_HTTP_PORT}")
             app.run(host=host, port=port, debug=debug, load_dotenv=load_dotenv)
-
-        def_http_mode = 'https' if USE_SSL else 'http'
-        logger.debug(f"Active Endpoint: {def_http_mode}://{DEF_HTTP_HOST}:{DEF_HTTP_PORT}/payment/link")
 
     except Exception as e:
         logger.error(f"An error occurred in {__file__} at line {e.__traceback__.tb_lineno}: {e}")
