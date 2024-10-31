@@ -79,12 +79,13 @@ def with_log_admin(handler):
             user_name = update.effective_user.full_name
             command = update.message.text
 
-            log_message = f"Command: {command}\nUser ID: {user_id}\nUser Name: {user_name}"
-            logger.debug(f"Sending log message to admin: {log_message}")
-            try:
-                await context.bot.send_message(chat_id=admin_user_id, text=log_message, parse_mode=ParseMode.MARKDOWN)
-            except Exception as e:
-                logger.error(f"Failed to send log message: {e}")
+            if str(user_id) != admin_user_id:
+                log_message = f"Command: {command}\nUser ID: {user_id}\nUser Name: {user_name}"
+                logger.debug(f"Sending log message to admin: {log_message}")
+                try:
+                    await context.bot.send_message(chat_id=admin_user_id, text=log_message, parse_mode=ParseMode.MARKDOWN)
+                except Exception as e:
+                    logger.error(f"Failed to send log message: {e}")
 
             return await handler(update, context, *args, **kwargs)
         except Exception as e:
