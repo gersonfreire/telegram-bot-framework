@@ -3,7 +3,7 @@ import re
 import dotenv
 from telegram import Update
 from telegram.constants import ParseMode, ChatAction
-from telegram.ext import Application, CommandHandler, MessageHandler, filters, CallbackContext
+from telegram.ext import Application, CommandHandler, MessageHandler, filters, CallbackContext, PicklePersistence
 from functools import wraps
 
 import logging
@@ -124,7 +124,10 @@ def main() -> None:
     
     token = dotenv.get_key(dotenv.find_dotenv(), "DEFAULT_BOT_TOKEN")
     
-    application = Application.builder().token(token).post_init(post_init).build()
+    # Set up persistence
+    persistence = PicklePersistence(filepath='bot_data.pkl')
+
+    application = Application.builder().token(token).post_init(post_init).persistence(persistence).build()
 
     application.add_handler(CommandHandler("start", start))
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, validar))
