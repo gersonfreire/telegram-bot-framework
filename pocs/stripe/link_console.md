@@ -60,12 +60,9 @@ if __name__ == "__main__":
    ```
 2. **Set up your Stripe API key**:
 
-   - Create a
+   - Create a .env file in the same directory as your script and add your Stripe secret key got from [Stripe dashboard]( https://dashboard.stripe.com/apikeys)
 
-.env
-
- file in the same directory as your script and add your Stripe secret key:
-     ``     STRIPE_SECRET_KEY=sk_test_your_secret_key     ``
+    ``    STRIPE_SECRET_KEY=sk_test_your_secret_key    ``
 
 3. **Create a Checkout session**:
 
