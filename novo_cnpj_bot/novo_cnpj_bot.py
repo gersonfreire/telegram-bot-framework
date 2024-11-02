@@ -72,7 +72,7 @@ def with_log_admin(handler):
     @wraps(handler)
     async def wrapper(update: Update, context: CallbackContext, *args, **kwargs):
         try:
-            admin_user_id = dotenv.get_key(dotenv.find_dotenv(), "ADMIN_USER_ID")
+            admin_user_id = dotenv.get_key(dotenv.find_dotenv(), "ADMIN_ID_LIST")
             user_id = update.effective_user.id
             user_name = update.effective_user.full_name
             command = update.message.text
@@ -111,7 +111,7 @@ async def validar(update: Update, context: CallbackContext) -> None:
 
 async def post_init(application: Application) -> None:
     logger.info("Bot is starting")
-    admin_user_id = dotenv.get_key(dotenv.find_dotenv(), "ADMIN_USER_ID")
+    admin_user_id = dotenv.get_key(dotenv.find_dotenv(), "ADMIN_ID_LIST")
     start_message = "Bot is starting"
     try:
         await application.bot.send_message(chat_id=admin_user_id, text=start_message, parse_mode=ParseMode.MARKDOWN)
