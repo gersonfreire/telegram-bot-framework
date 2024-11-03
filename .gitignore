@@ -241,3 +241,4 @@ pocs/paypal/paypal_v1.py
 pocs/paypal/paypal_link2.py
 pocs/paypal/test_paypal.py
 ngrok/ngrok.yml
+bot_data.pkl
