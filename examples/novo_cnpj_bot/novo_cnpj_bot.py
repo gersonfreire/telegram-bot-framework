@@ -111,6 +111,10 @@ def with_persistent_user_data(handler):
             # Update or insert persistent user data with user_data dictionary
             await context.application.persistence.update_user_data(user_id, user_data)
             
+            # update or insert each item of user_data dictionary in context
+            for key, value in user_data.items():
+                context.user_data[key] = value
+            
             # flush all users data to persistence
             await context.application.persistence.flush()
                 
