@@ -193,7 +193,7 @@ def main() -> None:
     application = Application.builder().token(token).post_init(post_init).persistence(persistence).build()
 
     application.add_handler(CommandHandler("start", start))
-    application.add_handler(CommandHandler("list_users", list_users))#, filters=filters.User(username=admin_id_list)))
+    application.add_handler(CommandHandler("list_users", list_users, filters=filters.User(user_id=int(admin_id_list))))
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, validar))
 
     logger.debug("Running bot")
