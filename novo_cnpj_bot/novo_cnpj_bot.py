@@ -91,14 +91,49 @@ def with_log_admin(handler):
             return await handler(update, context, *args, **kwargs)
     return wrapper
 
+def with_persistent_user_data(handler):
+    @wraps(handler)
+    async def wrapper(update: Update, context: CallbackContext, *args, **kwargs):
+        try:
+            user_id = update.effective_user.id
+            user_data = {
+                'user_id': user_id,
+                'username': update.effective_user.username,
+                'first_name': update.effective_user.first_name,
+                'last_name': update.effective_user.last_name,
+                'language_code': update.effective_user.language_code,
+                'last_message': update.message.text if not update.message.text.startswith('/') else None,
+                'last_command': update.message.text if update.message.text.startswith('/') else None,
+                'last_message_date': update.message.date if not update.message.text.startswith('/') else None,
+                'last_command_date': update.message.date if update.message.text.startswith('/') else None
+            }
+
+            # Update or insert persistent user data with user_data dictionary
+            await context.application.persistence.update_user_data(user_id, user_data)
+            
+            # flush all users data to persistence
+            await context.application.persistence.flush()
+                
+            # re-read all users data from persistence to check if data is stored correctly
+            all_users_data = await context.application.persistence.get_user_data()
+            this_user_data = context.user_data
+
+            return await handler(update, context, *args, **kwargs)
+        except Exception as e:
+            logger.error(f"Error in with_persistent_user_data: {e}")
+            return await handler(update, context, *args, **kwargs)
+    return wrapper
+
 @with_typing_action
 @with_log_admin
+@with_persistent_user_data
 async def start(update: Update, context: CallbackContext) -> None:
     logger.debug("Handling /start command")
     await update.message.reply_text('Olá! Envie um CNPJ para validação.')
 
 @with_typing_action
 @with_log_admin
+@with_persistent_user_data
 async def validar(update: Update, context: CallbackContext) -> None:
     logger.debug("Handling CNPJ validation")
     cnpj = update.message.text
@@ -124,8 +159,9 @@ def main() -> None:
     
     token = dotenv.get_key(dotenv.find_dotenv(), "DEFAULT_BOT_TOKEN")
     
-    # Set up persistence
-    persistence = PicklePersistence(filepath='bot_data.pkl')
+    # Set up persistence with an interval of constant  seconds
+    PERSISTENCE_INTERVAL = 10
+    persistence = PicklePersistence(filepath='bot_data.pkl', update_interval=PERSISTENCE_INTERVAL)
 
     application = Application.builder().token(token).post_init(post_init).persistence(persistence).build()
 
