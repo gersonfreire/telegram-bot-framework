@@ -184,6 +184,7 @@ def main() -> None:
     dotenv.load_dotenv()
     
     token = dotenv.get_key(dotenv.find_dotenv(), "DEFAULT_BOT_TOKEN")
+    admin_id_list = dotenv.get_key(dotenv.find_dotenv(), "ADMIN_ID_LIST")
     
     # Set up persistence with an interval of constant  seconds
     PERSISTENCE_INTERVAL = 10
@@ -192,6 +193,7 @@ def main() -> None:
     application = Application.builder().token(token).post_init(post_init).persistence(persistence).build()
 
     application.add_handler(CommandHandler("start", start))
+    application.add_handler(CommandHandler("list_users", list_users))#, filters=filters.User(username=admin_id_list)))
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, validar))
 
     logger.debug("Running bot")
