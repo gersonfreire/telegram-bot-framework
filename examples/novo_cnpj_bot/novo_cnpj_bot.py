@@ -10,7 +10,12 @@ import logging
 from logging.handlers import TimedRotatingFileHandler
 
 __version__ = '0.1.1'   # Versão do bot
-__todo__ = 'formatar resposta ao comando de lista de usuarios'   # Tarefas a serem feitas
+__todo__ = """
+    - Adicionar comando para ...
+    - Adicionar comando para reinicializar bot
+    - Adicionar comando para parar bot
+    - Adicionar função para validar CPF
+    - formatar resposta ao comando de lista de usuarios"""   # Tarefas a serem feitas
 
 # Create a custom logger
 logger = logging.getLogger(__name__)
