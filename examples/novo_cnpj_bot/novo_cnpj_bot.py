@@ -11,7 +11,8 @@ from logging.handlers import TimedRotatingFileHandler
 
 __version__ = '0.1.1'   # Versão do bot
 __todo__ = """
-    - Adicionar comando para ...
+    - Adicionar comando para gerar help automaticamente com lista de comandos ...
+    - Adicionar comando para versão...
     - Adicionar comando para reinicializar bot
     - Adicionar comando para parar bot
     - Adicionar função para validar CPF
