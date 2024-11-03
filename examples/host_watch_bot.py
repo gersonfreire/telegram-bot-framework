@@ -194,11 +194,13 @@ class HostWatchBot(TlgBotFwk):
                 
             ping_result = await self.ping_host(job_param, show_success=show_success, user_id=user_id)
             
-            http_ping_result = await self.http_ping(job_param, debug_status=show_success, user_id=user_id)
+            https_ping_result = await self.http_ping(job_param, debug_status=show_success, user_id=user_id)
+            http_ping_result = await self.http_ping(job_param, debug_status=show_success, user_id=user_id, http_type='http')
             
             job_name = f"ping_{job_param}"  
             callback_context.user_data[job_name]['last_status'] = ping_result # and http_ping_result
             callback_context.user_data[job_name]['http_status'] = http_ping_result     
+            callback_context.user_data[job_name]['https_status'] = https_ping_result     
             callback_context.user_data[job_name]['http_ping_time'] = (datetime.datetime.now()).strftime("%H:%M")
             
             # Log the result of the ping
@@ -237,7 +239,11 @@ class HostWatchBot(TlgBotFwk):
                 user_data = await self.application.persistence.get_user_data() if self.application.persistence else {}
                 job_name = f"ping_{ip_address}"
                 
-                user_data[user_id][job_name]['http_status'] = http_result
+                if http_type=='http':
+                    user_data[user_id][job_name]['http_status'] = http_result
+                else:
+                    user_data[user_id][job_name]['https_status'] = http_result
+                    
                 await self.application.persistence.update_user_data(user_id, user_data[user_id]) if self.application.persistence else None
                 
                 # Force a flush of persistence to save the last status
@@ -418,7 +424,7 @@ class HostWatchBot(TlgBotFwk):
             
             # header of monitored hosts list in case of bot owner
             if effective_user_id == self.bot_owner:
-                message = f"_Active monitored host:_{os.linesep}`p  h user-id    interv next last host`{os.linesep}"
+                message = f"_Active monitored host:_{os.linesep}`pi hs ht user-id   interv next last host`{os.linesep}"
                 
             all_user_data = await self.application.persistence.get_user_data() if self.application.persistence else {}
             
@@ -460,6 +466,7 @@ class HostWatchBot(TlgBotFwk):
                             job_owner = job_owner_id
                             
                             status='✅' if job_name in user_data and 'last_status' in user_data[job_name] and user_data[job_name]['last_status'] else "🔴"
+                            https_status='✅' if job_name in user_data and 'https_status' in user_data[job_name] and user_data[job_name]['https_status'] else "🔴"
                             http_status='✅' if job_name in user_data and 'http_status' in user_data[job_name] and user_data[job_name]['http_status'] else "🔴"
                             
                             url = f'https://{ip_address}' 
@@ -469,9 +476,9 @@ class HostWatchBot(TlgBotFwk):
                             
                             interval = f"{interval}s" if interval else None
                             if effective_user_id == self.bot_owner:
-                                message += f"{status}{http_status} `{job_owner:<10}` `{interval:<6}` `{next_time}` `{http_ping_time}` {markdown_link}{os.linesep}"
+                                message += f"{status}{https_status}{http_status} `{job_owner:<10}` `{interval:<6}` `{next_time}` `{http_ping_time}` {markdown_link}{os.linesep}"
                             else:
-                                message += f"{status}{http_status} `{interval:<6}` `{next_time}` `{http_ping_time}` {markdown_link}{os.linesep}"
+                                message += f"{status}{https_status}{http_status} `{interval:<6}` `{next_time}` `{http_ping_time}` {markdown_link}{os.linesep}"
                             
                             has_jobs = True
                             
