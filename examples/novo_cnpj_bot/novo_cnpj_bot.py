@@ -185,10 +185,13 @@ def main() -> None:
     
     token = dotenv.get_key(dotenv.find_dotenv(), "DEFAULT_BOT_TOKEN")
     
-    application = Application.builder().token(token).post_init(post_init).build()
+    # Set up persistence with an interval of constant  seconds
+    PERSISTENCE_INTERVAL = 10
+    persistence = PicklePersistence(filepath='bot_data.pkl', update_interval=PERSISTENCE_INTERVAL)
+
+    application = Application.builder().token(token).post_init(post_init).persistence(persistence).build()
 
     application.add_handler(CommandHandler("start", start))
-    application.add_handler(CommandHandler("list_users", list_users))
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, validar))
 
     logger.debug("Running bot")
