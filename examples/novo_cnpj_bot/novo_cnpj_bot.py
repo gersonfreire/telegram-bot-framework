@@ -183,7 +183,7 @@ def main() -> None:
     logger.debug("Starting bot")
     dotenv.load_dotenv()
     
-    token = dotenv.get_key(dotenv.find_dotenv(), "TOKEN")
+    token = dotenv.get_key(dotenv.find_dotenv(), "DEFAULT_BOT_TOKEN")
     
     application = Application.builder().token(token).post_init(post_init).build()
 
