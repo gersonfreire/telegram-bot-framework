@@ -148,6 +148,28 @@ async def validar(update: Update, context: CallbackContext) -> None:
         logger.debug("CNPJ is invalid")
         await update.message.reply_text('CNPJ inválido.')
 
+@with_typing_action
+@with_log_admin
+@with_persistent_user_data
+async def list_users(update: Update, context: CallbackContext) -> None:
+    logger.debug("Handling /list_users command")
+    try:
+        all_users_data = await context.application.persistence.get_user_data()
+        if not all_users_data:
+            await update.message.reply_text('No users found.')
+            return
+
+        user_list = []
+        for user_id, user_data in all_users_data.items():
+            user_info = f"ID: {user_id}, Username: {user_data.get('username', 'N/A')}, First Name: {user_data.get('first_name', 'N/A')}, Last Name: {user_data.get('last_name', 'N/A')}, Language: {user_data.get('language_code', 'N/A')}"
+            user_list.append(user_info)
+
+        user_list_text = "\n".join(user_list)
+        await update.message.reply_text(f"Users:\n{user_list_text}")
+    except Exception as e:
+        logger.error(f"Error in list_users: {e}")
+        await update.message.reply_text('Failed to retrieve user list.')
+
 async def post_init(application: Application) -> None:
     logger.info("Bot is starting")
     admin_user_id = dotenv.get_key(dotenv.find_dotenv(), "ADMIN_ID_LIST")
@@ -161,15 +183,12 @@ def main() -> None:
     logger.debug("Starting bot")
     dotenv.load_dotenv()
     
-    token = dotenv.get_key(dotenv.find_dotenv(), "DEFAULT_BOT_TOKEN")
+    token = dotenv.get_key(dotenv.find_dotenv(), "TOKEN")
     
-    # Set up persistence with an interval of constant  seconds
-    PERSISTENCE_INTERVAL = 10
-    persistence = PicklePersistence(filepath='bot_data.pkl', update_interval=PERSISTENCE_INTERVAL)
-
-    application = Application.builder().token(token).post_init(post_init).persistence(persistence).build()
+    application = Application.builder().token(token).post_init(post_init).build()
 
     application.add_handler(CommandHandler("start", start))
+    application.add_handler(CommandHandler("list_users", list_users))
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, validar))
 
     logger.debug("Running bot")
