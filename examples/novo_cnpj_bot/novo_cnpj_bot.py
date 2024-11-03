@@ -3,11 +3,20 @@ import re
 import dotenv
 from telegram import Update
 from telegram.constants import ParseMode, ChatAction
-from telegram.ext import Application, CommandHandler, MessageHandler, filters, CallbackContext
+from telegram.ext import Application, CommandHandler, MessageHandler, filters, CallbackContext, PicklePersistence
 from functools import wraps
 
 import logging
 from logging.handlers import TimedRotatingFileHandler
+
+__version__ = '0.1.1'   # Versão do bot
+__todo__ = """
+    - Adicionar comando para gerar help automaticamente com lista de comandos ...
+    - Adicionar comando para versão...
+    - Adicionar comando para reinicializar bot
+    - Adicionar comando para parar bot
+    - Adicionar função para validar CPF
+    - formatar resposta ao comando de lista de usuarios"""   # Tarefas a serem feitas
 
 # Create a custom logger
 logger = logging.getLogger(__name__)
@@ -91,14 +100,53 @@ def with_log_admin(handler):
             return await handler(update, context, *args, **kwargs)
     return wrapper
 
+def with_persistent_user_data(handler):
+    @wraps(handler)
+    async def wrapper(update: Update, context: CallbackContext, *args, **kwargs):
+        try:
+            user_id = update.effective_user.id
+            user_data = {
+                'user_id': user_id,
+                'username': update.effective_user.username,
+                'first_name': update.effective_user.first_name,
+                'last_name': update.effective_user.last_name,
+                'language_code': update.effective_user.language_code,
+                'last_message': update.message.text if not update.message.text.startswith('/') else None,
+                'last_command': update.message.text if update.message.text.startswith('/') else None,
+                'last_message_date': update.message.date if not update.message.text.startswith('/') else None,
+                'last_command_date': update.message.date if update.message.text.startswith('/') else None
+            }
+
+            # Update or insert persistent user data with user_data dictionary
+            await context.application.persistence.update_user_data(user_id, user_data)
+            
+            # update or insert each item of user_data dictionary in context
+            for key, value in user_data.items():
+                context.user_data[key] = value
+            
+            # flush all users data to persistence
+            await context.application.persistence.flush()
+                
+            # re-read all users data from persistence to check if data is stored correctly
+            all_users_data = await context.application.persistence.get_user_data()
+            this_user_data = context.user_data
+
+            return await handler(update, context, *args, **kwargs)
+        except Exception as e:
+            logger.error(f"Error in with_persistent_user_data: {e}")
+            return await handler(update, context, *args, **kwargs)
+    return wrapper
+
 @with_typing_action
 @with_log_admin
+@with_persistent_user_data
 async def start(update: Update, context: CallbackContext) -> None:
     logger.debug("Handling /start command")
     await update.message.reply_text('Olá! Envie um CNPJ para validação.')
 
 @with_typing_action
 @with_log_admin
+@with_persistent_user_data
 async def validar(update: Update, context: CallbackContext) -> None:
     logger.debug("Handling CNPJ validation")
     cnpj = update.message.text
@@ -108,6 +156,28 @@ async def validar(update: Update, context: CallbackContext) -> None:
     else:
         logger.debug("CNPJ is invalid")
         await update.message.reply_text('CNPJ inválido.')
+
+@with_typing_action
+@with_log_admin
+@with_persistent_user_data
+async def list_users(update: Update, context: CallbackContext) -> None:
+    logger.debug("Handling /list_users command")
+    try:
+        all_users_data = await context.application.persistence.get_user_data()
+        if not all_users_data:
+            await update.message.reply_text('No users found.')
+            return
+
+        user_list = []
+        for user_id, user_data in all_users_data.items():
+            user_info = f"ID: {user_id}, Username: {user_data.get('username', 'N/A')}, First Name: {user_data.get('first_name', 'N/A')}, Last Name: {user_data.get('last_name', 'N/A')}, Language: {user_data.get('language_code', 'N/A')}"
+            user_list.append(user_info)
+
+        user_list_text = "\n".join(user_list)
+        await update.message.reply_text(f"Users:\n{user_list_text}")
+    except Exception as e:
+        logger.error(f"Error in list_users: {e}")
+        await update.message.reply_text('Failed to retrieve user list.')
 
 async def post_init(application: Application) -> None:
     logger.info("Bot is starting")
@@ -123,10 +193,16 @@ def main() -> None:
     dotenv.load_dotenv()
     
     token = dotenv.get_key(dotenv.find_dotenv(), "DEFAULT_BOT_TOKEN")
+    admin_id_list = dotenv.get_key(dotenv.find_dotenv(), "ADMIN_ID_LIST")
     
-    application = Application.builder().token(token).post_init(post_init).build()
+    # Set up persistence with an interval of constant  seconds
+    PERSISTENCE_INTERVAL = 10
+    persistence = PicklePersistence(filepath='bot_data.pkl', update_interval=PERSISTENCE_INTERVAL)
+
+    application = Application.builder().token(token).post_init(post_init).persistence(persistence).build()
 
     application.add_handler(CommandHandler("start", start))
+    application.add_handler(CommandHandler("list_users", list_users, filters=filters.User(user_id=int(admin_id_list))))
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, validar))
 
     logger.debug("Running bot")
