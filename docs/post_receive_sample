@@ -1,0 +1,6 @@
+#!/bin/sh
+# GIT_WORK_TREE=/path/to/your/project git checkout -f
+GIT_WORK_TREE=/home/gerson/telegram-bot-framework git checkout -f
+
+# Command to restart your application, e.g., PM2
+# pm2 restart yourAppName
