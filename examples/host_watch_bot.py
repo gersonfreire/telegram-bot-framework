@@ -8,7 +8,7 @@ overrides the initialize_handlers method to add a help command handler.
 This version is inspired on and more elaborated than host_monitor because controls each host by user.
 """
 
-__version__ = '0.5.0 Add a command to change the interval of a ping job'
+__version__ = '0.6.0 Add a command to ping a specific port and host'
 
 __changelog__ = """
 DONE: 
