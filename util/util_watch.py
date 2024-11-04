@@ -39,15 +39,26 @@ def check_port(host, port):
 if __name__ == '__main__':
     import sys
 
-    if len(sys.argv) != 3:
+    if len(sys.argv) == 0:
         print('Usage: python util_watch.py <host> <port>')
         # sys.exit(1)
         # do a unit test if no arguments are provided
         sys.argv.append('127.0.0.1')
-        sys.argv.append(80)
-
+        sys.argv.append(80)  
+    
+    elif len(sys.argv) == 3:
+        pass
+        
+    else:              
+        # split second argument 
+        print(sys.argv[1].split(':'))
+        # append to sys.argv
+        sys.argv.extend(sys.argv[1].split(' '))
+        # and remove the second argument
+        sys.argv.pop(1)
+        
     host = sys.argv[1]
-    port = int(sys.argv[2])
+    port = int(sys.argv[2])     
 
     if check_port(host, port):
         print('Port {} is open on host {}'.format(port, host))
