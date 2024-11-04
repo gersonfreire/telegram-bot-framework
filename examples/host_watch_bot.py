@@ -358,6 +358,9 @@ class HostWatchBot(TlgBotFwk):
             ip_address = context.args[0]
             interval = int(context.args[1])
             
+            # if has a third argument, it is the port to be checked
+            checked_port = int(context.args[2]) if len(context.args) == 3 and context.args[2].isdigit() else 80
+            
             job_name = f"ping_{ip_address}"
             
             # check if job name already exists on the jobs list stored in user data persistence
