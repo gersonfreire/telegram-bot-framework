@@ -28,7 +28,7 @@ import __init__
 
 from tlgfwk import *
 import traceback
-# from util_watch import check_port
+import util.util_watch as watch
 
 class HostWatchBot(TlgBotFwk):
     
