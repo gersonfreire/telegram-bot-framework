@@ -463,7 +463,7 @@ class HostWatchBot(TlgBotFwk):
             
             # header of monitored hosts list in case of bot owner
             if effective_user_id == self.bot_owner:
-                message = f"_Active monitored host:_{os.linesep}`pi hs ht p user-id   interv next last host`{os.linesep}"
+                message = f"_Active monitored host:_{os.linesep}`pi hs ht p    user-id   interv next last host`{os.linesep}"
                 
             all_user_data = await self.application.persistence.get_user_data() if self.application.persistence else {}
             
@@ -518,9 +518,9 @@ class HostWatchBot(TlgBotFwk):
                             
                             interval = f"{interval}s" if interval else None
                             if effective_user_id == self.bot_owner:
-                                message += f"{status}{https_status}{http_status}{check_port_status}{checked_port}`{job_owner:<10}` `{interval:<6}` `{next_time}` `{http_ping_time}` {markdown_link}{os.linesep}"
+                                message += f"{status}{https_status}{http_status}{check_port_status}`{checked_port}` `{job_owner:<10}` `{interval:<6}` `{next_time}` `{http_ping_time}` {markdown_link}{os.linesep}"
                             else:
-                                message += f"{status}{https_status}{http_status}{check_port_status}{checked_port} `{interval:<6}` `{next_time}` `{http_ping_time}` {markdown_link}{os.linesep}"
+                                message += f"{status}{https_status}{http_status}{check_port_status}`{checked_port}` `{interval:<6}` `{next_time}` `{http_ping_time}` {markdown_link}{os.linesep}"
                             
                             has_jobs = True
                             
