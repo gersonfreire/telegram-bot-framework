@@ -213,35 +213,35 @@ class HostWatchBot(TlgBotFwk):
     async def job_event_handler(self, callback_context: CallbackContext):
         
         try:     
-            # TODO: get owner user id of job     
+            # get owner user id of job     
             user_id = callback_context.job.user_id   
             
-            job_param = callback_context.job.data
+            host_address = callback_context.job.data
             
             # Get the current value of the show_success flag from context user data
             # show_success = await self.get_user_data(callback_context.job.user_id, "show_success", False)
             show_success = callback_context.user_data["show_success"] if "show_success" in callback_context.user_data else False
             
             if show_success:
-                self.send_message_by_api(user_id, f"Pinging {job_param}...") if show_success else None
+                self.send_message_by_api(user_id, f"Pinging {host_address}...") if show_success else None
                 
-            ping_result = await self.ping_host(job_param, show_success=show_success, user_id=user_id)
+            ping_result = await self.ping_host(host_address, show_success=show_success, user_id=user_id)
             
-            https_ping_result = await self.http_ping(job_param, debug_status=show_success, user_id=user_id)
-            http_ping_result = await self.http_ping(job_param, debug_status=show_success, user_id=user_id, http_type='http')
+            https_ping_result = await self.http_ping(host_address, debug_status=show_success, user_id=user_id)
+            http_ping_result = await self.http_ping(host_address, debug_status=show_success, user_id=user_id, http_type='http')
             
             # TODO: execute a check for a specific port
             port = 80
-            port_result = await self.ping_host_port(job_param, port, show_success=show_success, user_id=user_id)
+            port_result = await watch.check_port(host_address, port)
             
-            job_name = f"ping_{job_param}"  
+            job_name = f"ping_{host_address}"  
             callback_context.user_data[job_name]['last_status'] = ping_result # and http_ping_result
             callback_context.user_data[job_name]['http_status'] = http_ping_result     
             callback_context.user_data[job_name]['https_status'] = https_ping_result     
             callback_context.user_data[job_name]['http_ping_time'] = (datetime.datetime.now()).strftime("%H:%M")
             
             # Log the result of the ping
-            logger.debug(f"Ping result for {job_param}: {ping_result} {ping_result}")
+            logger.debug(f"Ping result for {host_address}: {ping_result} {ping_result}")
             
         except Exception as e:
             self.send_message_by_api(self.bot_owner, f"An error occurred: {e}") 

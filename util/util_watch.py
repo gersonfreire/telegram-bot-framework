@@ -6,7 +6,9 @@ script or imported as a module to leverage its file watching capabilities.
 """
 # -*- coding: utf-8 -*-
 
-def check_port(host, port):
+import asyncio
+
+async def check_port(host, port):
     """
     Check if a port is open on a remote host.
 
@@ -60,7 +62,7 @@ if __name__ == '__main__':
     host = sys.argv[1]
     port = int(sys.argv[2])     
 
-    if check_port(host, port):
+    if asyncio.run(check_port(host, port)):
         print('Port {} is open on host {}'.format(port, host))
     else:
         print('Port {} is closed on host {}'.format(port, host))
