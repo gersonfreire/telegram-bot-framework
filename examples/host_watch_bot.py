@@ -230,6 +230,10 @@ class HostWatchBot(TlgBotFwk):
             https_ping_result = await self.http_ping(job_param, debug_status=show_success, user_id=user_id)
             http_ping_result = await self.http_ping(job_param, debug_status=show_success, user_id=user_id, http_type='http')
             
+            # TODO: execute a check for a specific port
+            # port = 80
+            # port_result = await self.ping_host_port(job_param, port, show_success=show_success, user_id=user_id)
+            
             job_name = f"ping_{job_param}"  
             callback_context.user_data[job_name]['last_status'] = ping_result # and http_ping_result
             callback_context.user_data[job_name]['http_status'] = http_ping_result     
