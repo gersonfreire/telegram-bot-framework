@@ -231,7 +231,7 @@ class HostWatchBot(TlgBotFwk):
             http_ping_result = await self.http_ping(host_address, debug_status=show_success, user_id=user_id, http_type='http')
             
             # TODO: execute a check for a specific port
-            port = 80
+            port = callback_context.user_data[job_name]['port'] if 'port' in callback_context.user_data[job_name] else 80
             port_result = await watch.check_port(host_address, port)
             
             job_name = f"ping_{host_address}"  
