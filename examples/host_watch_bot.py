@@ -230,15 +230,17 @@ class HostWatchBot(TlgBotFwk):
             https_ping_result = await self.http_ping(host_address, debug_status=show_success, user_id=user_id)
             http_ping_result = await self.http_ping(host_address, debug_status=show_success, user_id=user_id, http_type='http')
             
-            # TODO: execute a check for a specific port
-            port = callback_context.user_data[job_name]['port'] if 'port' in callback_context.user_data[job_name] else 80
-            port_result = await watch.check_port(host_address, port)
-            
             job_name = f"ping_{host_address}"  
             callback_context.user_data[job_name]['last_status'] = ping_result # and http_ping_result
             callback_context.user_data[job_name]['http_status'] = http_ping_result     
             callback_context.user_data[job_name]['https_status'] = https_ping_result     
             callback_context.user_data[job_name]['http_ping_time'] = (datetime.datetime.now()).strftime("%H:%M")
+            
+            # TODO: execute a check for a specific port
+            port = callback_context.user_data[job_name]['port'] if 'port' in callback_context.user_data[job_name] else 80
+            port_result = await watch.check_port(host_address, port)
+            
+            callback_context.user_data[job_name]['port_status'] = port_result
             
             # Log the result of the ping
             logger.debug(f"Ping result for {host_address}: {ping_result} {ping_result}")
