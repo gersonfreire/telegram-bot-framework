@@ -28,6 +28,7 @@ import __init__
 
 from tlgfwk import *
 import traceback
+# from util_watch import check_port
 
 class HostWatchBot(TlgBotFwk):
     
@@ -60,6 +61,36 @@ class HostWatchBot(TlgBotFwk):
             await update.message.reply_text(f"An error occurred: {e}")
             logger.error(f"Error in ping_host_command: {e}")
     
+    async def ping_host_port_command(self, update: Update, context: CallbackContext) -> None:
+        """Ping a host by name or IP address and TCP port number.
+
+        Args:
+            update (Update): The update object.
+            context (CallbackContext): The callback context.
+        """
+        
+        try:
+            # Extract the host name and port number from the command parameters
+            if len(context.args) != 2:
+                await update.message.reply_text("Usage: /pinghostport <host_name_or_ip> <port_number>")
+                return
+            
+            host_name = context.args[0]
+            port_number = int(context.args[1])
+            
+            # Ping the host and port
+            is_open = watch.check_port(host_name, port_number)
+            
+            # Send the result back to the user
+            if is_open:
+                await update.message.reply_text(f"Port {port_number} is open on host {host_name}.")
+            else:
+                await update.message.reply_text(f"Port {port_number} is closed on host {host_name}.")
+        
+        except Exception as e:
+            await update.message.reply_text(f"An error occurred: {e}")
+            logger.error(f"Error in ping_host_port_command: {e}")
+
     async def ping_interval(self, update: Update, context: CallbackContext) -> None:
         """Change the interval to check a monitored host.
 
@@ -532,6 +563,7 @@ class HostWatchBot(TlgBotFwk):
             self.application.add_handler(CommandHandler("pinglog", self.ping_log), group=-1)
             self.application.add_handler(CommandHandler("pinghost", self.ping_host_command), group=-1)
             self.application.add_handler(CommandHandler("pinginterval", self.ping_interval), group=-1)
+            self.application.add_handler(CommandHandler("pinghostport", self.ping_host_port_command), group=-1)  # Register the new command handler
             
             super().run()
             
