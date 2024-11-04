@@ -41,7 +41,10 @@ if __name__ == '__main__':
 
     if len(sys.argv) != 3:
         print('Usage: python util_watch.py <host> <port>')
-        sys.exit(1)
+        # sys.exit(1)
+        # do a unit test if no arguments are provided
+        sys.argv.append('127.0.0.1')
+        sys.argv.append(80)
 
     host = sys.argv[1]
     port = int(sys.argv[2])
