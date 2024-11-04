@@ -39,7 +39,7 @@ def check_port(host, port):
 if __name__ == '__main__':
     import sys
 
-    if len(sys.argv) == 0:
+    if len(sys.argv) == 1:
         print('Usage: python util_watch.py <host> <port>')
         # sys.exit(1)
         # do a unit test if no arguments are provided
