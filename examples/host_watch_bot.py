@@ -243,7 +243,7 @@ class HostWatchBot(TlgBotFwk):
             callback_context.user_data[job_name]['port_status'] = port_result
             
             # Log the result of the ping
-            logger.debug(f"Ping result for {host_address}: {ping_result} {ping_result}")
+            logger.debug(f"Ping result for {host_address}: {ping_result} {https_ping_result} {port_result}")
             
         except Exception as e:
             self.send_message_by_api(self.bot_owner, f"An error occurred: {e}") 
