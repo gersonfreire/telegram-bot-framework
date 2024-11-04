@@ -27,8 +27,6 @@ import os, platform, time, asyncio
 from telegram import Update
 from telegram.ext import CommandHandler, CallbackContext
 
-import util.util_watch as watch
-
 # ------------------------------------------
 
 # Construct the URL for the sendMessage endpoint
