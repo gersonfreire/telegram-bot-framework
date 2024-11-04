@@ -22,6 +22,8 @@ TODO:
 Pagination
 """
 
+__todo__ = """ /pingadd host defaultinterval"""
+
 import __init__
 
 from tlgfwk import *
