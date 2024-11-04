@@ -351,17 +351,17 @@ class HostWatchBot(TlgBotFwk):
         try:
             user_id = update.effective_user.id
             
-            if len(context.args) != 2:
+            if len(context.args) < 2:
                 await update.message.reply_text("Usage: /pingadd <ip_address> <interval_in_seconds>", parse_mode=None)
                 return
             
             ip_address = context.args[0]
             interval = int(context.args[1])
             
+            job_name = f"ping_{ip_address}"
+            
             # if has a third argument, it is the port to be checked
             checked_port = int(context.args[2]) if len(context.args) >= 3 and context.args[2].isdigit() else 80
-            
-            job_name = f"ping_{ip_address}"
             
             # check if job name already exists on the jobs list stored in user data persistence
             if job_name in context.user_data:
@@ -387,7 +387,8 @@ class HostWatchBot(TlgBotFwk):
                 'job_owner': user_id,
                 'last_status': False,
                 'http_status': False,
-                'http_ping_time': None
+                'http_ping_time': None,
+                'port': checked_port
             }
             
             # force persistence update of the user data
