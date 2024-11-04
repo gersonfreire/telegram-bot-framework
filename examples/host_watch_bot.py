@@ -462,12 +462,14 @@ class HostWatchBot(TlgBotFwk):
             effective_user_id = update.effective_user.id
             
             # Header of monitored hosts list in case of common user
-            message = f"""_Active monitored host:_
-`stat  interv next  last  host`{os.linesep}"""
+            # message = f"""_Active monitored host:_
+# `stat  interv next  last  host`{os.linesep}"""
+            message = f"_Active monitored host:_{os.linesep}`pi p     interv next last host`{os.linesep}"
             
             # header of monitored hosts list in case of bot owner
             if effective_user_id == self.bot_owner:
-                message = f"_Active monitored host:_{os.linesep}`pi hs ht p     user-id   interv next last host`{os.linesep}"
+                # message = f"_Active monitored host:_{os.linesep}`pi hs ht p     user-id   interv next last host`{os.linesep}"
+                message = f"_Active monitored host:_{os.linesep}`pi p     user-id   interv next last host`{os.linesep}"
                 
             all_user_data = await self.application.persistence.get_user_data() if self.application.persistence else {}
             
@@ -508,7 +510,7 @@ class HostWatchBot(TlgBotFwk):
                             ip_address = user_data[job_name]['ip_address'] if job_name in user_data else None
                             job_owner = job_owner_id
                             
-                            status='✅' if job_name in user_data and 'last_status' in user_data[job_name] and user_data[job_name]['last_status'] else "🔴"
+                            ping_status='✅' if job_name in user_data and 'last_status' in user_data[job_name] and user_data[job_name]['last_status'] else "🔴"
                             https_status='✅' if job_name in user_data and 'https_status' in user_data[job_name] and user_data[job_name]['https_status'] else "🔴"
                             http_status='✅' if job_name in user_data and 'http_status' in user_data[job_name] and user_data[job_name]['http_status'] else "🔴"
                             check_port_status = '✅' if job_name in user_data and 'port_status' in user_data[job_name] and user_data[job_name]['port_status'] else "🔴"
@@ -522,9 +524,11 @@ class HostWatchBot(TlgBotFwk):
                             
                             interval = f"{interval}s" if interval else None
                             if effective_user_id == self.bot_owner:
-                                message += f"{status}{https_status}{http_status}{check_port_status}`{checked_port:<4}``{job_owner:<10}` `{interval:<6}` `{next_time}` `{http_ping_time}` {markdown_link}{os.linesep}"
+                                # message += f"{status}{https_status}{http_status}{check_port_status}`{checked_port:<4}``{job_owner:<10}` `{interval:<6}` `{next_time}` `{http_ping_time}` {markdown_link}{os.linesep}"
+                                message += f"{ping_status}{check_port_status}`{checked_port:<4}``{job_owner:<10}` `{interval:<6}` `{next_time}` `{http_ping_time}` {markdown_link}{os.linesep}"
                             else:
-                                message += f"{status}{https_status}{http_status}{check_port_status}`{checked_port:<4}``{interval:<6}` `{next_time}` `{http_ping_time}` {markdown_link}{os.linesep}"
+                                # message += f"{ping_status}{https_status}{http_status}{check_port_status}`{checked_port:<4}``{interval:<6}` `{next_time}` `{http_ping_time}` {markdown_link}{os.linesep}"
+                                message += f"{ping_status}{check_port_status}`{checked_port:<4}``{interval:<6}` `{next_time}` `{http_ping_time}` {markdown_link}{os.linesep}"
                             
                             has_jobs = True
                             
