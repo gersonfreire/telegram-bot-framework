@@ -9,7 +9,7 @@ load_dotenv()
 BOT_TOKEN = os.getenv("DEFAULT_BOT_TOKEN")
 
 # get web app url from environment variable
-WEB_APP_URL = os.getenv("WEB_APP_URL").replace("http://", "https://")
+WEB_APP_URL = os.getenv("WEB_APP_URL") # .replace("http://", "https://")
 
 # Enable logging
 logging.basicConfig(
