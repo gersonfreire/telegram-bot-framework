@@ -1,6 +1,15 @@
 import logging
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
+from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes, MessageHandler, filters
+from dotenv import load_dotenv
+import os
+
+# Load environment variables from .env file
+load_dotenv()
+BOT_TOKEN = os.getenv("DEFAULT_BOT_TOKEN")
+
+# get web app url from environment variable
+WEB_APP_URL = os.getenv("WEB_APP_URL")
 
 # Enable logging
 logging.basicConfig(
@@ -16,7 +25,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 # Define the /app command handler
 async def app(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     keyboard = [
-        [InlineKeyboardButton("Open Web App", url="http://<your-server-ip>:5000")]
+        [InlineKeyboardButton("Open Web App", url=WEB_APP_URL)]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
     await update.message.reply_text('Click the button below to open the web app:', reply_markup=reply_markup)
@@ -28,7 +37,7 @@ async def handle_data(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
 
 def main() -> None:
     # Create the Application and pass it your bot's token.
-    application = ApplicationBuilder().token("YOUR_BOT_TOKEN").build()
+    application = ApplicationBuilder().token(BOT_TOKEN).build()
 
     # Add handlers
     application.add_handler(CommandHandler("start", start))
