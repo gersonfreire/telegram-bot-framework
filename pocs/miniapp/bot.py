@@ -47,7 +47,8 @@ def main() -> None:
     # Add handlers
     application.add_handler(CommandHandler("start", start))
     application.add_handler(CommandHandler("app", app))
-    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_data))
+    # application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_data))
+    application.add_handler(MessageHandler(handle_data))
 
     # Run the bot
     application.run_polling()
