@@ -351,6 +351,13 @@ class HostWatchBot(TlgBotFwk):
         try:
             user_id = update.effective_user.id
             
+            # in case just one argument is passed, generate a random interval between 120 and 2400 seconds
+            if len(context.args) == 1:
+                interval = random.randint(120, 2400)
+                context.args.append(interval)
+                # default port to be checked is 443
+                context.args.append(443)
+            
             if len(context.args) < 2:
                 await update.message.reply_text("Usage: /pingadd <ip_address> <interval_in_seconds>", parse_mode=None)
                 return
@@ -361,7 +368,7 @@ class HostWatchBot(TlgBotFwk):
             job_name = f"ping_{ip_address}"
             
             # if has a third argument, it is the port to be checked
-            checked_port = int(context.args[2]) if len(context.args) >= 3 and context.args[2].isdigit() else 80
+            checked_port = int(context.args[2]) if len(context.args) >= 3 and str(context.args[2]).isdigit() else 80
             
             # check if job name already exists on the jobs list stored in user data persistence
             if job_name in context.user_data:
@@ -400,6 +407,10 @@ class HostWatchBot(TlgBotFwk):
             await update.message.reply_text(f"Hosted {ip_address} added with interval {interval} seconds.", parse_mode=None)
             
         except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            logger.error(f"Error getting user data in {fname} at line {exc_tb.tb_lineno}: {e}")
+            
             await update.message.reply_text(f"An error occurred: {e}", parse_mode=None)
 
     async def ping_delete(self, update: Update, context: CallbackContext):
