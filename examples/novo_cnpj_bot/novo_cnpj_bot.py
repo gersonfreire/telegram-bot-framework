@@ -9,7 +9,7 @@ from functools import wraps
 import logging
 from logging.handlers import TimedRotatingFileHandler
 
-__version__ = '0.1.1'   # Versão do bot
+__version__ = '0.2.0 Help command added'   
 __todo__ = """
     - Adicionar comando para gerar help automaticamente com lista de comandos ...
     - Adicionar comando para versão...
