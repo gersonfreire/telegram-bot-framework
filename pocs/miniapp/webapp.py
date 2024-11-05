@@ -24,7 +24,17 @@ def index():
 @app.route('/submit', methods=['POST'])
 def submit():
     name = request.form['name']
-    return f'<script>window.Telegram.WebApp.sendData("{name}");</script>'
+    # return f'<script>window.Telegram.WebApp.sendData("{name}");</script>'
+    return f'''
+    <script>
+        if (window.Telegram.WebApp) {
+            window.Telegram.WebApp.sendData("{name}");
+            console.log("Data sent: {name}");
+        } else {
+            console.error("Telegram Web App is not initialized.");
+        }
+    </script>
+    '''
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')
