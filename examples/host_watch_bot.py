@@ -90,7 +90,7 @@ class HostWatchBot(TlgBotFwk):
             port_number = int(context.args[1])
             
             # Ping the host and port
-            is_open = watch.check_port(host_name, port_number)
+            is_open = await watch.check_port(host_name, port_number)
             
             # Send the result back to the user
             if is_open:
@@ -99,8 +99,9 @@ class HostWatchBot(TlgBotFwk):
                 await update.message.reply_text(f"Port {port_number} is closed on host {host_name}.")
         
         except Exception as e:
-            await update.message.reply_text(f"An error occurred: {e}")
-            logger.error(f"Error in ping_host_port_command: {e}")
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            logger.error(f"Error getting user data in {fname} at line {exc_tb.tb_lineno}: {e}")
 
     async def ping_interval(self, update: Update, context: CallbackContext) -> None:
         """Change the interval to check a monitored host.
