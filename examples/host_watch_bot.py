@@ -33,6 +33,16 @@ from util.util_watch import check_port
 
 class HostWatchBot(TlgBotFwk):
     
+    async def escape_markdown(self, text: str) -> str:
+        try:
+            # return text.replace("_", "\_").replace("*", "\*").replace("`", "\`")  
+            # TODO: Escape possible markdown characters from user name
+            # text = re.sub(r'([_*\[\]()~`>#+\-=|{}.!])', r'\\\1', text)  
+            text = re.sub(r'([_*\[\]()~`#+\-=|{}.!])', r'\\\1', text)  
+        except Exception as e:
+            logger.error(f"Error escaping markdown: {e}")
+        return text
+    
     async def ping_host_command(self, update: Update, context: CallbackContext) -> None:
         """Check if a host is up or down.
 
@@ -550,10 +560,7 @@ class HostWatchBot(TlgBotFwk):
                             
                 except Exception as e:
                     logger.error(f"An error occurred while processing user data for user {job_owner_id}: {e}")
-            
-            # TODO: Escape possible markdown characters from user name
-            # message = re.sub(r'([_*\[\]()~`>#+\-=|{}.!])', r'\\\1', message)           
-
+                     
             if not has_jobs:
                 message = f"_No hosts monitored._{os.linesep}{os.linesep}_Usage: /pinglist <ip_address> <interval-in-seconds>_{os.linesep}_Example: `/pinglist`"
                 logger.info(message)  
@@ -594,7 +601,7 @@ class HostWatchBot(TlgBotFwk):
         try:
             # Extract the host name and new port number from the command parameters
             if len(context.args) != 2:
-                await update.message.reply_text("Usage: /changepingport <host_name_or_ip> <new_port_number>")
+                await update.message.reply_text(await self.escape_markdown("Usage: /changepingport <host_name_or_ip> <new_port_number>"))
                 return
             
             host_name = context.args[0]
@@ -613,14 +620,18 @@ class HostWatchBot(TlgBotFwk):
             
             # Update the port in the user data
             user_hosts[job_name]['port'] = new_port_number
+            context.user_data[job_name]['port'] = new_port_number
             await self.application.persistence.update_user_data(user_id, user_hosts)
             await self.application.persistence.flush()
             
             await update.message.reply_text(f"Port for {host_name} changed to {new_port_number}.")
         
         except Exception as e:
-            await update.message.reply_text(f"An error occurred: {e}")
-            logger.error(f"Error in change_ping_port_command: {e}")
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            logger.error(f"Error getting user data in {fname} at line {exc_tb.tb_lineno}: {e}")
+            
+            await update.message.reply_text(f"An error occurred: {e}", parse_mode=None)
 
     def run(self):
         
