@@ -24,11 +24,15 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
 # Define the /app command handler
 async def app(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    keyboard = [
-        [InlineKeyboardButton("Open Web App", url=WEB_APP_URL)]
-    ]
-    reply_markup = InlineKeyboardMarkup(keyboard)
-    await update.message.reply_text('Click the button below to open the web app:', reply_markup=reply_markup)
+    try:
+        keyboard = [
+            [InlineKeyboardButton("Open Web App", url=WEB_APP_URL)]
+        ]
+        reply_markup = InlineKeyboardMarkup(keyboard)
+        await update.message.reply_text('Click the button below to open the web app:', reply_markup=reply_markup)
+    except Exception as e:
+        logger.error(f"Error in /app command: {e}")
+        await update.message.reply_text('An error occurred while processing your request.')
 
 # Define the data handler
 async def handle_data(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
