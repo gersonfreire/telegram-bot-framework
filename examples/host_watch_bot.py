@@ -29,6 +29,7 @@ import __init__
 from tlgfwk import *
 import traceback
 import util.util_watch as watch
+from util.util_watch import check_port
 
 class HostWatchBot(TlgBotFwk):
     
@@ -582,6 +583,45 @@ class HostWatchBot(TlgBotFwk):
         except Exception as e:
             await update.message.reply_text(f"An error occurred: {e}", parse_mode=None)
 
+    async def change_ping_port_command(self, update: Update, context: CallbackContext) -> None:
+        """Change the TCP port checked by the scheduled task of pinging a host.
+
+        Args:
+            update (Update): The update object.
+            context (CallbackContext): The callback context.
+        """
+        
+        try:
+            # Extract the host name and new port number from the command parameters
+            if len(context.args) != 2:
+                await update.message.reply_text("Usage: /changepingport <host_name_or_ip> <new_port_number>")
+                return
+            
+            host_name = context.args[0]
+            new_port_number = int(context.args[1])
+            user_id = update.effective_user.id
+            
+            job_name = f"ping_{host_name}"
+            
+            user_data = await self.application.persistence.get_user_data() if self.application.persistence else {}
+            user_hosts = user_data[update.effective_user.id] if update.effective_user.id in user_data else {}
+            
+            # Check if the job exists
+            if job_name not in user_hosts:
+                await update.message.reply_text(f"No job found for {host_name}.")
+                return
+            
+            # Update the port in the user data
+            user_hosts[job_name]['port'] = new_port_number
+            await self.application.persistence.update_user_data(user_id, user_hosts)
+            await self.application.persistence.flush()
+            
+            await update.message.reply_text(f"Port for {host_name} changed to {new_port_number}.")
+        
+        except Exception as e:
+            await update.message.reply_text(f"An error occurred: {e}")
+            logger.error(f"Error in change_ping_port_command: {e}")
+
     def run(self):
         
         try:
@@ -592,6 +632,7 @@ class HostWatchBot(TlgBotFwk):
             self.application.add_handler(CommandHandler("pinghost", self.ping_host_command), group=-1)
             self.application.add_handler(CommandHandler("pinginterval", self.ping_interval), group=-1)
             self.application.add_handler(CommandHandler("pinghostport", self.ping_host_port_command), group=-1)  # Register the new command handler
+            self.application.add_handler(CommandHandler("changepingport", self.change_ping_port_command), group=-1)  # Register the new command handler
             
             super().run()
             
