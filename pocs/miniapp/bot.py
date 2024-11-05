@@ -9,7 +9,7 @@ load_dotenv()
 BOT_TOKEN = os.getenv("DEFAULT_BOT_TOKEN")
 
 # get web app url from environment variable
-WEB_APP_URL = os.getenv("WEB_APP_URL")
+WEB_APP_URL = os.getenv("WEB_APP_URL").replace("http://", "https://")
 
 # Enable logging
 logging.basicConfig(
@@ -31,6 +31,7 @@ async def app(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         reply_markup = InlineKeyboardMarkup(keyboard)
         await update.message.reply_text('Click the button below to open the web app:', reply_markup=reply_markup)
     except Exception as e:
+        # "Inline keyboard button url 'http://localhost:5000' is invalid: wrong http url"
         logger.error(f"Error in /app command: {e}")
         await update.message.reply_text('An error occurred while processing your request.')
 
