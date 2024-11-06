@@ -19,3 +19,5 @@ flask
 python-telegram-bot[job-queue]
 
 setuptools
+
+paramiko

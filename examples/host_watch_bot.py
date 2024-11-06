@@ -31,6 +31,7 @@ from tlgfwk import *
 import traceback
 import util.util_watch as watch
 from util.util_watch import check_port
+import paramiko
 
 class HostWatchBot(TlgBotFwk):
     
@@ -486,8 +487,6 @@ class HostWatchBot(TlgBotFwk):
             effective_user_id = update.effective_user.id
             
             # Header of monitored hosts list in case of common user
-            # message = f"""_Active monitored host:_
-# `stat  interv next  last  host`{os.linesep}"""
             message = f"_Active monitored host:_{os.linesep}`pi p     interv next last host`{os.linesep}"
             
             # header of monitored hosts list in case of bot owner
@@ -733,8 +732,64 @@ class HostWatchBot(TlgBotFwk):
         
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename())[1]
             logger.error(f"Error storing credentials in {fname} at line {exc_tb.tb_lineno}: {e}")
+            
+            await update.message.reply_text(f"An error occurred: {e}", parse_mode=None)
+
+    async def execute_ssh_command(self, update: Update, context: CallbackContext) -> None:
+        """Execute an SSH command on the remote host using stored credentials and return the result.
+
+        Args:
+            update (Update): The update object.
+            context (CallbackContext): The callback context.
+        """
+        
+        try:
+            # Extract the host name and command from the command parameters
+            if len(context.args) < 2:
+                await update.message.reply_text("Usage: /ssh <host_name_or_ip> <command>")
+                return
+            
+            host_name = context.args[0]
+            command = ' '.join(context.args[1:])
+            user_id = update.effective_user.id
+            
+            job_name = f"ping_{host_name}"
+            
+            user_data = await self.application.persistence.get_user_data() if self.application.persistence else {}
+            user_hosts = user_data[update.effective_user.id] if update.effective_user.id in user_data else {}
+            
+            # Check if the job exists
+            if job_name not in user_hosts:
+                await update.message.reply_text(f"No job found for {host_name}.")
+                return
+            
+            # Retrieve the stored credentials
+            username = user_hosts[job_name].get('username')
+            password = user_hosts[job_name].get('password')
+            port = user_hosts[job_name].get('connection_port', 22)
+            
+            if not username or not password:
+                await update.message.reply_text(f"No credentials found for {host_name}.")
+                return
+            
+            # Execute the SSH command
+            ssh = paramiko.SSHClient()
+            ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+            ssh.connect(hostname=host_name, port=port, username=username, password=password)
+            
+            stdin, stdout, stderr = ssh.exec_command(command)
+            result = stdout.read().decode('utf-8') + stderr.read().decode('utf-8')
+            ssh.close()
+            
+            # Send the result back to the user
+            await update.message.reply_text(await self.escape_markdown(result))
+        
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            logger.error(f"Error executing SSH command in {fname} at line {exc_tb.tb_lineno}: {e}")
             
             await update.message.reply_text(f"An error occurred: {e}", parse_mode=None)
 
@@ -751,6 +806,7 @@ class HostWatchBot(TlgBotFwk):
             self.application.add_handler(CommandHandler("changepingport", self.change_ping_port_command), group=-1)  # Register the new command handler
             self.application.add_handler(CommandHandler("storecredentials", self.store_credentials), group=-1)  # Register the new command handler
             self.application.add_handler(CommandHandler("exec", self.execute_command, filters=filters.User(user_id=self.admins_owner)), group=-1)  # Register the new command handler
+            self.application.add_handler(CommandHandler("ssh", self.execute_ssh_command, filters=filters.User(user_id=self.admins_owner)), group=-1)  # Register the new command handler
             
             super().run()
             
