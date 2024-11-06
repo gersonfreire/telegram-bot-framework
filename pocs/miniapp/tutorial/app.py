@@ -6,6 +6,8 @@ from telegram.ext import ApplicationBuilder, CallbackContext, CommandHandler, Me
 from credentials import BOT_TOKEN, BOT_USERNAME, WEBAPP_URL
 import json
 
+# Start python internal web server with index.html in the same folder
+# python -m http.server 80
 
 async def launch_web_ui(update: Update, callback: CallbackContext):
     # display our web-app!

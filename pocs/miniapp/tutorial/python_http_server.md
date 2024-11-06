@@ -48,8 +48,8 @@ Python comes with a simple built-in HTTP server that can be used to serve files 
      ```
 
    This will start the HTTP server on port 8000. You can change the port number to any available port if needed.
-5. **Access the Server**
+4. **Access the Server**
 
-   Open a web browser and navigate to `http://localhost:8000`. You should see the contents of the `index.html` file displayed in the browser.
+   Open a web browser and navigate to  [http://localhost:8000](http://localhost:8000) . You should see the contents of the `index.html` file displayed in the browser.
 
 That's it! You have successfully started the Python embedded HTTP server and served an `index.html` file.
