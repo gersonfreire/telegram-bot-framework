@@ -1,3 +1,4 @@
+# from tlgfwk import *
 from tlgfwk import TlgBotFwk
 from telegram import Update
 from telegram.ext import CommandHandler, CallbackContext
