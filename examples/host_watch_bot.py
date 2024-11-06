@@ -22,7 +22,7 @@ TODO:
 Pagination
 """
 
-__todo__ = """ /pingadd host defaultinterval"""
+__todo__ = """ """
 
 import __init__
 
