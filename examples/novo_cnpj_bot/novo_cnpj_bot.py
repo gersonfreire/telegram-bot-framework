@@ -185,6 +185,12 @@ async def post_init(application: Application) -> None:
     start_message = "Bot is starting"
     try:
         await application.bot.send_message(chat_id=admin_user_id, text=start_message, parse_mode=ParseMode.MARKDOWN)
+        
+        # Clear all commands
+        await application.bot.set_my_commands([])
+        start_message = "Command menu cleared!"
+        await application.bot.send_message(chat_id=admin_user_id, text=start_message, parse_mode=ParseMode.MARKDOWN)
+            
     except Exception as e:
         logger.error(f"Failed to send start message to admin: {e}")
 

@@ -1,0 +1,93 @@
+2024-11-03 10:14:30,847 - __main__ - INFO - Logging is configured.
+2024-11-03 10:14:30,847 - __main__ - DEBUG - Starting bot
+2024-11-03 10:14:31,303 - __main__ - DEBUG - Running bot
+2024-11-03 10:14:32,214 - __main__ - INFO - Bot is starting
+2024-11-03 10:17:27,367 - __main__ - DEBUG - Sending typing action
+2024-11-03 10:17:28,324 - __main__ - DEBUG - Handling /start command
+2024-11-03 10:17:30,989 - __main__ - DEBUG - Sending typing action
+2024-11-03 10:17:31,392 - __main__ - DEBUG - Handling CNPJ validation
+2024-11-03 10:17:31,393 - __main__ - DEBUG - Validating CNPJ: 33
+2024-11-03 10:17:31,393 - __main__ - DEBUG - Invalid CNPJ length
+2024-11-03 10:17:31,394 - __main__ - DEBUG - CNPJ is invalid
+2024-11-03 10:17:53,614 - __main__ - INFO - Logging is configured.
+2024-11-03 10:17:53,615 - __main__ - DEBUG - Starting bot
+2024-11-03 10:17:54,007 - __main__ - DEBUG - Running bot
+2024-11-03 10:17:54,824 - __main__ - INFO - Bot is starting
+2024-11-03 10:18:01,104 - __main__ - DEBUG - Sending typing action
+2024-11-03 10:18:17,715 - __main__ - DEBUG - Handling /start command
+2024-11-03 10:18:22,394 - __main__ - DEBUG - Sending typing action
+2024-11-03 10:18:53,452 - __main__ - DEBUG - Handling /start command
+2024-11-03 10:19:21,292 - __main__ - INFO - Logging is configured.
+2024-11-03 10:19:21,293 - __main__ - DEBUG - Starting bot
+2024-11-03 10:19:21,693 - __main__ - DEBUG - Running bot
+2024-11-03 10:19:22,491 - __main__ - INFO - Bot is starting
+2024-11-03 10:19:26,248 - __main__ - DEBUG - Sending typing action
+2024-11-03 10:20:48,074 - __main__ - INFO - Logging is configured.
+2024-11-03 10:20:48,075 - __main__ - DEBUG - Starting bot
+2024-11-03 10:20:48,472 - __main__ - DEBUG - Running bot
+2024-11-03 10:20:49,374 - __main__ - INFO - Bot is starting
+2024-11-03 10:20:52,873 - __main__ - DEBUG - Sending typing action
+2024-11-03 10:21:25,093 - __main__ - DEBUG - Handling /start command
+2024-11-03 10:24:05,408 - __main__ - INFO - Logging is configured.
+2024-11-03 10:24:13,089 - __main__ - DEBUG - Starting bot
+2024-11-03 10:25:03,119 - __main__ - INFO - Logging is configured.
+2024-11-03 10:25:03,120 - __main__ - DEBUG - Starting bot
+2024-11-03 10:25:03,560 - __main__ - DEBUG - Running bot
+2024-11-03 10:25:04,389 - __main__ - INFO - Bot is starting
+2024-11-03 10:25:05,852 - __main__ - DEBUG - Sending typing action
+2024-11-03 10:25:06,230 - __main__ - ERROR - Error in with_persistent_user_data: 'NoneType' object has no attribute 'update_user_data'
+2024-11-03 10:25:06,230 - __main__ - DEBUG - Handling /start command
+2024-11-03 10:25:19,063 - __main__ - DEBUG - Sending typing action
+2024-11-03 10:25:19,966 - __main__ - ERROR - Error in with_persistent_user_data: 'NoneType' object has no attribute 'update_user_data'
+2024-11-03 10:25:19,967 - __main__ - DEBUG - Handling /list_users command
+2024-11-03 10:25:19,968 - __main__ - ERROR - Error in list_users: 'NoneType' object has no attribute 'get_user_data'
+2024-11-03 10:25:33,031 - __main__ - INFO - Logging is configured.
+2024-11-03 10:25:33,032 - __main__ - DEBUG - Starting bot
+2024-11-03 10:25:33,442 - __main__ - DEBUG - Running bot
+2024-11-03 10:25:34,230 - __main__ - INFO - Bot is starting
+2024-11-03 10:25:37,126 - __main__ - DEBUG - Sending typing action
+2024-11-03 10:25:37,496 - __main__ - ERROR - Error in with_persistent_user_data: 'NoneType' object has no attribute 'update_user_data'
+2024-11-03 10:25:40,022 - __main__ - DEBUG - Handling /list_users command
+2024-11-03 10:40:29,664 - __main__ - INFO - Logging is configured.
+2024-11-03 10:40:29,665 - __main__ - DEBUG - Starting bot
+2024-11-03 10:40:30,056 - __main__ - DEBUG - Running bot
+2024-11-03 10:40:31,144 - __main__ - INFO - Bot is starting
+2024-11-03 10:40:35,058 - __main__ - DEBUG - Sending typing action
+2024-11-03 10:40:35,472 - __main__ - ERROR - Error in with_persistent_user_data: 'NoneType' object has no attribute 'update_user_data'
+2024-11-03 10:40:35,473 - __main__ - DEBUG - Handling /list_users command
+2024-11-03 10:43:18,620 - __main__ - INFO - Logging is configured.
+2024-11-03 10:43:18,621 - __main__ - DEBUG - Starting bot
+2024-11-03 10:43:22,455 - __main__ - DEBUG - Running bot
+2024-11-03 10:43:23,270 - __main__ - INFO - Bot is starting
+2024-11-03 10:44:50,011 - __main__ - INFO - Logging is configured.
+2024-11-03 10:44:50,012 - __main__ - DEBUG - Starting bot
+2024-11-03 10:44:50,406 - __main__ - DEBUG - Running bot
+2024-11-03 10:44:51,211 - __main__ - INFO - Bot is starting
+2024-11-03 10:44:59,097 - __main__ - INFO - Logging is configured.
+2024-11-03 10:44:59,098 - __main__ - DEBUG - Starting bot
+2024-11-03 10:44:59,491 - __main__ - DEBUG - Running bot
+2024-11-03 10:45:00,582 - __main__ - INFO - Bot is starting
+2024-11-03 10:45:20,073 - __main__ - INFO - Logging is configured.
+2024-11-03 10:45:20,074 - __main__ - DEBUG - Starting bot
+2024-11-03 10:46:33,032 - __main__ - INFO - Logging is configured.
+2024-11-03 10:46:33,056 - __main__ - DEBUG - Starting bot
+2024-11-03 10:46:37,293 - __main__ - DEBUG - Running bot
+2024-11-03 10:46:38,164 - __main__ - INFO - Bot is starting
+2024-11-03 10:47:10,407 - __main__ - INFO - Logging is configured.
+2024-11-03 10:47:10,409 - __main__ - DEBUG - Starting bot
+2024-11-03 10:47:13,886 - __main__ - DEBUG - Running bot
+2024-11-03 10:47:14,948 - __main__ - INFO - Bot is starting
+2024-11-03 10:47:17,213 - __main__ - DEBUG - Sending typing action
+2024-11-03 10:47:19,726 - __main__ - DEBUG - Handling /list_users command
+2024-11-03 10:47:51,804 - __main__ - DEBUG - Sending typing action
+2024-11-03 10:47:52,729 - __main__ - DEBUG - Handling /start command
+2024-11-03 10:48:12,237 - __main__ - DEBUG - Sending typing action
+2024-11-03 10:48:46,196 - __main__ - DEBUG - Handling /start command
+2024-11-03 10:51:03,265 - __main__ - INFO - Logging is configured.
+2024-11-03 10:51:03,266 - __main__ - DEBUG - Starting bot
+2024-11-03 10:51:12,174 - __main__ - DEBUG - Running bot
+2024-11-03 10:51:13,300 - __main__ - INFO - Bot is starting
+2024-11-03 10:51:16,035 - __main__ - DEBUG - Sending typing action
+2024-11-03 10:51:20,989 - __main__ - DEBUG - Handling /start command
+2024-11-03 10:51:24,699 - __main__ - DEBUG - Sending typing action
+2024-11-03 10:51:31,587 - __main__ - DEBUG - Handling /list_users command
