@@ -644,7 +644,7 @@ class HostWatchBot(TlgBotFwk):
         
         try:
             # Extract the host name, username, and password from the command parameters
-            if len(context.args) != 3:
+            if len(context.args) != 4:
                 if len(context.args) == 1:
                     host_name = context.args[0]
                     user_id = update.effective_user.id
@@ -662,14 +662,17 @@ class HostWatchBot(TlgBotFwk):
                     # Retrieve and display the existing username and password
                     username = user_hosts[job_name].get('username', 'Not set')
                     password = user_hosts[job_name].get('password', 'Not set')
-                    await update.message.reply_text(f"Current credentials for {host_name}:\nUsername: {username}\nPassword: {password}")
+                    connection_port = user_hosts[job_name].get('connection_port', 22)
+                    
+                    await update.message.reply_text(f"Current credentials for {host_name}:{os.linesep}Username: {username}{os.linesep}Password: {password}{os.linesep}Port: {connection_port}")
                 else:
-                    await update.message.reply_text(await self.escape_markdown("Usage: /storecredentials <host_name_or_ip> <username> <password>"))
+                    await update.message.reply_text(await self.escape_markdown("Usage: /storecredentials <host_name_or_ip> <username> <password> [optional-port=22]"))
                 return
             
             host_name = context.args[0]
             username = context.args[1]
             password = context.args[2]
+            connection_port = int(context.args[3])
             user_id = update.effective_user.id
             
             job_name = f"ping_{host_name}"
@@ -685,8 +688,11 @@ class HostWatchBot(TlgBotFwk):
             # Store the username and password in the user data
             user_hosts[job_name]['username'] = username
             user_hosts[job_name]['password'] = password
+            user_hosts[job_name]['connection_port'] = connection_port
             context.user_data[job_name]['username'] = username
             context.user_data[job_name]['password'] = password
+            context.user_data[job_name]['connection_port'] = connection_port
+            
             await self.application.persistence.update_user_data(user_id, user_hosts)
             await self.application.persistence.flush()
             
