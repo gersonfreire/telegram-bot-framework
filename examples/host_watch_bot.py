@@ -645,7 +645,7 @@ class HostWatchBot(TlgBotFwk):
         try:
             # Extract the host name, username, and password from the command parameters
             if len(context.args) != 3:
-                await update.message.reply_text(self.escape_markdown("Usage: /storecredentials <host_name_or_ip> <username> <password>"))
+                await update.message.reply_text(await self.escape_markdown("Usage: /storecredentials <host_name_or_ip> <username> <password>"))
                 return
             
             host_name = context.args[0]
