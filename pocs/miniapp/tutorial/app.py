@@ -8,6 +8,7 @@ import json
 
 # Start python internal web server with index.html in the same folder
 # python -m http.server 80
+# ngrok http 80
 
 async def launch_web_ui(update: Update, callback: CallbackContext):
     # display our web-app!
