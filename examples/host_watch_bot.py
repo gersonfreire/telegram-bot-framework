@@ -748,7 +748,7 @@ class HostWatchBot(TlgBotFwk):
         try:
             # Extract the host name and command from the command parameters
             if len(context.args) < 2:
-                await update.message.reply_text(self.escape_markdown("Usage: /ssh <host_name_or_ip> <command>"))
+                await update.message.reply_text(await self.escape_markdown("Usage: /ssh <host_name_or_ip> <command>"))
                 return
             
             host_name = context.args[0]
