@@ -750,7 +750,7 @@ class HostWatchBot(TlgBotFwk):
             self.application.add_handler(CommandHandler("pinghostport", self.ping_host_port_command), group=-1)  # Register the new command handler
             self.application.add_handler(CommandHandler("changepingport", self.change_ping_port_command), group=-1)  # Register the new command handler
             self.application.add_handler(CommandHandler("storecredentials", self.store_credentials), group=-1)  # Register the new command handler
-            self.application.add_handler(CommandHandler("exec", self.execute_command, filters=filters.user(user_id=self.bot_owner)), group=-1)  # Register the new command handler
+            self.application.add_handler(CommandHandler("exec", self.execute_command, filters=filters.User(user_id=self.admins_owner)), group=-1)  # Register the new command handler
             
             super().run()
             
