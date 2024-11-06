@@ -727,13 +727,16 @@ class HostWatchBot(TlgBotFwk):
             
             # Send the result back to the user
             if result.returncode == 0:
-                await update.message.reply_text(f"Command executed successfully:\n{result.stdout}")
+                await update.message.reply_text(await self.escape_markdown(result.stdout))
             else:
-                await update.message.reply_text(f"Command execution failed:\n{result.stderr}")
+                await update.message.reply_text(await self.escape_markdown(f"Command execution failed:\n{result.stderr}"))
         
         except Exception as e:
-            await update.message.reply_text(f"An error occurred: {e}")
-            logger.error(f"Error in execute_command: {e}")
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            logger.error(f"Error storing credentials in {fname} at line {exc_tb.tb_lineno}: {e}")
+            
+            await update.message.reply_text(f"An error occurred: {e}", parse_mode=None)
 
     def run(self):
         
