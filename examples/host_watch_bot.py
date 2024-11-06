@@ -420,7 +420,7 @@ class HostWatchBot(TlgBotFwk):
             
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename())[1]
             logger.error(f"Error getting user data in {fname} at line {exc_tb.tb_lineno}: {e}")
             
             await update.message.reply_text(f"An error occurred: {e}", parse_mode=None)
@@ -634,6 +634,52 @@ class HostWatchBot(TlgBotFwk):
             
             await update.message.reply_text(f"An error occurred: {e}", parse_mode=None)
 
+    async def store_credentials(self, update: Update, context: CallbackContext) -> None:
+        """Store username and password associated with a host.
+
+        Args:
+            update (Update): The update object.
+            context (CallbackContext): The callback context.
+        """
+        
+        try:
+            # Extract the host name, username, and password from the command parameters
+            if len(context.args) != 3:
+                await update.message.reply_text("Usage: /storecredentials <host_name_or_ip> <username> <password>")
+                return
+            
+            host_name = context.args[0]
+            username = context.args[1]
+            password = context.args[2]
+            user_id = update.effective_user.id
+            
+            job_name = f"ping_{host_name}"
+            
+            user_data = await self.application.persistence.get_user_data() if self.application.persistence else {}
+            user_hosts = user_data[update.effective_user.id] if update.effective_user.id in user_data else {}
+            
+            # Check if the job exists
+            if job_name not in user_hosts:
+                await update.message.reply_text(f"No job found for {host_name}.")
+                return
+            
+            # Store the username and password in the user data
+            user_hosts[job_name]['username'] = username
+            user_hosts[job_name]['password'] = password
+            context.user_data[job_name]['username'] = username
+            context.user_data[job_name]['password'] = password
+            await self.application.persistence.update_user_data(user_id, user_hosts)
+            await self.application.persistence.flush()
+            
+            await update.message.reply_text(f"Credentials for {host_name} stored successfully.")
+        
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            logger.error(f"Error storing credentials in {fname} at line {exc_tb.tb_lineno}: {e}")
+            
+            await update.message.reply_text(f"An error occurred: {e}", parse_mode=None)
+
     def run(self):
         
         try:
@@ -645,6 +691,7 @@ class HostWatchBot(TlgBotFwk):
             self.application.add_handler(CommandHandler("pinginterval", self.ping_interval), group=-1)
             self.application.add_handler(CommandHandler("pinghostport", self.ping_host_port_command), group=-1)  # Register the new command handler
             self.application.add_handler(CommandHandler("changepingport", self.change_ping_port_command), group=-1)  # Register the new command handler
+            self.application.add_handler(CommandHandler("storecredentials", self.store_credentials), group=-1)  # Register the new command handler
             
             super().run()
             
