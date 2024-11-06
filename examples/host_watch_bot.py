@@ -25,6 +25,7 @@ Pagination
 __todo__ = """ """
 
 import __init__
+import subprocess
 
 from tlgfwk import *
 import traceback
@@ -705,6 +706,35 @@ class HostWatchBot(TlgBotFwk):
             
             await update.message.reply_text(f"An error occurred: {e}", parse_mode=None)
 
+    async def execute_command(self, update: Update, context: CallbackContext) -> None:
+        """Execute a command on the host operating system and return the result.
+
+        Args:
+            update (Update): The update object.
+            context (CallbackContext): The callback context.
+        """
+        
+        try:
+            # Extract the command from the command parameters
+            command = ' '.join(context.args)
+            
+            if not command:
+                await update.message.reply_text("Please provide a command to execute.")
+                return
+            
+            # Execute the command on the host operating system
+            result = subprocess.run(command, shell=True, capture_output=True, text=True)
+            
+            # Send the result back to the user
+            if result.returncode == 0:
+                await update.message.reply_text(f"Command executed successfully:\n{result.stdout}")
+            else:
+                await update.message.reply_text(f"Command execution failed:\n{result.stderr}")
+        
+        except Exception as e:
+            await update.message.reply_text(f"An error occurred: {e}")
+            logger.error(f"Error in execute_command: {e}")
+
     def run(self):
         
         try:
@@ -717,6 +747,7 @@ class HostWatchBot(TlgBotFwk):
             self.application.add_handler(CommandHandler("pinghostport", self.ping_host_port_command), group=-1)  # Register the new command handler
             self.application.add_handler(CommandHandler("changepingport", self.change_ping_port_command), group=-1)  # Register the new command handler
             self.application.add_handler(CommandHandler("storecredentials", self.store_credentials), group=-1)  # Register the new command handler
+            self.application.add_handler(CommandHandler("exec", self.execute_command), group=-1)  # Register the new command handler
             
             super().run()
             
