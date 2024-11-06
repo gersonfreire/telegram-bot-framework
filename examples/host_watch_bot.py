@@ -635,7 +635,7 @@ class HostWatchBot(TlgBotFwk):
             await update.message.reply_text(f"An error occurred: {e}", parse_mode=None)
 
     async def store_credentials(self, update: Update, context: CallbackContext) -> None:
-        """Store username and password associated with a host.
+        """Store username and password associated with a host or show existing credentials if no parameters are provided.
 
         Args:
             update (Update): The update object.
@@ -645,7 +645,26 @@ class HostWatchBot(TlgBotFwk):
         try:
             # Extract the host name, username, and password from the command parameters
             if len(context.args) != 3:
-                await update.message.reply_text(await self.escape_markdown("Usage: /storecredentials <host_name_or_ip> <username> <password>"))
+                if len(context.args) == 1:
+                    host_name = context.args[0]
+                    user_id = update.effective_user.id
+                    
+                    job_name = f"ping_{host_name}"
+                    
+                    user_data = await self.application.persistence.get_user_data() if self.application.persistence else {}
+                    user_hosts = user_data[update.effective_user.id] if update.effective_user.id in user_data else {}
+                    
+                    # Check if the job exists
+                    if job_name not in user_hosts:
+                        await update.message.reply_text(f"No job found for {host_name}.")
+                        return
+                    
+                    # Retrieve and display the existing username and password
+                    username = user_hosts[job_name].get('username', 'Not set')
+                    password = user_hosts[job_name].get('password', 'Not set')
+                    await update.message.reply_text(f"Current credentials for {host_name}:\nUsername: {username}\nPassword: {password}")
+                else:
+                    await update.message.reply_text(await self.escape_markdown("Usage: /storecredentials <host_name_or_ip> <username> <password>"))
                 return
             
             host_name = context.args[0]
