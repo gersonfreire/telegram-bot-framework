@@ -249,6 +249,7 @@ class HostWatchBot(TlgBotFwk):
             callback_context.user_data[job_name]['http_status'] = http_ping_result     
             callback_context.user_data[job_name]['https_status'] = https_ping_result     
             callback_context.user_data[job_name]['http_ping_time'] = (datetime.datetime.now()).strftime("%H:%M")
+            callback_context.user_data[job_name]['last_fail_date'] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") if not ping_result else None
             
             # TODO: execute a check for a specific port
             port = callback_context.user_data[job_name]['port'] if 'port' in callback_context.user_data[job_name] else 80
@@ -417,7 +418,8 @@ class HostWatchBot(TlgBotFwk):
                 'last_status': False,
                 'http_status': False,
                 'http_ping_time': None,
-                'port': checked_port
+                'port': checked_port,
+                'last_fail_date': None
             }
             
             # force persistence update of the user data
@@ -553,12 +555,12 @@ class HostWatchBot(TlgBotFwk):
                             
                             http_ping_time = user_data[job_name]['http_ping_time'] if job_name in user_data and  'http_ping_time' in user_data[job_name] else None
                             
+                            last_fail_date = user_data[job_name]['last_fail_date'] if job_name in user_data and 'last_fail_date' in user_data[job_name] else None
+                            
                             interval = f"{interval}s" if interval else None
                             if effective_user_id == self.bot_owner:
-                                # message += f"{status}{https_status}{http_status}{check_port_status}`{checked_port:<4}``{job_owner:<10}` `{interval:<6}` `{next_time}` `{http_ping_time}` {markdown_link}{os.linesep}"
                                 message += f"{ping_status}{check_port_status}`{checked_port:<5}``{job_owner:<10}` `{interval:<6}` `{next_time}` `{http_ping_time}` {markdown_link}{os.linesep}"
                             else:
-                                # message += f"{ping_status}{https_status}{http_status}{check_port_status}`{checked_port:<4}``{interval:<6}` `{next_time}` `{http_ping_time}` {markdown_link}{os.linesep}"
                                 message += f"{ping_status}{check_port_status}`{checked_port:<5}``{interval:<6}` `{next_time}` `{http_ping_time}` {markdown_link}{os.linesep}"
                             
                             has_jobs = True
@@ -824,12 +826,16 @@ class HostWatchBot(TlgBotFwk):
                 if not job_name.startswith('ping_'):
                     continue
                 
-                host_name = job_params.get('ip_address', 'Unknown')
-                last_fail_date = job_params.get('last_fail_date', 'No failures recorded')
-                
-                last_fail_date = context.user_data[job_name]['last_fail_date'] if job_name in context.user_data else last_fail_date
-                
-                message += f"Host: {host_name}, Last Failure: {last_fail_date}{os.linesep}"
+                try:
+                    host_name = job_params.get('ip_address', 'Unknown')
+                    last_fail_date = job_params.get('last_fail_date', 'No failures recorded')
+                    
+                    last_fail_date = context.user_data[job_name]['last_fail_date'] if job_name in context.user_data and 'last_fail_date' in context.user_data[job_name] else last_fail_date
+                    
+                    message += f"Host: {host_name}, Last Failure: {last_fail_date}{os.linesep}"
+                except Exception as e:
+                    logger.error(f"Error processing host {job_name}: {e}")
+                    continue
             
             await update.message.reply_text(message)
         
