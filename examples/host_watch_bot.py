@@ -348,6 +348,7 @@ class HostWatchBot(TlgBotFwk):
             
             user_data[user_id][job_name]['last_status'] = ping_result
             user_data[user_id][job_name]['http_ping_time'] = (datetime.datetime.now()).strftime("%H:%M")
+            user_data[user_id][job_name]['last_fail_date'] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") if not ping_result else None
             
             await self.application.persistence.update_user_data(user_id, user_data[user_id]) if self.application.persistence else None
             
@@ -825,6 +826,8 @@ class HostWatchBot(TlgBotFwk):
                 
                 host_name = job_params.get('ip_address', 'Unknown')
                 last_fail_date = job_params.get('last_fail_date', 'No failures recorded')
+                
+                last_fail_date = context.user_data[job_name]['last_fail_date'] if job_name in context.user_data else last_fail_date
                 
                 message += f"Host: {host_name}, Last Failure: {last_fail_date}{os.linesep}"
             
