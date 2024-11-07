@@ -832,7 +832,7 @@ class HostWatchBot(TlgBotFwk):
                     
                     last_fail_date = context.user_data[job_name]['last_fail_date'] if job_name in context.user_data and 'last_fail_date' in context.user_data[job_name] else last_fail_date
                     
-                    message += f"Host: {host_name}, Last Failure: {last_fail_date}{os.linesep}"
+                    message += f"`{host_name}` `{last_fail_date}`{os.linesep}"
                 except Exception as e:
                     logger.error(f"Error processing host {job_name}: {e}")
                     continue
