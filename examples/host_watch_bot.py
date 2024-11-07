@@ -707,7 +707,7 @@ class HostWatchBot(TlgBotFwk):
         
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            fname = os.path.split(exc_tb.tb_frame.f_code.co.filename())[1]
+            fname = os.path.split(exc_tb.tb.frame.f_code.co.filename())[1]
             logger.error(f"Error storing credentials in {fname} at line {exc_tb.tb_lineno}: {e}")
             
             await update.message.reply_text(f"An error occurred: {e}", parse_mode=None)
@@ -799,6 +799,40 @@ class HostWatchBot(TlgBotFwk):
             logger.error(f"Error executing SSH command in {fname} at line {exc_tb.tb_lineno}: {e}")
             
             await update.message.reply_text(f"An error occurred: {e}", parse_mode=None)
+ 
+    async def list_failures(self, update: Update, context: CallbackContext) -> None:
+        """List each host and its last failure date.
+
+        Args:
+            update (Update): The update object.
+            context (CallbackContext): The callback context.
+        """
+        
+        try:
+            user_id = update.effective_user.id
+            user_data = await self.application.persistence.get_user_data() if self.application.persistence else {}
+            user_hosts = user_data[user_id] if user_id in user_data else {}
+
+            if not user_hosts:
+                await update.message.reply_text("No hosts found.")
+                return
+            
+            message = f"_Hosts and their last failure dates:_{os.linesep}"
+            
+            for job_name, job_params in user_hosts.items():
+                if not job_name.startswith('ping_'):
+                    continue
+                
+                host_name = job_params.get('ip_address', 'Unknown')
+                last_fail_date = job_params.get('last_fail_date', 'No failures recorded')
+                
+                message += f"Host: {host_name}, Last Failure: {last_fail_date}{os.linesep}"
+            
+            await update.message.reply_text(message)
+        
+        except Exception as e:
+            await update.message.reply_text(f"An error occurred: {e}")
+            logger.error(f"Error in list_failures: {e}")
 
     def run(self):
         
@@ -814,6 +848,7 @@ class HostWatchBot(TlgBotFwk):
             self.application.add_handler(CommandHandler("storecredentials", self.store_credentials), group=-1)  # Register the new command handler
             self.application.add_handler(CommandHandler("exec", self.execute_command, filters=filters.User(user_id=self.admins_owner)), group=-1)  # Register the new command handler
             self.application.add_handler(CommandHandler("ssh", self.execute_ssh_command, filters=filters.User(user_id=self.admins_owner)), group=-1)  # Register the new command handler
+            self.application.add_handler(CommandHandler("listfailures", self.list_failures), group=-1)  # Register the new command handler
             
             super().run()
             
