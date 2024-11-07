@@ -317,8 +317,7 @@ class HostWatchBot(TlgBotFwk):
         return http_result
 
     async def ping_host(self, ip_address, show_success=True, user_id=None):
-        
-        ping_result = False # f"🔴"
+        ping_result = False
         
         try:
             # Ping logic here
@@ -326,18 +325,26 @@ class HostWatchBot(TlgBotFwk):
             response = os.system(f"ping {param} {ip_address}") # Returns 0 if the host is up, 1 if the host is down
             
             # send message just to the job owner user
-            ping_result = False
             if response == 0:
                 self.send_message_by_api(user_id, f"{ip_address} is up!") if show_success else None
-                ping_result = True # f"✅"  f"🟢"                
+                ping_result = True
             else:
                 self.send_message_by_api(user_id, f"{ip_address} is down!")
+                
+                # Set the last_fail_date to the current date and time
+                current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                user_data = await self.application.persistence.get_user_data() if self.application.persistence else {}
+                job_name = f"ping_{ip_address}"
+                if user_id in user_data and job_name in user_data[user_id]:
+                    user_data[user_id][job_name]['last_fail_date'] = current_time
+                    await self.application.persistence.update_user_data(user_id, user_data[user_id])
+                    await self.application.persistence.flush()
                 
             logger.debug(f"Ping result for {ip_address}: {ping_result}")
                 
             # Add last status to ping list in user data
-            user_data = await self.application.persistence.get_user_data() #  if self.application.persistence else {}
-            job_name = f"ping_{ip_address}"            
+            user_data = await self.application.persistence.get_user_data() if self.application.persistence else {}
+            job_name = f"ping_{ip_address}"
             
             user_data[user_id][job_name]['last_status'] = ping_result
             user_data[user_id][job_name]['http_ping_time'] = (datetime.datetime.now()).strftime("%H:%M")
@@ -700,7 +707,7 @@ class HostWatchBot(TlgBotFwk):
         
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            fname = os.path.split(exc_tb.tb_frame.f_code.co.filename())[1]
             logger.error(f"Error storing credentials in {fname} at line {exc_tb.tb_lineno}: {e}")
             
             await update.message.reply_text(f"An error occurred: {e}", parse_mode=None)
@@ -732,7 +739,7 @@ class HostWatchBot(TlgBotFwk):
         
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename())[1]
+            fname = os.path.split(exc_tb.tb.frame.f_code.co.filename())[1]
             logger.error(f"Error storing credentials in {fname} at line {exc_tb.tb_lineno}: {e}")
             
             await update.message.reply_text(f"An error occurred: {e}", parse_mode=None)
@@ -788,7 +795,7 @@ class HostWatchBot(TlgBotFwk):
         
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            fname = os.path.split(exc_tb.tb.frame.f_code.co.filename())[1]
             logger.error(f"Error executing SSH command in {fname} at line {exc_tb.tb_lineno}: {e}")
             
             await update.message.reply_text(f"An error occurred: {e}", parse_mode=None)
