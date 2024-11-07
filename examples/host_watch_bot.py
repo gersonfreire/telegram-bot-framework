@@ -835,7 +835,7 @@ class HostWatchBot(TlgBotFwk):
                     # url = f'https://{ip_address}' 
                     # markdown_link = f"[{ip_address}]({url})"                     
                     last_fail_date = str(last_fail_date) if last_fail_date else 'No failures'
-                    last_fail_date = f'{str(last_fail_date):<26}' 
+                    last_fail_date = f'{str(last_fail_date):<19}' 
                     message += f"`{last_fail_date}` - `{host_name}` {os.linesep}"
                     
                 except Exception as e:
