@@ -834,10 +834,14 @@ class HostWatchBot(TlgBotFwk):
                     
                     # url = f'https://{ip_address}' 
                     # markdown_link = f"[{ip_address}]({url})"                     
+                    last_fail_date = str(last_fail_date) if last_fail_date else 'No failures'
+                    last_fail_date = f'{str(last_fail_date):<26}' 
+                    message += f"`{last_fail_date}` - `{host_name}` {os.linesep}"
                     
-                    message += f"`{last_fail_date:<24}` `{host_name}` {os.linesep}"
                 except Exception as e:
-                    logger.error(f"Error processing host {job_name}: {e}")
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+                    logger.error(f"Error getting user data in {fname} at line {exc_tb.tb_lineno}: {e}")                    
                     continue
             
             await update.message.reply_text(message)
