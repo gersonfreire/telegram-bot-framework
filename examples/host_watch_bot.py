@@ -249,13 +249,16 @@ class HostWatchBot(TlgBotFwk):
             callback_context.user_data[job_name]['http_status'] = http_ping_result     
             callback_context.user_data[job_name]['https_status'] = https_ping_result     
             callback_context.user_data[job_name]['http_ping_time'] = (datetime.datetime.now()).strftime("%H:%M")
-            callback_context.user_data[job_name]['last_fail_date'] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") if not ping_result else None
+            if not ping_result:
+                callback_context.user_data[job_name]['last_fail_date'] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") 
             
             # TODO: execute a check for a specific port
             port = callback_context.user_data[job_name]['port'] if 'port' in callback_context.user_data[job_name] else 80
             port_result = await watch.check_port(host_address, port)
             
             callback_context.user_data[job_name]['port_status'] = port_result
+            if not port_result:
+                callback_context.user_data[job_name]['last_fail_date'] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             
             # Log the result of the ping
             logger.debug(f"Ping result for {host_address}: {ping_result} {https_ping_result} {port_result}")
@@ -349,7 +352,8 @@ class HostWatchBot(TlgBotFwk):
             
             user_data[user_id][job_name]['last_status'] = ping_result
             user_data[user_id][job_name]['http_ping_time'] = (datetime.datetime.now()).strftime("%H:%M")
-            user_data[user_id][job_name]['last_fail_date'] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") if not ping_result else None
+            if not ping_result:
+                user_data[user_id][job_name]['last_fail_date'] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             
             await self.application.persistence.update_user_data(user_id, user_data[user_id]) if self.application.persistence else None
             
