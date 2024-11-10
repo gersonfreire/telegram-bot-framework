@@ -258,7 +258,8 @@ class HostWatchBot(TlgBotFwk):
             
             callback_context.user_data[job_name]['port_status'] = port_result
             if not port_result:
-                callback_context.user_data[job_name]['last_fail_date'] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                callback_context.user_data[job_name]['last_fail_date'] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")                
+                self.send_message_by_api(callback_context.job.user_id, f"{host_address}:{port_result} is down!")
             
             # Log the result of the ping
             logger.debug(f"Ping result for {host_address}: {ping_result} {https_ping_result} {port_result}")
