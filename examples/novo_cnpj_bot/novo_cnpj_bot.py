@@ -181,7 +181,7 @@ async def list_users(update: Update, context: CallbackContext) -> None:
 
 @with_typing_action
 @with_log_admin
-async def cmd_git(self, update: Update, context: CallbackContext):
+async def cmd_git(update: Update, context: CallbackContext):
     """Update the bot's version from a git repository"""
     
     try:
@@ -243,6 +243,9 @@ def main() -> None:
 
     application.add_handler(CommandHandler("start", start))
     application.add_handler(CommandHandler("list_users", list_users, filters=filters.User(user_id=int(admin_id_list))))
+    git_handler = CommandHandler('git', cmd_git, filters=filters.User(user_id=int(admin_id_list)))
+    application.add_handler(git_handler)   
+     
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, validar))
 
     logger.debug("Running bot")
