@@ -179,6 +179,40 @@ async def list_users(update: Update, context: CallbackContext) -> None:
         logger.error(f"Error in list_users: {e}")
         await update.message.reply_text('Failed to retrieve user list.')
 
+@with_typing_action
+@with_log_admin
+async def cmd_git(self, update: Update, context: CallbackContext):
+    """Update the bot's version from a git repository"""
+    
+    try:
+        # get the branch name from the message
+        # branch_name = update.message.text.split(' ')[1]
+        message = f"_Updating the bot's code from the branch..._" # `{branch_name}`"
+        logger.info(message)
+        await update.message.reply_text(message, parse_mode=ParseMode.MARKDOWN)
+        
+        # update the bot's code
+        # command = f"git fetch origin {branch_name} && git reset --hard origin/{branch_name}"
+        command = "git status"
+        
+        if len(update.effective_message.text.split(' ')) > 1:
+            git_command = update.effective_message.text.split(' ')[1]
+            logger.info(f"git command: {command}")
+            command = f"git {git_command}"
+        
+        # execute system command and return the result
+        # os.system(command=command)
+        result = os.popen(command).read()
+        self.logger.info(f"Result: {result}")
+        
+        result = f"_Result:_ `{result}`"
+        
+        await update.message.reply_text(result, parse_mode=ParseMode.MARKDOWN)
+        
+    except Exception as e:
+        logger.error(f"Error: {e}")
+        await update.message.reply_text(f"An error occurred: {e}")
+
 async def post_init(application: Application) -> None:
     logger.info("Bot is starting")
     admin_user_id = dotenv.get_key(dotenv.find_dotenv(), "ADMIN_ID_LIST")
