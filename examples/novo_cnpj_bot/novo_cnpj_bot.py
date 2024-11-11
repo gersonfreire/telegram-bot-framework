@@ -1,5 +1,6 @@
 import os
 import re
+import sys
 import dotenv
 from telegram import Update
 from telegram.constants import ParseMode, ChatAction
@@ -139,6 +140,20 @@ def with_persistent_user_data(handler):
 
 @with_typing_action
 @with_log_admin
+async def restart_bot(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    try:
+        await update.message.reply_text("_Restarting..._", parse_mode=ParseMode.MARKDOWN)
+        args = sys.argv[:]
+        args.insert(0, sys.executable)
+        os.chdir(os.getcwd())
+        os.execv(sys.executable, args)
+        
+    except Exception as e:
+        logger.error(f"Error restarting bot: {e}")
+        await update.message.reply_text(f"An error occurred while restarting the bot: {e}")
+    
+@with_typing_action
+@with_log_admin
 @with_persistent_user_data
 async def start(update: Update, context: CallbackContext) -> None:
     logger.debug("Handling /start command")
@@ -245,6 +260,9 @@ def main() -> None:
     application.add_handler(CommandHandler("list_users", list_users, filters=filters.User(user_id=int(admin_id_list))))
     git_handler = CommandHandler('git', cmd_git, filters=filters.User(user_id=int(admin_id_list)))
     application.add_handler(git_handler)   
+
+    restart_handler = CommandHandler('restart', restart_bot, filters=filters.User(user_id=int(admin_id_list)))
+    application.add_handler(restart_handler)    
      
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, validar))
 
