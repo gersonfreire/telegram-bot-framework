@@ -8,7 +8,7 @@ overrides the initialize_handlers method to add a help command handler.
 This version is inspired on and more elaborated than host_monitor because controls each host by user.
 """
 
-__version__ = '0.6.1 Add a command to store username and password to connect by ssh to a host'
+__version__ = '0.6.2 Failure History'
 
 __changelog__ = """
 DONE: 
@@ -22,14 +22,16 @@ TODO:
 Pagination
 """
 
-__todo__ = """ /pingadd host defaultinterval"""
+__todo__ = """ """
 
 import __init__
+import subprocess
 
 from tlgfwk import *
 import traceback
 import util.util_watch as watch
 from util.util_watch import check_port
+import paramiko
 
 class HostWatchBot(TlgBotFwk):
     
@@ -247,12 +249,17 @@ class HostWatchBot(TlgBotFwk):
             callback_context.user_data[job_name]['http_status'] = http_ping_result     
             callback_context.user_data[job_name]['https_status'] = https_ping_result     
             callback_context.user_data[job_name]['http_ping_time'] = (datetime.datetime.now()).strftime("%H:%M")
+            if not ping_result:
+                callback_context.user_data[job_name]['last_fail_date'] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") 
             
             # TODO: execute a check for a specific port
             port = callback_context.user_data[job_name]['port'] if 'port' in callback_context.user_data[job_name] else 80
             port_result = await watch.check_port(host_address, port)
             
             callback_context.user_data[job_name]['port_status'] = port_result
+            if not port_result:
+                callback_context.user_data[job_name]['last_fail_date'] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")                
+                self.send_message_by_api(callback_context.job.user_id, f"{host_address}:{port} is down!")
             
             # Log the result of the ping
             logger.debug(f"Ping result for {host_address}: {ping_result} {https_ping_result} {port_result}")
@@ -315,8 +322,7 @@ class HostWatchBot(TlgBotFwk):
         return http_result
 
     async def ping_host(self, ip_address, show_success=True, user_id=None):
-        
-        ping_result = False # f"🔴"
+        ping_result = False
         
         try:
             # Ping logic here
@@ -324,21 +330,31 @@ class HostWatchBot(TlgBotFwk):
             response = os.system(f"ping {param} {ip_address}") # Returns 0 if the host is up, 1 if the host is down
             
             # send message just to the job owner user
-            ping_result = False
             if response == 0:
                 self.send_message_by_api(user_id, f"{ip_address} is up!") if show_success else None
-                ping_result = True # f"✅"  f"🟢"                
+                ping_result = True
             else:
                 self.send_message_by_api(user_id, f"{ip_address} is down!")
+                
+                # Set the last_fail_date to the current date and time
+                current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                user_data = await self.application.persistence.get_user_data() if self.application.persistence else {}
+                job_name = f"ping_{ip_address}"
+                if user_id in user_data and job_name in user_data[user_id]:
+                    user_data[user_id][job_name]['last_fail_date'] = current_time
+                    await self.application.persistence.update_user_data(user_id, user_data[user_id])
+                    await self.application.persistence.flush()
                 
             logger.debug(f"Ping result for {ip_address}: {ping_result}")
                 
             # Add last status to ping list in user data
-            user_data = await self.application.persistence.get_user_data() #  if self.application.persistence else {}
-            job_name = f"ping_{ip_address}"            
+            user_data = await self.application.persistence.get_user_data() if self.application.persistence else {}
+            job_name = f"ping_{ip_address}"
             
             user_data[user_id][job_name]['last_status'] = ping_result
             user_data[user_id][job_name]['http_ping_time'] = (datetime.datetime.now()).strftime("%H:%M")
+            if not ping_result:
+                user_data[user_id][job_name]['last_fail_date'] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             
             await self.application.persistence.update_user_data(user_id, user_data[user_id]) if self.application.persistence else None
             
@@ -407,7 +423,8 @@ class HostWatchBot(TlgBotFwk):
                 'last_status': False,
                 'http_status': False,
                 'http_ping_time': None,
-                'port': checked_port
+                'port': checked_port,
+                'last_fail_date': None
             }
             
             # force persistence update of the user data
@@ -485,8 +502,6 @@ class HostWatchBot(TlgBotFwk):
             effective_user_id = update.effective_user.id
             
             # Header of monitored hosts list in case of common user
-            # message = f"""_Active monitored host:_
-# `stat  interv next  last  host`{os.linesep}"""
             message = f"_Active monitored host:_{os.linesep}`pi p     interv next last host`{os.linesep}"
             
             # header of monitored hosts list in case of bot owner
@@ -545,12 +560,12 @@ class HostWatchBot(TlgBotFwk):
                             
                             http_ping_time = user_data[job_name]['http_ping_time'] if job_name in user_data and  'http_ping_time' in user_data[job_name] else None
                             
+                            last_fail_date = user_data[job_name]['last_fail_date'] if job_name in user_data and 'last_fail_date' in user_data[job_name] else None
+                            
                             interval = f"{interval}s" if interval else None
                             if effective_user_id == self.bot_owner:
-                                # message += f"{status}{https_status}{http_status}{check_port_status}`{checked_port:<4}``{job_owner:<10}` `{interval:<6}` `{next_time}` `{http_ping_time}` {markdown_link}{os.linesep}"
                                 message += f"{ping_status}{check_port_status}`{checked_port:<5}``{job_owner:<10}` `{interval:<6}` `{next_time}` `{http_ping_time}` {markdown_link}{os.linesep}"
                             else:
-                                # message += f"{ping_status}{https_status}{http_status}{check_port_status}`{checked_port:<4}``{interval:<6}` `{next_time}` `{http_ping_time}` {markdown_link}{os.linesep}"
                                 message += f"{ping_status}{check_port_status}`{checked_port:<5}``{interval:<6}` `{next_time}` `{http_ping_time}` {markdown_link}{os.linesep}"
                             
                             has_jobs = True
@@ -635,7 +650,7 @@ class HostWatchBot(TlgBotFwk):
             await update.message.reply_text(f"An error occurred: {e}", parse_mode=None)
 
     async def store_credentials(self, update: Update, context: CallbackContext) -> None:
-        """Store username and password associated with a host.
+        """Store username and password associated with a host or show existing credentials if no parameters are provided.
 
         Args:
             update (Update): The update object.
@@ -644,13 +659,35 @@ class HostWatchBot(TlgBotFwk):
         
         try:
             # Extract the host name, username, and password from the command parameters
-            if len(context.args) != 3:
-                await update.message.reply_text(await self.escape_markdown("Usage: /storecredentials <host_name_or_ip> <username> <password>"))
+            if len(context.args) != 4:
+                if len(context.args) == 1:
+                    host_name = context.args[0]
+                    user_id = update.effective_user.id
+                    
+                    job_name = f"ping_{host_name}"
+                    
+                    user_data = await self.application.persistence.get_user_data() if self.application.persistence else {}
+                    user_hosts = user_data[update.effective_user.id] if update.effective_user.id in user_data else {}
+                    
+                    # Check if the job exists
+                    if job_name not in user_hosts:
+                        await update.message.reply_text(f"No job found for {host_name}.")
+                        return
+                    
+                    # Retrieve and display the existing username and password
+                    username = user_hosts[job_name].get('username', 'Not set')
+                    password = user_hosts[job_name].get('password', 'Not set')
+                    connection_port = user_hosts[job_name].get('connection_port', 22)
+                    
+                    await update.message.reply_text(f"Current credentials for {host_name}:{os.linesep}Username: {username}{os.linesep}Password: {password}{os.linesep}Port: {connection_port}")
+                else:
+                    await update.message.reply_text(await self.escape_markdown("Usage: /storecredentials <host_name_or_ip> <username> <password> [optional-port=22]"))
                 return
             
             host_name = context.args[0]
             username = context.args[1]
             password = context.args[2]
+            connection_port = int(context.args[3])
             user_id = update.effective_user.id
             
             job_name = f"ping_{host_name}"
@@ -666,8 +703,11 @@ class HostWatchBot(TlgBotFwk):
             # Store the username and password in the user data
             user_hosts[job_name]['username'] = username
             user_hosts[job_name]['password'] = password
+            user_hosts[job_name]['connection_port'] = connection_port
             context.user_data[job_name]['username'] = username
             context.user_data[job_name]['password'] = password
+            context.user_data[job_name]['connection_port'] = connection_port
+            
             await self.application.persistence.update_user_data(user_id, user_hosts)
             await self.application.persistence.flush()
             
@@ -675,10 +715,145 @@ class HostWatchBot(TlgBotFwk):
         
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
-            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            fname = os.path.split(exc_tb.tb.frame.f_code.co.filename())[1]
             logger.error(f"Error storing credentials in {fname} at line {exc_tb.tb_lineno}: {e}")
             
             await update.message.reply_text(f"An error occurred: {e}", parse_mode=None)
+
+    async def execute_command(self, update: Update, context: CallbackContext) -> None:
+        """Execute a command on the host operating system and return the result.
+
+        Args:
+            update (Update): The update object.
+            context (CallbackContext): The callback context.
+        """
+        
+        try:
+            # Extract the command from the command parameters
+            command = ' '.join(context.args)
+            
+            if not command:
+                await update.message.reply_text("Please provide a command to execute.")
+                return
+            
+            # Execute the command on the host operating system
+            result = subprocess.run(command, shell=True, capture_output=True, text=True)
+            
+            # Send the result back to the user
+            if result.returncode == 0:
+                await update.message.reply_text(await self.escape_markdown(result.stdout))
+            else:
+                await update.message.reply_text(await self.escape_markdown(f"Command execution failed:\n{result.stderr}"))
+        
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb.frame.f_code.co.filename())[1]
+            logger.error(f"Error storing credentials in {fname} at line {exc_tb.tb_lineno}: {e}")
+            
+            await update.message.reply_text(f"An error occurred: {e}", parse_mode=None)
+
+    async def execute_ssh_command(self, update: Update, context: CallbackContext) -> None:
+        """Execute an SSH command on the remote host using stored credentials and return the result.
+
+        Args:
+            update (Update): The update object.
+            context (CallbackContext): The callback context.
+        """
+        
+        try:
+            # Extract the host name and command from the command parameters
+            if len(context.args) < 2:
+                await update.message.reply_text(await self.escape_markdown("Usage: /ssh <host_name_or_ip> <command>"))
+                return
+            
+            host_name = context.args[0]
+            command = ' '.join(context.args[1:])
+            user_id = update.effective_user.id
+            
+            job_name = f"ping_{host_name}"
+            
+            user_data = await self.application.persistence.get_user_data() if self.application.persistence else {}
+            user_hosts = user_data[update.effective_user.id] if update.effective_user.id in user_data else {}
+            
+            # Check if the job exists
+            if job_name not in user_hosts:
+                await update.message.reply_text(f"No job found for {host_name}.")
+                return
+            
+            # Retrieve the stored credentials
+            username = user_hosts[job_name].get('username')
+            password = user_hosts[job_name].get('password')
+            port = user_hosts[job_name].get('connection_port', 22)
+            
+            if not username or not password:
+                await update.message.reply_text(f"No credentials found for {host_name}.")
+                return
+            
+            # Execute the SSH command
+            ssh = paramiko.SSHClient()
+            ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+            ssh.connect(hostname=host_name, port=port, username=username, password=password)
+            
+            stdin, stdout, stderr = ssh.exec_command(command)
+            result = stdout.read().decode('utf-8') + stderr.read().decode('utf-8')
+            ssh.close()
+            
+            # Send the result back to the user
+            await update.message.reply_text(await self.escape_markdown(result))
+        
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb.frame.f_code.co.filename())[1]
+            logger.error(f"Error executing SSH command in {fname} at line {exc_tb.tb_lineno}: {e}")
+            
+            await update.message.reply_text(f"An error occurred: {e}", parse_mode=None)
+ 
+    async def list_failures(self, update: Update, context: CallbackContext) -> None:
+        """List each host and its last failure date.
+
+        Args:
+            update (Update): The update object.
+            context (CallbackContext): The callback context.
+        """
+        
+        try:
+            user_id = update.effective_user.id
+            user_data = await self.application.persistence.get_user_data() if self.application.persistence else {}
+            user_hosts = user_data[user_id] if user_id in user_data else {}
+
+            if not user_hosts:
+                await update.message.reply_text("No hosts found.")
+                return
+            
+            message = f"_Hosts and their last failure dates:_{os.linesep}"
+            
+            for job_name, job_params in user_hosts.items():
+                if not job_name.startswith('ping_'):
+                    continue
+                
+                try:
+                    host_name = job_params.get('ip_address', 'Unknown')
+                    last_fail_date = job_params.get('last_fail_date', 'No failures')
+                    
+                    last_fail_date = context.user_data[job_name]['last_fail_date'] if job_name in context.user_data and 'last_fail_date' in context.user_data[job_name] else last_fail_date
+                    
+                    # url = f'https://{ip_address}' 
+                    # markdown_link = f"[{ip_address}]({url})"                     
+                    last_fail_date = str(last_fail_date) if last_fail_date else 'No failures'
+                    last_fail_date = f'{str(last_fail_date):<19}' 
+                    message += f"`{last_fail_date}` - `{host_name}` {os.linesep}"
+                    
+                except Exception as e:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+                    logger.error(f"Error getting user data in {fname} at line {exc_tb.tb_lineno}: {e}")                    
+                    continue
+            
+            await update.message.reply_text(message)
+        
+        except Exception as e:
+            await update.message.reply_text(f"An error occurred: {e}")
+            logger.error(f"Error in list_failures: {e}")
 
     def run(self):
         
@@ -692,6 +867,9 @@ class HostWatchBot(TlgBotFwk):
             self.application.add_handler(CommandHandler("pinghostport", self.ping_host_port_command), group=-1)  # Register the new command handler
             self.application.add_handler(CommandHandler("changepingport", self.change_ping_port_command), group=-1)  # Register the new command handler
             self.application.add_handler(CommandHandler("storecredentials", self.store_credentials), group=-1)  # Register the new command handler
+            self.application.add_handler(CommandHandler("exec", self.execute_command, filters=filters.User(user_id=self.admins_owner)), group=-1)  # Register the new command handler
+            self.application.add_handler(CommandHandler("ssh", self.execute_ssh_command, filters=filters.User(user_id=self.admins_owner)), group=-1)  # Register the new command handler
+            self.application.add_handler(CommandHandler("listfailures", self.list_failures), group=-1)  # Register the new command handler
             
             super().run()
             
