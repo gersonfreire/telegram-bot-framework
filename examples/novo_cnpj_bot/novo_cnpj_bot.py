@@ -4,7 +4,7 @@ import sys
 import dotenv
 from telegram import Update
 from telegram.constants import ParseMode, ChatAction
-from telegram.ext import Application, CommandHandler, MessageHandler, filters, CallbackContext, PicklePersistence
+from telegram.ext import Application, CommandHandler, MessageHandler, filters, CallbackContext, PicklePersistence, ContextTypes
 from functools import wraps
 
 import logging
