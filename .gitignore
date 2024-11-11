@@ -242,4 +242,5 @@ pocs/paypal/paypal_link2.py
 pocs/paypal/test_paypal.py
 ngrok/ngrok.yml
 bot_data.pkl
+bot.log.2024-11-06
 examples/novo_cnpj_bot/bot.log.2024-11-03

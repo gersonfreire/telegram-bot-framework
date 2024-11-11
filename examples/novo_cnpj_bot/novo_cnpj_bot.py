@@ -1,13 +1,23 @@
 import os
 import re
+import sys
 import dotenv
 from telegram import Update
 from telegram.constants import ParseMode, ChatAction
-from telegram.ext import Application, CommandHandler, MessageHandler, filters, CallbackContext, PicklePersistence
+from telegram.ext import Application, CommandHandler, MessageHandler, filters, CallbackContext, PicklePersistence, ContextTypes
 from functools import wraps
 
 import logging
 from logging.handlers import TimedRotatingFileHandler
+
+__version__ = '0.2.0 Help command added'   
+__todo__ = """
+    - Adicionar comando para gerar help automaticamente com lista de comandos ...
+    - Adicionar comando para versão...
+    - Adicionar comando para reinicializar bot
+    - Adicionar comando para parar bot
+    - Adicionar função para validar CPF
+    - formatar resposta ao comando de lista de usuarios"""   # Tarefas a serem feitas
 
 # Create a custom logger
 logger = logging.getLogger(__name__)
@@ -130,6 +140,20 @@ def with_persistent_user_data(handler):
 
 @with_typing_action
 @with_log_admin
+async def restart_bot(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    try:
+        await update.message.reply_text("_Restarting..._", parse_mode=ParseMode.MARKDOWN)
+        args = sys.argv[:]
+        args.insert(0, sys.executable)
+        os.chdir(os.getcwd())
+        os.execv(sys.executable, args)
+        
+    except Exception as e:
+        logger.error(f"Error restarting bot: {e}")
+        await update.message.reply_text(f"An error occurred while restarting the bot: {e}")
+    
+@with_typing_action
+@with_log_admin
 @with_persistent_user_data
 async def start(update: Update, context: CallbackContext) -> None:
     logger.debug("Handling /start command")
@@ -170,12 +194,52 @@ async def list_users(update: Update, context: CallbackContext) -> None:
         logger.error(f"Error in list_users: {e}")
         await update.message.reply_text('Failed to retrieve user list.')
 
+@with_typing_action
+@with_log_admin
+async def cmd_git(update: Update, context: CallbackContext):
+    """Update the bot's version from a git repository"""
+    
+    try:
+        # get the branch name from the message
+        # branch_name = update.message.text.split(' ')[1]
+        message = f"_Updating the bot's code from the branch..._" # `{branch_name}`"
+        logger.info(message)
+        await update.message.reply_text(message, parse_mode=ParseMode.MARKDOWN)
+        
+        # update the bot's code
+        # command = f"git fetch origin {branch_name} && git reset --hard origin/{branch_name}"
+        command = "git status"
+        
+        if len(update.effective_message.text.split(' ')) > 1:
+            git_command = update.effective_message.text.split(' ')[1]
+            logger.info(f"git command: {command}")
+            command = f"git {git_command}"
+        
+        # execute system command and return the result
+        # os.system(command=command)
+        result = os.popen(command).read()
+        logger.info(f"Result: {result}")
+        
+        result = f"_Result:_ `{result}`"
+        
+        await update.message.reply_text(result, parse_mode=ParseMode.MARKDOWN)
+        
+    except Exception as e:
+        logger.error(f"Error: {e}")
+        await update.message.reply_text(f"An error occurred: {e}")
+
 async def post_init(application: Application) -> None:
     logger.info("Bot is starting")
     admin_user_id = dotenv.get_key(dotenv.find_dotenv(), "ADMIN_ID_LIST")
     start_message = "Bot is starting"
     try:
         await application.bot.send_message(chat_id=admin_user_id, text=start_message, parse_mode=ParseMode.MARKDOWN)
+        
+        # Clear all commands
+        await application.bot.set_my_commands([])
+        start_message = "Command menu cleared!"
+        await application.bot.send_message(chat_id=admin_user_id, text=start_message, parse_mode=ParseMode.MARKDOWN)
+            
     except Exception as e:
         logger.error(f"Failed to send start message to admin: {e}")
 
@@ -194,6 +258,12 @@ def main() -> None:
 
     application.add_handler(CommandHandler("start", start))
     application.add_handler(CommandHandler("list_users", list_users, filters=filters.User(user_id=int(admin_id_list))))
+    git_handler = CommandHandler('git', cmd_git, filters=filters.User(user_id=int(admin_id_list)))
+    application.add_handler(git_handler)   
+
+    restart_handler = CommandHandler('restart', restart_bot, filters=filters.User(user_id=int(admin_id_list)))
+    application.add_handler(restart_handler)    
+     
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, validar))
 
     logger.debug("Running bot")
