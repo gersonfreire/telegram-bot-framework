@@ -203,7 +203,7 @@ async def cmd_git(update: Update, context: CallbackContext):
         # execute system command and return the result
         # os.system(command=command)
         result = os.popen(command).read()
-        self.logger.info(f"Result: {result}")
+        logger.info(f"Result: {result}")
         
         result = f"_Result:_ `{result}`"
         
