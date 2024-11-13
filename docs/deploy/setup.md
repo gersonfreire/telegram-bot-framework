@@ -1,16 +1,4 @@
-Here is a
-
-setup.py
-
- file for the
-
-TlgBotFwk
-
- (or
-
-tlgfwk
-
-) package, which you can use to install the package globally on your Windows Python libraries folder:
+Here is a setup.py file for the TlgBotFwk (or tlgfwk) package, which you can use to install the package globally on your Windows Python libraries folder:
 
 ```python
 from setuptools import setup, find_packages
@@ -48,9 +36,7 @@ name
 - `description`: A short description of the package.
 - `author`: The name of the author.
 - `author_email`: The email of the author.
-- 
-
-url
+- url
 
 : The URL of the package's repository (replace with your actual repository URL).
 
