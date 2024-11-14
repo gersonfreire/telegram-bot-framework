@@ -4,11 +4,11 @@
 # SmartMonitTestBot
 DEFAULT_BOT_TOKEN=1076729431:AAE95s3Q_QKkEtVxnProc5BRxdqxKo_S7v8
 
-#
+#  
 DEFAULT_BOT_OWNER=438429121
 ADMIN_ID_LIST=438429121
 
-# ZapDriveBot    
+# ZapDriveBot      
 # DEFAULT_BOT_TOKEN=5798080258:AAEaZ1GuE1dy2EV5wv4fGLTJVF4CxVeohJI
 BOT_NAME='SmartMonitTestBot'
 USEFUL_LINKS='https://github.com/gersonfreire/telegram-bot-framework,https://t.me/USPhonesBot,https://t.me/CepConsultaBot'
