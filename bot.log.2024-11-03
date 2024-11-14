@@ -17,7 +17,7 @@
 2024-11-03 10:18:17,715 - __main__ - DEBUG - Handling /start command
 2024-11-03 10:18:22,394 - __main__ - DEBUG - Sending typing action
 2024-11-03 10:18:53,452 - __main__ - DEBUG - Handling /start command
-2024-11-03 10:19:21,292 - __main__ - INFO - Logging is configured.
+2024-11-03 10:19  21,292 - __main__ - INFO - Logging is configured.
 2024-11-03 10:19:21,293 - __main__ - DEBUG - Starting bot
 2024-11-03 10:19:21,693 - __main__ - DEBUG - Running bot
 2024-11-03 10:19:22,491 - __main__ - INFO - Bot is starting
