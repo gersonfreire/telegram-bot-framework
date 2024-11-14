@@ -52,12 +52,13 @@ setup(
 )
 ```
 
-
 ### Additional Tips
 
 * **Register on PyPI** : If you don't have a PyPI account, register at [PyPI](vscode-file://vscode-app/c:/Users/gerso/AppData/Local/Programs/Microsoft%20VS%20Code/resources/app/out/vs/code/electron-sandbox/workbench/workbench.html).
 * **Test your package** : Before uploading to the main PyPI, you can test your package upload using [TestPyPI](vscode-file://vscode-app/c:/Users/gerso/AppData/Local/Programs/Microsoft%20VS%20Code/resources/app/out/vs/code/electron-sandbox/workbench/workbench.html).
 
-**twine **upload** **--repository-url** **https://test.pypi.org/legacy/** **dist/*****
+```
+twine upload --repository-url https://test.pypi.org/legacy/ dist/*
+```
 
 This will help ensure everything works correctly before uploading to the main PyPI.
