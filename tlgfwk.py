@@ -660,7 +660,7 @@ _Links:_
         links: list[str] = [],
         persistence_file: str = None,
         disable_persistence = False,
-        default_persistence_interval = 5,
+        default_persistence_interval = 10,
         logger = logger,
         sort_commands = True,
         enable_plugins = False,
