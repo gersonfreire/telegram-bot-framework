@@ -1,17 +1,4 @@
-
-Here is a
-
-setup.py
-
- file for the
-
-TlgBotFwk
-
- (or
-
-tlgfwk
-
-) package, which you can use to install the package globally on your Windows Python libraries folder:
+Here is a setup.py file for the TlgBotFwk (or tlgfwk) package, which you can use to install the package globally on your Windows Python libraries folder:
 
 ```python
 from setuptools import setup, find_packages
@@ -49,9 +36,7 @@ name
 - `description`: A short description of the package.
 - `author`: The name of the author.
 - `author_email`: The email of the author.
-- 
-
-url
+- url
 
 : The URL of the package's repository (replace with your actual repository URL).
 
@@ -62,26 +47,9 @@ url
 
 ### Steps to Install the Package Globally:
 
-1. **Ensure you have the necessary files**: Make sure you have the
-
-setup.py
-
- file in the root directory of your
-
-tlgfwk
-
- library.
-
+1. **Ensure you have the necessary files**: Make sure you have the *setup.py* file in the root directory of your *tlgfwk* library.
 2. **Open Command Prompt as Administrator**: To install a package globally, you need administrative privileges. Right-click on the Command Prompt icon and select "Run as administrator".
-3. **Navigate to the directory containing
-
-setup.py
-
-**: Use the `cd` command to navigate to the directory where your
-
-setup.py
-
- file is located. For example:
+3. Navigate to the directory containing setup.py: Use the `cd` command to navigate to the directory where your *setup.py* file is located. For example:
 
 ```sh
    cd path\to\tlgfwk

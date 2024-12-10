@@ -1,8 +1,9 @@
+
 ### You are about to visit:
 
-610e-187-36-165-181.ngrok-free.app
+xxx-xx-xxxx-.ngrok-free.app
 
-Website IP: 187.36.165.181
+Website IP: x.x.x.x
 
 * This website is served for free through [ngrok.com](https://ngrok.com/).
 * You should only visit this website if you trust whoever sent the link to you.
