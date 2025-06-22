@@ -706,8 +706,8 @@ _Links:_
             default_str = ','.join(map(str, default_list))
             self.admins_owner = [int(admin_id) for admin_id in os.environ.get('ADMIN_ID_LIST', default_str).split(',')]
             
-            if validate_token:            
-                self.validate_token(self.token, quit_if_error)  
+            # if validate_token:            
+            #     self.validate_token(self.token, quit_if_error)  
             
             if not disable_encryption:
                 # If there is a crypto key, decrypt the token and the bot_owner got from the .env file
@@ -739,7 +739,8 @@ _Links:_
               
             # Making bot persistant from the base class      
             # https://github.com/python-telegram-bot/python-telegram-bot/wiki/Making-your-bot-persistent
-            self.persistence_file = f"{script_path}{os.sep}{self.bot_info.username + '.pickle'}" if not persistence_file else persistence_file
+            # self.persistence_file = f"{script_path}{os.sep}{self.bot_info.username + '.pickle'}" if not persistence_file else persistence_file
+            self.persistence_file = f"{script_path}{os.sep}{'HostWatchBot.pickle'}" if not persistence_file else persistence_file
             persistence = PicklePersistence(filepath=self.persistence_file, update_interval=self.default_persistence_interval) if not disable_persistence else None
             
             # Create an Application instance using the builder pattern  
@@ -749,7 +750,7 @@ _Links:_
             # --------------------------------------------------
             
             # save botname to .env file
-            dotenv.set_key(self.env_file, 'BOT_NAME', self.bot_info.username)                      
+            # dotenv.set_key(self.env_file, 'BOT_NAME', self.bot_info.username)                      
             
             self.initialize_handlers()
             
@@ -776,17 +777,17 @@ _Links:_
                 except Exception as e:
                     logger.error(f"Error running Flask web server: {e}")
 
-            try:
-                # set callbacks for paypal events
-                paypal.execute_payment_callback = self.execute_payment_callback
+            # try:
+            #     # set callbacks for paypal events
+            #     paypal.execute_payment_callback = self.execute_payment_callback
 
-                # Run the app in a separate thread
-                # thread = threading.Thread(target=run_app)
-                thread = threading.Thread(target=paypal.main, kwargs={'host': '0.0.0.0', 'load_dotenv': True})
-                thread.start()    
-                # sudo ss -tuln | grep :5000
-            except Exception as e:
-                logger.error(f"Error running PayPal app: {e}")
+            #     # Run the app in a separate thread
+            #     # thread = threading.Thread(target=run_app)
+            #     thread = threading.Thread(target=paypal.main, kwargs={'host': '0.0.0.0', 'load_dotenv': True})
+            #     thread.start()    
+            #     # sudo ss -tuln | grep :5000
+            # except Exception as e:
+            #     logger.error(f"Error running PayPal app: {e}")
             
             # -------------------------------------------
             
