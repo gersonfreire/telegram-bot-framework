@@ -3,15 +3,19 @@
 ## 1. Visão Geral
 
 ### 1.1 Propósito
+
 O **HostWatchBot** é um bot Telegram desenvolvido para monitoramento de hosts e serviços de rede. Ele permite aos usuários monitorar a disponibilidade de servidores, verificar portas TCP, executar comandos remotos via SSH e gerenciar credenciais de acesso.
 
 ### 1.2 Versão Atual
+
 - **Versão**: 0.6.2 Failure History
 - **Framework Base**: TlgBotFwk (Telegram Bot Framework)
 - **Linguagem**: Python 3.x
 
 ### 1.3 Arquitetura
+
 O bot é construído sobre o framework `TlgBotFwk` que fornece funcionalidades base como:
+
 - Persistência de dados
 - Sistema de comandos
 - Gerenciamento de usuários
@@ -23,6 +27,7 @@ O bot é construído sobre o framework `TlgBotFwk` que fornece funcionalidades b
 ### 2.1 Monitoramento de Hosts
 
 #### RF001 - Adicionar Host para Monitoramento
+
 - **Comando**: `/pingadd <ip_address> <interval_in_seconds> [port]`
 - **Descrição**: Adiciona um novo host à lista de monitoramento
 - **Parâmetros**:
@@ -35,6 +40,7 @@ O bot é construído sobre o framework `TlgBotFwk` que fornece funcionalidades b
   - Permite apenas um job por host por usuário
 
 #### RF002 - Remover Host do Monitoramento
+
 - **Comando**: `/pingdelete <ip_address>`
 - **Descrição**: Remove um host da lista de monitoramento
 - **Parâmetros**:
@@ -44,6 +50,7 @@ O bot é construído sobre o framework `TlgBotFwk` que fornece funcionalidades b
   - Limpa dados da persistência
 
 #### RF003 - Listar Hosts Monitorados
+
 - **Comando**: `/pinglist [all]`
 - **Descrição**: Lista todos os hosts monitorados
 - **Parâmetros**:
@@ -55,6 +62,7 @@ O bot é construído sobre o framework `TlgBotFwk` que fornece funcionalidades b
   - Limite de 50 hosts por listagem
 
 #### RF004 - Alterar Intervalo de Monitoramento
+
 - **Comando**: `/pinginterval <host_name> <new_interval_in_seconds>`
 - **Descrição**: Altera o intervalo de verificação de um host
 - **Parâmetros**:
@@ -66,6 +74,7 @@ O bot é construído sobre o framework `TlgBotFwk` que fornece funcionalidades b
   - Atualiza persistência
 
 #### RF005 - Alterar Porta de Verificação
+
 - **Comando**: `/changepingport <host_name_or_ip> <new_port_number>`
 - **Descrição**: Altera a porta TCP verificada pelo monitoramento
 - **Parâmetros**:
@@ -78,6 +87,7 @@ O bot é construído sobre o framework `TlgBotFwk` que fornece funcionalidades b
 ### 2.2 Verificação Manual
 
 #### RF006 - Ping Manual de Host
+
 - **Comando**: `/pinghost <host_name>`
 - **Descrição**: Executa verificação manual de um host
 - **Parâmetros**:
@@ -87,6 +97,7 @@ O bot é construído sobre o framework `TlgBotFwk` que fornece funcionalidades b
   - Retorna status up/down
 
 #### RF007 - Verificação de Porta TCP
+
 - **Comando**: `/pinghostport <host_name_or_ip> <port_number>`
 - **Descrição**: Verifica se uma porta TCP está aberta
 - **Parâmetros**:
@@ -100,6 +111,7 @@ O bot é construído sobre o framework `TlgBotFwk` que fornece funcionalidades b
 ### 2.3 Gerenciamento de Credenciais
 
 #### RF008 - Armazenar Credenciais SSH
+
 - **Comando**: `/storecredentials <host_name_or_ip> <username> <password> [port=22]`
 - **Descrição**: Armazena credenciais SSH para um host
 - **Parâmetros**:
@@ -112,6 +124,7 @@ O bot é construído sobre o framework `TlgBotFwk` que fornece funcionalidades b
   - Associa credenciais ao host monitorado
 
 #### RF009 - Consultar Credenciais Armazenadas
+
 - **Comando**: `/storecredentials <host_name>`
 - **Descrição**: Exibe credenciais armazenadas para um host
 - **Parâmetros**:
@@ -123,6 +136,7 @@ O bot é construído sobre o framework `TlgBotFwk` que fornece funcionalidades b
 ### 2.4 Execução de Comandos
 
 #### RF010 - Executar Comando Local
+
 - **Comando**: `/exec <command>`
 - **Descrição**: Executa comando no sistema operacional local
 - **Parâmetros**:
@@ -134,6 +148,7 @@ O bot é construído sobre o framework `TlgBotFwk` que fornece funcionalidades b
   - Escape de caracteres markdown
 
 #### RF011 - Executar Comando SSH
+
 - **Comando**: `/ssh <host_name_or_ip> <command>`
 - **Descrição**: Executa comando via SSH em host remoto
 - **Parâmetros**:
@@ -149,6 +164,7 @@ O bot é construído sobre o framework `TlgBotFwk` que fornece funcionalidades b
 ### 2.5 Relatórios e Logs
 
 #### RF012 - Listar Falhas
+
 - **Comando**: `/listfailures`
 - **Descrição**: Lista hosts e suas últimas falhas
 - **Comportamento**:
@@ -157,6 +173,7 @@ O bot é construído sobre o framework `TlgBotFwk` que fornece funcionalidades b
   - "No failures" para hosts sem falhas
 
 #### RF013 - Controle de Log de Monitoramento
+
 - **Comando**: `/pinglog`
 - **Descrição**: Ativa/desativa logs detalhados de monitoramento
 - **Comportamento**:
@@ -167,6 +184,7 @@ O bot é construído sobre o framework `TlgBotFwk` que fornece funcionalidades b
 ### 2.6 Monitoramento Automático
 
 #### RF014 - Job de Monitoramento
+
 - **Descrição**: Execução automática de verificações
 - **Comportamento**:
   - Executa ping ICMP do host
@@ -177,6 +195,7 @@ O bot é construído sobre o framework `TlgBotFwk` que fornece funcionalidades b
   - Suporte a logs detalhados
 
 #### RF015 - Restauração de Jobs
+
 - **Descrição**: Restaura jobs ao inicializar bot
 - **Comportamento**:
   - Carrega configurações da persistência
@@ -187,30 +206,35 @@ O bot é construído sobre o framework `TlgBotFwk` que fornece funcionalidades b
 ## 3. Requisitos Não Funcionais
 
 ### 3.1 Performance
+
 - **RNF001**: Timeout de 1 segundo para verificações de porta
 - **RNF002**: Limite de 50 hosts por listagem
 - **RNF003**: Intervalo mínimo de 120 segundos entre verificações
 - **RNF004**: Intervalo máximo de 2400 segundos entre verificações
 
 ### 3.2 Segurança
+
 - **RNF005**: Comandos de execução restritos a admins
 - **RNF006**: Credenciais armazenadas com criptografia
 - **RNF007**: Isolamento de dados por usuário
 - **RNF008**: Validação de parâmetros de entrada
 
 ### 3.3 Confiabilidade
+
 - **RNF009**: Persistência automática de dados
 - **RNF010**: Tratamento de erros em todas as operações
 - **RNF011**: Logs detalhados para debugging
 - **RNF012**: Restauração automática de jobs
 
 ### 3.4 Usabilidade
+
 - **RNF013**: Mensagens formatadas em markdown
 - **RNF014**: Links clicáveis para hosts
 - **RNF015**: Tabelas organizadas para listagens
 - **RNF016**: Escape automático de caracteres especiais
 
 ### 3.5 Compatibilidade
+
 - **RNF017**: Suporte a Windows e Linux
 - **RNF018**: Compatibilidade com Python 3.x
 - **RNF019**: Framework Telegram Bot API
@@ -218,6 +242,7 @@ O bot é construído sobre o framework `TlgBotFwk` que fornece funcionalidades b
 ## 4. Estrutura de Dados
 
 ### 4.1 Persistência de Usuário
+
 ```python
 user_data = {
     user_id: {
@@ -241,6 +266,7 @@ user_data = {
 ```
 
 ### 4.2 Job Queue
+
 ```python
 jobs = {
     user_id: {
@@ -252,12 +278,14 @@ jobs = {
 ## 5. Dependências
 
 ### 5.1 Bibliotecas Principais
+
 - `python-telegram-bot`: Framework Telegram
 - `paramiko`: Cliente SSH
 - `httpx`: Cliente HTTP assíncrono
 - `python-dotenv`: Gerenciamento de variáveis de ambiente
 
 ### 5.2 Módulos Internos
+
 - `tlgfwk`: Framework base do bot
 - `util.util_watch`: Utilitários de monitoramento
 - `translations`: Sistema de traduções
@@ -265,6 +293,7 @@ jobs = {
 ## 6. Comandos Disponíveis
 
 ### 6.1 Comandos de Usuário
+
 - `/pingadd` - Adicionar host
 - `/pingdelete` - Remover host
 - `/pinglist` - Listar hosts
@@ -277,10 +306,12 @@ jobs = {
 - `/listfailures` - Listar falhas
 
 ### 6.2 Comandos de Admin
+
 - `/exec` - Executar comando local
 - `/ssh` - Executar comando SSH
 
 ### 6.3 Comandos Herdados do Framework
+
 - `/start` - Iniciar bot
 - `/help` - Ajuda
 - `/version` - Versão
@@ -291,6 +322,7 @@ jobs = {
 ## 7. Fluxos Principais
 
 ### 7.1 Adição de Host
+
 1. Usuário executa `/pingadd`
 2. Validação de parâmetros
 3. Verificação de duplicação
@@ -299,6 +331,7 @@ jobs = {
 6. Confirmação ao usuário
 
 ### 7.2 Monitoramento Automático
+
 1. Job agendado executa
 2. Execução de ping ICMP
 3. Verificação de porta TCP
@@ -307,6 +340,7 @@ jobs = {
 6. Persistência de dados
 
 ### 7.3 Execução SSH
+
 1. Usuário executa `/ssh`
 2. Validação de credenciais
 3. Conexão SSH
@@ -317,6 +351,7 @@ jobs = {
 ## 8. Tratamento de Erros
 
 ### 8.1 Tipos de Erro
+
 - Host não encontrado
 - Credenciais inválidas
 - Timeout de conexão
@@ -325,6 +360,7 @@ jobs = {
 - Erro de persistência
 
 ### 8.2 Estratégias
+
 - Try-catch em todas as operações
 - Logs detalhados de erro
 - Mensagens amigáveis ao usuário
@@ -334,12 +370,14 @@ jobs = {
 ## 9. Configurações
 
 ### 9.1 Arquivo de Ambiente (.env)
+
 - Token do bot Telegram
 - ID do proprietário do bot
 - Configurações de persistência
 - Configurações de logging
 
 ### 9.2 Configurações Padrão
+
 - Intervalo mínimo: 120 segundos
 - Intervalo máximo: 2400 segundos
 - Porta padrão: 80
@@ -349,6 +387,7 @@ jobs = {
 ## 10. Roadmap
 
 ### 10.1 Implementado (v0.6.2)
+
 - Monitoramento básico de hosts
 - Verificação de portas TCP
 - Execução de comandos SSH
@@ -357,9 +396,14 @@ jobs = {
 - Controle de logs
 
 ### 10.2 Planejado
+
 - Paginação nas listagens
 - Monitoramento HTTP/HTTPS
 - Notificações personalizadas
 - Dashboard web
 - Integração com sistemas de monitoramento
-- Backup automático de configurações 
+- Backup automático de configurações
+
+prompt
+
+agora, baseado nestes 3 documentos **@diagrama_arquitetura_host_watch_bot.md** e **@resumo_executivo_host_watch_bot.md** e **@requisitos_host_watch_bot.md** , crie um novo bot telegram, usando a versão mais nova da biblioteca python-telegram-bot, que implemente as mesmas funcionalidades, porém com código mais limpo, organizado, usando as melhores práticas de codificação e arquitetura,  que também seja persistente, ou seja, salve as configurações e dados de usuário e do bot para carregá-las ao iniciar e que também tenha a melhor usabilidade possivel para o usuário. Esse novo bot deve ser criado, todos seus arquivos, código ,etc em uma nova pasta
