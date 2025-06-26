@@ -468,6 +468,27 @@ class JobScheduler:
         
         return job_info
     
+    def get_job_info(self, job_id: str) -> Optional[JobInfo]:
+        """
+        Get information about a specific job.
+        
+        Args:
+            job_id: Job ID to get info for
+            
+        Returns:
+            JobInfo object or None if not found
+        """
+        return self.jobs.get(job_id)
+    
+    def get_all_jobs(self) -> Dict[str, JobInfo]:
+        """
+        Get information about all jobs.
+        
+        Returns:
+            Dictionary of job IDs to JobInfo objects
+        """
+        return self.jobs.copy()
+    
     def list_jobs(
         self,
         user_id: int = None,
