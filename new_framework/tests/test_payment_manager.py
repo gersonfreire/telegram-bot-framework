@@ -9,12 +9,13 @@ from decimal import Decimal
 from tlgfwk.core.payment_manager import PaymentManager, PaymentProvider, PaymentResult, PaymentStatus
 
 
-class MockPaymentProvider(PaymentProvider):
+class MockPaymentProvider:
     """Mock payment provider for testing."""
     
     def __init__(self, should_succeed=True):
         self.should_succeed = should_succeed
         self.processed_payments = []
+        self.provider_type = PaymentProvider.CUSTOM
     
     async def process_payment(self, amount: Decimal, currency: str, user_id: int, description: str = "") -> PaymentResult:
         """Mock payment processing."""

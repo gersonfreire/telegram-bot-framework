@@ -446,6 +446,46 @@ def log_command(func: Callable) -> Callable:
     return wrapper
 
 
+def permission_required(permission_key: str):
+    """
+    Decorator to check if user has a specific permission.
+    
+    Args:
+        permission_key: Key identifying the required permission
+        
+    Returns:
+        Decorator function
+    """
+    def decorator(func: Callable) -> Callable:
+        @functools.wraps(func)
+        async def wrapper(update: Update, context: ContextTypes.DEFAULT_TYPE, *args, **kwargs):
+            user_id = update.effective_user.id if update and update.effective_user else None
+            
+            if not user_id:
+                await update.effective_message.reply_text("Authentication error: User not identified.")
+                return
+            
+            # Access user manager through context.bot_data if available
+            user_manager = context.bot_data.get('user_manager', None)
+            
+            if not user_manager:
+                logger.error("UserManager not found in context.bot_data")
+                await update.effective_message.reply_text("Error: User management system not available.")
+                return
+            
+            # Check if user has the required permission
+            if not await user_manager.has_permission(user_id, permission_key):
+                logger.warning(f"Permission denied: User {user_id} tried to access {permission_key}")
+                await update.effective_message.reply_text("Permission denied: You don't have access to this feature.")
+                return
+            
+            return await func(update, context, *args, **kwargs)
+            
+        return wrapper
+    
+    return decorator
+
+
 def get_command_registry() -> CommandRegistry:
     """Retorna o registry global de comandos."""
     return command_registry
