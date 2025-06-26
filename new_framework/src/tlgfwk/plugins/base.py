@@ -21,6 +21,9 @@ class PluginBase(abc.ABC):
         self.config = {}
         self._commands = []
         self._handlers = []
+
+# Alias for backward compatibility
+BasePlugin = PluginBase
     
     @property
     @abc.abstractmethod

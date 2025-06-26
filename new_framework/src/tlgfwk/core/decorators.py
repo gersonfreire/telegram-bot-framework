@@ -6,6 +6,7 @@ Fornece decoradores para facilitar o registro de comandos e controle de acesso.
 
 import functools
 import inspect
+import time
 from typing import Callable, Optional, List, Dict, Any, Union
 from telegram import Update
 from telegram.ext import ContextTypes
@@ -385,6 +386,36 @@ def validate_args(min_args: int = 0, max_args: Optional[int] = None, usage_text:
         return wrapper
     
     return decorator
+
+
+def log_execution(func: Callable) -> Callable:
+    """
+    Decorator for logging function execution time and parameters.
+    
+    Args:
+        func: The function to be decorated
+        
+    Returns:
+        Wrapped function with logging
+    """
+    @functools.wraps(func)
+    async def wrapper(*args, **kwargs):
+        start_time = time.time()
+        func_name = func.__name__
+        
+        logger.debug(f"Executing {func_name} with args: {args}, kwargs: {kwargs}")
+        
+        try:
+            result = await func(*args, **kwargs) if inspect.iscoroutinefunction(func) else func(*args, **kwargs)
+            execution_time = time.time() - start_time
+            logger.debug(f"Completed {func_name} in {execution_time:.3f}s")
+            return result
+        except Exception as e:
+            execution_time = time.time() - start_time
+            logger.error(f"Error in {func_name} after {execution_time:.3f}s: {str(e)}")
+            raise
+    
+    return wrapper
 
 
 def get_command_registry() -> CommandRegistry:

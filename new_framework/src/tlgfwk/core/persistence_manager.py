@@ -9,10 +9,20 @@ import pickle
 import sqlite3
 import aiofiles
 from pathlib import Path
-from typing import Dict, Any, Optional, List
+from typing import Dict, Any, Optional, List, Protocol
 from datetime import datetime
 
-from telegram.ext.persistence import BasePersistence
+# Create our own BasePersistence class since importing from telegram.ext.persistence may not be available
+class BasePersistence(Protocol):
+    """Protocol for persistence classes that can be used by the framework."""
+    def get_data(self) -> Dict[str, Any]:
+        """Get stored data."""
+        ...
+    
+    def update_data(self, data: Dict[str, Any]) -> None:
+        """Update stored data."""
+        ...
+        
 from ..utils.logger import LoggerMixin
 
 
