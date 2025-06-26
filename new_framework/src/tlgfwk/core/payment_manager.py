@@ -450,23 +450,29 @@ class PaymentManager:
     Handles payment processing across multiple providers.
     """
     
-    def __init__(self, bot_instance, config: Dict[str, Any]):
+    def __init__(self, config: Dict[str, Any], persistence_manager=None):
         """
         Initialize the payment manager.
         
         Args:
-            bot_instance: The main bot framework instance
-            config: Payment configuration
+            config: Payment configuration dictionary
+            persistence_manager: Optional persistence manager for storing payment data
         """
-        self.bot = bot_instance
         self.config = config
+        self.persistence = persistence_manager
         self.logger = get_logger(__name__)
         
         # Payment storage
         self.payments: Dict[str, PaymentRequest] = {}
         
         # Payment providers
-        self.providers: Dict[PaymentProvider, PaymentProvider_Base] = {}
+        self.providers = {}
+        
+        # Set default currency
+        self.default_currency = config.get('payments.default_currency', 'USD')
+        
+        # Check if payment logging is enabled
+        self.enable_logging = config.get('payments.enable_logging', True)
         
         # Set default currency
         self.default_currency = config.get('payments.default_currency', 'USD')
