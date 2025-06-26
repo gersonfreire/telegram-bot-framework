@@ -31,6 +31,8 @@ class TestTelegramBotFramework:
             'features.enable_scheduling': True,
             'plugins.plugin_dir': 'plugins'
         }.get(key, default)
+        # Add direct property access
+        config.plugins_dir = 'plugins'
         return config
     
     @pytest.fixture
