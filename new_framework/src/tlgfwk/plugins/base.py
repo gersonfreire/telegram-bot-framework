@@ -39,18 +39,6 @@ class PluginBase(abc.ABC):
     @property
     @abc.abstractmethod
     def name(self) -> str:
-        """Plugin name."""
-        pass
-        
-    @property
-    @abc.abstractmethod
-    def version(self) -> str:
-        """Plugin version."""
-        pass
-    
-    @property
-    @abc.abstractmethod
-    def name(self) -> str:
         """Nome único do plugin."""
         pass
     
@@ -63,7 +51,12 @@ class PluginBase(abc.ABC):
     @property
     def description(self) -> str:
         """Descrição do plugin."""
-        return ""
+        return self._description if hasattr(self, '_description') else ""
+        
+    @description.setter
+    def description(self, value: str):
+        """Set the plugin description."""
+        self._description = value
     
     @property
     def dependencies(self) -> List[str]:
