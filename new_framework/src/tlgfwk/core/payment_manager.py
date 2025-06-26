@@ -596,65 +596,7 @@ class PaymentManager:
                 error_message=str(e)
             )
     
-    def verify_payment(
-        self,
-        payment_id: str,
-        provider_data: Dict[str, Any]
-    ) -> PaymentResult:
-        """
-        Verify a payment with the provider.
-        
-        Args:
-            payment_id: Payment ID to verify
-            provider_data: Provider-specific verification data
-            
-        Returns:
-            PaymentResult with verification status
-        """
-        try:
-            # Get stored payment
-            if payment_id not in self.payments:
-                # Try to load from persistent storage
-                if hasattr(self.bot, 'persistence'):
-                    payment_data = self.bot.persistence.load_payment_data(payment_id)
-                    if payment_data:
-                        self.payments[payment_id] = PaymentRequest(**payment_data)
-                
-                if payment_id not in self.payments:
-                    raise ValueError(f"Payment {payment_id} not found")
-            
-            payment = self.payments[payment_id]
-            provider_instance = self.providers[payment.provider]
-            
-            # Verify with provider
-            result = provider_instance.verify_payment(payment_id, provider_data)
-            
-            if result.success and result.payment_request:
-                # Update payment status
-                old_status = payment.status
-                payment.status = result.payment_request.status
-                
-                # Update persistent storage
-                if hasattr(self.bot, 'persistence'):
-                    self.bot.persistence.save_payment_data(payment_id, asdict(payment))
-                
-                # Trigger status change callbacks
-                if old_status != payment.status:
-                    event_name = f"payment_{payment.status.value}"
-                    if event_name in self.payment_callbacks:
-                        self._trigger_callbacks(event_name, payment)
-                
-                self.logger.info(f"Payment verified: {payment_id} -> {payment.status.value}")
-            
-            return result
-            
-        except Exception as e:
-            self.logger.error(f"Failed to verify payment {payment_id}: {e}")
-            return PaymentResult(
-                success=False,
-                payment_request=None,
-                error_message=str(e)
-            )
+
     
     def get_payment(self, payment_id: str) -> Optional[PaymentRequest]:
         """
@@ -743,50 +685,7 @@ class PaymentManager:
             self.logger.error(f"Failed to cancel payment {payment_id}: {e}")
             return False
     
-    def refund_payment(self, payment_id: str, amount: Optional[Decimal] = None) -> PaymentResult:
-        """
-        Refund a completed payment.
-        
-        Args:
-            payment_id: Payment ID to refund
-            amount: Amount to refund (None for full refund)
-            
-        Returns:
-            PaymentResult with refund status
-        """
-        try:
-            payment = self.get_payment(payment_id)
-            if not payment:
-                raise ValueError(f"Payment {payment_id} not found")
-            
-            if payment.status != PaymentStatus.COMPLETED:
-                raise ValueError(f"Cannot refund payment with status {payment.status}")
-            
-            provider_instance = self.providers[payment.provider]
-            result = provider_instance.refund_payment(payment_id, amount)
-            
-            if result.success:
-                # Update payment status
-                payment.status = PaymentStatus.REFUNDED
-                
-                # Update persistent storage
-                if hasattr(self.bot, 'persistence'):
-                    self.bot.persistence.save_payment_data(payment_id, asdict(payment))
-                
-                # Trigger callbacks
-                self._trigger_callbacks('payment_refunded', payment)
-                
-                self.logger.info(f"Payment refunded: {payment_id}")
-            
-            return result
-            
-        except Exception as e:
-            self.logger.error(f"Failed to refund payment {payment_id}: {e}")
-            return PaymentResult(
-                success=False,
-                payment_request=None,
-                error_message=str(e)
-            )
+
     
     def add_payment_callback(self, event: str, callback: Callable):
         """
