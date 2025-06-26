@@ -409,51 +409,75 @@ def log_command_usage(func: Callable):
     return wrapper
 
 
-def validate_args(min_args: int = 0, max_args: Optional[int] = None, usage_text: str = ""):
+def validate_args(validator_or_min_args=None, usage_text=None):
     """
     Decorador para validar argumentos de comando.
     
     Args:
-        min_args: Número mínimo de argumentos
-        max_args: Número máximo de argumentos (None = ilimitado)
+        validator_or_min_args: Either a function to validate args or minimum number of arguments
         usage_text: Texto de uso para mostrar em caso de erro
     
     Usage:
+        @validate_args(lambda args: len(args) >= 1, "Uso: /comando <argumento>")
+        async def command_with_args(update, context):
+            arg = context.args[0]
+            await update.message.reply_text(f"Argumento: {arg}")
+            
+        or
+        
         @validate_args(min_args=1, usage_text="Uso: /comando <argumento>")
-        async def command_with_args(self, update, context):
+        async def command_with_args(update, context):
             arg = context.args[0]
             await update.message.reply_text(f"Argumento: {arg}")
     """
     def decorator(func: Callable):
         @functools.wraps(func)
-        async def wrapper(self, update: Update, context: ContextTypes.DEFAULT_TYPE, *args, **kwargs):
-            args_count = len(context.args)
+        async def wrapper(update: Update, context: ContextTypes.DEFAULT_TYPE, *args, **kwargs):
+            # Handle both function validator and min_args style
+            valid = True
+            error_msg = ""
             
-            # Validar número mínimo de argumentos
-            if args_count < min_args:
-                error_msg = f"❌ Argumentos insuficientes. Mínimo: {min_args}, fornecidos: {args_count}"
+            if callable(validator_or_min_args):
+                # Function validator
+                valid = validator_or_min_args(context.args)
+                if not valid:
+                    error_msg = f"❌ Argumentos inválidos."
+            else:
+                # Min/max args validator
+                min_args = validator_or_min_args or 0
+                max_args = kwargs.get("max_args")
+                args_count = len(context.args)
+                
+                # Validate minimum number of arguments
+                if args_count < min_args:
+                    valid = False
+                    error_msg = f"❌ Argumentos insuficientes. Mínimo: {min_args}, fornecidos: {args_count}"
+                
+                # Validate maximum number of arguments
+                elif max_args is not None and args_count > max_args:
+                    valid = False
+                    error_msg = f"❌ Muitos argumentos. Máximo: {max_args}, fornecidos: {args_count}"
+            
+            if not valid:
                 if usage_text:
                     error_msg += f"\n\n{usage_text}"
                 await update.message.reply_text(error_msg)
-                return
+                return None
             
-            # Validar número máximo de argumentos
-            if max_args is not None and args_count > max_args:
-                error_msg = f"❌ Muitos argumentos. Máximo: {max_args}, fornecidos: {args_count}"
-                if usage_text:
-                    error_msg += f"\n\n{usage_text}"
-                await update.message.reply_text(error_msg)
-                return
-            
-            return await func(self, update, context, *args, **kwargs)
+            return await func(update, context, *args, **kwargs)
         
         wrapper._validates_args = True
         wrapper._validation_config = {
-            "min_args": min_args,
-            "max_args": max_args,
+            "validator": validator_or_min_args,
             "usage_text": usage_text
         }
         return wrapper
+    
+    # Handle case when decorator is used with direct arguments
+    if callable(validator_or_min_args) and not isinstance(validator_or_min_args, int):
+        if usage_text is None:
+            # Used as @validate_args without parentheses
+            return decorator(validator_or_min_args)
     
     return decorator
 
@@ -528,12 +552,13 @@ def log_command(func: Callable) -> Callable:
     return wrapper
 
 
-def permission_required(permission_key: str):
+def permission_required(permission_key: str, user_manager=None):
     """
     Decorator to check if user has a specific permission.
     
     Args:
         permission_key: Key identifying the required permission
+        user_manager: Optional user manager instance to check permissions
         
     Returns:
         Decorator function
@@ -544,22 +569,35 @@ def permission_required(permission_key: str):
             user_id = update.effective_user.id if update and update.effective_user else None
             
             if not user_id:
-                await update.effective_message.reply_text("Authentication error: User not identified.")
-                return
+                if hasattr(update, 'message') and update.message:
+                    await update.message.reply_text("Authentication error: User not identified.")
+                logger.warning(f"Permission check failed: No user ID for {permission_key}")
+                return None
             
-            # Access user manager through context.bot_data if available
-            user_manager = context.bot_data.get('user_manager', None)
+            # Determine user manager to use
+            manager_to_use = user_manager
             
-            if not user_manager:
-                logger.error("UserManager not found in context.bot_data")
-                await update.effective_message.reply_text("Error: User management system not available.")
-                return
+            if not manager_to_use:
+                # Try to get user manager from context
+                if hasattr(context, 'bot_data') and context.bot_data.get('user_manager'):
+                    manager_to_use = context.bot_data['user_manager']
+                elif hasattr(context, 'application') and hasattr(context.application, 'user_manager'):
+                    manager_to_use = context.application.user_manager
+            
+            if not manager_to_use:
+                logger.error(f"UserManager not found for permission check: {permission_key}")
+                if hasattr(update, 'message') and update.message:
+                    await update.message.reply_text("Error: User management system not available.")
+                return None
             
             # Check if user has the required permission
-            if not await user_manager.has_permission(user_id, permission_key):
+            has_permission = await manager_to_use.has_permission(user_id, permission_key)
+            
+            if not has_permission:
                 logger.warning(f"Permission denied: User {user_id} tried to access {permission_key}")
-                await update.effective_message.reply_text("Permission denied: You don't have access to this feature.")
-                return
+                if hasattr(update, 'message') and update.message:
+                    await update.message.reply_text("Permission denied: You don't have access to this feature.")
+                return None
             
             return await func(update, context, *args, **kwargs)
             
