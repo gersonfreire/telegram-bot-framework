@@ -158,6 +158,16 @@ class PluginManager:
                 plugin_info.error_message = str(e)
                 return False
             
+            # Start plugin lifecycle
+            try:
+                if hasattr(plugin_instance, 'start') and callable(plugin_instance.start):
+                    if asyncio.iscoroutinefunction(plugin_instance.start):
+                        await plugin_instance.start()
+                    else:
+                        plugin_instance.start()
+            except Exception as e:
+                self.logger.warning(f"Failed to start plugin {plugin_name}: {e}")
+            
             # Add to loaded plugins
             self.loaded_plugins.append(plugin_name)
             plugin_info.status = PluginStatus.LOADED
@@ -272,21 +282,6 @@ class PluginManager:
         self.logger.info(f"Loaded {loaded_count} out of {len(self.plugins)} plugins")
         return loaded_count
     
-    def unload_all_plugins(self) -> Dict[str, bool]:
-        """
-        Unload all loaded plugins.
-        
-        Returns:
-            Dictionary of plugin names and their unload status
-        """
-        results = {}
-        
-        # Unload in reverse dependency order
-        for plugin_name in list(self.loaded_plugins.keys()):
-            results[plugin_name] = self.unload_plugin(plugin_name)
-        
-        return results
-    
     async def unload_all_plugins(self) -> int:
         """
         Unload all loaded plugins.
@@ -301,6 +296,10 @@ class PluginManager:
         
         for plugin_name in plugins_to_unload:
             if await self.unload_plugin(plugin_name):
+                unloaded_count += 1
+        
+        for plugin_name in plugins_to_unload:
+            if self.unload_plugin(plugin_name):
                 unloaded_count += 1
         
         self.logger.info(f"Unloaded {unloaded_count} plugins")

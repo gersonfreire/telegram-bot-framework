@@ -597,7 +597,102 @@ Use /help para ver os comandos disponíveis.
         
         self.log_info("Bot finalizado")
     
-    @property
-    def bot(self):
-        """Retorna instância do bot."""
-        return self.application.bot if self.application else None
+    # Handler methods expected by tests
+    async def _handle_start(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+        """Handle /start command."""
+        user = update.effective_user
+        if user and self.user_manager:
+            await self.user_manager.register_user(
+                user_id=user.id,
+                username=user.username,
+                first_name=user.first_name,
+                last_name=user.last_name
+            )
+        
+        await update.message.reply_text(
+            f"Welcome to {self.config.instance_name}!\n"
+            "Type /help to see available commands."
+        )
+    
+    async def _handle_help(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+        """Handle /help command."""
+        help_text = f"🤖 **{self.config.instance_name}** Help\n\n"
+        help_text += "Available commands:\n"
+        help_text += "• /start - Start the bot\n"
+        help_text += "• /help - Show this help\n"
+        help_text += "• /status - Show bot status\n"
+        
+        if self.user_manager and await self.user_manager.is_admin(update.effective_user.id):
+            help_text += "\n**Admin commands:**\n"
+            help_text += "• /admin - Admin panel\n"
+            help_text += "• /stats - Bot statistics\n"
+        
+        await update.message.reply_text(help_text, parse_mode=ParseMode.MARKDOWN)
+    
+    async def _handle_admin(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+        """Handle /admin command."""
+        user_id = update.effective_user.id
+        
+        if not self.user_manager or not await self.user_manager.is_admin(user_id):
+            await update.message.reply_text(
+                "❌ You are not authorized to access admin functions."
+            )
+            return
+        
+        admin_text = "🔧 **Admin Panel**\n\n"
+        admin_text += "Available admin functions:\n"
+        admin_text += "• Bot management\n"
+        admin_text += "• User management\n"
+        admin_text += "• System monitoring\n"
+        
+        await update.message.reply_text(admin_text, parse_mode=ParseMode.MARKDOWN)
+    
+    async def _handle_status(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+        """Handle /status command."""
+        if self.user_manager:
+            user_count = await self.user_manager.get_user_count()
+        else:
+            user_count = 0
+        
+        status_text = f"📊 **{self.config.instance_name} Status**\n\n"
+        status_text += f"👥 Users: {user_count}\n"
+        status_text += f"🟢 Status: Running\n"
+        
+        if self._startup_time:
+            uptime = datetime.now() - self._startup_time
+            status_text += f"⏱️ Uptime: {uptime.days}d {uptime.seconds//3600}h {(uptime.seconds//60)%60}m\n"
+        
+        await update.message.reply_text(status_text, parse_mode=ParseMode.MARKDOWN)
+    
+    def add_command_handler(self, command: str, handler):
+        """Add a command handler."""
+        if self.application:
+            self.application.add_handler(CommandHandler(command, handler))
+    
+    def command(self, command_name: str, **kwargs):
+        """Decorator for registering commands."""
+        def decorator(func):
+            self.add_command_handler(command_name, func)
+            return func
+        return decorator
+    
+    async def shutdown(self):
+        """Shutdown the framework."""
+        self._running = False
+        
+        if self.application:
+            await self.application.stop()
+            await self.application.shutdown()
+        
+        if self.scheduler:
+            await self.scheduler.shutdown()
+        
+        self.log_info("Framework shutdown complete")
+    
+    async def run_async(self):
+        """Run the framework asynchronously."""
+        if self.application:
+            await self.application.run_polling()
+        
+        if self.scheduler:
+            await self.scheduler.start()
