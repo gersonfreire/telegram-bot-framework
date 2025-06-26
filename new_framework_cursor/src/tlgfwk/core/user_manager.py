@@ -99,10 +99,10 @@ class UserManager:
     
     async def is_admin(self, user_id: int) -> bool:
         """Check if user is admin."""
-        user = await self.get_user(user_id)
-        return user.is_admin if user else False
+        # Checa diretamente na config
+        return user_id in self.config.admin_user_ids
     
     async def is_owner(self, user_id: int) -> bool:
         """Check if user is owner."""
-        user = await self.get_user(user_id)
-        return user.is_owner if user else False 
+        # Checa diretamente na config
+        return user_id == self.config.owner_user_id 

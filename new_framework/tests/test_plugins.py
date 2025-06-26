@@ -251,7 +251,7 @@ Disk: {disk_percent}%"""
         await update.message.reply_text("Disk Information")
     
     async def uptime_command(self, update, context):
-        await update.message.reply_text("Uptime Information")
+        await update.message.reply_text("System Uptime: 24h 30m")
 
 
 class TestSystemMonitorPlugin:
@@ -470,25 +470,39 @@ class UserStatsPlugin(BasePlugin):
         }
     
     async def stats_command(self, update, context):
-        await update.message.reply_text("Bot Statistics")
+        await update.message.reply_text("Bot Statistics\nUsers: 150\nCommands: 500")
     
     async def mystats_command(self, update, context):
         if hasattr(update, 'effective_user') and update.effective_user:
-            user_data = self.bot_instance.user_manager.get_user(update.effective_user.id)
+            user_data = await self.bot_instance.user_manager.get_user(update.effective_user.id)
             if user_data:
-                await update.message.reply_text("Your Statistics")
+                username = user_data.get('username', 'Unknown')
+                await update.message.reply_text(f"Your Statistics\nUsername: {username}")
             else:
                 await update.message.reply_text("User data not found")
         else:
             await update.message.reply_text("Your Statistics")
     
     async def leaderboard_command(self, update, context):
-        await update.message.reply_text("Leaderboard")
+        top_users = self._get_top_users()
+        leaderboard_text = "Leaderboard\n"
+        for i, user in enumerate(top_users, 1):
+            leaderboard_text += f"{i}. {user['username']} - {user['command_count']} commands\n"
+        await update.message.reply_text(leaderboard_text)
     
     async def userstats_command(self, update, context):
         # Check if user is admin
-        if hasattr(self.bot_instance, 'user_manager') and self.bot_instance.user_manager.is_admin(update.effective_user.id):
-            await update.message.reply_text("User Statistics")
+        if hasattr(self.bot_instance, 'user_manager') and await self.bot_instance.user_manager.is_admin(update.effective_user.id):
+            if hasattr(context, 'args') and context.args:
+                target_user_id = context.args[0]
+                user_data = await self.bot_instance.user_manager.get_user(int(target_user_id))
+                if user_data:
+                    username = user_data.get('username', 'Unknown')
+                    await update.message.reply_text(f"User Statistics\nUser: {username}")
+                else:
+                    await update.message.reply_text("User Statistics\nUser not found")
+            else:
+                await update.message.reply_text("User Statistics")
         else:
             await update.message.reply_text("You are not authorized to use this command")
     
