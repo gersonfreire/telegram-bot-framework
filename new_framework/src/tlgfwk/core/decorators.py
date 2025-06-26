@@ -80,13 +80,14 @@ command_registry = CommandRegistry()
 
 
 def command(
-    name: Optional[str] = None,
+    name: Optional[Union[str, List[str]]] = None,
     description: str = "",
     admin_only: bool = False,
     user_only: bool = False,
     aliases: Optional[List[str]] = None,
     hidden: bool = False,
-    category: str = "general"
+    category: str = "general",
+    framework = None
 ):
     """
     Decorador para registrar comandos.
@@ -99,6 +100,7 @@ def command(
         aliases: Lista de aliases para o comando
         hidden: Se True, comando não aparece no help
         category: Categoria do comando
+        framework: Framework instance to register the command with
     
     Usage:
         @command(name="hello", description="Comando de saudação")
@@ -106,22 +108,34 @@ def command(
             await update.message.reply_text("Olá!")
     """
     def decorator(func: Callable):
-        command_name = name or func.__name__.replace("_command", "").replace("_", "")
-        
-        # Registrar comando
-        command_registry.register_command(
-            name=command_name,
-            handler=func,
-            description=description,
-            admin_only=admin_only,
-            user_only=user_only,
-            aliases=aliases,
-            hidden=hidden,
-            category=category
-        )
+        # Handle list of command names
+        command_names = []
+        if isinstance(name, list):
+            command_names = name
+            primary_name = command_names[0] if command_names else func.__name__
+        else:
+            primary_name = name or func.__name__.replace("_command", "").replace("_", "")
+            command_names = [primary_name]
+            
+        # Register command with framework if provided
+        if framework:
+            for cmd_name in command_names:
+                framework.add_command_handler(cmd_name, func)
+        else:
+            # Register in global registry
+            command_registry.register_command(
+                name=primary_name,
+                handler=func,
+                description=description,
+                admin_only=admin_only,
+                user_only=user_only,
+                aliases=aliases,
+                hidden=hidden,
+                category=category
+            )
         
         # Adicionar metadados à função
-        func._command_name = command_name
+        func._command_name = primary_name
         func._command_description = description
         func._command_admin_only = admin_only
         func._command_user_only = user_only
