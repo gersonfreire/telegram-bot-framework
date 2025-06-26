@@ -56,13 +56,13 @@ class TestJob:
 
 
 class TestScheduler:
-    """Test cases for Scheduler class."""
+    """Test cases for JobScheduler class."""
     
     @pytest.fixture
     def scheduler(self):
-        """Create a Scheduler instance."""
+        """Create a JobScheduler instance."""
         mock_bot = Mock()
-        return Scheduler(mock_bot)
+        return JobScheduler(mock_bot)
     
     @pytest.fixture
     def mock_job_func(self):
