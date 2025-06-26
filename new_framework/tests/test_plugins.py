@@ -499,7 +499,8 @@ class UserStatsPlugin(BasePlugin):
                 user_data = await self.bot_instance.user_manager.get_user(int(target_user_id))
                 if user_data:
                     username = user_data.get('username', 'Unknown')
-                    await update.message.reply_text(f"User Statistics\nUser: {username}")
+                    command_count = user_data.get('command_count', 0)
+                    await update.message.reply_text(f"User Statistics\nUser: {username}\nCommand Count: {command_count}")
                 else:
                     await update.message.reply_text("User Statistics\nUser not found")
             else:

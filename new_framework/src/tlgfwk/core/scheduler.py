@@ -43,6 +43,7 @@ class JobStatus(Enum):
     FAILED = "failed"
     PAUSED = "paused"
     SCHEDULED = "scheduled"
+    CANCELLED = "cancelled"
 
 
 class TriggerType(Enum):
@@ -157,9 +158,6 @@ class JobScheduler:
         self.jobs: Dict[str, JobInfo] = {}
         self.job_functions: Dict[str, Callable] = {}
         
-        # Scheduler state
-        self.running = False
-        
         # Event callbacks
         self.job_callbacks: Dict[str, List[Callable]] = {
             'job_added': [],
@@ -255,7 +253,7 @@ class JobScheduler:
         chat_id: int = None,
         replace_existing: bool = False,
         **trigger_kwargs
-    ) -> str:
+    ) -> JobInfo:
         """
         Add a new scheduled job.
         
@@ -271,7 +269,7 @@ class JobScheduler:
             **trigger_kwargs: Trigger-specific parameters
             
         Returns:
-            Job ID
+            JobInfo object
         """
         try:
             # Generate job ID if not provided
@@ -329,7 +327,7 @@ class JobScheduler:
             self.jobs[job_id] = job_info
             
             self.logger.info(f"Job added: {job_id} ({name})")
-            return job_id
+            return job_info
             
         except Exception as e:
             self.logger.error(f"Failed to add job: {e}")
@@ -468,7 +466,7 @@ class JobScheduler:
         
         return job_info
     
-    def get_job_info(self, job_id: str) -> Optional[JobInfo]:
+    def get_job_info(self, job_id: str) -> Optional[Dict[str, Any]]:
         """
         Get information about a specific job.
         
@@ -476,18 +474,54 @@ class JobScheduler:
             job_id: Job ID to get info for
             
         Returns:
-            JobInfo object or None if not found
+            Dictionary with job information or None if not found
         """
-        return self.jobs.get(job_id)
+        job_info = self.jobs.get(job_id)
+        if job_info:
+            return {
+                "id": job_info.id,
+                "name": job_info.name,
+                "description": job_info.description,
+                "trigger": job_info.trigger_type.value,
+                "status": job_info.status.value,
+                "created_at": job_info.created_at,
+                "next_run_time": job_info.next_run_time,
+                "last_run_time": job_info.last_run_time,
+                "run_count": job_info.run_count,
+                "error_count": job_info.error_count,
+                "last_error": job_info.last_error,
+                "user_id": job_info.user_id,
+                "chat_id": job_info.chat_id,
+                "metadata": job_info.metadata
+            }
+        return None
     
-    def get_all_jobs(self) -> Dict[str, JobInfo]:
+    def get_all_jobs(self) -> List[Dict[str, Any]]:
         """
         Get information about all jobs.
         
         Returns:
-            Dictionary of job IDs to JobInfo objects
+            List of job information dictionaries
         """
-        return self.jobs.copy()
+        jobs_list = []
+        for job_info in self.jobs.values():
+            jobs_list.append({
+                "id": job_info.id,
+                "name": job_info.name,
+                "description": job_info.description,
+                "trigger": job_info.trigger_type.value,
+                "status": job_info.status.value,
+                "created_at": job_info.created_at,
+                "next_run_time": job_info.next_run_time,
+                "last_run_time": job_info.last_run_time,
+                "run_count": job_info.run_count,
+                "error_count": job_info.error_count,
+                "last_error": job_info.last_error,
+                "user_id": job_info.user_id,
+                "chat_id": job_info.chat_id,
+                "metadata": job_info.metadata
+            })
+        return jobs_list
     
     def list_jobs(
         self,
@@ -857,6 +891,11 @@ class JobScheduler:
         stats['success_rate'] = (total_runs - total_errors) / total_runs if total_runs > 0 else 0
         
         return stats
+    
+    @property
+    def running(self) -> bool:
+        """Check if scheduler is running."""
+        return self.scheduler.running if self.scheduler else False
 
 
 @dataclass

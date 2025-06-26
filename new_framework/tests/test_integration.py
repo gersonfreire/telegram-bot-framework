@@ -70,8 +70,8 @@ PERSISTENCE_FILE_PATH=test_data.json
             framework.application = mock_app
             
             # Register plugins
-            system_plugin = SystemMonitorPlugin()
-            user_stats_plugin = UserStatsPlugin()
+            system_plugin = SystemMonitorPlugin(framework)
+            user_stats_plugin = UserStatsPlugin(framework)
             
             await framework.plugin_manager.register_plugin(system_plugin)
             await framework.plugin_manager.register_plugin(user_stats_plugin)
