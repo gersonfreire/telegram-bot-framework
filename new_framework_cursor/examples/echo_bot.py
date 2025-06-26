@@ -1,14 +1,13 @@
 #!/usr/bin/env python3
 """
-Simple echo bot example using the Telegram Bot Framework.
+Simple echo bot example using the NEW Telegram Bot Framework (new_framework_cursor).
 """
 
 import sys
 import os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 
-from tlgfwk import TelegramBotFramework
-from tlgfwk.core import command
+from tlgfwk.core import TelegramBotFramework, command
 from telegram import Update
 from telegram.ext import ContextTypes
 
@@ -37,13 +36,13 @@ def main():
     try:
         # Create and run the bot
         bot = EchoBot()
-        print("🤖 Starting Echo Bot...")
+        print("Starting Echo Bot...")
         print("Press Ctrl+C to stop")
         bot.run()
     except KeyboardInterrupt:
-        print("\n👋 Bot stopped by user")
+        print("Bot stopped by user")
     except Exception as e:
-        print(f"❌ Error: {e}")
+        print(f"Error: {e}")
         sys.exit(1)
 
 
