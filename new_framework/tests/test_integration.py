@@ -26,9 +26,9 @@ class TestFrameworkIntegration:
         """Create a temporary configuration file."""
         config_data = """
 # Telegram Bot Configuration
-TELEGRAM_TOKEN=test_token_here
-APP_NAME=TestBot
-APP_ADMIN_USER_IDS=123456,789012
+BOT_TOKEN=123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11
+OWNER_USER_ID=123456
+ADMIN_USER_IDS=123456,789012
 
 # Features
 FEATURES_ENABLE_PERSISTENCE=true
