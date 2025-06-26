@@ -63,7 +63,8 @@ class PluginManager:
         
         # Plugin registry
         self.plugins: Dict[str, PluginInfo] = {}
-        self.loaded_plugins: Dict[str, PluginBase] = {}
+        self.loaded_plugins: List[str] = []
+        self.loaded_plugin_instances: Dict[str, PluginBase] = {}
         self.plugin_modules: Dict[str, Any] = {}
         
         # Dependency graph
