@@ -243,13 +243,13 @@ class JobScheduler:
     
     def add_job(
         self,
-        func: Callable,
-        trigger: Union[str, TriggerType],
+        job_id: str = None,
+        func: Callable = None,
+        trigger: Union[str, TriggerType] = None,
         name: str = None,
         description: str = "",
         user_id: int = None,
         chat_id: int = None,
-        job_id: str = None,
         replace_existing: bool = False,
         **trigger_kwargs
     ) -> str:

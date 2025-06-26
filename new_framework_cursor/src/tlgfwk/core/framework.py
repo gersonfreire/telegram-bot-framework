@@ -176,25 +176,24 @@ class TelegramBotFramework(LoggerMixin):
         
         for command_name, command_info in registry.get_all_commands().items():
             handler = command_info["handler"]
-            
-            # Criar wrapper para métodos de instância
-            if hasattr(handler, '__self__'):
-                # Já é um método bound
-                wrapped_handler = handler
+
+            # Tentar obter o método bound da instância, se existir
+            bound_handler = getattr(self, handler.__name__, None)
+            if bound_handler is not None:
+                wrapped_handler = bound_handler
             else:
-                # Criar wrapper para métodos não-bound
+                # Criar wrapper para funções não-bound
                 def create_wrapper(method):
                     async def wrapper(update: Update, context: ContextTypes.DEFAULT_TYPE):
                         return await method(self, update, context)
                     return wrapper
-                
                 wrapped_handler = create_wrapper(handler)
-            
+
             # Registrar handler
             self.application.add_handler(
                 CommandHandler(command_name, wrapped_handler)
             )
-            
+
             # Registrar aliases
             for alias in command_info.get("aliases", []):
                 self.application.add_handler(

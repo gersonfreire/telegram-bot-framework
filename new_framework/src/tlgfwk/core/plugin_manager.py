@@ -7,6 +7,7 @@ It handles plugin loading, unloading, dependency management, and hot-reloading.
 
 import os
 import sys
+import asyncio
 import importlib
 import importlib.util
 from pathlib import Path
