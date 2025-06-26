@@ -40,6 +40,7 @@ def main():
         print("Starting Echo Bot...")
         print("Press Ctrl+C to stop")
         bot.run()
+        print("DEBUG: bot.run() terminou, entrando no keep alive")
         # --- MANTÉM O SCRIPT VIVO EM AMBIENTES COM EVENT LOOP JÁ ATIVO ---
         import asyncio, time
         try:
@@ -47,8 +48,11 @@ def main():
         except RuntimeError:
             loop = None
         if loop and loop.is_running():
+            print("DEBUG: Loop já está rodando, mantendo o script vivo...")
             while True:
                 time.sleep(3600)
+        else:
+            print("DEBUG: Loop não está rodando, script termina normalmente.")
     except KeyboardInterrupt:
         print("Bot stopped by user")
     except Exception as e:
