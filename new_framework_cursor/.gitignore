@@ -1,0 +1,42 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg-info/
+*.egg
+*.log
+*.sqlite3
+*.db
+*.pkl
+*.pickle
+*.env
+.env*
+.DS_Store
+.idea/
+.vscode/
+.venv/
+build/
+dist/
+htmlcov/
+.coverage
+.pytest_cache/
+*.bak
+*.swp
+*.tmp
+*.orig
+# Test
+.coverage
+htmlcov/
+.pytest_cache/
+# Packaging
+*.egg-info/
+dist/
+build/
+# Secrets
+*.env
+.env*
+# OS
+Thumbs.db
+.DS_Store 

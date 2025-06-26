@@ -1,0 +1,1 @@
+# [TRUNCATED: Copy and adapt the full content from new_framework/src/tlgfwk/core/decorators.py here.] 
