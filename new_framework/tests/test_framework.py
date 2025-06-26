@@ -47,14 +47,16 @@ class TestTelegramBotFramework:
         """Test framework initialization."""
         with patch('tlgfwk.core.framework.Application.builder') as mock_builder:
             mock_app = Mock()
-            mock_builder.return_value.token.return_value.build.return_value = mock_app
+            mock_token_builder = Mock()
+            mock_token_builder.build.return_value = mock_app
+            mock_builder.return_value.token.return_value = mock_token_builder
             
             fw = TelegramBotFramework(custom_config=mock_config)
             
             assert fw.config == mock_config
             assert fw.application == mock_app
             assert fw.user_manager is not None
-            assert fw.persistence_manager is not None
+            assert fw.persistence_manager is None  # Not initialized in constructor
             assert fw.plugin_manager is not None
             assert fw.scheduler is not None
     
