@@ -66,7 +66,7 @@ PERSISTENCE_FILE_PATH=test_data.json
             mock_app.add_handler = Mock()
             mock_builder.return_value.token.return_value.build.return_value = mock_app
             
-            framework = TelegramBotFramework(config)
+            framework = TelegramBotFramework(custom_config=config)
             framework.application = mock_app
             
             # Register plugins
@@ -399,7 +399,7 @@ CRYPTO_KEY=test_key_32_bytes_long_for_aes256
             mock_app.add_handler = Mock()
             mock_builder.return_value.token.return_value.build.return_value = mock_app
             
-            framework = TelegramBotFramework(config)
+            framework = TelegramBotFramework(custom_config=config)
             framework.application = mock_app
             
             # Register plugins

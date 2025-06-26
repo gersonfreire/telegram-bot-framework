@@ -382,6 +382,10 @@ class Config:
     def telegram_bot_token(self):
         return self.bot_token
     
+    @property
+    def connection_pool_size(self):
+        return self.data.get('connection_pool_size', 20)
+    
     # Property setters
     @debug.setter
     def debug(self, value: bool):
