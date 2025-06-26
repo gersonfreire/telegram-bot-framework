@@ -23,8 +23,10 @@ class EchoBot(TelegramBotFramework):
     
     def __init__(self):
         # Initialize with basic configuration
-        # The framework will automatically load config from environment variables
-        super().__init__()
+        # Load config from environment variables using from_env method
+        from tlgfwk.core.config import Config
+        config = Config.from_env()
+        super().__init__(custom_config=config)
     
     def setup_handlers(self):
         """Set up custom message handlers."""
