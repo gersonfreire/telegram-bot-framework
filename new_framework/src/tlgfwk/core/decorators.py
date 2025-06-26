@@ -458,34 +458,46 @@ def validate_args(min_args: int = 0, max_args: Optional[int] = None, usage_text:
     return decorator
 
 
-def log_execution(func: Callable) -> Callable:
+def log_execution(logger_or_func=None):
     """
     Decorator for logging function execution time and parameters.
     
     Args:
-        func: The function to be decorated
+        logger_or_func: Either a logger instance or the function to decorate
         
     Returns:
         Wrapped function with logging
     """
-    @functools.wraps(func)
-    async def wrapper(*args, **kwargs):
-        start_time = time.time()
-        func_name = func.__name__
+    def decorator(func: Callable) -> Callable:
+        @functools.wraps(func)
+        async def wrapper(*args, **kwargs):
+            start_time = time.time()
+            func_name = func.__name__
+            
+            # Use provided logger or default
+            log = logger_or_func if logger_or_func and not callable(logger_or_func) else logger
+            
+            log.info(f"Executing {func_name}")
+            log.debug(f"Executing {func_name} with args: {args}, kwargs: {kwargs}")
+            
+            try:
+                result = await func(*args, **kwargs) if inspect.iscoroutinefunction(func) else func(*args, **kwargs)
+                execution_time = time.time() - start_time
+                log.info(f"Completed {func_name} in {execution_time:.3f}s")
+                log.debug(f"Result from {func_name}: {result}")
+                return result
+            except Exception as e:
+                execution_time = time.time() - start_time
+                log.error(f"Error in {func_name} after {execution_time:.3f}s: {str(e)}")
+                raise
         
-        logger.debug(f"Executing {func_name} with args: {args}, kwargs: {kwargs}")
-        
-        try:
-            result = await func(*args, **kwargs) if inspect.iscoroutinefunction(func) else func(*args, **kwargs)
-            execution_time = time.time() - start_time
-            logger.debug(f"Completed {func_name} in {execution_time:.3f}s")
-            return result
-        except Exception as e:
-            execution_time = time.time() - start_time
-            logger.error(f"Error in {func_name} after {execution_time:.3f}s: {str(e)}")
-            raise
+        return wrapper
     
-    return wrapper
+    # Handle case when decorator is used without arguments @log_execution
+    if callable(logger_or_func):
+        return decorator(logger_or_func)
+    
+    return decorator
 
 
 def log_command(func: Callable) -> Callable:
