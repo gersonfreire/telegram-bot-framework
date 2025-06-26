@@ -128,6 +128,9 @@ def scheduled_job(
     return decorator
 
 
+
+
+
 class JobScheduler:
     """
     Advanced Job Scheduler for the Telegram Bot Framework.
@@ -825,3 +828,25 @@ class JobScheduler:
         stats['success_rate'] = (total_runs - total_errors) / total_runs if total_runs > 0 else 0
         
         return stats
+
+
+@dataclass
+class Job:
+    """Job configuration class."""
+    id: str
+    func: Callable
+    trigger: str
+    kwargs: Dict[str, Any]
+    name: Optional[str] = None
+    description: Optional[str] = None
+    user_id: Optional[int] = None
+    chat_id: Optional[int] = None
+    status: JobStatus = JobStatus.SCHEDULED
+    
+    def __post_init__(self):
+        if not self.name:
+            self.name = self.func.__name__ if hasattr(self.func, "__name__") else "unnamed_job"
+
+
+# Define Scheduler as an alias for JobScheduler for backward compatibility
+Scheduler = JobScheduler

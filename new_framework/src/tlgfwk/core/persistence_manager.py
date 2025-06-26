@@ -8,6 +8,7 @@ import json
 import pickle
 import sqlite3
 import aiofiles
+import os
 from pathlib import Path
 from typing import Dict, Any, Optional, List, Protocol
 from datetime import datetime
@@ -369,3 +370,94 @@ class PersistenceManager(LoggerMixin):
             )
         
         return stats
+
+
+class FilePersistenceManager(PersistenceManager):
+    """Gerenciador de persistência baseado em arquivo."""
+    
+    def __init__(self, file_path: str):
+        """
+        Inicializa a persistência baseada em arquivo.
+        
+        Args:
+            file_path: Caminho para o arquivo de armazenamento
+        """
+        self.file_path = file_path
+        self.data = {}
+        self._load_data()
+    
+    def _load_data(self):
+        """Carrega dados do arquivo."""
+        try:
+            if os.path.exists(self.file_path):
+                with open(self.file_path, 'rb') as f:
+                    self.data = pickle.load(f)
+        except Exception as e:
+            raise PersistenceError(f"Falha ao carregar dados de {self.file_path}: {str(e)}")
+    
+    def _save_data(self):
+        """Salva dados no arquivo."""
+        try:
+            with open(self.file_path, 'wb') as f:
+                pickle.dump(self.data, f)
+        except Exception as e:
+            raise PersistenceError(f"Falha ao salvar dados em {self.file_path}: {str(e)}")
+    
+    def get_data(self) -> Dict[str, Any]:
+        """Obtém todos os dados armazenados."""
+        return self.data
+    
+    def update_data(self, new_data: Dict[str, Any]) -> None:
+        """Atualiza os dados armazenados com novos dados."""
+        self.data.update(new_data)
+        self._save_data()
+    
+    def get_user_data(self, user_id: int) -> Dict[str, Any]:
+        """Obtém dados de um usuário específico."""
+        return self.data.get('user_data', {}).get(str(user_id), {})
+    
+    def update_user_data(self, user_id: int, data: Dict[str, Any]) -> None:
+        """Atualiza dados de um usuário específico."""
+        if 'user_data' not in self.data:
+            self.data['user_data'] = {}
+        
+        if str(user_id) not in self.data['user_data']:
+            self.data['user_data'][str(user_id)] = {}
+            
+        self.data['user_data'][str(user_id)].update(data)
+        self._save_data()
+
+
+class MemoryPersistenceManager(PersistenceManager):
+    """Gerenciador de persistência em memória."""
+    
+    def __init__(self):
+        """Inicializa a persistência em memória."""
+        self.data = {}
+    
+    def get_data(self) -> Dict[str, Any]:
+        """Obtém todos os dados armazenados."""
+        return self.data
+    
+    def update_data(self, new_data: Dict[str, Any]) -> None:
+        """Atualiza os dados armazenados com novos dados."""
+        self.data.update(new_data)
+    
+    def get_user_data(self, user_id: int) -> Dict[str, Any]:
+        """Obtém dados de um usuário específico."""
+        return self.data.get('user_data', {}).get(str(user_id), {})
+    
+    def update_user_data(self, user_id: int, data: Dict[str, Any]) -> None:
+        """Atualiza dados de um usuário específico."""
+        if 'user_data' not in self.data:
+            self.data['user_data'] = {}
+        
+        if str(user_id) not in self.data['user_data']:
+            self.data['user_data'][str(user_id)] = {}
+            
+        self.data['user_data'][str(user_id)].update(data)
+
+
+class PersistenceError(Exception):
+    """Base exception for persistence-related errors."""
+    pass
