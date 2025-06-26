@@ -393,8 +393,8 @@ Use /help para ver os comandos disponíveis.
                 user_count = len(users)
             status_msg = (
                 f"🤖 <b>Status do Bot</b>\n\n"
-                f"<b>Nome:</b> {self.config.instance_name}<br>"
-                f"<b>Uptime:</b> {uptime_str}<br>"
+                f"<b>Nome:</b> {self.config.instance_name}\n"
+                f"<b>Uptime:</b> {uptime_str}\n"
                 f"<b>Usuários registrados:</b> {user_count}"
             )
             await update.message.reply_text(status_msg, parse_mode='HTML')

@@ -59,7 +59,7 @@ PERSISTENCE_FILE_PATH=test_data.json
     @pytest.fixture
     async def integrated_framework(self, temp_config_file):
         """Create a fully integrated framework instance."""
-        config = Config(config_file=temp_config_file)
+        config = Config.from_env(temp_config_file)
         
         with patch('tlgfwk.core.framework.Application.builder') as mock_builder:
             mock_app = Mock(spec=Application)
@@ -356,6 +356,60 @@ PERSISTENCE_FILE_PATH=test_data.json
 @pytest.mark.integration
 class TestEndToEndScenarios:
     """End-to-end scenario tests."""
+    
+    @pytest.fixture
+    async def temp_config_file(self):
+        """Create a temporary configuration file."""
+        config_data = """
+# Telegram Bot Configuration
+BOT_TOKEN=123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11
+OWNER_USER_ID=123456
+ADMIN_USER_IDS=123456,789012
+
+# Features
+FEATURES_ENABLE_PERSISTENCE=true
+FEATURES_ENABLE_PLUGINS=true
+FEATURES_ENABLE_PAYMENTS=false
+FEATURES_ENABLE_SCHEDULING=true
+
+# Logging
+LOGGING_LEVEL=INFO
+LOGGING_FORMAT=%(asctime)s - %(name)s - %(levelname)s - %(message)s
+
+# Crypto
+CRYPTO_KEY=test_key_32_bytes_long_for_aes256
+
+"""
+        fd, path = tempfile.mkstemp(suffix='.env')
+        try:
+            with os.fdopen(fd, 'w') as f:
+                f.write(config_data)
+            yield path
+        finally:
+            if os.path.exists(path):
+                os.unlink(path)
+    
+    @pytest.fixture
+    async def integrated_framework(self, temp_config_file):
+        """Create a fully integrated framework instance."""
+        config = Config.from_env(temp_config_file)
+        
+        with patch('tlgfwk.core.framework.Application.builder') as mock_builder:
+            mock_app = Mock(spec=Application)
+            mock_app.add_handler = Mock()
+            mock_builder.return_value.token.return_value.build.return_value = mock_app
+            
+            framework = TelegramBotFramework(config)
+            framework.application = mock_app
+            
+            # Register plugins
+            system_plugin = SystemMonitorPlugin()
+            user_stats_plugin = UserStatsPlugin()
+            
+            await framework.plugin_manager.register_plugin(system_plugin)
+            await framework.plugin_manager.register_plugin(user_stats_plugin)
+            
+            yield framework
     
     @pytest.mark.asyncio
     async def test_new_user_onboarding_scenario(self, integrated_framework):
