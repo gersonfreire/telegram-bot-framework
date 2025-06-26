@@ -625,7 +625,7 @@ Use /help para ver os comandos disponíveis.
         help_text += "• /help - Show this help\n"
         help_text += "• /status - Show bot status\n"
         
-        if self.user_manager and await self.user_manager.is_admin(update.effective_user.id):
+        if self.user_manager and self.user_manager.is_admin(update.effective_user.id):
             help_text += "\n**Admin commands:**\n"
             help_text += "• /admin - Admin panel\n"
             help_text += "• /stats - Bot statistics\n"
@@ -636,7 +636,7 @@ Use /help para ver os comandos disponíveis.
         """Handle /admin command."""
         user_id = update.effective_user.id
         
-        if not self.user_manager or not await self.user_manager.is_admin(user_id):
+        if not self.user_manager or not self.user_manager.is_admin(user_id):
             await update.message.reply_text(
                 "❌ You are not authorized to access admin functions."
             )

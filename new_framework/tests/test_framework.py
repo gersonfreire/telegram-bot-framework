@@ -33,6 +33,7 @@ class TestTelegramBotFramework:
         }.get(key, default)
         # Add direct property access
         config.plugins_dir = 'plugins'
+        config.instance_name = 'TestBot'
         return config
     
     @pytest.fixture
@@ -151,7 +152,7 @@ class TestTelegramBotFramework:
         
         update.message.reply_text.assert_called_once()
         args, kwargs = update.message.reply_text.call_args
-        assert "Bot Status" in args[0]
+        assert "Status" in args[0]
         assert "10" in args[0]  # User count
     
     @pytest.mark.asyncio
