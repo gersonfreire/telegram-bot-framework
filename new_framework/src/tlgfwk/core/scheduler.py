@@ -300,7 +300,12 @@ class JobScheduler:
                 replace_existing=replace_existing
             )
             
-            # Create job info
+            # Create job info - handle next_run_time safely
+            try:
+                next_run = getattr(apscheduler_job, 'next_run_time', None)
+            except AttributeError:
+                next_run = None
+            
             job_info = JobInfo(
                 id=job_id,
                 name=name or func.__name__,
@@ -312,7 +317,7 @@ class JobScheduler:
                 kwargs={},
                 status=JobStatus.SCHEDULED,
                 created_at=datetime.now(),
-                next_run_time=apscheduler_job.next_run_time,
+                next_run_time=next_run,
                 user_id=user_id,
                 chat_id=chat_id
             )
