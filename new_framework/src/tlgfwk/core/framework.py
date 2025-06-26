@@ -65,11 +65,21 @@ class TelegramBotFramework(LoggerMixin):
         # Configurar logging
         self.setup_logging()
         
-        # Inicializar componentes
-        self.application: Optional[Application] = None
-        self.user_manager: Optional[UserManager] = None
-        self.plugin_manager: Optional[PluginManager] = None
-        self.persistence_manager: Optional[PersistenceManager] = None
+        # Inicializar componentes básicos
+        from telegram.ext import Application
+        if hasattr(Application, 'builder'):
+            app_builder = Application.builder()
+            app_builder.token(self.config.get('telegram.token', 'dummy_token'))
+            self.application = app_builder.build()
+        else:
+            self.application = None
+        
+        # Inicializar gerenciadores
+        from .scheduler import JobScheduler
+        self.user_manager = UserManager(self.config)
+        self.plugin_manager = PluginManager(plugins_dir or "plugins", self)
+        self.persistence_manager = None
+        self.scheduler = JobScheduler(self)
         
         # Estado interno
         self._running = False
