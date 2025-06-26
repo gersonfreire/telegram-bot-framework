@@ -157,6 +157,9 @@ class JobScheduler:
         self.jobs: Dict[str, JobInfo] = {}
         self.job_functions: Dict[str, Callable] = {}
         
+        # Scheduler state
+        self.running = False
+        
         # Event callbacks
         self.job_callbacks: Dict[str, List[Callable]] = {
             'job_added': [],
