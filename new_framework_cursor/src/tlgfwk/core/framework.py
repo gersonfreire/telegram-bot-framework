@@ -133,7 +133,7 @@ class TelegramBotFramework(LoggerMixin):
         
         # Notificar admins sobre inicialização
         await self.send_admin_message(
-            f"🚀 Bot {self.config.instance_name} iniciado com sucesso!"
+            f"Bot {self.config.instance_name} iniciado com sucesso!"
         )
         
         self.log_info("Framework inicializado com sucesso")
@@ -406,7 +406,7 @@ Use /help para ver os comandos disponíveis.
         if self.config.traceback_chat_id:
             tb_text = f"❌ **Erro no bot:**\n\n```\n{traceback.format_exc()}\n```"
             try:
-                await self.bot.send_message(
+                await self.application.bot.send_message(
                     self.config.traceback_chat_id,
                     tb_text,
                     parse_mode=ParseMode.MARKDOWN
@@ -427,7 +427,7 @@ Use /help para ver os comandos disponíveis.
         
         for admin_id in self.config.admin_user_ids:
             try:
-                await self.bot.send_message(admin_id, text, **kwargs)
+                await self.application.bot.send_message(admin_id, text, **kwargs)
             except Exception as e:
                 self.log_error(f"Erro ao enviar mensagem para admin {admin_id}: {e}")
     
@@ -440,7 +440,7 @@ Use /help para ver os comandos disponíveis.
         
         for user in users:
             try:
-                await self.bot.send_message(user.user_id, text, **kwargs)
+                await self.application.bot.send_message(user.user_id, text, **kwargs)
             except Exception as e:
                 self.log_error(f"Erro ao enviar broadcast para {user.user_id}: {e}")
     
@@ -450,20 +450,30 @@ Use /help para ver os comandos disponíveis.
             self._startup_time = datetime.now()
             self._running = True
             
-            # Inicializar framework
-            asyncio.run(self.initialize())
-            
-            # Executar polling (como o framework legado)
-            self.run_polling(
-                allowed_updates=Update.ALL_TYPES,
-                drop_pending_updates=True
-            )
+            # Executar tudo de forma assíncrona
+            asyncio.run(self._run_async())
 
         except KeyboardInterrupt:
             self.log_info("Bot interrompido pelo usuário")
         except Exception as e:
             self.log_error(f"Erro fatal: {e}")
             # Não propaga para não encerrar o processo
+
+    async def _run_async(self):
+        """Executa o bot de forma assíncrona."""
+        try:
+            # Inicializar framework
+            await self.initialize()
+            
+            # Executar polling
+            await self.application.run_polling(
+                allowed_updates=Update.ALL_TYPES,
+                drop_pending_updates=True
+            )
+
+        except Exception as e:
+            self.log_error(f"Erro durante execução: {e}")
+            # Não propaga o erro para evitar parada do bot em ambientes interativos
 
     async def stop(self):
         """Para o bot de forma graceful."""
@@ -489,4 +499,4 @@ Use /help para ver os comandos disponíveis.
     @property
     def bot(self):
         """Retorna a instância do bot."""
-        return self.bot if hasattr(self, 'bot') else None 
+        return self.application.bot if self.application else None 
