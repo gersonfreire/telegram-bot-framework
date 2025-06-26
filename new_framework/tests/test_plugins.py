@@ -179,6 +179,7 @@ class SystemMonitorPlugin(BasePlugin):
     
     async def initialize(self, bot_instance, config: Dict[str, Any]) -> bool:
         self.bot_instance = bot_instance
+        self.config = config
         return True
     
     async def start(self) -> bool:
@@ -450,6 +451,7 @@ class UserStatsPlugin(BasePlugin):
     
     async def initialize(self, bot_instance, config: Dict[str, Any]) -> bool:
         self.bot_instance = bot_instance
+        self.config = config
         return True
     
     async def start(self) -> bool:
