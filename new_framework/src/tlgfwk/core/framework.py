@@ -56,9 +56,11 @@ class TelegramBotFramework(LoggerMixin):
         """
         # Carregar configuração
         if custom_config:
-            self.config = Config(**custom_config)
-        else:
+            self.config = custom_config if isinstance(custom_config, Config) else Config(**custom_config)
+        elif config_file:
             self.config = Config.from_env(config_file)
+        else:
+            self.config = Config()
         
         # Configurar logging
         self.setup_logging()
