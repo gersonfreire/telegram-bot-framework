@@ -8,16 +8,22 @@ from unittest.mock import Mock, AsyncMock, patch, MagicMock
 from typing import Dict, Any
 
 from tlgfwk.core.plugin_manager import PluginManager
-from tlgfwk.plugins.base import BasePlugin
+from tlgfwk.plugins.base import PluginBase
 
 
-class MockPlugin(BasePlugin):
+class MockPlugin(PluginBase):
     """Mock plugin for testing."""
+    
+    @property
+    def name(self) -> str:
+        return "MockPlugin"
+    
+    @property
+    def version(self) -> str:
+        return "1.0.0"
     
     def __init__(self):
         super().__init__()
-        self.name = "MockPlugin"
-        self.version = "1.0.0"
         self.description = "A mock plugin for testing"
         self.initialized = False
         self.started = False
@@ -49,13 +55,19 @@ class MockPlugin(BasePlugin):
         await update.message.reply_text("Mock command executed")
 
 
-class FailingPlugin(BasePlugin):
+class FailingPlugin(PluginBase):
     """Plugin that fails during operations."""
+    
+    @property
+    def name(self) -> str:
+        return "FailingPlugin"
+    
+    @property
+    def version(self) -> str:
+        return "1.0.0"
     
     def __init__(self):
         super().__init__()
-        self.name = "FailingPlugin"
-        self.version = "1.0.0"
         self.description = "A plugin that fails"
     
     async def initialize(self, bot_instance, config: Dict[str, Any]) -> bool:

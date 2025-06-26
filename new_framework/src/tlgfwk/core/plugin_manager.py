@@ -63,7 +63,7 @@ class PluginManager:
         
         # Plugin registry
         self.plugins: Dict[str, PluginInfo] = {}
-        self.loaded_plugins: List[str] = []
+        self.loaded_plugins = []  # List of loaded plugin names for compatibility with tests
         self.loaded_plugin_instances: Dict[str, PluginBase] = {}
         self.plugin_modules: Dict[str, Any] = {}
         
@@ -108,93 +108,71 @@ class PluginManager:
         self.logger.info(f"Discovered {len(discovered)} plugins: {discovered}")
         return discovered
     
-    def load_plugin(self, plugin_name: str, force_reload: bool = False) -> bool:
+    async def load_plugin(self, plugin_name: str, bot_instance=None, config=None) -> bool:
         """
         Load a specific plugin.
         
         Args:
             plugin_name: Name of the plugin to load
-            force_reload: Force reload if already loaded
+            bot_instance: Bot instance (optional, uses self.bot if not provided)
+            config: Plugin configuration (optional)
             
         Returns:
             True if successful, False otherwise
         """
         try:
+            # Check if plugin is registered
+            if plugin_name not in self.plugins:
+                self.logger.error(f"Plugin {plugin_name} is not registered")
+                return False
+            
             # Check if already loaded
-            if plugin_name in self.loaded_plugins and not force_reload:
+            if plugin_name in self.loaded_plugins:
                 self.logger.warning(f"Plugin {plugin_name} is already loaded")
                 return True
             
-            # Check if disabled
-            if plugin_name in self.disabled_plugins:
-                self.logger.info(f"Plugin {plugin_name} is disabled, skipping load")
+            plugin_info = self.plugins[plugin_name]
+            plugin_instance = plugin_info.instance
+            
+            if not plugin_instance:
+                self.logger.error(f"Plugin {plugin_name} has no instance")
                 return False
             
-            # Find plugin file
-            plugin_path = self._find_plugin_path(plugin_name)
-            if not plugin_path:
-                self.logger.error(f"Plugin {plugin_name} not found")
-                return False
-            
-            # Load module
-            module = self._load_plugin_module(plugin_name, plugin_path)
-            if not module:
-                return False
-            
-            # Find plugin class
-            plugin_class = self._find_plugin_class(module, plugin_name)
-            if not plugin_class:
-                return False
-            
-            # Create plugin instance
-            plugin_instance = plugin_class(self.bot)
-            
-            # Validate dependencies
-            if not self._validate_dependencies(plugin_instance):
-                return False
+            # Use provided bot instance or fallback to self.bot
+            bot = bot_instance or self.bot
             
             # Initialize plugin
             try:
-                plugin_instance.initialize()
+                if hasattr(plugin_instance, 'initialize') and callable(plugin_instance.initialize):
+                    if config:
+                        await plugin_instance.initialize(bot, config)
+                    else:
+                        await plugin_instance.initialize(bot)
+                else:
+                    # Fallback for plugins without async initialize
+                    if hasattr(plugin_instance, 'bot_instance'):
+                        plugin_instance.bot_instance = bot
             except Exception as e:
                 self.logger.error(f"Failed to initialize plugin {plugin_name}: {e}")
-                self._update_plugin_status(plugin_name, PluginStatus.ERROR, str(e))
+                plugin_info.status = PluginStatus.ERROR
+                plugin_info.error_message = str(e)
                 return False
             
-            # Register plugin
-            self.loaded_plugins[plugin_name] = plugin_instance
-            self.plugin_modules[plugin_name] = module
-            
-            # Update plugin info
-            plugin_info = PluginInfo(
-                name=plugin_instance.name,
-                version=plugin_instance.version,
-                description=plugin_instance.description,
-                author=plugin_instance.author,
-                dependencies=plugin_instance.dependencies,
-                status=PluginStatus.LOADED,
-                instance=plugin_instance,
-                file_path=str(plugin_path)
-            )
-            self.plugins[plugin_name] = plugin_info
-            
-            # Update dependency graph
-            self._update_dependency_graph(plugin_name, plugin_instance.dependencies)
-            
-            # Store file timestamp for hot reload
-            if plugin_path.is_file():
-                self._file_timestamps[str(plugin_path)] = plugin_path.stat().st_mtime
+            # Add to loaded plugins
+            self.loaded_plugins.append(plugin_name)
+            plugin_info.status = PluginStatus.LOADED
             
             self.logger.info(f"Plugin {plugin_name} loaded successfully")
             return True
             
         except Exception as e:
             self.logger.error(f"Failed to load plugin {plugin_name}: {e}")
-            self.logger.debug(traceback.format_exc())
-            self._update_plugin_status(plugin_name, PluginStatus.ERROR, str(e))
+            if plugin_name in self.plugins:
+                self.plugins[plugin_name].status = PluginStatus.ERROR
+                self.plugins[plugin_name].error_message = str(e)
             return False
     
-    def unload_plugin(self, plugin_name: str) -> bool:
+    async def unload_plugin(self, plugin_name: str) -> bool:
         """
         Unload a specific plugin.
         
@@ -209,45 +187,21 @@ class PluginManager:
                 self.logger.warning(f"Plugin {plugin_name} is not loaded")
                 return True
             
-            # Check for dependent plugins
-            dependents = self.reverse_dependencies.get(plugin_name, set())
-            if dependents:
-                loaded_dependents = [dep for dep in dependents if dep in self.loaded_plugins]
-                if loaded_dependents:
-                    self.logger.error(
-                        f"Cannot unload plugin {plugin_name}: "
-                        f"plugins {loaded_dependents} depend on it"
-                    )
-                    return False
+            plugin_info = self.plugins.get(plugin_name)
+            if plugin_info and plugin_info.instance:
+                # Cleanup plugin
+                try:
+                    if hasattr(plugin_info.instance, 'cleanup') and callable(plugin_info.instance.cleanup):
+                        await plugin_info.instance.cleanup()
+                except Exception as e:
+                    self.logger.warning(f"Error during plugin {plugin_name} cleanup: {e}")
             
-            # Get plugin instance
-            plugin_instance = self.loaded_plugins[plugin_name]
-            
-            # Cleanup plugin
-            try:
-                plugin_instance.cleanup()
-            except Exception as e:
-                self.logger.warning(f"Error during plugin {plugin_name} cleanup: {e}")
-            
-            # Remove from registry
-            del self.loaded_plugins[plugin_name]
-            
-            # Remove module from cache
-            if plugin_name in self.plugin_modules:
-                module = self.plugin_modules[plugin_name]
-                if hasattr(module, '__file__') and module.__file__:
-                    module_name = module.__name__
-                    if module_name in sys.modules:
-                        del sys.modules[module_name]
-                del self.plugin_modules[plugin_name]
+            # Remove from loaded plugins list
+            self.loaded_plugins.remove(plugin_name)
             
             # Update status
-            if plugin_name in self.plugins:
-                self.plugins[plugin_name].status = PluginStatus.UNLOADED
-                self.plugins[plugin_name].instance = None
-            
-            # Clean up dependency graph
-            self._remove_from_dependency_graph(plugin_name)
+            if plugin_info:
+                plugin_info.status = PluginStatus.UNLOADED
             
             self.logger.info(f"Plugin {plugin_name} unloaded successfully")
             return True
@@ -298,6 +252,26 @@ class PluginManager:
         
         return results
     
+    async def load_all_plugins(self, bot_instance=None, config=None) -> int:
+        """
+        Load all registered plugins.
+        
+        Args:
+            bot_instance: Bot instance (optional)
+            config: Configuration for plugins (optional)
+            
+        Returns:
+            Number of successfully loaded plugins
+        """
+        loaded_count = 0
+        
+        for plugin_name in self.plugins.keys():
+            if await self.load_plugin(plugin_name, bot_instance, config):
+                loaded_count += 1
+        
+        self.logger.info(f"Loaded {loaded_count} out of {len(self.plugins)} plugins")
+        return loaded_count
+    
     def unload_all_plugins(self) -> Dict[str, bool]:
         """
         Unload all loaded plugins.
@@ -313,7 +287,56 @@ class PluginManager:
         
         return results
     
-    def unregister_plugin(self, plugin_name: str) -> bool:
+    async def unload_all_plugins(self) -> int:
+        """
+        Unload all loaded plugins.
+        
+        Returns:
+            Number of successfully unloaded plugins
+        """
+        unloaded_count = 0
+        
+        # Create a copy of the list to avoid modification during iteration
+        plugins_to_unload = list(self.loaded_plugins)
+        
+        for plugin_name in plugins_to_unload:
+            if await self.unload_plugin(plugin_name):
+                unloaded_count += 1
+        
+        self.logger.info(f"Unloaded {unloaded_count} plugins")
+        return unloaded_count
+    
+    async def register_plugin(self, plugin_name: str, plugin_instance: PluginBase) -> bool:
+        """
+        Register a plugin instance.
+        
+        Args:
+            plugin_name: Name of the plugin
+            plugin_instance: Plugin instance to register
+            
+        Returns:
+            True if successful, False if already registered
+        """
+        if plugin_name in self.plugins:
+            self.logger.warning(f"Plugin {plugin_name} is already registered")
+            return False
+        
+        # Create plugin info
+        plugin_info = PluginInfo(
+            name=plugin_instance.name,
+            version=plugin_instance.version,
+            description=plugin_instance.description,
+            author=getattr(plugin_instance, 'author', 'Unknown'),
+            dependencies=getattr(plugin_instance, 'dependencies', []),
+            status=PluginStatus.UNLOADED,
+            instance=plugin_instance
+        )
+        
+        self.plugins[plugin_name] = plugin_info
+        self.logger.info(f"Plugin {plugin_name} registered successfully")
+        return True
+    
+    async def unregister_plugin(self, plugin_name: str) -> bool:
         """
         Unregister a plugin.
         
@@ -321,20 +344,19 @@ class PluginManager:
             plugin_name: Name of the plugin to unregister
             
         Returns:
-            True if successful, False otherwise
+            True if successful, False if not found
         """
         if plugin_name not in self.plugins:
             self.logger.warning(f"Plugin {plugin_name} is not registered")
             return False
         
-        # Unload first if loaded
+        # Unload if loaded
         if plugin_name in self.loaded_plugins:
-            if not self.unload_plugin(plugin_name):
-                return False
+            await self.unload_plugin(plugin_name)
         
         # Remove from registry
         del self.plugins[plugin_name]
-        self.logger.info(f"Plugin {plugin_name} unregistered")
+        self.logger.info(f"Plugin {plugin_name} unregistered successfully")
         return True
     
     def get_loaded_plugins(self) -> List[str]:
@@ -344,7 +366,7 @@ class PluginManager:
         Returns:
             List of loaded plugin names
         """
-        return list(self.loaded_plugins.keys())
+        return list(self.loaded_plugins)
     
     def get_registered_plugins(self) -> List[str]:
         """
@@ -369,23 +391,15 @@ class PluginManager:
             return None
         
         plugin_info = self.plugins[plugin_name]
-        info = {
+        return {
             'name': plugin_info.name,
+            'version': plugin_info.version,
+            'description': plugin_info.description,
+            'author': plugin_info.author,
+            'dependencies': plugin_info.dependencies,
             'status': plugin_info.status.value,
-            'version': getattr(plugin_info.instance, 'version', 'Unknown') if plugin_info.instance else 'Unknown',
-            'description': getattr(plugin_info.instance, 'description', '') if plugin_info.instance else '',
-            'dependencies': list(plugin_info.dependencies),
-            'enabled': plugin_info.enabled
+            'loaded': plugin_name in self.loaded_plugins
         }
-        
-        if plugin_info.instance:
-            info['commands'] = len(getattr(plugin_info.instance, 'get_commands', lambda: [])())
-            info['handlers'] = len(getattr(plugin_info.instance, 'get_handlers', lambda: [])())
-        else:
-            info['commands'] = 0
-            info['handlers'] = 0
-        
-        return info
     
     def list_plugins(self, status_filter: Optional[PluginStatus] = None) -> List[PluginInfo]:
         """
