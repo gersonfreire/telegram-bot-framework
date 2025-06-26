@@ -283,6 +283,7 @@ class TestScheduler:
         try:
             # asyncio.sleep(2)  # Wait for execution
             # Test would verify the result if arguments are supported
+            pass  # Placeholder for test logic
         finally:
             scheduler.stop()
     
