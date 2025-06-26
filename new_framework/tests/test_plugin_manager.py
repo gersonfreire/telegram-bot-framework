@@ -287,7 +287,7 @@ class TestPluginManager:
     @pytest.mark.asyncio
     async def test_get_plugin_info_not_found(self, plugin_manager):
         """Test getting info for non-existent plugin."""
-        info = await plugin_manager.get_plugin_info("NonExistentPlugin")
+        info = plugin_manager.get_plugin_info("NonExistentPlugin")
         
         assert info is None
     
