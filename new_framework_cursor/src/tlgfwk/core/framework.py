@@ -453,8 +453,15 @@ Use /help para ver os comandos disponíveis.
             if loop and loop.is_running():
                 self.log_info("Event loop já está rodando. Usando create_task para iniciar o bot.")
                 task = loop.create_task(self._run_async())
-                # Opcional: aguardar o task terminar se for script principal
-                # loop.run_until_complete(task)
+                # Aguarda o task principal terminar para não encerrar o script
+                try:
+                    loop.run_until_complete(task)
+                except RuntimeError:
+                    # Em ambientes como Jupyter, run_until_complete não é permitido
+                    # Mantém o script vivo enquanto o bot está rodando
+                    import time
+                    while not task.done():
+                        time.sleep(1)
             else:
                 asyncio.run(self._run_async())
 
@@ -462,8 +469,8 @@ Use /help para ver os comandos disponíveis.
             self.log_info("Bot interrompido pelo usuário")
         except Exception as e:
             self.log_error(f"Erro fatal: {e}")
-            raise
-    
+            # Não propaga para não encerrar o processo
+
     async def _run_async(self):
         try:
             # Inicializar framework
