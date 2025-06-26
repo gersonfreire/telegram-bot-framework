@@ -386,6 +386,14 @@ class Config:
     def connection_pool_size(self):
         return self.data.get('connection_pool_size', 20)
     
+    @property
+    def persistence_backend(self):
+        return self.data.get('persistence_backend', 'none')
+    
+    @property
+    def plugins_dir(self):
+        return self.data.get('plugins_dir', 'plugins')
+    
     # Property setters
     @debug.setter
     def debug(self, value: bool):

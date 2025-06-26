@@ -1,5 +1,5 @@
-from tlgfwk.plugins.base import PluginBase
-from tlgfwk.core.decorators import command
+from src.tlgfwk.plugins.base import PluginBase
+from src.tlgfwk.core.decorators import command
 
 class HelloPlugin(PluginBase):
     name = "HelloPlugin"

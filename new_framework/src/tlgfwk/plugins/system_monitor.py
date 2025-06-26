@@ -25,9 +25,19 @@ class SystemMonitorPlugin(PluginBase):
     def __init__(self, bot):
         super().__init__(bot)
         
-        # Plugin metadata
-        self.name = "System Monitor"
-        self.version = "1.0.0"
+        # Plugin metadata - store as private attributes
+        self._name = "System Monitor"
+        self._version = "1.0.0"
+        
+    @property
+    def name(self) -> str:
+        """Plugin name."""
+        return self._name
+        
+    @property
+    def version(self) -> str:
+        """Plugin version."""
+        return self._version
         self.description = "Monitor system resources and send alerts"
         self.author = "Telegram Bot Framework"
         self.dependencies = []

@@ -1,7 +1,5 @@
 import os
-import sys
-from pathlib import Path
-from tlgfwk.core import TelegramBotFramework
+from src.tlgfwk.core import TelegramBotFramework
 
 class PluginBot(TelegramBotFramework):
     def __init__(self, config_file=None):
