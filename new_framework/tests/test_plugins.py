@@ -165,6 +165,7 @@ class SystemMonitorPlugin(BasePlugin):
         self._version = "1.0.0"
         self.description = "System monitoring plugin"
         self.bot_instance = None
+        self.config = {}
     
     @property
     def name(self) -> str:
