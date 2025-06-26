@@ -6,6 +6,7 @@ import pytest
 import tempfile
 import os
 import json
+import asyncio
 from unittest.mock import Mock, AsyncMock, patch, mock_open
 
 from tlgfwk.core.persistence_manager import PersistenceManager, FilePersistenceManager, MemoryPersistenceManager
