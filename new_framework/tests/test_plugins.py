@@ -220,7 +220,7 @@ Disk: {disk_percent}%"""
             cpu_count = psutil.cpu_count()
             await update.message.reply_text(f"CPU Usage: {cpu_percent}%\nCores: {cpu_count}")
         except Exception as e:
-            await update.message.reply_text(f"CPU Usage: 65.2%")
+            await update.message.reply_text(f"Error reading CPU information: {str(e)}")
     
     async def memory_command(self, update, context):
         try:
