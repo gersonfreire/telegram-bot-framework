@@ -21,8 +21,15 @@ class TestLogger:
         fd, path = tempfile.mkstemp(suffix='.log')
         os.close(fd)
         yield path
-        if os.path.exists(path):
-            os.unlink(path)
+        try:
+            # Make sure logger instances are closed to release file locks
+            logging.shutdown()
+            if os.path.exists(path):
+                os.unlink(path)
+        except PermissionError:
+            # On Windows, files might be locked even after logging.shutdown()
+            # Just leave them for the OS to clean up in this case
+            pass
     
     def test_logger_initialization_default(self):
         """Test logger initialization with default settings."""

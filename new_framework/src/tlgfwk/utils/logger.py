@@ -17,7 +17,7 @@ from datetime import datetime
 class Logger:
     """Simple logger wrapper class."""
     
-    def __init__(self, name: str, config: Optional[Dict[str, Any]] = None):
+    def __init__(self, name: str = "tlgfwk", config: Optional[Dict[str, Any]] = None):
         """Initialize logger."""
         self.logger = logging.getLogger(name)
         
