@@ -468,6 +468,12 @@ class PaymentManager:
         # Payment providers
         self.providers: Dict[PaymentProvider, PaymentProvider_Base] = {}
         
+        # Set default currency
+        self.default_currency = config.get('payments.default_currency', 'USD')
+        
+        # Check if payment logging is enabled
+        self.enable_logging = config.get('payments.enable_logging', True)
+        
         # Event callbacks
         self.payment_callbacks: Dict[str, List[Callable]] = {
             'payment_created': [],
