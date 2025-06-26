@@ -75,12 +75,11 @@ class TestScheduler:
         """Test Scheduler initialization."""
         assert scheduler.jobs == {}
         assert scheduler.running is False
-        assert scheduler._scheduler is not None
+        assert scheduler.scheduler is not None
     
-    @pytest.mark.asyncio
-    async def test_add_job_interval(self, scheduler, mock_job_func):
+    def test_add_job_interval(self, scheduler, mock_job_func):
         """Test adding an interval job."""
-        job = await scheduler.add_job(
+        job_id = scheduler.add_job(
             job_id="test_interval",
             func=mock_job_func,
             trigger="interval",
@@ -88,10 +87,11 @@ class TestScheduler:
             name="Test Interval Job"
         )
         
-        assert job.id == "test_interval"
-        assert job.trigger == "interval"
-        assert job.kwargs["seconds"] == 30
+        assert job_id == "test_interval"
         assert "test_interval" in scheduler.jobs
+        job_info = scheduler.jobs["test_interval"]
+        assert job_info.name == "Test Interval Job"
+        assert job_info.trigger_type == TriggerType.INTERVAL
     
     @pytest.mark.asyncio
     async def test_add_job_cron(self, scheduler, mock_job_func):
