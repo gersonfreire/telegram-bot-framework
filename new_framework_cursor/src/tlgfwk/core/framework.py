@@ -131,8 +131,9 @@ class TelegramBotFramework(LoggerMixin):
         self.log_info("Inicializando componentes do framework...")
         
         # Notificar admins sobre inicialização
+        bot_name = await self._get_bot_display_name()
         await self.send_admin_message(
-            f"Bot {self.config.instance_name} iniciado com sucesso!"
+            f"Bot {bot_name} iniciado com sucesso!"
         )
         
         self.log_info("Framework inicializado com sucesso")
