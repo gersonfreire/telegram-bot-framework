@@ -263,7 +263,7 @@ class PluginManager:
         
         return results
     
-    async def load_all_plugins(self, bot_instance=None, config=None) -> int:
+    async def load_all_plugins(self, bot_instance=None, config=None) -> Dict[str, bool]:
         """
         Load all registered plugins.
         
@@ -272,39 +272,35 @@ class PluginManager:
             config: Configuration for plugins (optional)
             
         Returns:
-            Number of successfully loaded plugins
+            Dictionary of plugin names and their load status
         """
-        loaded_count = 0
+        results = {}
         
         for plugin_name in self.plugins.keys():
-            if await self.load_plugin(plugin_name, bot_instance, config):
-                loaded_count += 1
+            results[plugin_name] = await self.load_plugin(plugin_name, bot_instance, config)
         
+        loaded_count = sum(1 for success in results.values() if success)
         self.logger.info(f"Loaded {loaded_count} out of {len(self.plugins)} plugins")
-        return loaded_count
+        return results
     
-    async def unload_all_plugins(self) -> int:
+    async def unload_all_plugins(self) -> Dict[str, bool]:
         """
         Unload all loaded plugins.
         
         Returns:
-            Number of successfully unloaded plugins
+            Dictionary of plugin names and their unload status
         """
-        unloaded_count = 0
+        results = {}
         
         # Create a copy of the list to avoid modification during iteration
         plugins_to_unload = list(self.loaded_plugins)
         
         for plugin_name in plugins_to_unload:
-            if await self.unload_plugin(plugin_name):
-                unloaded_count += 1
+            results[plugin_name] = await self.unload_plugin(plugin_name)
         
-        for plugin_name in plugins_to_unload:
-            if self.unload_plugin(plugin_name):
-                unloaded_count += 1
-        
+        unloaded_count = sum(1 for success in results.values() if success)
         self.logger.info(f"Unloaded {unloaded_count} plugins")
-        return unloaded_count
+        return results
     
     async def register_plugin(self, plugin_name: str, plugin_instance: PluginBase) -> bool:
         """
