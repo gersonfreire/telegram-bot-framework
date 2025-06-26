@@ -27,7 +27,7 @@ from .persistence_manager import PersistenceManager
 from ..utils.logger import setup_logging, get_logger, LoggerMixin
 
 
-class TelegramBotFramework(LoggerMixin):
+class TelegramBotFramework(Application, LoggerMixin):
     """
     Classe principal do framework para bots Telegram.
     
@@ -64,7 +64,6 @@ class TelegramBotFramework(LoggerMixin):
         self.setup_logging()
         
         # Inicializar componentes
-        self.application: Optional[Application] = None
         self.user_manager: Optional[UserManager] = None
         self.plugin_manager: Optional[PluginManager] = None
         self.persistence_manager: Optional[PersistenceManager] = None
@@ -73,6 +72,45 @@ class TelegramBotFramework(LoggerMixin):
         self._running = False
         self._startup_time = None
         self._command_stats = {}
+        
+        # Construir a aplicação usando o builder pattern
+        app_builder = Application.builder()
+        app_builder.token(self.config.telegram_bot_token)
+        
+        # Configurações de rede
+        if not self.config.reuse_connections:
+            app_builder.connection_pool_size(1)
+        else:
+            app_builder.connection_pool_size(self.config.connection_pool_size)
+        
+        # Configurar persistência
+        if self.config.persistence_backend != "none":
+            self.persistence_manager = PersistenceManager(self.config)
+            persistence = asyncio.run(self.persistence_manager.get_persistence())
+            if persistence:
+                app_builder.persistence(persistence)
+        
+        # Construir a aplicação
+        super().__init__(app_builder.build())
+        
+        # Inicializar gerenciadores
+        self.user_manager = UserManager(self.config, self.persistence_manager)
+        
+        if self.config.plugins_dir:
+            self.plugin_manager = PluginManager(
+                self.config.plugins_dir, 
+                self
+            )
+        
+        # Registrar handlers padrão
+        self.register_default_handlers()
+        
+        # Carregar plugins
+        if self.plugin_manager and self.config.auto_load_plugins:
+            asyncio.run(self.plugin_manager.load_all_plugins())
+        
+        # Registrar comandos do menu
+        asyncio.run(self.setup_bot_commands())
         
         self.log_info(f"Framework inicializado: {self.config.instance_name}")
     
@@ -93,76 +131,43 @@ class TelegramBotFramework(LoggerMixin):
         """Inicializa todos os componentes do framework."""
         self.log_info("Inicializando componentes do framework...")
         
-        # Criar aplicação Telegram
-        app_builder = Application.builder()
-        app_builder.token(self.config.telegram_bot_token)
-        
-        # Configurações de rede
-        if not self.config.reuse_connections:
-            app_builder.connection_pool_size(1)
-        else:
-            app_builder.connection_pool_size(self.config.connection_pool_size)
-        
-        # Configurar persistência
-        if self.config.persistence_backend != "none":
-            self.persistence_manager = PersistenceManager(self.config)
-            persistence = await self.persistence_manager.get_persistence()
-            if persistence:
-                app_builder.persistence(persistence)
-        
-        self.application = app_builder.build()
-        
-        # Inicializar gerenciadores
-        self.user_manager = UserManager(self.config, self.persistence_manager)
-        
-        if self.config.plugins_dir:
-            self.plugin_manager = PluginManager(
-                self.config.plugins_dir, 
-                self
-            )
-        
-        # Registrar handlers padrão
-        self.register_default_handlers()
-        
-        # Carregar plugins
-        if self.plugin_manager and self.config.auto_load_plugins:
-            await self.plugin_manager.load_all_plugins()
-        
-        # Registrar comandos do menu
-        await self.setup_bot_commands()
+        # Notificar admins sobre inicialização
+        await self.send_admin_message(
+            f"🚀 Bot {self.config.instance_name} iniciado com sucesso!"
+        )
         
         self.log_info("Framework inicializado com sucesso")
     
     def register_default_handlers(self):
         """Registra handlers padrão do framework."""
         # Comandos básicos
-        self.application.add_handler(CommandHandler("start", self.start_command))
-        self.application.add_handler(CommandHandler("help", self.help_command))
+        self.add_handler(CommandHandler("start", self.start_command))
+        self.add_handler(CommandHandler("help", self.help_command))
         
         # Comandos administrativos
-        self.application.add_handler(CommandHandler("config", self.config_command))
-        self.application.add_handler(CommandHandler("stats", self.stats_command))
-        self.application.add_handler(CommandHandler("users", self.users_command))
-        self.application.add_handler(CommandHandler("restart", self.restart_command))
-        self.application.add_handler(CommandHandler("shutdown", self.shutdown_command))
+        self.add_handler(CommandHandler("config", self.config_command))
+        self.add_handler(CommandHandler("stats", self.stats_command))
+        self.add_handler(CommandHandler("users", self.users_command))
+        self.add_handler(CommandHandler("restart", self.restart_command))
+        self.add_handler(CommandHandler("shutdown", self.shutdown_command))
         
         # Comandos de plugins
         if self.plugin_manager:
-            self.application.add_handler(CommandHandler("plugins", self.plugins_command))
-            self.application.add_handler(CommandHandler("plugin", self.plugin_command))
+            self.add_handler(CommandHandler("plugins", self.plugins_command))
+            self.add_handler(CommandHandler("plugin", self.plugin_command))
         
         # Handler para comandos não reconhecidos
-        self.application.add_handler(
+        self.add_handler(
             MessageHandler(filters.COMMAND, self.unknown_command)
         )
         
         # Handler para mensagens não-comando
-        self.application.add_handler(
+        self.add_handler(
             MessageHandler(filters.TEXT & ~filters.COMMAND, self.handle_message)
         )
         
         # Handler de erros
-        self.application.add_error_handler(self.error_handler)
+        self.add_error_handler(self.error_handler)
         
         # Registrar comandos do registry
         self.register_decorated_commands()
@@ -188,13 +193,13 @@ class TelegramBotFramework(LoggerMixin):
                 wrapped_handler = create_wrapper(handler)
             
             # Registrar handler
-            self.application.add_handler(
+            self.add_handler(
                 CommandHandler(command_name, wrapped_handler)
             )
             
             # Registrar aliases
             for alias in command_info.get("aliases", []):
-                self.application.add_handler(
+                self.add_handler(
                     CommandHandler(alias, wrapped_handler)
                 )
     
@@ -218,7 +223,7 @@ class TelegramBotFramework(LoggerMixin):
             commands.append(BotCommand("plugins", "Gerenciar plugins"))
         
         try:
-            await self.application.bot.set_my_commands(commands)
+            await self.bot.set_my_commands(commands)
             self.log_info("Comandos do bot configurados")
         except Exception as e:
             self.log_error(f"Erro ao configurar comandos: {e}")
@@ -401,7 +406,7 @@ Use /help para ver os comandos disponíveis.
         if self.config.traceback_chat_id:
             tb_text = f"❌ **Erro no bot:**\n\n```\n{traceback.format_exc()}\n```"
             try:
-                await self.application.bot.send_message(
+                await self.bot.send_message(
                     self.config.traceback_chat_id,
                     tb_text,
                     parse_mode=ParseMode.MARKDOWN
@@ -422,7 +427,7 @@ Use /help para ver os comandos disponíveis.
         
         for admin_id in self.config.admin_user_ids:
             try:
-                await self.application.bot.send_message(admin_id, text, **kwargs)
+                await self.bot.send_message(admin_id, text, **kwargs)
             except Exception as e:
                 self.log_error(f"Erro ao enviar mensagem para admin {admin_id}: {e}")
     
@@ -435,7 +440,7 @@ Use /help para ver os comandos disponíveis.
         
         for user in users:
             try:
-                await self.application.bot.send_message(user.user_id, text, **kwargs)
+                await self.bot.send_message(user.user_id, text, **kwargs)
             except Exception as e:
                 self.log_error(f"Erro ao enviar broadcast para {user.user_id}: {e}")
     
@@ -444,51 +449,21 @@ Use /help para ver os comandos disponíveis.
         try:
             self._startup_time = datetime.now()
             self._running = True
-
-            try:
-                loop = asyncio.get_running_loop()
-            except RuntimeError:
-                loop = None
-
-            if loop and loop.is_running():
-                self.log_info("Event loop já está rodando. Usando create_task para iniciar o bot.")
-                loop.create_task(self._run_async())
-                # NÃO chame run_until_complete nem while aqui!
-                # O script principal (echo_bot.py) já faz o keep alive.
-            else:
-                asyncio.run(self._run_async())
+            
+            # Inicializar framework
+            asyncio.run(self.initialize())
+            
+            # Executar polling (como o framework legado)
+            self.run_polling(
+                allowed_updates=Update.ALL_TYPES,
+                drop_pending_updates=True
+            )
 
         except KeyboardInterrupt:
             self.log_info("Bot interrompido pelo usuário")
         except Exception as e:
             self.log_error(f"Erro fatal: {e}")
             # Não propaga para não encerrar o processo
-
-    async def _run_async(self):
-        try:
-            # Inicializar framework
-            await self.initialize()
-
-            # Notificar admins sobre inicialização
-            await self.send_admin_message(
-                f"🚀 Bot {self.config.instance_name} iniciado com sucesso!"
-            )
-
-            # Iniciar polling
-            await self.application.run_polling(
-                allowed_updates=Update.ALL_TYPES,
-                drop_pending_updates=True
-            )
-
-        except RuntimeError as e:
-            if "Cannot close a running event loop" in str(e):
-                self.log_error("Tentativa de fechar um event loop já rodando. Ignorando fechamento do loop.")
-            else:
-                self.log_error(f"Erro durante execução: {e}")
-            # Não propaga o erro para evitar parada do bot em ambientes interativos
-        except Exception as e:
-            self.log_error(f"Erro durante execução: {e}")
-            # Não propaga o erro para evitar parada do bot em ambientes interativos
 
     async def stop(self):
         """Para o bot de forma graceful."""
@@ -500,19 +475,18 @@ Use /help para ver os comandos disponíveis.
                 await self.persistence_manager.save_all()
 
             # Parar aplicação
-            if self.application:
-                try:
-                    await self.application.stop()
-                    await self.application.shutdown()
-                except RuntimeError as e:
-                    if "Cannot close a running event loop" in str(e):
-                        self.log_error("Tentativa de fechar um event loop já rodando ao parar o bot. Ignorando.")
-                    else:
-                        raise
+            try:
+                await super().stop()
+                await super().shutdown()
+            except RuntimeError as e:
+                if "Cannot close a running event loop" in str(e):
+                    self.log_error("Tentativa de fechar um event loop já rodando ao parar o bot. Ignorando.")
+                else:
+                    raise
 
             self.log_info("Bot parado com sucesso")
     
     @property
     def bot(self):
         """Retorna a instância do bot."""
-        return self.application.bot if self.application else None 
+        return self.bot if hasattr(self, 'bot') else None 
