@@ -927,3 +927,180 @@ class PaymentManager:
             all_currencies.update(currencies)
         
         return list(all_currencies)
+    
+    async def process_payment(
+        self, 
+        provider_name: str, 
+        amount: Decimal, 
+        user_id: int, 
+        currency: str = None,
+        description: str = ""
+    ) -> PaymentResult:
+        """
+        Process a payment using the specified provider.
+        
+        Args:
+            provider_name: Name of the registered payment provider to use
+            amount: Payment amount
+            user_id: Telegram user ID
+            currency: Payment currency (uses default if not specified)
+            description: Payment description
+            
+        Returns:
+            PaymentResult with processing status
+            
+        Raises:
+            ValueError: If provider not found or invalid parameters
+        """
+        # Validate parameters
+        if amount <= Decimal('0'):
+            raise ValueError("Amount must be positive")
+        
+        if user_id <= 0:
+            raise ValueError("User ID must be positive")
+        
+        # Use default currency if not specified
+        if currency is None:
+            currency = self.default_currency
+        
+        # Check if provider exists
+        if provider_name not in self.providers:
+            raise ValueError(f"Provider '{provider_name}' not found")
+        
+        provider = self.providers[provider_name]
+        
+        # Process payment
+        try:
+            result = await provider.process_payment(
+                amount=amount,
+                currency=currency,
+                user_id=user_id,
+                description=description
+            )
+            
+            # Log successful payments if enabled
+            if self.enable_logging and result.success and self.persistence:
+                payment_data = {
+                    'user_id': user_id,
+                    'provider': provider_name,
+                    'amount': str(amount),
+                    'currency': currency,
+                    'transaction_id': result.transaction_id,
+                    'description': description,
+                    'status': result.status.value,
+                    'timestamp': datetime.now().isoformat()
+                }
+                
+                # Store in user payment history
+                try:
+                    history_key = f"payments:user:{user_id}"
+                    history = await self.persistence.get(history_key, [])
+                    history.append(payment_data)
+                    await self.persistence.set(history_key, history)
+                except Exception as e:
+                    self.logger.error(f"Failed to log payment: {e}")
+            
+            return result
+        
+        except Exception as e:
+            self.logger.error(f"Payment processing error: {e}")
+            return PaymentResult(
+                status=PaymentStatus.FAILED,
+                transaction_id=None,
+                amount=amount,
+                currency=currency,
+                message=f"Payment processing error: {str(e)}"
+            )
+    
+    async def verify_payment(self, provider_name: str, transaction_id: str) -> PaymentResult:
+        """
+        Verify a payment with a provider.
+        
+        Args:
+            provider_name: Name of the registered payment provider
+            transaction_id: Transaction ID to verify
+            
+        Returns:
+            PaymentResult with verification status
+        """
+        if provider_name not in self.providers:
+            return PaymentResult(
+                status=PaymentStatus.FAILED,
+                transaction_id=transaction_id,
+                amount=Decimal("0.00"),
+                currency="",
+                message=f"Provider '{provider_name}' not found"
+            )
+            
+        try:
+            provider = self.providers[provider_name]
+            return await provider.verify_payment(transaction_id)
+        except Exception as e:
+            self.logger.error(f"Payment verification error: {e}")
+            return PaymentResult(
+                status=PaymentStatus.FAILED,
+                transaction_id=transaction_id,
+                amount=Decimal("0.00"),
+                currency="",
+                message=f"Payment verification error: {str(e)}"
+            )
+    
+    async def refund_payment(
+        self, 
+        provider_name: str, 
+        transaction_id: str, 
+        amount: Decimal = None
+    ) -> PaymentResult:
+        """
+        Refund a payment.
+        
+        Args:
+            provider_name: Name of the registered payment provider
+            transaction_id: Transaction ID to refund
+            amount: Refund amount (None for full refund)
+            
+        Returns:
+            PaymentResult with refund status
+        """
+        if provider_name not in self.providers:
+            return PaymentResult(
+                status=PaymentStatus.FAILED,
+                transaction_id=transaction_id,
+                amount=amount or Decimal("0.00"),
+                currency="",
+                message=f"Provider '{provider_name}' not found"
+            )
+            
+        try:
+            provider = self.providers[provider_name]
+            return await provider.refund_payment(transaction_id, amount)
+        except Exception as e:
+            self.logger.error(f"Payment refund error: {e}")
+            return PaymentResult(
+                status=PaymentStatus.FAILED,
+                transaction_id=transaction_id,
+                amount=amount or Decimal("0.00"),
+                currency="",
+                message=f"Payment refund error: {str(e)}"
+            )
+    
+    async def get_payment_history(self, user_id: int) -> List[Dict[str, Any]]:
+        """
+        Get payment history for a user.
+        
+        Args:
+            user_id: Telegram user ID
+            
+        Returns:
+            List of payment records
+        """
+        if not self.persistence:
+            return []
+            
+        try:
+            history_key = f"payments:user:{user_id}"
+            history = await self.persistence.get(history_key, [])
+            return history
+        except Exception as e:
+            self.logger.error(f"Failed to get payment history: {e}")
+            return []
