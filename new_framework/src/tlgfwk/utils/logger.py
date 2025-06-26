@@ -14,6 +14,77 @@ import asyncio
 from datetime import datetime
 
 
+class Logger:
+    """Simple logger wrapper class."""
+    
+    def __init__(self, name: str, config: Optional[Dict[str, Any]] = None):
+        """Initialize logger."""
+        self.logger = logging.getLogger(name)
+        
+        if config:
+            level = config.get('logging.level', 'INFO')
+            self.logger.setLevel(getattr(logging, level.upper()))
+            
+            # Add file handler if specified
+            log_file = config.get('logging.file')
+            if log_file:
+                max_size = config.get('logging.max_file_size', 10485760)  # 10MB
+                backup_count = config.get('logging.backup_count', 5)
+                
+                file_handler = RotatingFileHandler(
+                    log_file, maxBytes=max_size, backupCount=backup_count
+                )
+                
+                format_str = config.get('logging.format', 
+                    '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+                formatter = logging.Formatter(format_str)
+                file_handler.setFormatter(formatter)
+                self.logger.addHandler(file_handler)
+            
+            # Add console handler if no file handler
+            if not log_file and not self.logger.handlers:
+                console_handler = logging.StreamHandler()
+                format_str = config.get('logging.format',
+                    '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+                formatter = logging.Formatter(format_str)
+                console_handler.setFormatter(formatter)
+                self.logger.addHandler(console_handler)
+        else:
+            # Default setup
+            if not self.logger.handlers:
+                self.logger.setLevel(logging.INFO)
+                console_handler = logging.StreamHandler()
+                formatter = logging.Formatter(
+                    '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+                )
+                console_handler.setFormatter(formatter)
+                self.logger.addHandler(console_handler)
+    
+    def debug(self, message: str, *args, **kwargs):
+        """Log debug message."""
+        self.logger.debug(message, *args, **kwargs)
+    
+    def info(self, message: str, *args, **kwargs):
+        """Log info message."""
+        self.logger.info(message, *args, **kwargs)
+    
+    def warning(self, message: str, *args, **kwargs):
+        """Log warning message."""
+        self.logger.warning(message, *args, **kwargs)
+    
+    def error(self, message: str, *args, **kwargs):
+        """Log error message."""
+        self.logger.error(message, *args, **kwargs)
+    
+    def critical(self, message: str, *args, **kwargs):
+        """Log critical message."""
+        self.logger.critical(message, *args, **kwargs)
+    
+    def exception(self, message: str, *args, **kwargs):
+        """Log exception with traceback."""
+        self.logger.exception(message, *args, **kwargs)
+
+
 class TelegramLogHandler(logging.Handler):
     """Handler personalizado para enviar logs para o Telegram."""
     
