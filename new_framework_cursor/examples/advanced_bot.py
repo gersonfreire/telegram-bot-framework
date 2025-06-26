@@ -32,18 +32,18 @@ class AdvancedBot(TelegramBotFramework):
         # self._setup_plugins()
 
     # Exemplo de comando de status
-    @command(name="status", description="Get bot status information")
-    async def status_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
-        """Get basic bot status."""
-        uptime = datetime.now() - self._startup_time if self._startup_time else "N/A"
-        user_count = len(await self.user_manager.get_all_users()) if self.user_manager else 0
-        status_msg = (
-            f"🤖 <b>Bot Status Report</b>\n\n"
-            f"<b>Uptime:</b> {uptime}\n"
-            f"<b>Users:</b> {user_count}\n"
-            # Futuro: plugins, jobs, pagamentos
-        )
-        await update.message.reply_text(status_msg, parse_mode='HTML')
+    # @command(name="status", description="Get bot status information")
+    # async def status_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+    #     """Get basic bot status."""
+    #     uptime = datetime.now() - self._startup_time if self._startup_time else "N/A"
+    #     user_count = len(await self.user_manager.get_all_users()) if self.user_manager else 0
+    #     status_msg = (
+    #         f"🤖 <b>Bot Status Report</b>\n\n"
+    #         f"<b>Uptime:</b> {uptime}\n"
+    #         f"<b>Users:</b> {user_count}\n"
+    #         # Futuro: plugins, jobs, pagamentos
+    #     )
+    #     await update.message.reply_text(status_msg, parse_mode='HTML')
 
     @command(name="schedule", description="Schedule a custom job (placeholder)")
     @admin_required
