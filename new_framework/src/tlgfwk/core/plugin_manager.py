@@ -312,17 +312,79 @@ class PluginManager:
         
         return results
     
-    def get_plugin_info(self, plugin_name: str) -> Optional[PluginInfo]:
+    def unregister_plugin(self, plugin_name: str) -> bool:
         """
-        Get information about a specific plugin.
+        Unregister a plugin.
+        
+        Args:
+            plugin_name: Name of the plugin to unregister
+            
+        Returns:
+            True if successful, False otherwise
+        """
+        if plugin_name not in self.plugins:
+            self.logger.warning(f"Plugin {plugin_name} is not registered")
+            return False
+        
+        # Unload first if loaded
+        if plugin_name in self.loaded_plugins:
+            if not self.unload_plugin(plugin_name):
+                return False
+        
+        # Remove from registry
+        del self.plugins[plugin_name]
+        self.logger.info(f"Plugin {plugin_name} unregistered")
+        return True
+    
+    def get_loaded_plugins(self) -> List[str]:
+        """
+        Get list of loaded plugin names.
+        
+        Returns:
+            List of loaded plugin names
+        """
+        return list(self.loaded_plugins.keys())
+    
+    def get_registered_plugins(self) -> List[str]:
+        """
+        Get list of registered plugin names.
+        
+        Returns:
+            List of registered plugin names
+        """
+        return list(self.plugins.keys())
+    
+    def get_plugin_info(self, plugin_name: str) -> Optional[Dict[str, Any]]:
+        """
+        Get information about a plugin.
         
         Args:
             plugin_name: Name of the plugin
             
         Returns:
-            PluginInfo object or None if not found
+            Plugin information dict or None if not found
         """
-        return self.plugins.get(plugin_name)
+        if plugin_name not in self.plugins:
+            return None
+        
+        plugin_info = self.plugins[plugin_name]
+        info = {
+            'name': plugin_info.name,
+            'status': plugin_info.status.value,
+            'version': getattr(plugin_info.instance, 'version', 'Unknown') if plugin_info.instance else 'Unknown',
+            'description': getattr(plugin_info.instance, 'description', '') if plugin_info.instance else '',
+            'dependencies': list(plugin_info.dependencies),
+            'enabled': plugin_info.enabled
+        }
+        
+        if plugin_info.instance:
+            info['commands'] = len(getattr(plugin_info.instance, 'get_commands', lambda: [])())
+            info['handlers'] = len(getattr(plugin_info.instance, 'get_handlers', lambda: [])())
+        else:
+            info['commands'] = 0
+            info['handlers'] = 0
+        
+        return info
     
     def list_plugins(self, status_filter: Optional[PluginStatus] = None) -> List[PluginInfo]:
         """
