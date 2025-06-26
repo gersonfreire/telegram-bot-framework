@@ -382,23 +382,34 @@ Use /help para ver os comandos disponíveis.
     @command(name="status", description="Mostrar status do bot")
     async def status_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Comando /status - Mostra informações básicas do bot."""
-        uptime_str = "N/A"
-        if isinstance(self._startup_time, datetime):
-            delta = datetime.now() - self._startup_time
-            uptime_str = str(delta).split('.')[0]
-            
-        user_count = 0
-        if self.user_manager:
-            users = await self.user_manager.get_all_users()
-            user_count = len(users)
-        
-        status_msg = (
-            f"🤖 <b>Status do Bot</b>\n\n"
-            f"<b>Nome:</b> {self.config.instance_name}<br>"
-            f"<b>Uptime:</b> {uptime_str}<br>"
-            f"<b>Usuários registrados:</b> {user_count}"
-        )
-        await update.message.reply_text(status_msg, parse_mode='HTML')
+        try:
+            uptime_str = "N/A"
+            if isinstance(self._startup_time, datetime):
+                delta = datetime.now() - self._startup_time
+                uptime_str = str(delta).split('.')[0]
+            user_count = 0
+            if self.user_manager:
+                users = await self.user_manager.get_all_users()
+                user_count = len(users)
+            status_msg = (
+                f"🤖 <b>Status do Bot</b>\n\n"
+                f"<b>Nome:</b> {self.config.instance_name}<br>"
+                f"<b>Uptime:</b> {uptime_str}<br>"
+                f"<b>Usuários registrados:</b> {user_count}"
+            )
+            await update.message.reply_text(status_msg, parse_mode='HTML')
+        except Exception as e:
+            import traceback
+            tb = traceback.format_exc()
+            self.log_error(f"Erro no comando /status: {e}\n{tb}")
+            # Se for admin, envie o erro detalhado
+            is_admin = False
+            if self.user_manager:
+                is_admin = await self.user_manager.is_admin(update.effective_user.id)
+            if is_admin:
+                await update.message.reply_text(f"Erro interno no /status:\n<pre>{tb}</pre>", parse_mode='HTML')
+            else:
+                await update.message.reply_text("❌ Ocorreu um erro interno. Os administradores foram notificados.")
     
     async def unknown_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Handler para comandos não reconhecidos."""

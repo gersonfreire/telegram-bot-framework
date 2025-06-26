@@ -93,10 +93,9 @@ class TestScheduler:
         assert job_info.name == "Test Interval Job"
         assert job_info.trigger_type == TriggerType.INTERVAL
     
-    @pytest.mark.asyncio
-    async def test_add_job_cron(self, scheduler, mock_job_func):
+    def test_add_job_cron(self, scheduler, mock_job_func):
         """Test adding a cron job."""
-        job = await scheduler.add_job(
+        job = scheduler.add_job(
             job_id="test_cron",
             func=mock_job_func,
             trigger="cron",
@@ -110,12 +109,11 @@ class TestScheduler:
         assert job.kwargs["hour"] == 12
         assert job.kwargs["minute"] == 0
     
-    @pytest.mark.asyncio
-    async def test_add_job_date(self, scheduler, mock_job_func):
+    def test_add_job_date(self, scheduler, mock_job_func):
         """Test adding a one-time date job."""
         run_date = datetime.now() + timedelta(minutes=1)
         
-        job = await scheduler.add_job(
+        job = scheduler.add_job(
             job_id="test_date",
             func=mock_job_func,
             trigger="date",
@@ -127,70 +125,62 @@ class TestScheduler:
         assert job.trigger == "date"
         assert job.kwargs["run_date"] == run_date
     
-    @pytest.mark.asyncio
-    async def test_add_job_duplicate_id(self, scheduler, mock_job_func):
+    def test_add_job_duplicate_id(self, scheduler, mock_job_func):
         """Test adding job with duplicate ID."""
-        await scheduler.add_job("duplicate", mock_job_func, "interval", seconds=30)
+        scheduler.add_job("duplicate", mock_job_func, "interval", seconds=30)
         
         with pytest.raises(ValueError, match="Job with ID 'duplicate' already exists"):
-            await scheduler.add_job("duplicate", mock_job_func, "interval", seconds=60)
+            scheduler.add_job("duplicate", mock_job_func, "interval", seconds=60)
     
-    @pytest.mark.asyncio
-    async def test_remove_job_success(self, scheduler, mock_job_func):
+    def test_remove_job_success(self, scheduler, mock_job_func):
         """Test successful job removal."""
-        await scheduler.add_job("removable", mock_job_func, "interval", seconds=30)
+        scheduler.add_job("removable", mock_job_func, "interval", seconds=30)
         
-        result = await scheduler.remove_job("removable")
+        result = scheduler.remove_job("removable")
         
         assert result is True
         assert "removable" not in scheduler.jobs
     
-    @pytest.mark.asyncio
-    async def test_remove_job_not_found(self, scheduler):
+    def test_remove_job_not_found(self, scheduler):
         """Test removing non-existent job."""
-        result = await scheduler.remove_job("nonexistent")
+        result = scheduler.remove_job("nonexistent")
         
         assert result is False
     
-    @pytest.mark.asyncio
-    async def test_pause_job_success(self, scheduler, mock_job_func):
+    def test_pause_job_success(self, scheduler, mock_job_func):
         """Test successful job pausing."""
-        job = await scheduler.add_job("pausable", mock_job_func, "interval", seconds=30)
+        job = scheduler.add_job("pausable", mock_job_func, "interval", seconds=30)
         
-        result = await scheduler.pause_job("pausable")
+        result = scheduler.pause_job("pausable")
         
         assert result is True
         assert job.status == JobStatus.PAUSED
     
-    @pytest.mark.asyncio
-    async def test_pause_job_not_found(self, scheduler):
+    def test_pause_job_not_found(self, scheduler):
         """Test pausing non-existent job."""
-        result = await scheduler.pause_job("nonexistent")
+        result = scheduler.pause_job("nonexistent")
         
         assert result is False
     
-    @pytest.mark.asyncio
-    async def test_resume_job_success(self, scheduler, mock_job_func):
+    def test_resume_job_success(self, scheduler, mock_job_func):
         """Test successful job resuming."""
-        job = await scheduler.add_job("resumable", mock_job_func, "interval", seconds=30)
-        await scheduler.pause_job("resumable")
+        job = scheduler.add_job("resumable", mock_job_func, "interval", seconds=30)
+        scheduler.pause_job("resumable")
         
-        result = await scheduler.resume_job("resumable")
+        result = scheduler.resume_job("resumable")
         
         assert result is True
         assert job.status == JobStatus.RUNNING
     
-    @pytest.mark.asyncio
-    async def test_resume_job_not_found(self, scheduler):
+    def test_resume_job_not_found(self, scheduler):
         """Test resuming non-existent job."""
-        result = await scheduler.resume_job("nonexistent")
+        result = scheduler.resume_job("nonexistent")
         
         assert result is False
     
-    @pytest.mark.asyncio
-    async def test_get_job_info_existing(self, scheduler, mock_job_func):
+    def test_get_job_info_existing(self, scheduler, mock_job_func):
         """Test getting info for existing job."""
-        job = await scheduler.add_job(
+        job = scheduler.add_job(
             "info_test",
             mock_job_func,
             "interval",
@@ -198,7 +188,7 @@ class TestScheduler:
             name="Info Test Job"
         )
         
-        info = await scheduler.get_job_info("info_test")
+        info = scheduler.get_job_info("info_test")
         
         assert info is not None
         assert info["id"] == "info_test"
@@ -207,50 +197,44 @@ class TestScheduler:
         assert info["status"] == JobStatus.PENDING.value
         assert info["run_count"] == 0
     
-    @pytest.mark.asyncio
-    async def test_get_job_info_not_found(self, scheduler):
+    def test_get_job_info_not_found(self, scheduler):
         """Test getting info for non-existent job."""
-        info = await scheduler.get_job_info("nonexistent")
+        info = scheduler.get_job_info("nonexistent")
         
         assert info is None
     
-    @pytest.mark.asyncio
-    async def test_get_all_jobs_empty(self, scheduler):
+    def test_get_all_jobs_empty(self, scheduler):
         """Test getting all jobs when empty."""
-        jobs = await scheduler.get_all_jobs()
+        jobs = scheduler.get_all_jobs()
         
         assert jobs == []
     
-    @pytest.mark.asyncio
-    async def test_get_all_jobs_with_jobs(self, scheduler, mock_job_func):
+    def test_get_all_jobs_with_jobs(self, scheduler, mock_job_func):
         """Test getting all jobs."""
-        await scheduler.add_job("job1", mock_job_func, "interval", seconds=30)
-        await scheduler.add_job("job2", mock_job_func, "cron", hour=12)
+        scheduler.add_job("job1", mock_job_func, "interval", seconds=30)
+        scheduler.add_job("job2", mock_job_func, "cron", hour=12)
         
-        jobs = await scheduler.get_all_jobs()
+        jobs = scheduler.get_all_jobs()
         
         assert len(jobs) == 2
         job_ids = [job["id"] for job in jobs]
         assert "job1" in job_ids
         assert "job2" in job_ids
     
-    @pytest.mark.asyncio
-    async def test_start_scheduler(self, scheduler):
+    def test_start_scheduler(self, scheduler):
         """Test starting the scheduler."""
-        await scheduler.start()
+        scheduler.start()
         
         assert scheduler.running is True
     
-    @pytest.mark.asyncio
-    async def test_shutdown_scheduler(self, scheduler):
+    def test_shutdown_scheduler(self, scheduler):
         """Test shutting down the scheduler."""
-        await scheduler.start()
+        scheduler.start()
         await scheduler.shutdown()
         
         assert scheduler.running is False
     
-    @pytest.mark.asyncio
-    async def test_job_execution(self, scheduler):
+    def test_job_execution(self, scheduler):
         """Test job execution."""
         executed = asyncio.Event()
         
@@ -258,9 +242,9 @@ class TestScheduler:
             executed.set()
             return "success"
         
-        await scheduler.add_job("exec_test", test_job, "date", 
+        scheduler.add_job("exec_test", test_job, "date", 
                                run_date=datetime.now() + timedelta(seconds=1))
-        await scheduler.start()
+        scheduler.start()
         
         # Wait for job to execute
         try:
@@ -271,8 +255,7 @@ class TestScheduler:
         finally:
             await scheduler.shutdown()
     
-    @pytest.mark.asyncio
-    async def test_job_execution_with_args(self, scheduler):
+    def test_job_execution_with_args(self, scheduler):
         """Test job execution with arguments."""
         result_container = {"value": None}
         
@@ -281,7 +264,7 @@ class TestScheduler:
         
         # Note: This test assumes the scheduler supports job arguments
         # The actual implementation might need to be extended
-        job = await scheduler.add_job(
+        job = scheduler.add_job(
             "args_test",
             test_job,
             "date",
@@ -292,7 +275,7 @@ class TestScheduler:
         # job.args = ["test1", "test2"]
         # job.kwargs = {"kwarg1": "test3"}
         
-        await scheduler.start()
+        scheduler.start()
         
         try:
             await asyncio.sleep(2)  # Wait for execution
@@ -300,8 +283,7 @@ class TestScheduler:
         finally:
             await scheduler.shutdown()
     
-    @pytest.mark.asyncio
-    async def test_job_error_handling(self, scheduler):
+    def test_job_error_handling(self, scheduler):
         """Test job error handling."""
         error_occurred = asyncio.Event()
         
@@ -309,9 +291,9 @@ class TestScheduler:
             error_occurred.set()
             raise Exception("Job failed")
         
-        job = await scheduler.add_job("error_test", failing_job, "date",
+        job = scheduler.add_job("error_test", failing_job, "date",
                                      run_date=datetime.now() + timedelta(seconds=1))
-        await scheduler.start()
+        scheduler.start()
         
         try:
             await asyncio.wait_for(error_occurred.wait(), timeout=3.0)
@@ -321,16 +303,15 @@ class TestScheduler:
         finally:
             await scheduler.shutdown()
     
-    @pytest.mark.asyncio
-    async def test_recurring_job(self, scheduler):
+    def test_recurring_job(self, scheduler):
         """Test recurring job execution."""
         execution_count = {"count": 0}
         
         async def recurring_job():
             execution_count["count"] += 1
         
-        await scheduler.add_job("recurring_test", recurring_job, "interval", seconds=0.5)
-        await scheduler.start()
+        scheduler.add_job("recurring_test", recurring_job, "interval", seconds=0.5)
+        scheduler.start()
         
         try:
             # Wait for multiple executions
@@ -339,30 +320,28 @@ class TestScheduler:
         finally:
             await scheduler.shutdown()
     
-    @pytest.mark.asyncio
-    async def test_job_status_transitions(self, scheduler, mock_job_func):
+    def test_job_status_transitions(self, scheduler, mock_job_func):
         """Test job status transitions."""
-        job = await scheduler.add_job("status_test", mock_job_func, "interval", seconds=30)
+        job = scheduler.add_job("status_test", mock_job_func, "interval", seconds=30)
         
         # Initial status
         assert job.status == JobStatus.PENDING
         
         # Start scheduler
-        await scheduler.start()
+        scheduler.start()
         assert job.status == JobStatus.RUNNING
         
         # Pause job
-        await scheduler.pause_job("status_test")
+        scheduler.pause_job("status_test")
         assert job.status == JobStatus.PAUSED
         
         # Resume job
-        await scheduler.resume_job("status_test")
+        scheduler.resume_job("status_test")
         assert job.status == JobStatus.RUNNING
         
         await scheduler.shutdown()
     
-    @pytest.mark.asyncio
-    async def test_multiple_schedulers(self):
+    def test_multiple_schedulers(self):
         """Test multiple scheduler instances."""
         mock_bot1 = Mock()
         mock_bot2 = Mock()
@@ -385,8 +364,7 @@ class TestScheduler:
         assert "job1" not in scheduler2.jobs
         assert "job2" not in scheduler1.jobs
     
-    @pytest.mark.asyncio
-    async def test_scheduler_persistence_hooks(self, scheduler):
+    def test_scheduler_persistence_hooks(self, scheduler):
         """Test scheduler persistence hooks (if implemented)."""
         # This would test saving/loading job state
         # Currently a placeholder for future persistence features
@@ -394,7 +372,7 @@ class TestScheduler:
         async def persistent_job():
             pass
         
-        job = await scheduler.add_job("persistent", persistent_job, "interval", seconds=30)
+        job = scheduler.add_job("persistent", persistent_job, "interval", seconds=30)
         
         # If persistence is implemented, test:
         # - Job state is saved
@@ -403,8 +381,7 @@ class TestScheduler:
         
         assert job.id == "persistent"
     
-    @pytest.mark.asyncio
-    async def test_job_metadata(self, scheduler, mock_job_func):
+    def test_job_metadata(self, scheduler, mock_job_func):
         """Test job metadata handling."""
         metadata = {
             "created_by": "test_user",
@@ -412,7 +389,7 @@ class TestScheduler:
             "tags": ["important", "daily"]
         }
         
-        job = await scheduler.add_job(
+        job = scheduler.add_job(
             "metadata_test",
             mock_job_func,
             "interval",
