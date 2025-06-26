@@ -39,15 +39,17 @@ class EchoBot(TelegramBotFramework):
     
     def setup_handlers(self):
         """Set up custom message handlers."""
-        # Call the framework's default handler registration
-        self.register_default_handlers()
-        
         # Add echo handler for non-command messages
         from telegram.ext import MessageHandler, filters
         if self.application:
             self.application.add_handler(
                 MessageHandler(filters.TEXT & ~filters.COMMAND, self.echo_message)
             )
+            print("✅ Echo handler registered!")
+        
+        # Register command handlers (decorators should handle this automatically)
+        self.register_decorated_commands()
+        print("✅ Command handlers registered!")
     
     @command(name="echo", description="Echo back your message")
     async def echo_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
