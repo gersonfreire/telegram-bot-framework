@@ -8,7 +8,7 @@ from unittest.mock import Mock, AsyncMock, patch
 from datetime import datetime, timedelta
 from typing import Dict, Any
 
-from tlgfwk.core.scheduler import Scheduler, Job, JobStatus
+from tlgfwk.core.scheduler import Scheduler, Job, JobStatus, TriggerType
 
 
 class TestJob:
