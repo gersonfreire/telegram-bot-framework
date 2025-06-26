@@ -203,18 +203,16 @@ class TestPluginManager:
         
         result = await plugin_manager.unload_plugin("MockPlugin")
         
-        assert result is False
+        assert result is True  # Unloading non-loaded plugin is considered successful
     
     @pytest.mark.asyncio
     async def test_load_all_plugins(self, plugin_manager, mock_bot, mock_config):
         """Test loading all registered plugins."""
-        plugin1 = MockPlugin()
-        plugin1.name = "Plugin1"
-        plugin2 = MockPlugin()
-        plugin2.name = "Plugin2"
+        plugin1 = MockPlugin(name="Plugin1")
+        plugin2 = MockPlugin(name="Plugin2")
         
-        await plugin_manager.register_plugin(plugin1)
-        await plugin_manager.register_plugin(plugin2)
+        await plugin_manager.register_plugin("Plugin1", plugin1)
+        await plugin_manager.register_plugin("Plugin2", plugin2)
         
         results = await plugin_manager.load_all_plugins(mock_bot, mock_config)
         
@@ -226,13 +224,11 @@ class TestPluginManager:
     @pytest.mark.asyncio
     async def test_unload_all_plugins(self, plugin_manager, mock_bot, mock_config):
         """Test unloading all loaded plugins."""
-        plugin1 = MockPlugin()
-        plugin1.name = "Plugin1"
-        plugin2 = MockPlugin()
-        plugin2.name = "Plugin2"
+        plugin1 = MockPlugin(name="Plugin1")
+        plugin2 = MockPlugin(name="Plugin2")
         
-        await plugin_manager.register_plugin(plugin1)
-        await plugin_manager.register_plugin(plugin2)
+        await plugin_manager.register_plugin("Plugin1", plugin1)
+        await plugin_manager.register_plugin("Plugin2", plugin2)
         await plugin_manager.load_plugin("Plugin1", mock_bot, mock_config)
         await plugin_manager.load_plugin("Plugin2", mock_bot, mock_config)
         
@@ -252,10 +248,8 @@ class TestPluginManager:
     
     def test_get_registered_plugins(self, plugin_manager):
         """Test getting list of registered plugins."""
-        plugin1 = MockPlugin()
-        plugin1.name = "Plugin1"
-        plugin2 = MockPlugin()
-        plugin2.name = "Plugin2"
+        plugin1 = MockPlugin(name="Plugin1")
+        plugin2 = MockPlugin(name="Plugin2")
         
         plugin_manager.plugins["Plugin1"] = plugin1
         plugin_manager.plugins["Plugin2"] = plugin2
@@ -269,9 +263,9 @@ class TestPluginManager:
     async def test_get_plugin_info(self, plugin_manager):
         """Test getting plugin information."""
         plugin = MockPlugin()
-        await plugin_manager.register_plugin(plugin)
+        await plugin_manager.register_plugin("MockPlugin", plugin)
         
-        info = await plugin_manager.get_plugin_info("MockPlugin")
+        info = plugin_manager.get_plugin_info("MockPlugin")
         
         assert info is not None
         assert info["name"] == "MockPlugin"
@@ -283,10 +277,10 @@ class TestPluginManager:
     async def test_get_plugin_info_loaded(self, plugin_manager, mock_bot, mock_config):
         """Test getting info for loaded plugin."""
         plugin = MockPlugin()
-        await plugin_manager.register_plugin(plugin)
+        await plugin_manager.register_plugin("MockPlugin", plugin)
         await plugin_manager.load_plugin("MockPlugin", mock_bot, mock_config)
         
-        info = await plugin_manager.get_plugin_info("MockPlugin")
+        info = plugin_manager.get_plugin_info("MockPlugin")
         
         assert info["status"] == "loaded"
     
@@ -301,7 +295,7 @@ class TestPluginManager:
     async def test_plugin_command_registration(self, plugin_manager, mock_bot, mock_config):
         """Test that plugin commands are registered with the bot."""
         plugin = MockPlugin()
-        await plugin_manager.register_plugin(plugin)
+        await plugin_manager.register_plugin("MockPlugin", plugin)
         await plugin_manager.load_plugin("MockPlugin", mock_bot, mock_config)
         
         # Should have registered the mock command
@@ -311,7 +305,7 @@ class TestPluginManager:
     async def test_plugin_error_handling(self, plugin_manager, mock_bot, mock_config):
         """Test error handling during plugin operations."""
         plugin = FailingPlugin()
-        await plugin_manager.register_plugin(plugin)
+        await plugin_manager.register_plugin("FailingPlugin", plugin)
         
         # Should handle initialization failure gracefully
         result = await plugin_manager.load_plugin("FailingPlugin", mock_bot, mock_config)
@@ -327,7 +321,7 @@ class TestPluginManager:
         # For now, it's a placeholder for future dependency system
         
         plugin = MockPlugin()
-        await plugin_manager.register_plugin(plugin)
+        await plugin_manager.register_plugin("MockPlugin", plugin)
         
         # Could test that dependencies are loaded first
         # assert plugin_manager.resolve_dependencies("MockPlugin") == []
@@ -336,7 +330,7 @@ class TestPluginManager:
     async def test_plugin_config_isolation(self, plugin_manager, mock_bot):
         """Test that plugins receive isolated configuration."""
         plugin = MockPlugin()
-        await plugin_manager.register_plugin(plugin)
+        await plugin_manager.register_plugin("MockPlugin", plugin)
         
         config = {
             "plugin.mock_setting": "plugin_value",
@@ -352,7 +346,7 @@ class TestPluginManager:
     async def test_plugin_lifecycle_events(self, plugin_manager, mock_bot, mock_config):
         """Test plugin lifecycle events."""
         plugin = MockPlugin()
-        await plugin_manager.register_plugin(plugin)
+        await plugin_manager.register_plugin("MockPlugin", plugin)
         
         # Test initialization
         await plugin_manager.load_plugin("MockPlugin", mock_bot, mock_config)
@@ -368,10 +362,9 @@ class TestPluginManager:
         """Test concurrent plugin loading/unloading."""
         plugins = []
         for i in range(5):
-            plugin = MockPlugin()
-            plugin.name = f"Plugin{i}"
+            plugin = MockPlugin(name=f"Plugin{i}")
             plugins.append(plugin)
-            await plugin_manager.register_plugin(plugin)
+            await plugin_manager.register_plugin(f"Plugin{i}", plugin)
         
         # Load all plugins concurrently
         load_tasks = [

@@ -49,7 +49,7 @@ class TestTelegramBotFramework:
             mock_app = Mock()
             mock_builder.return_value.token.return_value.build.return_value = mock_app
             
-            fw = TelegramBotFramework(mock_config)
+            fw = TelegramBotFramework(custom_config=mock_config)
             
             assert fw.config == mock_config
             assert fw.application == mock_app
