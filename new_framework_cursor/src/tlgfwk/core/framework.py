@@ -27,7 +27,7 @@ from .persistence_manager import PersistenceManager
 from ..utils.logger import setup_logging, get_logger, LoggerMixin
 
 
-class TelegramBotFramework(Application, LoggerMixin):
+class TelegramBotFramework(LoggerMixin):
     """
     Classe principal do framework para bots Telegram.
     
@@ -91,7 +91,7 @@ class TelegramBotFramework(Application, LoggerMixin):
                 app_builder.persistence(persistence)
         
         # Construir a aplicação
-        super().__init__(app_builder.build())
+        self.application = app_builder.build()
         
         # Inicializar gerenciadores
         self.user_manager = UserManager(self.config, self.persistence_manager)
@@ -141,33 +141,33 @@ class TelegramBotFramework(Application, LoggerMixin):
     def register_default_handlers(self):
         """Registra handlers padrão do framework."""
         # Comandos básicos
-        self.add_handler(CommandHandler("start", self.start_command))
-        self.add_handler(CommandHandler("help", self.help_command))
+        self.application.add_handler(CommandHandler("start", self.start_command))
+        self.application.add_handler(CommandHandler("help", self.help_command))
         
         # Comandos administrativos
-        self.add_handler(CommandHandler("config", self.config_command))
-        self.add_handler(CommandHandler("stats", self.stats_command))
-        self.add_handler(CommandHandler("users", self.users_command))
-        self.add_handler(CommandHandler("restart", self.restart_command))
-        self.add_handler(CommandHandler("shutdown", self.shutdown_command))
+        self.application.add_handler(CommandHandler("config", self.config_command))
+        self.application.add_handler(CommandHandler("stats", self.stats_command))
+        self.application.add_handler(CommandHandler("users", self.users_command))
+        self.application.add_handler(CommandHandler("restart", self.restart_command))
+        self.application.add_handler(CommandHandler("shutdown", self.shutdown_command))
         
         # Comandos de plugins
         if self.plugin_manager:
-            self.add_handler(CommandHandler("plugins", self.plugins_command))
-            self.add_handler(CommandHandler("plugin", self.plugin_command))
+            self.application.add_handler(CommandHandler("plugins", self.plugins_command))
+            self.application.add_handler(CommandHandler("plugin", self.plugin_command))
         
         # Handler para comandos não reconhecidos
-        self.add_handler(
+        self.application.add_handler(
             MessageHandler(filters.COMMAND, self.unknown_command)
         )
         
         # Handler para mensagens não-comando
-        self.add_handler(
+        self.application.add_handler(
             MessageHandler(filters.TEXT & ~filters.COMMAND, self.handle_message)
         )
         
         # Handler de erros
-        self.add_error_handler(self.error_handler)
+        self.application.add_error_handler(self.error_handler)
         
         # Registrar comandos do registry
         self.register_decorated_commands()
@@ -193,13 +193,13 @@ class TelegramBotFramework(Application, LoggerMixin):
                 wrapped_handler = create_wrapper(handler)
             
             # Registrar handler
-            self.add_handler(
+            self.application.add_handler(
                 CommandHandler(command_name, wrapped_handler)
             )
             
             # Registrar aliases
             for alias in command_info.get("aliases", []):
-                self.add_handler(
+                self.application.add_handler(
                     CommandHandler(alias, wrapped_handler)
                 )
     
@@ -223,7 +223,7 @@ class TelegramBotFramework(Application, LoggerMixin):
             commands.append(BotCommand("plugins", "Gerenciar plugins"))
         
         try:
-            await self.bot.set_my_commands(commands)
+            await self.application.bot.set_my_commands(commands)
             self.log_info("Comandos do bot configurados")
         except Exception as e:
             self.log_error(f"Erro ao configurar comandos: {e}")
@@ -476,8 +476,8 @@ Use /help para ver os comandos disponíveis.
 
             # Parar aplicação
             try:
-                await super().stop()
-                await super().shutdown()
+                await self.application.stop()
+                await self.application.shutdown()
             except RuntimeError as e:
                 if "Cannot close a running event loop" in str(e):
                     self.log_error("Tentativa de fechar um event loop já rodando ao parar o bot. Ignorando.")
