@@ -5,12 +5,10 @@ Simple echo bot example using the Telegram Bot Framework.
 
 import sys
 import os
-
-# Add the framework to the path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 
 from tlgfwk import TelegramBotFramework
-from tlgfwk.decorators import command
+from tlgfwk.core import command
 from telegram import Update
 from telegram.ext import ContextTypes
 
