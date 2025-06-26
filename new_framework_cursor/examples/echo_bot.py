@@ -35,7 +35,8 @@ def main():
     """Main function."""
     try:
         # Create and run the bot
-        bot = EchoBot()
+        env_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".env")
+        bot = EchoBot(config_file=env_path)
         print("Starting Echo Bot...")
         print("Press Ctrl+C to stop")
         bot.run()

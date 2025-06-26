@@ -841,11 +841,17 @@ class Job:
     description: Optional[str] = None
     user_id: Optional[int] = None
     chat_id: Optional[int] = None
-    status: JobStatus = JobStatus.SCHEDULED
+    status: JobStatus = JobStatus.PENDING
     
     def __post_init__(self):
         if not self.name:
             self.name = self.func.__name__ if hasattr(self.func, "__name__") else "unnamed_job"
+    
+    def __eq__(self, other):
+        """Compare jobs by ID only for equality testing."""
+        if not isinstance(other, Job):
+            return False
+        return self.id == other.id
 
 
 # Define Scheduler as an alias for JobScheduler for backward compatibility

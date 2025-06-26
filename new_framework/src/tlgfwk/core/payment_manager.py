@@ -79,10 +79,17 @@ class PaymentRequest:
 @dataclass
 class PaymentResult:
     """Payment processing result."""
-    success: bool
-    payment_request: PaymentRequest
+    status: PaymentStatus
+    transaction_id: Optional[str]
+    amount: Decimal
+    currency: str
+    message: Optional[str] = None
     provider_response: Optional[Dict[str, Any]] = None
-    error_message: Optional[str] = None
+    
+    @property
+    def success(self) -> bool:
+        """Determine if payment was successful."""
+        return self.status in (PaymentStatus.SUCCESS, PaymentStatus.COMPLETED)
 
 
 class PaymentProvider_Base:
@@ -477,10 +484,14 @@ class PaymentManager:
     
     def _initialize_providers(self):
         """Initialize payment providers based on configuration."""
-        provider_configs = self.config.get('providers', {})
+        # Get provider configs safely
+        if isinstance(self.config, dict):
+            provider_configs = self.config.get('providers', {})
+        else:
+            provider_configs = {}
         
         # Initialize Stripe
-        if 'stripe' in provider_configs:
+        if isinstance(provider_configs, dict) and 'stripe' in provider_configs:
             try:
                 self.providers[PaymentProvider.STRIPE] = StripeProvider(
                     provider_configs['stripe']
