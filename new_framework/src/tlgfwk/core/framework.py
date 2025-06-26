@@ -77,7 +77,7 @@ class TelegramBotFramework(LoggerMixin):
         # Inicializar gerenciadores
         from .scheduler import JobScheduler
         self.user_manager = UserManager(self.config)
-        self.plugin_manager = PluginManager(plugins_dir or "plugins", self)
+        self.plugin_manager = PluginManager(self, plugins_dir or "plugins")
         self.persistence_manager = None
         self.scheduler = JobScheduler(self)
         
