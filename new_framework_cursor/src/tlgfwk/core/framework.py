@@ -485,10 +485,10 @@ Use /help para ver os comandos disponíveis.
                 self.log_error("Tentativa de fechar um event loop já rodando. Ignorando fechamento do loop.")
             else:
                 self.log_error(f"Erro durante execução: {e}")
-            raise
+            # Não propaga o erro para evitar parada do bot em ambientes interativos
         except Exception as e:
             self.log_error(f"Erro durante execução: {e}")
-            raise
+            # Não propaga o erro para evitar parada do bot em ambientes interativos
 
     async def stop(self):
         """Para o bot de forma graceful."""
