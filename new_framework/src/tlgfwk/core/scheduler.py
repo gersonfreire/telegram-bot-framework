@@ -37,12 +37,12 @@ from ..utils.logger import get_logger
 
 class JobStatus(Enum):
     """Job status enumeration."""
-    SCHEDULED = "scheduled"
+    PENDING = "pending"
     RUNNING = "running"
     COMPLETED = "completed"
     FAILED = "failed"
-    CANCELLED = "cancelled"
     PAUSED = "paused"
+    SCHEDULED = "scheduled"
 
 
 class TriggerType(Enum):

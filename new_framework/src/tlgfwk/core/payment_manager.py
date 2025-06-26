@@ -23,6 +23,7 @@ class PaymentStatus(Enum):
     """Payment status enumeration."""
     PENDING = "pending"
     COMPLETED = "completed"
+    SUCCESS = "success"  # Alias for COMPLETED
     FAILED = "failed"
     CANCELLED = "cancelled"
     REFUNDED = "refunded"
