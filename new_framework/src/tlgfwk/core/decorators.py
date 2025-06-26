@@ -148,31 +148,58 @@ def command(
     return decorator
 
 
-def admin_required(func: Callable):
+def admin_required(user_manager=None):
     """
     Decorador que requer permissões de administrador.
     
+    Args:
+        user_manager: Optional user_manager instance to check admin status
+        
     Usage:
-        @admin_required
-        async def admin_command(self, update, context):
+        @admin_required(user_manager)
+        async def admin_command(update, context):
             await update.message.reply_text("Comando administrativo!")
     """
-    @functools.wraps(func)
-    async def wrapper(self, update: Update, context: ContextTypes.DEFAULT_TYPE, *args, **kwargs):
-        user_id = update.effective_user.id
+    def decorator(func: Callable):
+        @functools.wraps(func)
+        async def wrapper(update: Update, context: ContextTypes.DEFAULT_TYPE, *args, **kwargs):
+            if not update.effective_user:
+                if hasattr(update, 'message') and update.message:
+                    await update.message.reply_text("❌ Erro de autenticação: usuário não identificado.")
+                logger.warning(f"Tentativa de acesso admin sem usuário identificado: {func.__name__}")
+                return None
+                
+            user_id = update.effective_user.id
+            
+            # Verificar se é admin
+            is_admin = False
+            if user_manager and hasattr(user_manager, 'is_admin'):
+                is_admin = user_manager.is_admin(user_id)
+            elif hasattr(context, 'bot_data') and context.bot_data.get('user_manager'):
+                is_admin = context.bot_data['user_manager'].is_admin(user_id)
+            elif hasattr(context, 'application') and hasattr(context.application, 'user_manager'):
+                is_admin = context.application.user_manager.is_admin(user_id)
+                
+            if not is_admin:
+                if hasattr(update, 'message') and update.message:
+                    await update.message.reply_text(
+                        "❌ Você não tem permissão para executar este comando."
+                    )
+                logger.warning(f"Usuário {user_id} tentou executar comando admin: {func.__name__}")
+                return None
+            
+            return await func(update, context, *args, **kwargs)
         
-        # Verificar se é admin
-        if hasattr(self, 'config') and user_id not in self.config.admin_ids:
-            await update.message.reply_text(
-                "❌ Você não tem permissão para executar este comando."
-            )
-            logger.warning(f"Usuário {user_id} tentou executar comando admin: {func.__name__}")
-            return
+        wrapper._requires_admin = True
+        return wrapper
         
-        return await func(self, update, context, *args, **kwargs)
-    
-    wrapper._requires_admin = True
-    return wrapper
+    # Handle case when decorator is used without arguments @admin_required
+    if callable(user_manager):
+        func = user_manager
+        user_manager = None
+        return decorator(func)
+        
+    return decorator
 
 
 def user_required(func: Callable):
