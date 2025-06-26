@@ -477,7 +477,8 @@ class UserStatsPlugin(BasePlugin):
             user_data = await self.bot_instance.user_manager.get_user(update.effective_user.id)
             if user_data:
                 username = user_data.get('username', 'Unknown')
-                await update.message.reply_text(f"Your Statistics\nUsername: {username}")
+                command_count = user_data.get('command_count', 0)
+                await update.message.reply_text(f"Your Statistics\nUsername: {username}\nCommands: {command_count}")
             else:
                 await update.message.reply_text("User data not found")
         else:
@@ -492,7 +493,7 @@ class UserStatsPlugin(BasePlugin):
     
     async def userstats_command(self, update, context):
         # Check if user is admin
-        if hasattr(self.bot_instance, 'user_manager') and await self.bot_instance.user_manager.is_admin(update.effective_user.id):
+        if hasattr(self.bot_instance, 'user_manager') and self.bot_instance.user_manager.is_admin(update.effective_user.id):
             if hasattr(context, 'args') and context.args:
                 target_user_id = context.args[0]
                 user_data = await self.bot_instance.user_manager.get_user(int(target_user_id))

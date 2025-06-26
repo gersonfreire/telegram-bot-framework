@@ -169,6 +169,17 @@ class PluginManager:
             except Exception as e:
                 self.logger.warning(f"Failed to start plugin {plugin_name}: {e}")
             
+            # Register plugin commands with bot
+            if bot and hasattr(bot, 'add_command_handler') and hasattr(plugin_instance, 'get_commands'):
+                try:
+                    commands = plugin_instance.get_commands()
+                    if commands:
+                        for command_name, command_handler in commands.items():
+                            bot.add_command_handler(command_name, command_handler)
+                            self.logger.debug(f"Registered command '{command_name}' from plugin {plugin_name}")
+                except Exception as e:
+                    self.logger.warning(f"Failed to register commands for plugin {plugin_name}: {e}")
+            
             # Add to loaded plugins
             self.loaded_plugins.append(plugin_name)
             plugin_info.status = PluginStatus.LOADED

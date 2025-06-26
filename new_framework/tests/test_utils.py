@@ -33,6 +33,13 @@ class TestLogger:
     
     def test_logger_initialization_default(self):
         """Test logger initialization with default settings."""
+        # Reset logger to ensure clean state
+        import logging
+        tlgfwk_logger = logging.getLogger("tlgfwk")
+        for handler in tlgfwk_logger.handlers[:]:
+            tlgfwk_logger.removeHandler(handler)
+        tlgfwk_logger.setLevel(logging.NOTSET)
+        
         logger = Logger()
         
         assert logger.logger.name == "tlgfwk"

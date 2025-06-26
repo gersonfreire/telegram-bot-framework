@@ -47,6 +47,10 @@ class MockPlugin(PluginBase):
         self.stopped = True
         return True
     
+    async def cleanup(self) -> None:
+        """Cleanup method called during unload."""
+        await self.stop()
+    
     def get_commands(self) -> Dict[str, callable]:
         return {
             "mock": self.mock_command
