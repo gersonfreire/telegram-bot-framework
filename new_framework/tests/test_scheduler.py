@@ -364,8 +364,10 @@ class TestScheduler:
     @pytest.mark.asyncio
     async def test_multiple_schedulers(self):
         """Test multiple scheduler instances."""
-        scheduler1 = Scheduler()
-        scheduler2 = Scheduler()
+        mock_bot1 = Mock()
+        mock_bot2 = Mock()
+        scheduler1 = Scheduler(mock_bot1)
+        scheduler2 = Scheduler(mock_bot2)
         
         async def job1():
             pass
