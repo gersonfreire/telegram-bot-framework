@@ -1,7 +1,7 @@
 """
-Gerenciador de persistência de dados.
+Persistence Manager for the Telegram Bot Framework.
 
-Fornece abstração para diferentes backends de armazenamento de dados.
+Provides abstraction for different data storage backends.
 """
 
 import json
@@ -9,8 +9,9 @@ import pickle
 import sqlite3
 import aiofiles
 import os
+import asyncio
 from pathlib import Path
-from typing import Dict, Any, Optional, List, Protocol
+from typing import Dict, Any, Optional, List, Protocol, Union, TypeVar
 from datetime import datetime
 
 # Create our own BasePersistence class since importing from telegram.ext.persistence may not be available
@@ -25,6 +26,14 @@ class BasePersistence(Protocol):
         ...
         
 from ..utils.logger import LoggerMixin
+
+
+class PersistenceError(Exception):
+    """Exception raised for persistence errors."""
+    pass
+
+
+T = TypeVar('T')
 
 
 class PersistenceManager(LoggerMixin):
@@ -372,51 +381,178 @@ class PersistenceManager(LoggerMixin):
         return stats
 
 
-class FilePersistenceManager(PersistenceManager):
-    """Gerenciador de persistência baseado em arquivo."""
+class FilePersistenceManager:
+    """File-based persistence manager."""
     
     def __init__(self, file_path: str):
         """
-        Inicializa a persistência baseada em arquivo.
+        Initialize file-based persistence.
         
         Args:
-            file_path: Caminho para o arquivo de armazenamento
+            file_path: Path to the storage file
         """
         self.file_path = file_path
         self.data = {}
-        self._load_data()
+        self._lock = asyncio.Lock()
+        
+        # Create directory if it doesn't exist
+        directory = os.path.dirname(file_path)
+        if directory and not os.path.exists(directory):
+            os.makedirs(directory, exist_ok=True)
+        
+        # Load data or create new file
+        self._load_data_sync()
+        if not os.path.exists(file_path):
+            self._save_data_sync()
     
-    def _load_data(self):
-        """Carrega dados do arquivo."""
+    def _load_data_sync(self) -> None:
+        """Load data from file synchronously (used during initialization)."""
+        if not os.path.exists(self.file_path):
+            self.data = {}
+            return
+            
         try:
-            if os.path.exists(self.file_path):
-                with open(self.file_path, 'rb') as f:
-                    self.data = pickle.load(f)
+            with open(self.file_path, 'r', encoding='utf-8') as f:
+                self.data = json.load(f)
         except Exception as e:
-            raise PersistenceError(f"Falha ao carregar dados de {self.file_path}: {str(e)}")
+            # Handle corrupted files by starting with empty data
+            self.data = {}
+            # Don't raise during init, just log the error
+            print(f"Error loading persistence file: {str(e)}")
     
-    def _save_data(self):
-        """Salva dados no arquivo."""
+    def _save_data_sync(self) -> None:
+        """Save data to file synchronously."""
         try:
-            with open(self.file_path, 'wb') as f:
-                pickle.dump(self.data, f)
+            # Save to a temporary file first to ensure atomicity
+            temp_file = f"{self.file_path}.tmp"
+            with open(temp_file, 'w', encoding='utf-8') as f:
+                json.dump(self.data, f, indent=2, ensure_ascii=False)
+                
+            # Replace the actual file (atomic on most systems)
+            if os.name == "posix":
+                os.replace(temp_file, self.file_path)
+            else:
+                # Windows may need a different approach
+                if os.path.exists(self.file_path):
+                    os.unlink(self.file_path)
+                os.rename(temp_file, self.file_path)
         except Exception as e:
-            raise PersistenceError(f"Falha ao salvar dados em {self.file_path}: {str(e)}")
+            raise PersistenceError(f"Failed to save data to {self.file_path}: {str(e)}")
     
+    async def _load_data(self) -> None:
+        """Load data from file asynchronously."""
+        if not os.path.exists(self.file_path):
+            self.data = {}
+            return
+            
+        try:
+            async with aiofiles.open(self.file_path, 'r', encoding='utf-8') as f:
+                content = await f.read()
+                self.data = json.loads(content)
+        except Exception as e:
+            # Handle corrupted files by starting with empty data
+            self.data = {}
+            raise PersistenceError(f"Failed to load data from {self.file_path}: {str(e)}")
+    
+    async def _save_data(self) -> None:
+        """Save data to file asynchronously."""
+        try:
+            # Create directory if needed
+            directory = os.path.dirname(self.file_path)
+            if directory and not os.path.exists(directory):
+                os.makedirs(directory, exist_ok=True)
+                
+            # Save to a temporary file first to ensure atomicity
+            temp_file = f"{self.file_path}.tmp"
+            async with aiofiles.open(temp_file, 'w', encoding='utf-8') as f:
+                await f.write(json.dumps(self.data, indent=2, ensure_ascii=False))
+                
+            # Replace the actual file (atomic on most systems)
+            if os.name == "posix":
+                os.replace(temp_file, self.file_path)
+            else:
+                # Windows may need a different approach
+                if os.path.exists(self.file_path):
+                    os.unlink(self.file_path)
+                os.rename(temp_file, self.file_path)
+        except Exception as e:
+            raise PersistenceError(f"Failed to save data to {self.file_path}: {str(e)}")
+    
+    async def set(self, key: str, value: Any) -> None:
+        """
+        Set a value in the persistence store.
+        
+        Args:
+            key: The key to set
+            value: The value to store
+        """
+        async with self._lock:
+            self.data[key] = value
+            await self._save_data()
+    
+    async def get(self, key: str, default: Any = None) -> Any:
+        """
+        Get a value from the persistence store.
+        
+        Args:
+            key: The key to retrieve
+            default: Default value if key doesn't exist
+            
+        Returns:
+            The value or default if key doesn't exist
+        """
+        return self.data.get(key, default)
+    
+    async def exists(self, key: str) -> bool:
+        """
+        Check if a key exists in the persistence store.
+        
+        Args:
+            key: The key to check
+            
+        Returns:
+            True if the key exists, False otherwise
+        """
+        return key in self.data
+    
+    async def delete(self, key: str) -> None:
+        """
+        Delete a key from the persistence store.
+        
+        Args:
+            key: The key to delete
+        """
+        async with self._lock:
+            if key in self.data:
+                del self.data[key]
+                await self._save_data()
+    
+    async def clear(self) -> None:
+        """Clear all data from the persistence store."""
+        async with self._lock:
+            self.data.clear()
+            await self._save_data()
+    
+    async def close(self) -> None:
+        """Close the persistence store (ensure all data is saved)."""
+        async with self._lock:
+            await self._save_data()
+    
+    # Legacy methods for compatibility
     def get_data(self) -> Dict[str, Any]:
-        """Obtém todos os dados armazenados."""
+        """Get all stored data."""
         return self.data
     
     def update_data(self, new_data: Dict[str, Any]) -> None:
-        """Atualiza os dados armazenados com novos dados."""
+        """Update the stored data with new data."""
         self.data.update(new_data)
-        self._save_data()
+        self._save_data_sync()
     
     def get_user_data(self, user_id: int) -> Dict[str, Any]:
-        """Obtém dados de um usuário específico."""
+        """Get data for a specific user."""
         return self.data.get('user_data', {}).get(str(user_id), {})
     
-    def update_user_data(self, user_id: int, data: Dict[str, Any]) -> None:
+    async def update_user_data(self, user_id: int, data: Dict[str, Any]) -> None:
         """Atualiza dados de um usuário específico."""
         if 'user_data' not in self.data:
             self.data['user_data'] = {}
@@ -428,26 +564,80 @@ class FilePersistenceManager(PersistenceManager):
         self._save_data()
 
 
-class MemoryPersistenceManager(PersistenceManager):
-    """Gerenciador de persistência em memória."""
+class MemoryPersistenceManager:
+    """In-memory persistence manager."""
     
     def __init__(self):
-        """Inicializa a persistência em memória."""
+        """Initialize the in-memory persistence."""
         self.data = {}
     
+    async def set(self, key: str, value: Any) -> None:
+        """
+        Set a value in the persistence store.
+        
+        Args:
+            key: The key to set
+            value: The value to store
+        """
+        self.data[key] = value
+    
+    async def get(self, key: str, default: Any = None) -> Any:
+        """
+        Get a value from the persistence store.
+        
+        Args:
+            key: The key to retrieve
+            default: Default value if key doesn't exist
+            
+        Returns:
+            The value or default if key doesn't exist
+        """
+        return self.data.get(key, default)
+    
+    async def exists(self, key: str) -> bool:
+        """
+        Check if a key exists in the persistence store.
+        
+        Args:
+            key: The key to check
+            
+        Returns:
+            True if the key exists, False otherwise
+        """
+        return key in self.data
+    
+    async def delete(self, key: str) -> None:
+        """
+        Delete a key from the persistence store.
+        
+        Args:
+            key: The key to delete
+        """
+        if key in self.data:
+            del self.data[key]
+    
+    async def clear(self) -> None:
+        """Clear all data from the persistence store."""
+        self.data.clear()
+    
+    async def close(self) -> None:
+        """Close the persistence store (no-op for memory store)."""
+        pass
+    
+    # Legacy methods for compatibility
     def get_data(self) -> Dict[str, Any]:
-        """Obtém todos os dados armazenados."""
+        """Get all stored data."""
         return self.data
     
     def update_data(self, new_data: Dict[str, Any]) -> None:
-        """Atualiza os dados armazenados com novos dados."""
+        """Update the stored data with new data."""
         self.data.update(new_data)
     
     def get_user_data(self, user_id: int) -> Dict[str, Any]:
-        """Obtém dados de um usuário específico."""
+        """Get data for a specific user."""
         return self.data.get('user_data', {}).get(str(user_id), {})
     
-    def update_user_data(self, user_id: int, data: Dict[str, Any]) -> None:
+    async def update_user_data(self, user_id: int, data: Dict[str, Any]) -> None:
         """Atualiza dados de um usuário específico."""
         if 'user_data' not in self.data:
             self.data['user_data'] = {}
