@@ -845,6 +845,7 @@ class Job:
     status: JobStatus = JobStatus.PENDING
     next_run: Optional[datetime] = None
     last_run: Optional[datetime] = None
+    run_count: int = 0
     
     def __post_init__(self):
         if not self.name:
