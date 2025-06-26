@@ -62,7 +62,7 @@ class TestScheduler:
     def scheduler(self):
         """Create a JobScheduler instance."""
         mock_bot = Mock()
-        return JobJobScheduler(mock_bot)
+        return JobScheduler(mock_bot)
     
     @pytest.fixture
     def mock_job_func(self):
