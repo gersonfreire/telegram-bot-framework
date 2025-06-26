@@ -272,9 +272,10 @@ class TestUserManager:
         
         mock_persistence.get.return_value = user_data
         
-        result = await user_manager.has_permission(123456, "premium")
-        
-        assert result is False
+        # Mock is_admin to always return False for this test
+        with patch.object(user_manager, 'is_admin', return_value=False):
+            result = await user_manager.has_permission(123456, "premium")
+            assert result is False
     
     @pytest.mark.asyncio
     async def test_has_permission_admin_override(self, user_manager, mock_persistence):

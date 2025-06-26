@@ -257,12 +257,7 @@ class UserManager(LoggerMixin):
         """
         user_data = await self.get_user(user_id)
         if user_data:
-            # Force a different timestamp for test assertions
-            current_value = user_data.get("last_seen", "")
-            new_value = datetime.now().isoformat()
-            if current_value == new_value:  # Make sure we don't have the same values
-                new_value = (datetime.now().replace(microsecond=datetime.now().microsecond + 1)).isoformat()
-            user_data["last_seen"] = new_value
+            user_data["last_seen"] = datetime.now().isoformat()
             await self.save_user(user_id, user_data)
     
     async def set_user_permission(self, user_id: int, permission: str, value: bool = True) -> None:
