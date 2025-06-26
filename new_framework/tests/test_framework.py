@@ -28,7 +28,8 @@ class TestTelegramBotFramework:
             'features.enable_persistence': True,
             'features.enable_plugins': True,
             'features.enable_payments': False,
-            'features.enable_scheduling': True
+            'features.enable_scheduling': True,
+            'plugins.plugin_dir': 'plugins'
         }.get(key, default)
         return config
     
