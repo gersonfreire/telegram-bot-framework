@@ -457,9 +457,14 @@ class UserStatsPlugin(BasePlugin):
     async def stop(self) -> bool:
         return True
     
-    def get_commands(self) -> List[str]:
+    def get_commands(self) -> Dict[str, callable]:
         """Get list of commands."""
-        return ["stats", "mystats", "leaderboard", "userstats"]
+        return {
+            "stats": self.stats_command,
+            "mystats": self.mystats_command, 
+            "leaderboard": self.leaderboard_command,
+            "userstats": self.userstats_command
+        }
     
     async def stats_command(self, update, context):
         await update.message.reply_text("Bot Statistics")
