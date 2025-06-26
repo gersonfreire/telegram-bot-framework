@@ -86,34 +86,32 @@ class TelegramBotFramework(LoggerMixin):
         # Configurar persistência
         if self.config.persistence_backend != "none":
             self.persistence_manager = PersistenceManager(self.config)
-            persistence = asyncio.run(self.persistence_manager.get_persistence())
-            if persistence:
-                app_builder.persistence(persistence)
         
-        # Construir a aplicação
+        # Usar post_init para inicialização assíncrona
+        app_builder.post_init(self._post_init)
         self.application = app_builder.build()
         
-        # Inicializar gerenciadores
+        # Inicializar gerenciadores (síncronos)
         self.user_manager = UserManager(self.config, self.persistence_manager)
-        
         if self.config.plugins_dir:
             self.plugin_manager = PluginManager(
                 self.config.plugins_dir, 
                 self
             )
-        
-        # Registrar handlers padrão
         self.register_default_handlers()
-        
-        # Carregar plugins
-        if self.plugin_manager and self.config.auto_load_plugins:
-            asyncio.run(self.plugin_manager.load_all_plugins())
-        
-        # Registrar comandos do menu
-        asyncio.run(self.setup_bot_commands())
-        
         self.log_info(f"Framework inicializado: {self.config.instance_name}")
-    
+
+    async def _post_init(self, app: Application):
+        # Inicialização assíncrona após o event loop estar pronto
+        if self.config.persistence_backend != "none" and self.persistence_manager:
+            persistence = await self.persistence_manager.get_persistence()
+            if persistence:
+                app.persistence = persistence
+        if self.plugin_manager and self.config.auto_load_plugins:
+            await self.plugin_manager.load_all_plugins()
+        await self.setup_bot_commands()
+        await self.initialize()
+
     def setup_logging(self):
         """Configura sistema de logging."""
         log_config = {
