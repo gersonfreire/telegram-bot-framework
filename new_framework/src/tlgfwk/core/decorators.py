@@ -418,6 +418,34 @@ def log_execution(func: Callable) -> Callable:
     return wrapper
 
 
+def log_command(func: Callable) -> Callable:
+    """
+    Decorator for logging command execution.
+    
+    Args:
+        func: Command handler function
+        
+    Returns:
+        Wrapped function with command logging
+    """
+    @functools.wraps(func)
+    async def wrapper(update: Update, context: ContextTypes.DEFAULT_TYPE, *args, **kwargs):
+        user = update.effective_user
+        chat = update.effective_chat
+        message = update.effective_message
+        
+        if user and message:
+            command_text = message.text or "(no text)"
+            user_info = f"{user.first_name} (@{user.username})" if user.username else f"{user.first_name} (ID: {user.id})"
+            chat_info = f"chat {chat.title}" if chat and chat.title else f"private chat"
+            
+            logger.info(f"Command {command_text} from {user_info} in {chat_info}")
+        
+        return await func(update, context, *args, **kwargs)
+    
+    return wrapper
+
+
 def get_command_registry() -> CommandRegistry:
     """Retorna o registry global de comandos."""
     return command_registry
