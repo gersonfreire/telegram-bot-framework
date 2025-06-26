@@ -296,7 +296,7 @@ Use /help para ver os comandos disponíveis.
 ⚙️ **Configuração do Bot**
 
 **Informações básicas:**
-• Nome: {self.config.instance_name}
+• Nome: {await self._get_bot_display_name()}
 • Debug: {'Sim' if self.config.debug else 'Não'}
 • Persistência: {self.config.persistence_backend}
 
@@ -521,4 +521,14 @@ Use /help para ver os comandos disponíveis.
     @property
     def bot(self):
         """Retorna a instância do bot."""
-        return self.application.bot if self.application else None 
+        return self.application.bot if self.application else None
+
+    async def _get_bot_display_name(self):
+        """Retorna o username real do bot se disponível, senão o instance_name da config."""
+        bot_username = None
+        try:
+            if self.bot:
+                bot_username = self.bot.username
+        except Exception:
+            bot_username = None
+        return bot_username or self.config.instance_name 
