@@ -25,6 +25,28 @@ class PluginBase(abc.ABC):
     def get_commands(self) -> List[Dict[str, Any]]:
         """Return a list of commands supported by this plugin."""
         return self._commands
+        
+    def get_info(self) -> Dict[str, Any]:
+        """Return information about this plugin."""
+        return {
+            "name": self.name if hasattr(self, 'name') else "Unknown",
+            "version": self.version if hasattr(self, 'version') else "0.0.0",
+            "enabled": self.enabled,
+            "commands": len(self._commands),
+            "handlers": len(self._handlers)
+        }
+        
+    @property
+    @abc.abstractmethod
+    def name(self) -> str:
+        """Plugin name."""
+        pass
+        
+    @property
+    @abc.abstractmethod
+    def version(self) -> str:
+        """Plugin version."""
+        pass
     
     @property
     @abc.abstractmethod
