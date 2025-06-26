@@ -202,33 +202,61 @@ def admin_required(user_manager=None):
     return decorator
 
 
-def user_required(func: Callable):
+def user_required(user_manager=None):
     """
-    Decorador que requer usuário registrado.
+    Decorador que requer usuário registrado e não banido.
     
+    Args:
+        user_manager: Optional user_manager instance to check user status
+        
     Usage:
-        @user_required
-        async def user_command(self, update, context):
+        @user_required(user_manager)
+        async def user_command(update, context):
             await update.message.reply_text("Comando para usuários registrados!")
     """
-    @functools.wraps(func)
-    async def wrapper(self, update: Update, context: ContextTypes.DEFAULT_TYPE, *args, **kwargs):
-        user_id = update.effective_user.id
+    def decorator(func: Callable):
+        @functools.wraps(func)
+        async def wrapper(update: Update, context: ContextTypes.DEFAULT_TYPE, *args, **kwargs):
+            if not update.effective_user:
+                if hasattr(update, 'message') and update.message:
+                    await update.message.reply_text("❌ Erro de autenticação: usuário não identificado.")
+                logger.warning(f"Tentativa de acesso sem usuário identificado: {func.__name__}")
+                return None
+                
+            user_id = update.effective_user.id
+            username = update.effective_user.username
+            first_name = update.effective_user.first_name
+            last_name = update.effective_user.last_name
+            
+            if user_manager:
+                # Check if user is banned
+                is_banned = await user_manager.is_banned(user_id)
+                if is_banned:
+                    if hasattr(update, 'message') and update.message:
+                        await update.message.reply_text(
+                            "❌ Você está banido e não pode usar este comando."
+                        )
+                    logger.warning(f"Usuário banido {user_id} tentou executar comando: {func.__name__}")
+                    return None
+                
+                # Register user if not already registered
+                await user_manager.register_user(user_id, username, first_name, last_name)
+                
+                # Update user activity
+                await user_manager.update_user_activity(user_id)
+            
+            return await func(update, context, *args, **kwargs)
         
-        # Verificar se usuário está registrado
-        if hasattr(self, 'user_manager'):
-            user = await self.user_manager.get_user(user_id)
-            if not user:
-                await update.message.reply_text(
-                    "❌ Você precisa estar registrado para usar este comando. Use /start primeiro."
-                )
-                logger.warning(f"Usuário não registrado {user_id} tentou executar comando: {func.__name__}")
-                return
+        wrapper._requires_user = True
+        return wrapper
         
-        return await func(self, update, context, *args, **kwargs)
-    
-    wrapper._requires_user = True
-    return wrapper
+    # Handle case when decorator is used without arguments @user_required
+    if callable(user_manager):
+        func = user_manager
+        user_manager = None
+        return decorator(func)
+        
+    return decorator
 
 
 def owner_required(func: Callable):
