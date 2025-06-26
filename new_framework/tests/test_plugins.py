@@ -186,9 +186,15 @@ class SystemMonitorPlugin(BasePlugin):
     async def stop(self) -> bool:
         return True
     
-    def get_commands(self) -> List[str]:
+    def get_commands(self) -> Dict[str, callable]:
         """Get list of commands."""
-        return ["sysinfo", "cpu", "memory", "disk", "uptime"]
+        return {
+            "sysinfo": self.sysinfo_command,
+            "cpu": self.cpu_command,
+            "memory": self.memory_command,
+            "disk": self.disk_command,
+            "uptime": self.uptime_command
+        }
     
     async def sysinfo_command(self, update, context):
         try:
