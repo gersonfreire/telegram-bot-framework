@@ -31,6 +31,7 @@ class PluginBase(abc.ABC):
         return {
             "name": self.name if hasattr(self, 'name') else "Unknown",
             "version": self.version if hasattr(self, 'version') else "0.0.0",
+            "description": self.description if hasattr(self, 'description') else "No description",
             "enabled": self.enabled,
             "commands": len(self._commands),
             "handlers": len(self._handlers)
