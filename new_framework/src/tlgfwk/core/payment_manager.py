@@ -831,3 +831,99 @@ class PaymentManager:
             self.logger.info(f"Payment expired: {payment_id}")
         
         return len(expired_payments)
+    
+    def register_provider(self, name: str, provider):
+        """
+        Register a payment provider.
+        
+        Args:
+            name: Provider name
+            provider: Payment provider instance
+            
+        Raises:
+            ValueError: If provider with the same name is already registered
+        """
+        if name in self.providers:
+            raise ValueError(f"Provider '{name}' already registered")
+        
+        self.providers[name] = provider
+        self.logger.info(f"Payment provider '{name}' registered")
+        return True
+    
+    def unregister_provider(self, name: str) -> bool:
+        """
+        Unregister a payment provider.
+        
+        Args:
+            name: Provider name
+            
+        Returns:
+            True if provider was unregistered, False if not found
+        """
+        if name in self.providers:
+            del self.providers[name]
+            self.logger.info(f"Payment provider '{name}' unregistered")
+            return True
+        else:
+            self.logger.warning(f"Attempted to unregister non-existent provider '{name}'")
+            return False
+    
+    def get_provider_info(self, name: str) -> Optional[Dict[str, Any]]:
+        """
+        Get information about a registered payment provider.
+        
+        Args:
+            name: Provider name
+            
+        Returns:
+            Provider information dict or None if not found
+        """
+        if name not in self.providers:
+            return None
+            
+        provider = self.providers[name]
+        if hasattr(provider, 'get_info') and callable(provider.get_info):
+            return provider.get_info()
+        
+        # Default basic info
+        info = {
+            'name': getattr(provider, 'name', name),
+            'supported_currencies': self.get_provider_supported_currencies(name)
+        }
+        
+        return info
+    
+    def get_provider_supported_currencies(self, name: str) -> List[str]:
+        """
+        Get currencies supported by a specific provider.
+        
+        Args:
+            name: Provider name
+            
+        Returns:
+            List of currency codes
+        """
+        if name not in self.providers:
+            return []
+            
+        provider = self.providers[name]
+        if hasattr(provider, 'get_supported_currencies') and callable(provider.get_supported_currencies):
+            return provider.get_supported_currencies()
+        
+        # Default to USD if no method is available
+        return ['USD']
+    
+    def get_supported_currencies(self) -> List[str]:
+        """
+        Get all currencies supported by any payment provider.
+        
+        Returns:
+            List of unique currency codes supported across all providers
+        """
+        all_currencies = set()
+        
+        for name, provider in self.providers.items():
+            currencies = self.get_provider_supported_currencies(name)
+            all_currencies.update(currencies)
+        
+        return list(all_currencies)
