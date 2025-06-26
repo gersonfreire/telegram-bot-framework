@@ -378,6 +378,10 @@ class Config:
         """Get the instance name."""
         return self.data.get('instance_name', 'TelegramBot')
     
+    @property
+    def telegram_bot_token(self):
+        return self.bot_token
+    
     # Property setters
     @debug.setter
     def debug(self, value: bool):

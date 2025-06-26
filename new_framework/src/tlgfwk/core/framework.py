@@ -69,7 +69,7 @@ class TelegramBotFramework(LoggerMixin):
         from telegram.ext import Application
         if hasattr(Application, 'builder'):
             app_builder = Application.builder()
-            app_builder.token(self.config.get('telegram.token', 'dummy_token'))
+            app_builder.token(self.config.bot_token)
             self.application = app_builder.build()
         else:
             self.application = None
@@ -107,7 +107,7 @@ class TelegramBotFramework(LoggerMixin):
         
         # Criar aplicação Telegram
         app_builder = Application.builder()
-        app_builder.token(self.config.telegram_bot_token)
+        app_builder.token(self.config.bot_token)
         
         # Configurações de rede
         if not self.config.reuse_connections:
