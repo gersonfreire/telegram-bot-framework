@@ -485,8 +485,9 @@ class CryptoUtils:
         if isinstance(data, str):
             return self.encrypt_string(data)
         elif isinstance(data, bytes):
-            # Store metadata about the type
-            encrypted = self._fernet.encrypt(data)
+            # Add a special prefix to indicate this is binary data
+            prefixed_data = b"__BINARY__" + data
+            encrypted = self._fernet.encrypt(prefixed_data)
             return base64.b64encode(encrypted).decode()
         else:
             raise ValueError(f"Unsupported data type: {type(data)}")
@@ -504,13 +505,18 @@ class CryptoUtils:
         Returns:
             Decrypted data in the same format as originally encrypted
         """
-        original_type = type(data)
-        
         if isinstance(data, str):
             try:
                 # Try as base64 encoded string
-                decrypted = self.decrypt_string(data)
-                return decrypted
+                encrypted_data = base64.b64decode(data.encode())
+                decrypted = self._fernet.decrypt(encrypted_data)
+                
+                # Check if it's binary data (has our special prefix)
+                if decrypted.startswith(b"__BINARY__"):
+                    return decrypted[10:]  # Remove the prefix
+                
+                # Otherwise it's a string
+                return decrypted.decode()
             except Exception as e:
                 raise DecryptionError(f"Failed to decrypt string: {e}")
         elif isinstance(data, bytes):
@@ -524,17 +530,12 @@ class CryptoUtils:
                     # If that fails, try as raw encrypted bytes
                     decrypted = self._fernet.decrypt(data)
                 
-                # Return bytes if the input was bytes
-                if b'This is' in decrypted:
-                    # Special case for test_encrypt_decrypt_bytes
-                    return decrypted
+                # Check if it's binary data (has our special prefix)
+                if decrypted.startswith(b"__BINARY__"):
+                    return decrypted[10:]  # Remove the prefix
                 
-                try:
-                    # Try to decode as string
-                    return decrypted.decode()
-                except UnicodeDecodeError:
-                    # Return as bytes if not valid UTF-8
-                    return decrypted
+                # Otherwise it's a string
+                return decrypted.decode()
             except Exception as e:
                 raise DecryptionError(f"Failed to decrypt bytes: {e}")
         else:
