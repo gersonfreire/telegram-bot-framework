@@ -379,6 +379,22 @@ Use /help para ver os comandos disponíveis.
         await self.stop()
         sys.exit(0)
     
+    @command(name="status", description="Mostrar status do bot")
+    async def status_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+        """Comando /status - Mostra informações básicas do bot."""
+        uptime = datetime.now() - self._startup_time if self._startup_time else "N/A"
+        user_count = 0
+        if self.user_manager:
+            users = await self.user_manager.get_all_users()
+            user_count = len(users)
+        status_msg = (
+            f"🤖 <b>Status do Bot</b>\n\n"
+            f"<b>Nome:</b> {self.config.instance_name}<br>"
+            f"<b>Uptime:</b> {uptime}<br>"
+            f"<b>Usuários registrados:</b> {user_count}"
+        )
+        await update.message.reply_text(status_msg, parse_mode='HTML')
+    
     async def unknown_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Handler para comandos não reconhecidos."""
         command = update.message.text.split()[0]
