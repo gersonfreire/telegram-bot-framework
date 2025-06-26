@@ -23,11 +23,8 @@ class EchoBot(TelegramBotFramework):
     
     def __init__(self):
         # Initialize with basic configuration
-        super().__init__(
-            token=os.getenv("BOT_TOKEN"),
-            admin_user_ids=[int(os.getenv("ADMIN_USER_ID", 0))],
-            owner_user_id=int(os.getenv("OWNER_USER_ID", 0))
-        )
+        # The framework will automatically load config from environment variables
+        super().__init__()
     
     def setup_handlers(self):
         """Set up custom message handlers."""
@@ -35,9 +32,10 @@ class EchoBot(TelegramBotFramework):
         
         # Add echo handler for non-command messages
         from telegram.ext import MessageHandler, filters
-        self.application.add_handler(
-            MessageHandler(filters.TEXT & ~filters.COMMAND, self.echo_message)
-        )
+        if self.application:
+            self.application.add_handler(
+                MessageHandler(filters.TEXT & ~filters.COMMAND, self.echo_message)
+            )
     
     @command(name="echo", description="Echo back your message")
     async def echo_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -87,15 +85,20 @@ def main():
         print("Please set it in your .env file or environment")
         return
     
-    if not os.getenv("ADMIN_USER_ID"):
-        print("Warning: ADMIN_USER_ID not set. Admin commands will not work.")
-    
     if not os.getenv("OWNER_USER_ID"):
-        print("Warning: OWNER_USER_ID not set. Owner commands will not work.")
+        print("Error: OWNER_USER_ID environment variable is required")
+        print("Please set it in your .env file or environment")
+        return
+    
+    if not os.getenv("ADMIN_USER_IDS"):
+        print("Warning: ADMIN_USER_IDS not set. Admin commands may not work.")
     
     # Create and run the bot
     print("Starting Echo Bot...")
     bot = EchoBot()
+    
+    # Setup handlers
+    bot.setup_handlers()
     
     try:
         # Run the bot
