@@ -391,9 +391,17 @@ Use /help para ver os comandos disponíveis.
             if self.user_manager:
                 users = await self.user_manager.get_all_users()
                 user_count = len(users)
+            bot_username = None
+            try:
+                if self.bot:
+                    await self.bot.initialize()
+                    bot_username = self.bot.username
+            except Exception:
+                bot_username = None
+            nome_bot = bot_username or self.config.instance_name
             status_msg = (
                 f"🤖 <b>Status do Bot</b>\n\n"
-                f"<b>Nome:</b> {self.config.instance_name}\n"
+                f"<b>Nome:</b> {nome_bot}\n"
                 f"<b>Uptime:</b> {uptime_str}\n"
                 f"<b>Usuários registrados:</b> {user_count}"
             )

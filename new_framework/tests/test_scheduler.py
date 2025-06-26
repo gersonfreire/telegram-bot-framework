@@ -358,8 +358,8 @@ class TestScheduler:
         async def job2():
             pass
         
-        await scheduler1.add_job("job1", job1, "interval", seconds=30)
-        await scheduler2.add_job("job2", job2, "interval", seconds=30)
+        scheduler.add_job("job1", job1, "interval", seconds=30)
+        scheduler.add_job("job2", job2, "interval", seconds=30)
         
         assert len(scheduler1.jobs) == 1
         assert len(scheduler2.jobs) == 1
