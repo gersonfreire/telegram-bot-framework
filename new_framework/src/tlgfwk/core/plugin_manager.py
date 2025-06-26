@@ -17,7 +17,7 @@ from dataclasses import dataclass
 from enum import Enum
 
 from ..plugins.base import PluginBase
-from ..utils.logger import get_logger
+from ..utils.logger import Logger
 
 
 class PluginStatus(Enum):
@@ -59,7 +59,7 @@ class PluginManager:
         """
         self.bot = bot_instance
         self.plugin_dir = Path(plugin_dir)
-        self.logger = get_logger(__name__)
+        self.logger = Logger(__name__)
         
         # Plugin registry
         self.plugins: Dict[str, PluginInfo] = {}
@@ -455,8 +455,7 @@ class PluginManager:
         # Look for classes that inherit from PluginBase
         for attr_name in dir(module):
             attr = getattr(module, attr_name)
-            if (isinstance(attr, type) and 
-                issubclass(attr, PluginBase) and 
+            if (isinstance(attr, type) and                issubclass(attr, PluginBase) and
                 attr != PluginBase):
                 return attr
         

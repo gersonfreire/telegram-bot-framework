@@ -14,9 +14,9 @@ from typing import Dict, Any, Optional
 from telegram import Update
 from telegram.ext import ContextTypes
 
-from ..base import PluginBase
-from ...core.decorators import command, admin_required
-from ...utils.logger import get_logger
+from .base import PluginBase
+from ..core.decorators import command, admin_required
+from ..utils.logger import Logger
 
 
 class SystemMonitorPlugin(PluginBase):
@@ -46,7 +46,7 @@ class SystemMonitorPlugin(PluginBase):
         self.last_alerts = {}
         self.monitoring_job_id = None
         
-        self.logger = get_logger(__name__)
+        self.logger = Logger(__name__)
     
     def initialize(self):
         """Initialize the plugin."""

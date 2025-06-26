@@ -15,9 +15,9 @@ import os
 from telegram import Update
 from telegram.ext import ContextTypes
 
-from ..base import PluginBase
-from ...core.decorators import command, admin_required
-from ...utils.logger import get_logger
+from .base import PluginBase
+from ..core.decorators import command, admin_required
+from ..utils.logger import Logger
 
 
 class UserStatsPlugin(PluginBase):
@@ -42,7 +42,7 @@ class UserStatsPlugin(PluginBase):
             'enable_reports': True
         }
         
-        self.logger = get_logger(__name__)
+        self.logger = Logger(__name__)
         
         # Initialize database
         self._init_database()

@@ -8,11 +8,10 @@ import abc
 import inspect
 from typing import Dict, Any, List, Optional, Callable
 from pathlib import Path
-from ..utils.logger import LoggerMixin
-from ..core.decorators import get_command_registry
+from ..utils.logger import Logger
 
 
-class PluginBase(LoggerMixin, abc.ABC):
+class PluginBase(abc.ABC):
     """Classe base para todos os plugins."""
     
     def __init__(self):
