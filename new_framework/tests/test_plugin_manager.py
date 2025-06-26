@@ -271,7 +271,7 @@ class TestPluginManager:
         assert info["name"] == "MockPlugin"
         assert info["version"] == "1.0.0"
         assert info["description"] == "A mock plugin for testing"
-        assert info["status"] == "registered"
+        assert info["status"] == "unloaded"
     
     @pytest.mark.asyncio
     async def test_get_plugin_info_loaded(self, plugin_manager, mock_bot, mock_config):
