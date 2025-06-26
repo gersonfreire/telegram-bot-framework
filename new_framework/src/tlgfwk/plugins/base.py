@@ -22,6 +22,10 @@ class PluginBase(abc.ABC):
         self._commands = []
         self._handlers = []
     
+    def get_commands(self) -> List[Dict[str, Any]]:
+        """Return a list of commands supported by this plugin."""
+        return self._commands
+    
     @property
     @abc.abstractmethod
     def name(self) -> str:
