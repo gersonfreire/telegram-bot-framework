@@ -47,9 +47,10 @@ class TestTelegramBotFramework:
         """Test framework initialization."""
         with patch('tlgfwk.core.framework.Application.builder') as mock_builder:
             mock_app = Mock()
-            mock_token_builder = Mock()
-            mock_token_builder.build.return_value = mock_app
-            mock_builder.return_value.token.return_value = mock_token_builder
+            mock_app_builder = Mock()
+            mock_app_builder.token.return_value = mock_app_builder  # Return self for chaining
+            mock_app_builder.build.return_value = mock_app
+            mock_builder.return_value = mock_app_builder
             
             fw = TelegramBotFramework(custom_config=mock_config)
             
