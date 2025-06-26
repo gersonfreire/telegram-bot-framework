@@ -21,6 +21,12 @@ class PluginBase(abc.ABC):
         self.config = {}
         self._commands = []
         self._handlers = []
+    
+    @property
+    @abc.abstractmethod
+    def name(self) -> str:
+        """Nome único do plugin."""
+        pass
 
 # Alias for backward compatibility
 BasePlugin = PluginBase

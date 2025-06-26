@@ -590,3 +590,6 @@ def create_secure_token(length: int = 32) -> str:
         URL-safe token string
     """
     return CryptoUtils.generate_token(length, url_safe=True)
+
+# Alias for backward compatibility
+CryptoManager = CryptoUtils
