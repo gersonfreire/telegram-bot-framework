@@ -37,12 +37,22 @@ class ConcreteTestPlugin(BasePlugin):
     
     def __init__(self):
         super().__init__()
-        self.name = "TestPlugin"
-        self.version = "1.0.0"
+        self._name = "TestPlugin"
+        self._version = "1.0.0"
         self.description = "A test plugin"
         self.initialized = False
         self.started = False
         self.stopped = False
+    
+    @property
+    def name(self) -> str:
+        """Plugin name."""
+        return self._name
+    
+    @property
+    def version(self) -> str:
+        """Plugin version."""
+        return self._version
     
     async def initialize(self, bot_instance, config: Dict[str, Any]) -> bool:
         self.initialized = True
@@ -143,6 +153,55 @@ class TestConcretePlugin:
         assert info["name"] == "TestPlugin"
         assert info["version"] == "1.0.0"
         assert info["description"] == "A test plugin"
+
+
+class SystemMonitorPlugin(BasePlugin):
+    """Test implementation of SystemMonitorPlugin."""
+    
+    def __init__(self):
+        super().__init__()
+        self._name = "SystemMonitor"
+        self._version = "1.0.0"
+        self.description = "System monitoring plugin"
+    
+    @property
+    def name(self) -> str:
+        """Plugin name."""
+        return self._name
+    
+    @property
+    def version(self) -> str:
+        """Plugin version."""
+        return self._version
+    
+    async def initialize(self, bot_instance, config: Dict[str, Any]) -> bool:
+        return True
+    
+    async def start(self) -> bool:
+        return True
+    
+    async def stop(self) -> bool:
+        return True
+    
+    async def sysinfo_command(self, update, context):
+        await update.message.reply_text("System Information")
+    
+    async def cpu_command(self, update, context):
+        try:
+            import psutil
+            cpu_percent = psutil.cpu_percent()
+            await update.message.reply_text(f"CPU Usage: {cpu_percent}%")
+        except Exception as e:
+            await update.message.reply_text(f"Error getting CPU info: {str(e)}")
+    
+    async def memory_command(self, update, context):
+        await update.message.reply_text("Memory Information")
+    
+    async def disk_command(self, update, context):
+        await update.message.reply_text("Disk Information")
+    
+    async def uptime_command(self, update, context):
+        await update.message.reply_text("Uptime Information")
 
 
 class TestSystemMonitorPlugin:
@@ -318,6 +377,47 @@ class TestSystemMonitorPlugin:
             update.message.reply_text.assert_called_once()
             call_args = update.message.reply_text.call_args[0][0]
             assert "Error" in call_args or "error" in call_args
+
+
+class UserStatsPlugin(BasePlugin):
+    """Test implementation of UserStatsPlugin."""
+    
+    def __init__(self):
+        super().__init__()
+        self._name = "UserStats"
+        self._version = "1.0.0"
+        self.description = "User statistics plugin"
+    
+    @property
+    def name(self) -> str:
+        """Plugin name."""
+        return self._name
+    
+    @property
+    def version(self) -> str:
+        """Plugin version."""
+        return self._version
+    
+    async def initialize(self, bot_instance, config: Dict[str, Any]) -> bool:
+        return True
+    
+    async def start(self) -> bool:
+        return True
+    
+    async def stop(self) -> bool:
+        return True
+    
+    async def stats_command(self, update, context):
+        await update.message.reply_text("General statistics")
+    
+    async def mystats_command(self, update, context):
+        await update.message.reply_text("Your statistics")
+    
+    async def leaderboard_command(self, update, context):
+        await update.message.reply_text("Leaderboard")
+    
+    async def userstats_command(self, update, context):
+        await update.message.reply_text("User statistics")
 
 
 class TestUserStatsPlugin:

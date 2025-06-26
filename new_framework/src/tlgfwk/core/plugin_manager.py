@@ -49,7 +49,7 @@ class PluginManager:
     Handles loading, unloading, and managing plugins with dependency resolution.
     """
     
-    def __init__(self, bot_instance, plugin_dir: str = "plugins"):
+    def __init__(self, bot_instance=None, plugin_dir: str = "plugins"):
         """
         Initialize the plugin manager.
         

@@ -444,10 +444,20 @@ Use /help para ver os comandos disponíveis.
         try:
             self._startup_time = datetime.now()
             self._running = True
-            
-            # Executar loop assíncrono
-            asyncio.run(self._run_async())
-            
+
+            try:
+                loop = asyncio.get_running_loop()
+            except RuntimeError:
+                loop = None
+
+            if loop and loop.is_running():
+                self.log_info("Event loop já está rodando. Usando create_task para iniciar o bot.")
+                task = loop.create_task(self._run_async())
+                # Opcional: aguardar o task terminar se for script principal
+                # loop.run_until_complete(task)
+            else:
+                asyncio.run(self._run_async())
+
         except KeyboardInterrupt:
             self.log_info("Bot interrompido pelo usuário")
         except Exception as e:
@@ -455,40 +465,51 @@ Use /help para ver os comandos disponíveis.
             raise
     
     async def _run_async(self):
-        """Executa o bot de forma assíncrona."""
         try:
             # Inicializar framework
             await self.initialize()
-            
+
             # Notificar admins sobre inicialização
             await self.send_admin_message(
                 f"🚀 Bot {self.config.instance_name} iniciado com sucesso!"
             )
-            
+
             # Iniciar polling
             await self.application.run_polling(
                 allowed_updates=Update.ALL_TYPES,
                 drop_pending_updates=True
             )
-            
+
+        except RuntimeError as e:
+            if "Cannot close a running event loop" in str(e):
+                self.log_error("Tentativa de fechar um event loop já rodando. Ignorando fechamento do loop.")
+            else:
+                self.log_error(f"Erro durante execução: {e}")
+            raise
         except Exception as e:
             self.log_error(f"Erro durante execução: {e}")
             raise
-    
+
     async def stop(self):
         """Para o bot de forma graceful."""
         if self._running:
             self._running = False
-            
+
             # Salvar dados
             if self.persistence_manager:
                 await self.persistence_manager.save_all()
-            
+
             # Parar aplicação
             if self.application:
-                await self.application.stop()
-                await self.application.shutdown()
-            
+                try:
+                    await self.application.stop()
+                    await self.application.shutdown()
+                except RuntimeError as e:
+                    if "Cannot close a running event loop" in str(e):
+                        self.log_error("Tentativa de fechar um event loop já rodando ao parar o bot. Ignorando.")
+                    else:
+                        raise
+
             self.log_info("Bot parado com sucesso")
     
     @property
