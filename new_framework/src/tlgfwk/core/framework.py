@@ -180,12 +180,12 @@ class TelegramBotFramework(LoggerMixin):
                 wrapped_handler = handler
             else:
                 # Criar wrapper para métodos não-bound
-                async def create_wrapper(method):
+                def create_wrapper(method):
                     async def wrapper(update: Update, context: ContextTypes.DEFAULT_TYPE):
                         return await method(self, update, context)
                     return wrapper
                 
-                wrapped_handler = await create_wrapper(handler)
+                wrapped_handler = create_wrapper(handler)
             
             # Registrar handler
             self.application.add_handler(
