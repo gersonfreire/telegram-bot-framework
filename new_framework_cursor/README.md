@@ -2,7 +2,8 @@
 
 A modern, extensible Python framework for building Telegram bots with user management, plugins, payments, persistence, and more.
 
-## Features
+## Features  
+
 - User registration and permissions (admin/owner)
 - Command system with decorators and help
 - Plugin system with hot-reload
@@ -30,6 +31,7 @@ python echo_bot.py
 ```
 
 ## Documentation
+
 - [User Guide](docs/user_guide.md)
 - [API Reference](docs/api_reference.md)
 - [Plugin Guide](docs/plugins.md)
@@ -43,4 +45,5 @@ pytest --cov=src/tlgfwk
 ```
 
 ## License
-MIT 
+
+MIT
