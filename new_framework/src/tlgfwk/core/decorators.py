@@ -296,7 +296,7 @@ def rate_limit(max_calls: int = 5, window: int = 60):
     
     Usage:
         @rate_limit(max_calls=3, window=60)
-        async def limited_command(self, update, context):
+        async def limited_command(update, context):
             await update.message.reply_text("Comando com rate limit!")
     """
     def decorator(func: Callable):
@@ -304,7 +304,7 @@ def rate_limit(max_calls: int = 5, window: int = 60):
         call_history: Dict[int, List[float]] = {}
         
         @functools.wraps(func)
-        async def wrapper(self, update: Update, context: ContextTypes.DEFAULT_TYPE, *args, **kwargs):
+        async def wrapper(update: Update, context: ContextTypes.DEFAULT_TYPE, *args, **kwargs):
             import time
             
             user_id = update.effective_user.id
@@ -322,17 +322,18 @@ def rate_limit(max_calls: int = 5, window: int = 60):
             
             # Verificar limite
             if len(call_history[user_id]) >= max_calls:
-                await update.message.reply_text(
-                    f"⚠️ Você está fazendo muitas solicitações. "
-                    f"Tente novamente em {window} segundos."
-                )
+                if hasattr(update, 'message') and update.message:
+                    await update.message.reply_text(
+                        f"⚠️ Você está fazendo muitas solicitações. "
+                        f"Tente novamente em {window} segundos."
+                    )
                 logger.warning(f"Rate limit atingido para usuário {user_id}")
-                return
+                return None
             
             # Registrar chamada atual
             call_history[user_id].append(current_time)
             
-            return await func(self, update, context, *args, **kwargs)
+            return await func(update, context, *args, **kwargs)
         
         wrapper._rate_limited = True
         wrapper._rate_limit_config = {"max_calls": max_calls, "window": window}
