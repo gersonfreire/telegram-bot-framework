@@ -449,31 +449,15 @@ Use /help para ver os comandos disponíveis.
         try:
             self._startup_time = datetime.now()
             self._running = True
-            
-            # Executar tudo de forma assíncrona
-            asyncio.run(self._run_async())
-
+            self.application.run_polling(
+                allowed_updates=Update.ALL_TYPES,
+                drop_pending_updates=True
+            )
         except KeyboardInterrupt:
             self.log_info("Bot interrompido pelo usuário")
         except Exception as e:
             self.log_error(f"Erro fatal: {e}")
             # Não propaga para não encerrar o processo
-
-    async def _run_async(self):
-        """Executa o bot de forma assíncrona."""
-        try:
-            # Inicializar framework
-            await self.initialize()
-            
-            # Executar polling
-            await self.application.run_polling(
-                allowed_updates=Update.ALL_TYPES,
-                drop_pending_updates=True
-            )
-
-        except Exception as e:
-            self.log_error(f"Erro durante execução: {e}")
-            # Não propaga o erro para evitar parada do bot em ambientes interativos
 
     async def stop(self):
         """Para o bot de forma graceful."""
