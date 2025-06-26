@@ -485,6 +485,7 @@ class CryptoUtils:
         if isinstance(data, str):
             return self.encrypt_string(data)
         elif isinstance(data, bytes):
+            # Store metadata about the type
             encrypted = self._fernet.encrypt(data)
             return base64.b64encode(encrypted).decode()
         else:
