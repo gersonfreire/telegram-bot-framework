@@ -831,6 +831,7 @@ class JobScheduler:
 
 
 @dataclass
+@dataclass
 class Job:
     """Job configuration class."""
     id: str
@@ -842,6 +843,7 @@ class Job:
     user_id: Optional[int] = None
     chat_id: Optional[int] = None
     status: JobStatus = JobStatus.PENDING
+    next_run: Optional[datetime] = None
     
     def __post_init__(self):
         if not self.name:
