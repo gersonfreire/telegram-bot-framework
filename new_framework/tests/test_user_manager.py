@@ -207,20 +207,28 @@ class TestUserManager:
             'last_seen': '2023-01-01T00:00:00'
         }
         
+        # Make a copy of the original user_data
+        original_user_data = user_data.copy()
         mock_persistence.get.return_value = user_data
+        
+        # Set expected updated timestamp
+        expected_timestamp = '2023-01-02T12:00:00'
         
         # Mock datetime.now() to return a fixed date different from the one in user_data
         with patch('tlgfwk.core.user_manager.datetime') as mock_datetime:
-            mock_datetime.now.return_value = datetime(2023, 1, 2, 12, 0, 0)
-            mock_datetime.side_effect = lambda *args, **kwargs: datetime(*args, **kwargs)
+            mock_now = Mock()
+            mock_now.isoformat.return_value = expected_timestamp
+            mock_datetime.now.return_value = mock_now
             
             await user_manager.update_user_activity(123456)
             
             mock_persistence.set.assert_called_once()
             call_args = mock_persistence.set.call_args
             updated_user = call_args[0][1]
-            assert updated_user['last_seen'] != user_data['last_seen']
-            assert updated_user['last_seen'] == '2023-01-02T12:00:00'
+            
+            # Check the timestamps are different 
+            assert updated_user['last_seen'] != original_user_data['last_seen']
+            assert updated_user['last_seen'] == expected_timestamp
     
     @pytest.mark.asyncio
     async def test_update_user_activity_no_user(self, user_manager, mock_persistence):
