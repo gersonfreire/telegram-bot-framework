@@ -75,7 +75,7 @@ class TelegramBotFramework(LoggerMixin):
         
         # Construir a aplicação usando o builder pattern
         app_builder = Application.builder()
-        app_builder.token(self.config.telegram_bot_token)
+        app_builder.token(self.config.bot_token)
         
         # Configurações de rede
         if not self.config.reuse_connections:
