@@ -164,11 +164,9 @@ class TestTelegramBotFramework:
         update.message = Mock(spec=Message)
         update.message.reply_text = AsyncMock()
         
-        framework.logger = Mock()
-        
-        await framework._handle_error(update, context)
-        
-        framework.logger.error.assert_called_once()
+        with patch.object(framework, 'logger') as mock_logger:
+            await framework._handle_error(update, context)
+            mock_logger.error.assert_called_once()
     
     @pytest.mark.asyncio
     async def test_run_method(self, framework):
