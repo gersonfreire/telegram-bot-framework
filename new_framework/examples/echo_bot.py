@@ -8,6 +8,15 @@ The bot echoes back any message it receives and provides basic commands.
 import asyncio
 import os
 from pathlib import Path
+from dotenv import load_dotenv
+
+# Load environment variables from .env.test
+env_file = Path(__file__).parent.parent / ".env.test"
+if env_file.exists():
+    load_dotenv(env_file)
+    print(f"✅ Loaded config from {env_file}")
+else:
+    print("⚠️ .env.test not found, using system environment variables")
 
 # Add the src directory to the path so we can import the framework
 import sys
@@ -23,21 +32,24 @@ class EchoBot(TelegramBotFramework):
     
     def __init__(self):
         # Initialize with basic configuration
-        super().__init__(
-            token=os.getenv("BOT_TOKEN"),
-            admin_user_ids=[int(os.getenv("ADMIN_USER_ID", 0))],
-            owner_user_id=int(os.getenv("OWNER_USER_ID", 0))
-        )
+        # Load config from environment variables using from_env method
+        from tlgfwk.core.config import Config
+        config = Config.from_env()
+        super().__init__(custom_config=config)
     
     def setup_handlers(self):
         """Set up custom message handlers."""
-        super().setup_handlers()
-        
         # Add echo handler for non-command messages
         from telegram.ext import MessageHandler, filters
-        self.application.add_handler(
-            MessageHandler(filters.TEXT & ~filters.COMMAND, self.echo_message)
-        )
+        if self.application:
+            self.application.add_handler(
+                MessageHandler(filters.TEXT & ~filters.COMMAND, self.echo_message)
+            )
+            print("✅ Echo handler registered!")
+        
+        # Register command handlers (decorators should handle this automatically)
+        self.register_decorated_commands()
+        print("✅ Command handlers registered!")
     
     @command(name="echo", description="Echo back your message")
     async def echo_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -87,15 +99,20 @@ def main():
         print("Please set it in your .env file or environment")
         return
     
-    if not os.getenv("ADMIN_USER_ID"):
-        print("Warning: ADMIN_USER_ID not set. Admin commands will not work.")
-    
     if not os.getenv("OWNER_USER_ID"):
-        print("Warning: OWNER_USER_ID not set. Owner commands will not work.")
+        print("Error: OWNER_USER_ID environment variable is required")
+        print("Please set it in your .env file or environment")
+        return
+    
+    if not os.getenv("ADMIN_USER_IDS"):
+        print("Warning: ADMIN_USER_IDS not set. Admin commands may not work.")
     
     # Create and run the bot
     print("Starting Echo Bot...")
     bot = EchoBot()
+    
+    # Setup handlers
+    bot.setup_handlers()
     
     try:
         # Run the bot
