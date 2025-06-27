@@ -8,7 +8,9 @@ class PluginBot(TelegramBotFramework):
         # Aponta plugins_dir para a pasta examples
         plugins_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "./")
         super().__init__(config_file=config_file, plugins_dir=plugins_dir)
-        # O PluginManager irá carregar plugins automaticamente se auto_load_plugins=True
+        
+        # Definir configurações de plugins
+        self.config.data['auto_load_plugins'] = True
 
 if __name__ == "__main__":
     env_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".env")
