@@ -30,11 +30,17 @@ cd examples
 python echo_bot.py
 ```
 
-## Documentation
+## Documentação
 
-- [User Guide](docs/user_guide.md)
+- [Guia do Usuário](docs/user_guide.md)
+- [Guia do Administrador](docs/admin_guide.md)
+- [Guia de Plugins](docs/plugins.md)
+- [Guia de Configuração](docs/configuration.md)
+- [Funcionalidades do Framework](docs/features.md)
+
+## API Reference
+
 - [API Reference](docs/api_reference.md)
-- [Plugin Guide](docs/plugins.md)
 - [Payments](docs/payments.md)
 - [Examples](examples/)
 
