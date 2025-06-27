@@ -10,13 +10,13 @@ import os
 from pathlib import Path
 from dotenv import load_dotenv
 
-# Load environment variables from .env.test
-env_file = Path(__file__).parent.parent / ".env.test"
+# Load environment variables from .env
+env_file = Path(__file__).parent.parent / ".env"
 if env_file.exists():
     load_dotenv(env_file)
     print(f"✅ Loaded config from {env_file}")
 else:
-    print("⚠️ .env.test not found, using system environment variables")
+    print("⚠️ .env not found, using system environment variables")
 
 # Add the src directory to the path so we can import the framework
 import sys
