@@ -29,6 +29,9 @@ class PluginBase(ABC):
     def set_framework(self, framework):
         """Set the framework instance."""
         self.framework = framework
+        # Registrar todos os comandos já registrados
+        for command_info in self._commands.values():
+            self._register_with_framework(command_info)
     
     def register_command(self, command_info: Dict[str, Any]):
         """
@@ -43,12 +46,14 @@ class PluginBase(ABC):
         """
         command_name = command_info["name"]
         self._commands[command_name] = command_info
-        
-        # Register with framework if available
+        self._register_with_framework(command_info)
+    
+    def _register_with_framework(self, command_info: Dict[str, Any]):
+        """Registra o comando no framework se possível."""
         if self.framework and hasattr(self.framework, 'application'):
             from telegram.ext import CommandHandler
+            command_name = command_info["name"]
             
-            # Create wrapper to pass plugin instance
             async def command_wrapper(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 return await command_info["handler"](update, context)
             
