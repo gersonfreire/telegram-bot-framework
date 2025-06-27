@@ -29,8 +29,7 @@ async def debug_handlers():
     # Criar framework
     framework = TelegramBotFramework(
         config_file=str(config_file),
-        plugins_dir=str(Path(__file__).parent),
-        custom_config={"auto_load_plugins": True}
+        plugins_dir=str(Path(__file__).parent)
     )
     
     print("✅ Framework criado")
