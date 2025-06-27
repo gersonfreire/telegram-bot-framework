@@ -163,11 +163,6 @@ class TelegramBotFramework(LoggerMixin):
         # Registrar comandos do registry
         self.register_decorated_commands()
 
-        # Handler para comandos não reconhecidos
-        self.application.add_handler(
-            MessageHandler(filters.COMMAND, self.unknown_command)
-        )
-        
         # Handler para mensagens não-comando
         self.application.add_handler(
             MessageHandler(filters.TEXT & ~filters.COMMAND, self.handle_message)
@@ -175,6 +170,8 @@ class TelegramBotFramework(LoggerMixin):
         
         # Handler de erros
         self.application.add_error_handler(self.error_handler)
+        
+        # NOTA: unknown_command será registrado DEPOIS dos plugins no _post_init
     
     def register_decorated_commands(self):
         """Registra comandos que foram decorados com @command."""
@@ -511,14 +508,6 @@ Use /help para ver os comandos disponíveis.
             await update.message.reply_text(
                 "❌ Ação inválida. Use: enable, disable, reload, info"
             )
-    
-    async def unknown_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
-        """Handler para comandos não reconhecidos."""
-        command = update.message.text.split()[0]
-        await update.message.reply_text(
-            f"❓ Comando '{command}' não reconhecido.\n"
-            f"Use /help para ver os comandos disponíveis."
-        )
     
     async def handle_message(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Handler para mensagens de texto não-comando."""
