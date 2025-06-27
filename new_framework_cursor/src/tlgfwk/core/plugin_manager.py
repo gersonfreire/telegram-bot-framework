@@ -101,10 +101,6 @@ class PluginManager:
             # Register plugin
             self._plugins[plugin.name] = plugin
             
-            # Register commands
-            for command_name, command_info in plugin.get_commands().items():
-                self._register_plugin_command(plugin, command_name, command_info)
-            
             self._log(f"Loaded plugin: {plugin.name} v{plugin.version}")
             
         except Exception as e:

@@ -59,6 +59,15 @@ async def debug_plugin():
             print("=== Handlers por grupo ===")
             for group, handlers in framework.application.handlers.items():
                 print(f"Grupo {group}: {[getattr(h, 'command', None) for h in handlers]}")
+                for idx, h in enumerate(handlers):
+                    print(f"  Handler[{idx}] type: {type(h)}")
+                    print(f"    dir: {dir(h)}")
+                    if hasattr(h, 'command'):
+                        print(f"    command: {getattr(h, 'command', None)}")
+                    if hasattr(h, 'commands'):
+                        print(f"    commands: {getattr(h, 'commands', None)}")
+                    if hasattr(h, 'callback'):
+                        print(f"    callback: {getattr(h, 'callback', None)}")
         else:
             print("❌ Plugin HelloPlugin não encontrado")
     else:
