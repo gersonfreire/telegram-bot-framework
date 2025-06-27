@@ -420,6 +420,94 @@ Use /help para ver os comandos disponíveis.
             else:
                 await update.message.reply_text("❌ Ocorreu um erro interno. Os administradores foram notificados.")
     
+    @command(name="plugins", description="Listar plugins carregados", admin_only=True)
+    @admin_required
+    async def plugins_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+        """Comando /plugins - Lista plugins carregados."""
+        if not self.plugin_manager:
+            await update.message.reply_text("❌ Sistema de plugins não disponível")
+            return
+        
+        plugins = self.plugin_manager.get_all_plugins()
+        
+        if not plugins:
+            await update.message.reply_text("📦 Nenhum plugin carregado")
+            return
+        
+        plugins_text = f"📦 **Plugins carregados ({len(plugins)})**\n\n"
+        
+        for plugin_name, plugin in plugins.items():
+            status = "✅ Ativo" if plugin.is_enabled() else "❌ Desabilitado"
+            plugins_text += f"• **{plugin.name}** v{plugin.version}\n"
+            plugins_text += f"  └ {plugin.description}\n"
+            plugins_text += f"  └ Status: {status}\n"
+            plugins_text += f"  └ Autor: {plugin.author}\n\n"
+        
+        await update.message.reply_text(plugins_text, parse_mode=ParseMode.MARKDOWN)
+    
+    @command(name="plugin", description="Gerenciar plugin específico", admin_only=True)
+    @admin_required
+    async def plugin_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+        """Comando /plugin - Gerencia plugin específico."""
+        if not self.plugin_manager:
+            await update.message.reply_text("❌ Sistema de plugins não disponível")
+            return
+        
+        # Parse arguments
+        args = context.args
+        if len(args) < 2:
+            await update.message.reply_text(
+                "❌ Uso: /plugin <ação> <nome_plugin>\n"
+                "Ações: enable, disable, reload, info"
+            )
+            return
+        
+        action = args[0].lower()
+        plugin_name = args[1]
+        
+        if action == "enable":
+            await self.plugin_manager.enable_plugin(plugin_name)
+            await update.message.reply_text(f"✅ Plugin {plugin_name} habilitado")
+        
+        elif action == "disable":
+            await self.plugin_manager.disable_plugin(plugin_name)
+            await update.message.reply_text(f"❌ Plugin {plugin_name} desabilitado")
+        
+        elif action == "reload":
+            await self.plugin_manager.unload_plugin(plugin_name)
+            await self.plugin_manager.load_plugin(plugin_name)
+            await update.message.reply_text(f"🔄 Plugin {plugin_name} recarregado")
+        
+        elif action == "info":
+            plugin = self.plugin_manager.get_plugin(plugin_name)
+            if plugin:
+                info_text = f"""
+📦 **Informações do Plugin**
+
+**Nome:** {plugin.name}
+**Versão:** {plugin.version}
+**Descrição:** {plugin.description}
+**Autor:** {plugin.author}
+**Status:** {'✅ Ativo' if plugin.is_enabled() else '❌ Desabilitado'}
+
+**Comandos:**
+"""
+                commands = plugin.get_commands()
+                if commands:
+                    for cmd_name, cmd_info in commands.items():
+                        info_text += f"• /{cmd_name} - {cmd_info.get('description', 'Sem descrição')}\n"
+                else:
+                    info_text += "Nenhum comando registrado"
+                
+                await update.message.reply_text(info_text, parse_mode=ParseMode.MARKDOWN)
+            else:
+                await update.message.reply_text(f"❌ Plugin {plugin_name} não encontrado")
+        
+        else:
+            await update.message.reply_text(
+                "❌ Ação inválida. Use: enable, disable, reload, info"
+            )
+    
     async def unknown_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Handler para comandos não reconhecidos."""
         command = update.message.text.split()[0]

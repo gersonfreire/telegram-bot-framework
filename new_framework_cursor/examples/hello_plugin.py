@@ -1,5 +1,13 @@
-from src.tlgfwk.plugins.base import PluginBase
-from src.tlgfwk.core.decorators import command
+try:
+    from src.tlgfwk.plugins.base import PluginBase
+    from src.tlgfwk.core.decorators import command
+except ImportError:
+    # Fallback para quando executado diretamente
+    import sys
+    import os
+    sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
+    from tlgfwk.plugins.base import PluginBase
+    from tlgfwk.core.decorators import command
 
 class HelloPlugin(PluginBase):
     name = "HelloPlugin"
@@ -14,6 +22,14 @@ class HelloPlugin(PluginBase):
             "handler": self.hello_command,
             "description": "Diz olá!"
         })
+
+    async def on_load(self):
+        """Chamado quando o plugin é carregado."""
+        print(f"Plugin {self.name} carregado com sucesso!")
+
+    async def on_unload(self):
+        """Chamado quando o plugin é descarregado."""
+        print(f"Plugin {self.name} descarregado!")
 
     @command(name="hello", description="Diz olá!")
     async def hello_command(self, update, context):
