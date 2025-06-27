@@ -28,6 +28,8 @@ class PluginManager:
     
     async def load_all_plugins(self):
         """Load all plugins from the plugins directory."""
+        self._log(f"Tentando carregar plugins do diretório: {self.plugins_dir}")
+        
         if not os.path.exists(self.plugins_dir):
             self._log(f"Plugins directory does not exist: {self.plugins_dir}", "warning")
             return
@@ -39,17 +41,22 @@ class PluginManager:
                 continue
             plugin_files.append(file_path)
         
-        self._log(f"Found {len(plugin_files)} potential plugin files")
+        self._log(f"Found {len(plugin_files)} potential plugin files: {[f.name for f in plugin_files]}")
         
         for plugin_file in plugin_files:
             try:
+                self._log(f"Tentando carregar plugin do arquivo: {plugin_file.name}")
                 await self.load_plugin_from_file(plugin_file)
             except Exception as e:
                 self._log(f"Failed to load plugin from {plugin_file.name}: {e}", "error")
+                import traceback
+                self._log(f"Traceback: {traceback.format_exc()}", "error")
     
     async def load_plugin_from_file(self, plugin_file: Path):
         """Load a plugin from a specific file."""
         try:
+            self._log(f"Importando módulo: {plugin_file}")
+            
             # Import the module
             spec = importlib.util.spec_from_file_location(
                 plugin_file.stem, 
@@ -58,13 +65,17 @@ class PluginManager:
             module = importlib.util.module_from_spec(spec)
             spec.loader.exec_module(module)
             
+            self._log(f"Módulo importado com sucesso: {plugin_file.name}")
+            
             # Find plugin classes in the module
             plugin_classes = []
             for name, obj in inspect.getmembers(module):
+                self._log(f"Verificando objeto: {name} - {type(obj)}")
                 if (inspect.isclass(obj) and 
                     issubclass(obj, PluginBase) and 
                     obj != PluginBase):
                     plugin_classes.append(obj)
+                    self._log(f"Classe de plugin encontrada: {name}")
             
             if not plugin_classes:
                 self._log(f"No plugin classes found in {plugin_file.name}", "warning")
@@ -73,13 +84,18 @@ class PluginManager:
             # Instantiate and load plugins
             for plugin_class in plugin_classes:
                 try:
+                    self._log(f"Instanciando plugin: {plugin_class.__name__}")
                     plugin = plugin_class()
                     await self.load_plugin_instance(plugin)
                 except Exception as e:
                     self._log(f"Failed to instantiate plugin {plugin_class.__name__}: {e}", "error")
+                    import traceback
+                    self._log(f"Traceback: {traceback.format_exc()}", "error")
                     
         except Exception as e:
             self._log(f"Failed to load plugin from {plugin_file.name}: {e}", "error")
+            import traceback
+            self._log(f"Traceback: {traceback.format_exc()}", "error")
     
     async def load_plugin_instance(self, plugin: PluginBase):
         """Load a specific plugin instance."""
