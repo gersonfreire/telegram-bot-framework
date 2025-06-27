@@ -21,13 +21,15 @@ async def test_plugin_loading():
     config = {
         'bot_token': 'test_token',
         'owner_user_id': 123456789,
-        'debug': True,
-        'auto_load_plugins': True
+        'debug': True
     }
     
     plugins_dir = os.path.dirname(os.path.abspath(__file__))
     
     framework = TelegramBotFramework(custom_config=config, plugins_dir=plugins_dir)
+    
+    # Definir configurações de plugins após a criação do framework
+    framework.config.data['auto_load_plugins'] = True
     
     # Verificar se o plugin manager foi criado
     if framework.plugin_manager:
