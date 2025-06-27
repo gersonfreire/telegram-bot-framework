@@ -31,6 +31,6 @@ class HelloPlugin(PluginBase):
         """Chamado quando o plugin é descarregado."""
         print(f"Plugin {self.name} descarregado!")
 
-    @command(name="hello", description="Diz olá!")
     async def hello_command(self, update, context):
+        """Handler para o comando /hello"""
         await update.message.reply_text("Olá do plugin!") 

@@ -115,6 +115,8 @@ class PluginManager:
         try:
             from telegram.ext import CommandHandler
             
+            self._log(f"Tentando registrar comando /{command_name} do plugin {plugin.name}")
+            
             # Create wrapper that includes plugin context
             async def command_wrapper(update, context):
                 if not plugin.is_enabled():
@@ -136,6 +138,8 @@ class PluginManager:
             
         except Exception as e:
             self._log(f"Failed to register plugin command {command_name}: {e}", "error")
+            import traceback
+            self._log(f"Traceback: {traceback.format_exc()}", "error")
     
     async def load_plugin(self, plugin_name: str):
         """Load a specific plugin by name."""
