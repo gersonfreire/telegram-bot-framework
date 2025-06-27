@@ -114,6 +114,12 @@ class TelegramBotFramework(LoggerMixin):
                 app.persistence = persistence
         if self.plugin_manager and self.config.auto_load_plugins:
             await self.plugin_manager.load_all_plugins()
+        
+        # Registrar unknown_command DEPOIS dos plugins
+        self.application.add_handler(
+            MessageHandler(filters.COMMAND, self.unknown_command)
+        )
+        
         await self.setup_bot_commands()
         await self.initialize()
 
@@ -510,10 +516,16 @@ Use /help para ver os comandos disponíveis.
             )
     
     async def handle_message(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
-        """Handler para mensagens de texto não-comando."""
-        # Por padrão, não faz nada com mensagens de texto
-        # Pode ser sobrescrito por subclasses
-        pass
+        """Handler para mensagens de texto."""
+        await update.message.reply_text("📝 Mensagem recebida!")
+    
+    async def unknown_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+        """Handler para comandos não reconhecidos."""
+        command = update.message.text.split()[0]
+        await update.message.reply_text(
+            f"❓ Comando '{command}' não reconhecido.\n"
+            f"Use /help para ver os comandos disponíveis."
+        )
     
     async def error_handler(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Handler de erros do framework."""
