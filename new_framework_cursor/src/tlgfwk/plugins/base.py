@@ -28,8 +28,10 @@ class PluginBase(ABC):
     
     def set_framework(self, framework):
         """Set the framework instance."""
+        print(f"[DEBUG] PluginBase.set_framework() chamado para {self.name}")
         self.framework = framework
         # Registrar todos os comandos já registrados
+        print(f"[DEBUG] Registrando {len(self._commands)} comandos no framework")
         for command_info in self._commands.values():
             self._register_with_framework(command_info)
     
@@ -45,14 +47,19 @@ class PluginBase(ABC):
                 - admin_only: Whether command is admin-only
         """
         command_name = command_info["name"]
+        print(f"[DEBUG] PluginBase.register_command() chamado para '{command_name}'")
         self._commands[command_name] = command_info
         self._register_with_framework(command_info)
     
     def _register_with_framework(self, command_info: Dict[str, Any]):
         """Registra o comando no framework se possível."""
+        command_name = command_info["name"]
+        print(f"[DEBUG] _register_with_framework() para '{command_name}'")
+        print(f"[DEBUG] Framework disponível: {self.framework is not None}")
+        
         if self.framework and hasattr(self.framework, 'application'):
             from telegram.ext import CommandHandler
-            command_name = command_info["name"]
+            print(f"[DEBUG] Registrando handler para '/{command_name}' no framework")
             
             async def command_wrapper(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 return await command_info["handler"](update, context)
@@ -60,6 +67,9 @@ class PluginBase(ABC):
             self.framework.application.add_handler(
                 CommandHandler(command_name, command_wrapper)
             )
+            print(f"[DEBUG] Handler para '/{command_name}' registrado com sucesso")
+        else:
+            print(f"[DEBUG] Framework não disponível para registrar '{command_name}'")
     
     def get_commands(self) -> Dict[str, Dict[str, Any]]:
         """Get all registered commands for this plugin."""

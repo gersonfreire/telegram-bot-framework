@@ -17,14 +17,20 @@ class HelloPlugin(PluginBase):
 
     def __init__(self):
         super().__init__()
+        print(f"[DEBUG] HelloPlugin.__init__() chamado")
         self.register_command({
             "name": "hello",
             "handler": self.hello_command,
             "description": "Diz olá!"
         })
+        print(f"[DEBUG] Comando 'hello' registrado no plugin")
 
     async def on_load(self):
         """Chamado quando o plugin é carregado."""
+        print(f"[DEBUG] HelloPlugin.on_load() chamado")
+        print(f"[DEBUG] Framework disponível: {self.framework is not None}")
+        if self.framework:
+            print(f"[DEBUG] Application disponível: {hasattr(self.framework, 'application')}")
         print(f"Plugin {self.name} carregado com sucesso!")
 
     async def on_unload(self):
@@ -33,4 +39,5 @@ class HelloPlugin(PluginBase):
 
     async def hello_command(self, update, context):
         """Handler para o comando /hello"""
+        print(f"[DEBUG] hello_command() chamado!")
         await update.message.reply_text("Olá do plugin!") 
