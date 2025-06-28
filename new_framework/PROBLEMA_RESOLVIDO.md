@@ -56,7 +56,7 @@ def setup_handlers(self):
 ## 🚀 Bot Funcionando Corretamente
 
 ### **Configurações Ativas:**
-- ✅ **Token**: `1076729431:AAE95s3Q_QKkEtVxnProc5BRxdqxKo_S7v8`
+- ✅ **Token**: ` `
 - ✅ **Owner ID**: `438429121`
 - ✅ **Admin IDs**: `438429121`
 - ✅ **Debug Mode**: Ativo
@@ -108,7 +108,7 @@ O Echo Bot está **funcionando perfeitamente** com os parâmetros do arquivo `.e
 - ✅ **Pronto para uso**: No Telegram
 
 O bot está **ativo e funcional** usando:
-- **Token**: `1076729431:AAE95s3Q_QKkEtVxnProc5BRxdqxKo_S7v8`
+- **Token**: ` `
 - **Owner**: `438429121`
 - **Admin**: `438429121`
 

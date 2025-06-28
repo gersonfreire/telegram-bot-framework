@@ -8,7 +8,7 @@ import sys
 from pathlib import Path
 
 # Carregar variáveis do .env.test
-os.environ["BOT_TOKEN"] = "1076729431:AAE95s3Q_QKkEtVxnProc5BRxdqxKo_S7v8"
+os.environ["BOT_TOKEN"] = " "
 os.environ["OWNER_USER_ID"] = "438429121"
 os.environ["ADMIN_USER_IDS"] = "438429121"
 os.environ["DEBUG"] = "true"
