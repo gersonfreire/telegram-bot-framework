@@ -324,7 +324,9 @@ Use /help para ver os comandos disponíveis.
         if user_id == self.config.owner_user_id:
             help_text += "**Comandos de Controle do Bot:**\n"
             help_text += "/botrestart - Reiniciar o bot\n"
-            help_text += "/botstop - Parar o bot\n\n"
+            help_text += "/botstop - Parar o bot\n"
+            help_text += "/restart - Reiniciar o bot (alternativo)\n"
+            help_text += "/shutdown - Desligar o bot (alternativo)\n\n"
 
         # Informações do bot
         help_text += f"🔧 Versão do Framework: 1.0.0\n"
