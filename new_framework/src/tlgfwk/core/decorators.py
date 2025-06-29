@@ -596,12 +596,16 @@ def admin_required_simple(func: Callable):
     """
     @functools.wraps(func)
     async def wrapper(self, update: Update, context: ContextTypes.DEFAULT_TYPE, *args, **kwargs):
+        if not update.effective_user:
+            await update.message.reply_text("❌ Erro de autenticação: usuário não identificado.")
+            return
+
         user_id = update.effective_user.id
 
         # Verificar se é admin usando user_manager da instância
         is_admin = False
         if hasattr(self, 'user_manager') and self.user_manager:
-            is_admin = self.user_manager.is_admin(user_id)  # Removido await
+            is_admin = self.user_manager.is_admin(user_id)
 
         if not is_admin:
             await update.message.reply_text(
