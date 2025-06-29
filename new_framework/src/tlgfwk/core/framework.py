@@ -459,15 +459,47 @@ Use /help para ver os comandos disponíveis.
         """Desliga o bot."""
         await update.message.reply_text("🛑 Desligando o bot...")
 
-        # Salvar estado
+        # Salvar estado se necessário
         if self.persistence_manager:
             await self.persistence_manager.flush()
 
-        # Notificar admins
-        await self.send_admin_message("🛑 Bot desligado")
-
-        # Parar aplicação
+        # Parar o bot
         await self.stop()
+
+        await update.message.reply_text("✅ Bot desligado com sucesso!")
+
+    @command(name="plugindemo", description="Demonstra funcionalidades do plugin")
+    @typing_indicator
+    async def plugin_demo_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+        """Demonstra funcionalidades do plugin."""
+        user = update.effective_user
+        message = (
+            f"🎯 <b>Demo Plugin Funcionalidades</b>\n\n"
+            f"👤 <b>Usuário:</b> {user.first_name}\n"
+            f"🆔 <b>ID:</b> {user.id}\n"
+            f"📅 <b>Data:</b> {datetime.now().strftime('%d/%m/%Y %H:%M:%S')}\n\n"
+            f"✨ Este plugin demonstra:\n"
+            f"• Sistema de plugins\n"
+            f"• Comandos customizados\n"
+            f"• Integração com framework\n"
+            f"• Notificações administrativas"
+        )
+        await update.message.reply_text(message, parse_mode='HTML')
+
+    @command(name="plugininfo", description="Mostra informações do plugin")
+    @typing_indicator
+    async def plugin_info_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+        """Mostra informações do plugin."""
+        info = (
+            f"📋 <b>Informações do Plugin</b>\n\n"
+            f"📦 <b>Nome:</b> DemoPlugin\n"
+            f"🔢 <b>Versão:</b> 1.0.0\n"
+            f"📝 <b>Descrição:</b> Plugin de demonstração com funcionalidades avançadas\n"
+            f"👨‍💻 <b>Autor:</b> Framework Demo\n"
+            f"🔄 <b>Status:</b> ✅ Ativo\n"
+            f"🎯 <b>Comandos:</b> 2"
+        )
+        await update.message.reply_text(info, parse_mode='HTML')
 
     async def unknown_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Handler para comandos não reconhecidos."""

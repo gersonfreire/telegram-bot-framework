@@ -146,13 +146,6 @@ class DemoBot(TelegramBotFramework):
         if self.plugin_manager:
             self.plugin_manager.load_plugin_instance(self.demo_plugin)
 
-        # Registrar comandos do plugin diretamente na aplicação
-        if self.application:
-            from telegram.ext import CommandHandler
-            self.application.add_handler(CommandHandler("plugindemo", self.demo_plugin.plugin_demo_command))
-            self.application.add_handler(CommandHandler("plugininfo", self.demo_plugin.plugin_info_command))
-            print("✅ Comandos do plugin registrados diretamente na aplicação")
-
     # ============================================================================
     # COMANDOS BÁSICOS DE DEMONSTRAÇÃO
     # ============================================================================
