@@ -61,7 +61,7 @@ class DemoPlugin(PluginBase):
         await super().initialize(framework, config)
         print(f"✅ Plugin {self.name} inicializado com sucesso!")
         if self.framework:
-            await self.framework.send_admin_message(f"🔌 Plugin {self.name} foi carregado!")
+            self.framework.send_admin_message(f"🔌 Plugin {self.name} foi carregado!")
         return True
 
     async def start(self):
