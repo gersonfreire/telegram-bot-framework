@@ -556,10 +556,18 @@ Use /help para ver os comandos disponíveis.
     def run(self):
         """Executa o bot."""
         try:
-            # Inicializar
-            asyncio.run(self._run_async())
+            import asyncio
+            loop = asyncio.get_event_loop()
+            if loop.is_running():
+                # Ambiente interativo: rode como task
+                loop.create_task(self._run_async())
+            else:
+                loop.run_until_complete(self._run_async())
         except KeyboardInterrupt:
             self.log_info("Bot interrompido pelo usuário")
+        except RuntimeError:
+            import asyncio
+            asyncio.run(self._run_async())
         except Exception as e:
             self.log_error(f"Erro fatal ao executar bot: {e}", exc_info=e)
             sys.exit(1)
