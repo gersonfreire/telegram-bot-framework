@@ -135,7 +135,11 @@ class DemoBot(TelegramBotFramework):
             'start_time': datetime.now()
         }
 
-        # Carregar o DemoPlugin manualmente
+    async def initialize(self):
+        """Override do initialize para carregar o DemoPlugin após a inicialização."""
+        await super().initialize()
+
+        # Carregar o DemoPlugin manualmente após a inicialização
         self.demo_plugin = DemoPlugin()
         if self.plugin_manager:
             self.plugin_manager.load_plugin_instance(self.demo_plugin)
