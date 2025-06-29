@@ -20,7 +20,7 @@ from telegram.ext import (
 from telegram.constants import ParseMode
 
 from .config import Config
-from .decorators import get_command_registry, command, admin_required, owner_required
+from .decorators import get_command_registry, command, admin_required_simple, owner_required
 from .user_manager import UserManager
 from .plugin_manager import PluginManager
 from .persistence_manager import PersistenceManager
@@ -331,7 +331,7 @@ Use /help para ver os comandos disponíveis.
         )
 
     @command(name="config", description="Mostrar configuração", admin_only=True)
-    @admin_required
+    @admin_required_simple
     async def config_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Mostra configuração atual."""
         config_dict = self.config.to_dict()
@@ -347,7 +347,7 @@ Use /help para ver os comandos disponíveis.
         )
 
     @command(name="stats", description="Estatísticas do bot", admin_only=True)
-    @admin_required
+    @admin_required_simple
     async def stats_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Mostra estatísticas do bot."""
         stats_text = "📊 **Estatísticas do Bot:**\n\n"
@@ -393,7 +393,7 @@ Use /help para ver os comandos disponíveis.
         )
 
     @command(name="users", description="Listar usuários", admin_only=True)
-    @admin_required
+    @admin_required_simple
     async def users_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Lista usuários registrados."""
         if not self.user_manager:
