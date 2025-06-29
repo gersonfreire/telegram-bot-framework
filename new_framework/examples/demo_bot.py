@@ -26,7 +26,7 @@ from typing import List, Dict, Any
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 from tlgfwk import (
-    TelegramBotFramework, command, admin_required, owner_required,
+    TelegramBotFramework, command, admin_required_simple, owner_required,
     PluginBase, CryptoUtils, generate_encryption_key, create_secure_token
 )
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
@@ -215,7 +215,7 @@ class DemoBot(TelegramBotFramework):
     # ============================================================================
 
     @command(name="admin_test", description="Teste de permissões de admin")
-    @admin_required
+    @admin_required_simple
     async def admin_test_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Teste de permissões de admin."""
         user = update.effective_user
@@ -253,7 +253,7 @@ class DemoBot(TelegramBotFramework):
         await update.message.reply_text(message, parse_mode='HTML')
 
     @command(name="permission_denied", description="Demonstra mensagem de permissão negada")
-    @admin_required
+    @admin_required_simple
     async def permission_denied_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Este comando sempre requer admin, demonstrando controle de acesso."""
         await update.message.reply_text("✅ Se você vê esta mensagem, você tem permissões de admin!")
@@ -387,7 +387,7 @@ class DemoBot(TelegramBotFramework):
     # ============================================================================
 
     @command(name="demo_config", description="Mostrar configurações do demo")
-    @admin_required
+    @admin_required_simple
     async def demo_config_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Mostrar configurações do demo bot."""
         config_msg = (
@@ -411,7 +411,7 @@ class DemoBot(TelegramBotFramework):
     # ============================================================================
 
     @command(name="broadcast_demo", description="Demonstração de broadcast (apenas admin)")
-    @admin_required
+    @admin_required_simple
     async def broadcast_demo_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Demonstração de broadcast para todos os usuários."""
         if not context.args:
@@ -447,7 +447,7 @@ class DemoBot(TelegramBotFramework):
     # ============================================================================
 
     @command(name="plugins", description="Listar plugins carregados")
-    @admin_required
+    @admin_required_simple
     async def plugins_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Listar todos os plugins carregados."""
         if not self.plugin_manager:
@@ -475,7 +475,7 @@ class DemoBot(TelegramBotFramework):
         await update.message.reply_text(plugins_msg, parse_mode='HTML')
 
     @command(name="plugin", description="Gerenciar plugin específico")
-    @admin_required
+    @admin_required_simple
     async def plugin_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Gerenciar plugin específico."""
         if not context.args:

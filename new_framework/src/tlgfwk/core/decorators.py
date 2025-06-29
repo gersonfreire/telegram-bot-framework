@@ -583,3 +583,34 @@ def permission_required(permission_key: str, user_manager=None):
 def get_command_registry() -> CommandRegistry:
     """Retorna o registry global de comandos."""
     return command_registry
+
+
+def admin_required_simple(func: Callable):
+    """
+    Decorador que requer permissões de administrador (versão simples).
+
+    Usage:
+        @admin_required_simple
+        async def admin_command(self, update, context):
+            await update.message.reply_text("Comando administrativo!")
+    """
+    @functools.wraps(func)
+    async def wrapper(self, update: Update, context: ContextTypes.DEFAULT_TYPE, *args, **kwargs):
+        user_id = update.effective_user.id
+
+        # Verificar se é admin usando user_manager da instância
+        is_admin = False
+        if hasattr(self, 'user_manager') and self.user_manager:
+            is_admin = await self.user_manager.is_admin(user_id)
+
+        if not is_admin:
+            await update.message.reply_text(
+                "❌ Você não tem permissão para executar este comando."
+            )
+            logger.warning(f"Usuário {user_id} tentou executar comando admin: {func.__name__}")
+            return None
+
+        return await func(self, update, context, *args, **kwargs)
+
+    wrapper._requires_admin = True
+    return wrapper
