@@ -177,9 +177,19 @@ class PluginManager:
                 try:
                     commands = plugin_instance.get_commands()
                     if commands:
-                        for command_name, command_handler in commands.items():
-                            bot.add_command_handler(command_name, command_handler)
-                            self.logger.debug(f"Registered command '{command_name}' from plugin {plugin_name}")
+                        # Handle both list of dicts and dict formats
+                        if isinstance(commands, list):
+                            for command_info in commands:
+                                if isinstance(command_info, dict):
+                                    command_name = command_info.get('name')
+                                    command_handler = command_info.get('handler')
+                                    if command_name and command_handler:
+                                        bot.add_command_handler(command_name, command_handler)
+                                        self.logger.debug(f"Registered command '{command_name}' from plugin {plugin_name}")
+                        elif isinstance(commands, dict):
+                            for command_name, command_handler in commands.items():
+                                bot.add_command_handler(command_name, command_handler)
+                                self.logger.debug(f"Registered command '{command_name}' from plugin {plugin_name}")
                 except Exception as e:
                     self.logger.warning(f"Failed to register commands for plugin {plugin_name}: {e}")
 
@@ -388,9 +398,19 @@ class PluginManager:
                 try:
                     commands = plugin_instance.get_commands()
                     if commands:
-                        for command_name, command_handler in commands.items():
-                            self.bot.add_command_handler(command_name, command_handler)
-                            self.logger.debug(f"Registered command '{command_name}' from plugin {plugin_name}")
+                        # Handle both list of dicts and dict formats
+                        if isinstance(commands, list):
+                            for command_info in commands:
+                                if isinstance(command_info, dict):
+                                    command_name = command_info.get('name')
+                                    command_handler = command_info.get('handler')
+                                    if command_name and command_handler:
+                                        self.bot.add_command_handler(command_name, command_handler)
+                                        self.logger.debug(f"Registered command '{command_name}' from plugin {plugin_name}")
+                        elif isinstance(commands, dict):
+                            for command_name, command_handler in commands.items():
+                                self.bot.add_command_handler(command_name, command_handler)
+                                self.logger.debug(f"Registered command '{command_name}' from plugin {plugin_name}")
                 except Exception as e:
                     self.logger.warning(f"Failed to register commands for plugin {plugin_name}: {e}")
 
