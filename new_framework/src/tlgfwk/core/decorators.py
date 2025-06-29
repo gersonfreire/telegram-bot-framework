@@ -9,7 +9,7 @@ import inspect
 import time
 import locale
 from typing import Callable, Optional, List, Dict, Any, Union
-from telegram import Update, ChatAction
+from telegram import Update
 from telegram.ext import ContextTypes
 from ..utils.logger import get_logger
 
