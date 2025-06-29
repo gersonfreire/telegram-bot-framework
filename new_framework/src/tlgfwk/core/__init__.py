@@ -12,31 +12,32 @@ from .plugin_manager import PluginManager
 from .payment_manager import PaymentManager
 from .scheduler import JobScheduler
 from .decorators import (
-    command, admin_required, owner_required, rate_limit, 
-    validate_args, typing_action, log_command
+    command, admin_required, owner_required, rate_limit,
+    validate_args, typing_action, log_command, typing_indicator
 )
 
 __all__ = [
     # Main framework
     'TelegramBotFramework',
-    
+
     # Configuration
     'Config',
     'ConfigError',
-    
+
     # Managers
     'UserManager',
-    'PersistenceManager', 
+    'PersistenceManager',
     'PluginManager',
     'PaymentManager',
     'JobScheduler',
-    
+
     # Decorators
     'command',
     'admin_required',
-    'owner_required', 
+    'owner_required',
     'rate_limit',
     'validate_args',
     'typing_action',
-    'log_command'
+    'log_command',
+    'typing_indicator'
 ]
