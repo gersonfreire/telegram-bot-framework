@@ -56,8 +56,8 @@ class SchedulerPlugin(PluginBase):
         """Demonstra agendamentos do plugin."""
         user = update.effective_user
 
-        # Agendar uma tarefa única para 30 segundos
-        job_id = f"plugin_demo_{user.id}_{datetime.now().timestamp()}"
+        # Criar ID único para o job
+        job_id = f"plugindemo_{user.id}_{datetime.now().timestamp()}"
         self.framework.scheduler.add_job(
             self._send_plugin_notification,
             'date',
