@@ -58,7 +58,7 @@ class UserManager(LoggerMixin):
             "created_at": current_time.isoformat(),  # Add created_at field
             "last_seen": current_time.isoformat(),   # Add last_seen field
             "is_admin": hasattr(self.config, 'admin_user_ids') and user_id in self.config.admin_user_ids,
-            "is_owner": hasattr(self.config, 'bot_owner_id') and user_id == self.config.bot_owner_id,
+            "is_owner": hasattr(self.config, 'owner_user_id') and user_id == self.config.owner_user_id,
         }
 
         if existing_user:

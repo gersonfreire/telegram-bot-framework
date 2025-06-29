@@ -398,7 +398,7 @@ Use /help para ver os comandos disponíveis.
         users_text = f"👥 **Usuários Registrados ({len(users)}):**\n\n"
 
         for user in users[:20]:  # Limitar a 20 usuários
-            status = "👑" if user['id'] == self.config.bot_owner_id else (
+            status = "👑" if user['id'] == self.config.owner_user_id else (
                 "⭐" if user['id'] in self.config.admin_user_ids else "👤"
             )
 
