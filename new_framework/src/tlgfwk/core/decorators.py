@@ -7,8 +7,9 @@ Fornece decoradores para facilitar o registro de comandos e controle de acesso.
 import functools
 import inspect
 import time
+import locale
 from typing import Callable, Optional, List, Dict, Any, Union
-from telegram import Update
+from telegram import Update, ChatAction
 from telegram.ext import ContextTypes
 from ..utils.logger import get_logger
 
@@ -616,4 +617,43 @@ def admin_required_simple(func: Callable):
 
         return await func(self, update, context, *args, **kwargs)
 
+    return wrapper
+
+
+def typing_indicator(func: Callable):
+    """
+    Decorador que mostra "escrevendo..." ou "writing" de acordo com o locale
+
+    Usage:
+        @typing_indicator
+        async def slow_command(self, update, context):
+            # Comando que demora para executar
+            await asyncio.sleep(2)
+            await update.message.reply_text("Concluído!")
+    """
+    @functools.wraps(func)
+    async def wrapper(self, update: Update, context: ContextTypes.DEFAULT_TYPE, *args, **kwargs):
+        import asyncio
+        from telegram.constants import ChatAction
+
+        # Iniciar ação de digitação
+        typing_task = asyncio.create_task(
+            context.bot.send_chat_action(
+                chat_id=update.effective_chat.id,
+                action=ChatAction.TYPING
+            )
+        )
+
+        try:
+            result = await func(self, update, context, *args, **kwargs)
+            return result
+        finally:
+            # Cancelar ação de digitação
+            typing_task.cancel()
+            try:
+                await typing_task
+            except asyncio.CancelledError:
+                pass
+
+    wrapper._shows_typing = True
     return wrapper
