@@ -285,6 +285,7 @@ Use /help para ver os comandos disponíveis.
         """Comando de ajuda."""
         user_id = update.effective_user.id
         is_admin = user_id in self.config.admin_user_ids
+        is_owner = user_id == self.config.owner_user_id
 
         help_text = f"🤖 **{self.config.instance_name} - Ajuda**\n\n"
 
@@ -320,13 +321,51 @@ Use /help para ver os comandos disponíveis.
             help_text += "**Comandos Administrativos:**\n"
             help_text += "\n".join(sorted(admin_commands)) + "\n\n"
 
-        # Comandos de controle do bot (apenas para owner)
-        if user_id == self.config.owner_user_id:
+        # Comandos embutidos do framework (detectados automaticamente)
+        framework_commands = []
+        framework_admin_commands = []
+        framework_owner_commands = []
+
+        # Lista de métodos que são comandos embutidos
+        builtin_commands = [
+            ('config', 'Mostrar configuração'),
+            ('stats', 'Estatísticas do bot'),
+            ('users', 'Listar usuários'),
+            ('restart', 'Reiniciar o bot'),
+            ('shutdown', 'Desligar o bot'),
+            ('plugindemo', 'Demonstra funcionalidades do plugin'),
+            ('plugininfo', 'Mostra informações do plugin'),
+            ('botrestart', 'Reiniciar o bot'),
+            ('botstop', 'Parar o bot'),
+        ]
+
+        # Verificar permissões dos comandos embutidos
+        for cmd_name, description in builtin_commands:
+            cmd_line = f"/{cmd_name} - {description}"
+
+            # Verificar se é comando de owner (baseado nos decorators)
+            if cmd_name in ['restart', 'shutdown', 'botrestart', 'botstop']:
+                if is_owner:
+                    framework_owner_commands.append(cmd_line)
+            # Verificar se é comando de admin
+            elif cmd_name in ['config', 'stats', 'users']:
+                if is_admin:
+                    framework_admin_commands.append(cmd_line)
+            # Comandos públicos
+            else:
+                framework_commands.append(cmd_line)
+
+        if framework_commands:
+            help_text += "**Comandos do Framework:**\n"
+            help_text += "\n".join(sorted(framework_commands)) + "\n\n"
+
+        if is_admin and framework_admin_commands:
+            help_text += "**Comandos Administrativos do Framework:**\n"
+            help_text += "\n".join(sorted(framework_admin_commands)) + "\n\n"
+
+        if is_owner and framework_owner_commands:
             help_text += "**Comandos de Controle do Bot:**\n"
-            help_text += "/botrestart - Reiniciar o bot\n"
-            help_text += "/botstop - Parar o bot\n"
-            help_text += "/restart - Reiniciar o bot (alternativo)\n"
-            help_text += "/shutdown - Desligar o bot (alternativo)\n\n"
+            help_text += "\n".join(sorted(framework_owner_commands)) + "\n\n"
 
         # Informações do bot
         help_text += f"🔧 Versão do Framework: 1.0.0\n"
