@@ -150,7 +150,7 @@ class SchedulerBot(TelegramBotFramework):
         """Agendar uma tarefa única."""
         if not context.args:
             await update.message.reply_text(
-                "❌ Uso: /schedule_once <minutos> <mensagem>\n"
+                "❌ Uso: /schedule_once [minutos] [mensagem]\n"
                 "Exemplo: /schedule_once 5 Lembrete importante!"
             )
             return
@@ -205,7 +205,7 @@ class SchedulerBot(TelegramBotFramework):
         """Agendar uma tarefa periódica."""
         if not context.args or len(context.args) < 2:
             await update.message.reply_text(
-                "❌ Uso: /schedule_recurring <intervalo_minutos> <mensagem>\n"
+                "❌ Uso: /schedule_recurring [intervalo_minutos] [mensagem]\n"
                 "Exemplo: /schedule_recurring 30 Verificação periódica"
             )
             return
