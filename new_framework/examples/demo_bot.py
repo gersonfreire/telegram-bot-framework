@@ -303,6 +303,7 @@ class DemoBot(TelegramBotFramework):
 
     @command(name="add_admin", description="Adicionar usuário como admin (apenas owner)")
     @owner_required
+    @typing_indicator
     async def add_admin_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Adicionar usuário como admin."""
         if not context.args:
@@ -334,6 +335,7 @@ class DemoBot(TelegramBotFramework):
     # ============================================================================
 
     @command(name="crypto_demo", description="Demonstração de criptografia")
+    @typing_indicator
     async def crypto_demo_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Demonstração de funcionalidades de criptografia."""
         try:
@@ -369,6 +371,7 @@ class DemoBot(TelegramBotFramework):
     # ============================================================================
 
     @command(name="demo_stats", description="Estatísticas do demo bot")
+    @typing_indicator
     async def demo_stats_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Estatísticas detalhadas do demo bot."""
         uptime = datetime.now() - self.demo_stats['start_time']
@@ -401,6 +404,7 @@ class DemoBot(TelegramBotFramework):
 
     @command(name="demo_config", description="Mostrar configurações do demo")
     @admin_required_simple
+    @typing_indicator
     async def demo_config_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Mostrar configurações do demo bot."""
         config_msg = (
@@ -425,6 +429,7 @@ class DemoBot(TelegramBotFramework):
 
     @command(name="broadcast_demo", description="Demonstração de broadcast (apenas admin)")
     @admin_required_simple
+    @typing_indicator
     async def broadcast_demo_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Demonstração de broadcast para todos os usuários."""
         if not context.args:
@@ -441,6 +446,7 @@ class DemoBot(TelegramBotFramework):
             await update.message.reply_text(f"❌ Erro no broadcast: {e}")
 
     @command(name="test_error", description="Teste de tratamento de erros")
+    @typing_indicator
     async def test_error_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Teste de tratamento de erros do framework."""
         try:
@@ -461,6 +467,7 @@ class DemoBot(TelegramBotFramework):
 
     @command(name="plugins", description="Listar plugins carregados")
     @admin_required_simple
+    @typing_indicator
     async def plugins_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Listar todos os plugins carregados."""
         if not self.plugin_manager:
@@ -489,6 +496,7 @@ class DemoBot(TelegramBotFramework):
 
     @command(name="plugin", description="Gerenciar plugin específico")
     @admin_required_simple
+    @typing_indicator
     async def plugin_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Gerenciar plugin específico."""
         if not context.args:
