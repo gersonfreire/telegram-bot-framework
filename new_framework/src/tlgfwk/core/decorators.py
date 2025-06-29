@@ -622,78 +622,30 @@ def admin_required_simple(func: Callable):
 
 def typing_indicator(func: Callable):
     """
-    Decorador que mostra "escrevendo..." ou "writing" de acordo com o locale.
-
-    Mostra uma mensagem de "escrevendo..." em português ou "writing..." em inglês
-    baseado no locale do sistema ou configuração do usuário.
-
-    Usage:
-        @typing_indicator
-        async def slow_command(self, update, context):
-            # Comando que demora para executar
-            await asyncio.sleep(2)
-            await update.message.reply_text("Concluído!")
+    Decorador que mostra apenas o status de digitação do Telegram (ChatAction.TYPING),
+    sem enviar mensagem de texto ao usuário.
     """
     @functools.wraps(func)
     async def wrapper(self, update: Update, context: ContextTypes.DEFAULT_TYPE, *args, **kwargs):
         import asyncio
         from telegram.constants import ChatAction
 
-        # Determinar idioma baseado no locale ou configuração do usuário
-        user_language = None
-        if update.effective_user and update.effective_user.language_code:
-            user_language = update.effective_user.language_code
-        else:
-            # Fallback para locale do sistema
-            try:
-                system_locale = locale.getdefaultlocale()[0]
-                if system_locale:
-                    user_language = system_locale.split('_')[0]
-            except:
-                user_language = 'en'
-
-        # Definir mensagem de digitação baseada no idioma
-        if user_language and user_language.startswith('pt'):
-            typing_message = "escrevendo..."
-        else:
-            typing_message = "writing..."
-
-        # Enviar mensagem de digitação
-        typing_msg = None
-        try:
-            typing_msg = await update.message.reply_text(
-                f"✍️ {typing_message}",
-                quote=False
-            )
-        except Exception as e:
-            logger.warning(f"Erro ao enviar mensagem de digitação: {e}")
-
-        # Iniciar ação de digitação do Telegram
+        # Acionar status de digitação do Telegram
         typing_action_task = asyncio.create_task(
             context.bot.send_chat_action(
                 chat_id=update.effective_chat.id,
                 action=ChatAction.TYPING
             )
         )
-
         try:
-            # Executar o comando original
             result = await func(self, update, context, *args, **kwargs)
             return result
         finally:
-            # Limpar ações de digitação
             typing_action_task.cancel()
             try:
                 await typing_action_task
             except asyncio.CancelledError:
                 pass
-
-            # Remover mensagem de digitação
-            if typing_msg:
-                try:
-                    await typing_msg.delete()
-                except Exception as e:
-                    logger.debug(f"Erro ao remover mensagem de digitação: {e}")
 
     wrapper._shows_typing = True
     return wrapper
