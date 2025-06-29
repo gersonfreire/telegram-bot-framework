@@ -291,7 +291,8 @@ Use /help para ver os comandos disponíveis.
         # Comandos básicos
         help_text += "**Comandos Básicos:**\n"
         help_text += "/start - Iniciar o bot\n"
-        help_text += "/help - Mostrar esta ajuda\n\n"
+        help_text += "/help - Mostrar esta ajuda\n"
+        help_text += "/status - Mostrar status do bot\n\n"
 
         # Comandos do registry
         registry = get_command_registry()
@@ -319,12 +320,18 @@ Use /help para ver os comandos disponíveis.
             help_text += "**Comandos Administrativos:**\n"
             help_text += "\n".join(sorted(admin_commands)) + "\n\n"
 
+        # Comandos de controle do bot (apenas para owner)
+        if user_id == self.config.owner_user_id:
+            help_text += "**Comandos de Controle do Bot:**\n"
+            help_text += "/botrestart - Reiniciar o bot\n"
+            help_text += "/botstop - Parar o bot\n\n"
+
         # Informações do bot
         help_text += f"🔧 Versão do Framework: 1.0.0\n"
         help_text += f"⚡ Status: {'🟢 Online' if self._running else '🔴 Offline'}\n"
 
         if self.plugin_manager:
-            loaded_plugins = len(self.plugin_manager.loaded_plugins)
+            loaded_plugins = len(self.plugin_manager.plugins)
             help_text += f"🔌 Plugins: {loaded_plugins} carregados\n"
 
         await update.message.reply_text(
