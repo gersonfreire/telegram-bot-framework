@@ -785,6 +785,22 @@ Use /help para ver os comandos disponíveis.
 
         self.log_info("Bot finalizado")
 
+    async def stop(self):
+        """Para o bot."""
+        self._running = False
+
+        # Finalizar componentes
+        if self.plugin_manager:
+            await self.plugin_manager.unload_all_plugins()
+
+        if self.persistence_manager:
+            await self.persistence_manager.flush()
+
+        if self.application:
+            await self.application.stop()
+
+        self.log_info("Bot finalizado")
+
     @command(name="plugins", description="Listar plugins carregados", admin_only=True)
     @admin_required_simple
     @typing_indicator
