@@ -223,6 +223,7 @@ class TelegramBotFramework(LoggerMixin):
         commands.extend([
             BotCommand("start", "Iniciar o bot"),
             BotCommand("help", "Mostrar ajuda"),
+            BotCommand("status", "Status do sistema"),
         ])
 
         # Comandos do registry (não-admin)
