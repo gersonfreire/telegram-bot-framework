@@ -780,6 +780,9 @@ class DemoBot(TelegramBotFramework):
 
     async def help_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Override do comando help para incluir comandos do demo."""
+        user_id = update.effective_user.id
+        is_owner = user_id == self.config.owner_user_id
+
         help_msg = (
             "📚 <b>Comandos do Demo Bot</b>\n\n"
             "🎯 <b>Comandos Principais:</b>\n"
@@ -807,8 +810,19 @@ class DemoBot(TelegramBotFramework):
             "🔧 <b>Comandos Avançados:</b>\n"
             "• /broadcast_demo - Demo de broadcast\n"
             "• /test_error - Teste de tratamento de erros\n\n"
-            "💡 Use /demo para um menu interativo!"
         )
+
+        # Adicionar comandos de controle do bot apenas para owner
+        if is_owner:
+            help_msg += (
+                "🛠️ <b>Comandos de Controle do Bot:</b>\n"
+                "• /botrestart - Reiniciar o bot\n"
+                "• /botstop - Parar o bot\n"
+                "• /restart - Reiniciar o bot (alternativo)\n"
+                "• /shutdown - Desligar o bot (alternativo)\n\n"
+            )
+
+        help_msg += "💡 Use /demo para um menu interativo!"
 
         await update.message.reply_text(help_msg, parse_mode='HTML')
 
