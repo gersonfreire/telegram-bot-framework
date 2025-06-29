@@ -601,16 +601,15 @@ def admin_required_simple(func: Callable):
         # Verificar se é admin usando user_manager da instância
         is_admin = False
         if hasattr(self, 'user_manager') and self.user_manager:
-            is_admin = await self.user_manager.is_admin(user_id)
+            is_admin = self.user_manager.is_admin(user_id)  # Removido await
 
         if not is_admin:
             await update.message.reply_text(
-                "❌ Você não tem permissão para executar este comando."
+                "❌ Apenas administradores podem executar este comando."
             )
             logger.warning(f"Usuário {user_id} tentou executar comando admin: {func.__name__}")
-            return None
+            return
 
         return await func(self, update, context, *args, **kwargs)
 
-    wrapper._requires_admin = True
     return wrapper

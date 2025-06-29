@@ -399,6 +399,11 @@ class Config:
         """Get the auto load plugins flag."""
         return self.data.get('auto_load_plugins', True)
 
+    @property
+    def traceback_chat_id(self) -> Optional[int]:
+        """Get the traceback chat ID for error reporting."""
+        return self.data.get('traceback_chat_id')
+
     # Property setters
     @debug.setter
     def debug(self, value: bool):
