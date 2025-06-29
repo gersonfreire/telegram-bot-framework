@@ -45,13 +45,13 @@ class DemoPlugin(PluginBase):
         super().__init__()
         # Registrar comandos do plugin
         self.register_command({
-            "name": "plugin_demo",
+            "name": "plugindemo",
             "handler": self.plugin_demo_command,
             "description": "Demonstra funcionalidades do plugin"
         })
 
         self.register_command({
-            "name": "plugin_info",
+            "name": "plugininfo",
             "handler": self.plugin_info_command,
             "description": "Mostra informações do plugin"
         })
@@ -667,8 +667,8 @@ class DemoBot(TelegramBotFramework):
             f"📋 <b>Comandos de Plugins:</b>\n"
             "• /plugins - Listar plugins\n"
             "• /plugin - Gerenciar plugin\n"
-            "• /plugin_demo - Demo do plugin\n"
-            "• /plugin_info - Info do plugin\n\n"
+            "• /plugindemo - Demo do plugin\n"
+            "• /plugininfo - Info do plugin\n\n"
             "💡 <b>Funcionalidades:</b>\n"
             "• Carregamento dinâmico\n"
             "• Comandos customizados\n"
@@ -794,8 +794,8 @@ class DemoBot(TelegramBotFramework):
             "• /user_info - Informações do usuário\n"
             "• /add_admin - Adicionar admin (owner)\n\n"
             "🔌 <b>Comandos de Plugins:</b>\n"
-            "• /plugin_demo - Demo do plugin\n"
-            "• /plugin_info - Info do plugin\n\n"
+            "• /plugindemo - Demo do plugin\n"
+            "• /plugininfo - Info do plugin\n\n"
             "🔐 <b>Comandos de Criptografia:</b>\n"
             "• /crypto_demo - Demonstração de criptografia\n\n"
             "📊 <b>Comandos de Estatísticas:</b>\n"
