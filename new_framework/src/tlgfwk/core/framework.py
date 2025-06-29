@@ -166,7 +166,10 @@ class TelegramBotFramework(LoggerMixin):
             self.application.add_handler(CommandHandler("plugins", self.plugins_command))
             self.application.add_handler(CommandHandler("plugin", self.plugin_command))
 
-        # Handler para comandos não reconhecidos
+        # Registrar comandos do registry
+        self.register_decorated_commands()
+
+        # Handler para comandos não reconhecidos (deve ser registrado por último)
         self.application.add_handler(
             MessageHandler(filters.COMMAND, self.unknown_command)
         )
@@ -178,9 +181,6 @@ class TelegramBotFramework(LoggerMixin):
 
         # Handler de erros
         self.application.add_error_handler(self.error_handler)
-
-        # Registrar comandos do registry
-        self.register_decorated_commands()
 
     def register_decorated_commands(self):
         """Registra comandos que foram decorados com @command."""
