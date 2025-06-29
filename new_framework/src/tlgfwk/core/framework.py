@@ -250,7 +250,12 @@ class TelegramBotFramework(LoggerMixin):
 
         # Registrar usuário
         if self.user_manager:
-            await self.user_manager.register_user(user)
+            await self.user_manager.register_user(
+                user_id=user.id,
+                username=user.username,
+                first_name=user.first_name,
+                last_name=user.last_name
+            )
 
         welcome_text = f"""
 🤖 **{self.config.instance_name}**
@@ -471,7 +476,13 @@ Use /help para ver os comandos disponíveis.
         """Handler para mensagens que não são comandos."""
         # Registrar usuário se necessário
         if self.user_manager:
-            await self.user_manager.register_user(update.effective_user)
+            user = update.effective_user
+            await self.user_manager.register_user(
+                user_id=user.id,
+                username=user.username,
+                first_name=user.first_name,
+                last_name=user.last_name
+            )
 
         # Aqui pode ser implementada lógica adicional para mensagens
         pass

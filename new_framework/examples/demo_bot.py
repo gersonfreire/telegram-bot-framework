@@ -119,10 +119,10 @@ class DemoBot(TelegramBotFramework):
     - Configurações
     """
 
-    def __init__(self, config_file=None):
+    def __init__(self, config_file=None, custom_config=None):
         # Configurar diretório de plugins
         plugins_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "./")
-        super().__init__(config_file=config_file, plugins_dir=plugins_dir)
+        super().__init__(config_file=config_file, plugins_dir=plugins_dir, custom_config=custom_config)
 
         # Configurações específicas do demo
         self.config.data['auto_load_plugins'] = True
