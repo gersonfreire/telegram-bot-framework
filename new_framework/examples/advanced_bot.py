@@ -30,14 +30,15 @@ from telegram.ext import ContextTypes
 class AdvancedBot(TelegramBotFramework):
     """Advanced bot with plugins and extended functionality."""
 
-    def __init__(self):
+    def __init__(self, config_file):
         # Initialize with comprehensive configuration
         super().__init__(
             token=os.getenv("BOT_TOKEN"),
             admin_user_ids=[int(x.strip()) for x in os.getenv("ADMIN_USER_IDS", "").split(",") if x.strip()],
             owner_user_id=int(os.getenv("OWNER_USER_ID", 0)),
             log_chat_id=int(os.getenv("LOG_CHAT_ID", 0)) if os.getenv("LOG_CHAT_ID") else None,
-            debug=os.getenv("DEBUG", "true").lower() == "true"
+            debug=os.getenv("DEBUG", "true").lower() == "true",
+            config_file=config_file
         )
 
         # Initialize additional managers
@@ -426,24 +427,46 @@ class AdvancedBot(TelegramBotFramework):
 
 def main():
     """Main function to run the advanced bot."""
-    # Check for required environment variables
-    if not os.getenv("BOT_TOKEN"):
-        print("Error: BOT_TOKEN environment variable is required")
+    print("🚀 Starting Advanced Bot with plugins...")
+    print("=" * 50)
+
+    # Verificar arquivo .env na pasta examples
+    env_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".env")
+    if not os.path.exists(env_path):
+        print("⚠️  Arquivo .env não encontrado na pasta examples!")
+        print("📝 Crie um arquivo .env com as seguintes variáveis:")
+        print("   BOT_TOKEN=seu_token_aqui")
+        print("   OWNER_USER_ID=seu_id_aqui")
+        print("   ADMIN_USER_IDS=id1,id2,id3")
+        print("   LOG_CHAT_ID=chat_id_para_logs")
+        print("   DEBUG=true")
+        print("=" * 50)
         return
 
-    print("Starting Advanced Bot with plugins...")
-
-    # Create and run the bot
-    bot = AdvancedBot()
-
     try:
+        # Create and run the bot
+        bot = AdvancedBot(config_file=env_path)
+
+        print("✅ Advanced Bot criado com sucesso!")
+        print("🎯 Funcionalidades disponíveis:")
+        print("   • Sistema de plugins avançado")
+        print("   • Agendamento de tarefas")
+        print("   • Sistema de pagamentos")
+        print("   • Relatórios automáticos")
+        print("   • Health checks")
+        print("   • Limpeza automática")
+        print("=" * 50)
+        print("🤖 Bot iniciado! Pressione Ctrl+C para parar")
+
         bot.run()
+
     except KeyboardInterrupt:
-        print("\nBot stopped by user")
+        print("\n⏹️  Bot parado pelo usuário")
     except Exception as e:
-        print(f"Error running bot: {e}")
+        print(f"❌ Erro ao executar o bot: {e}")
         import traceback
         traceback.print_exc()
+        sys.exit(1)
 
 
 if __name__ == "__main__":
