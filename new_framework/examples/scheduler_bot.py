@@ -582,7 +582,7 @@ class SchedulerBot(TelegramBotFramework):
         """Mostrar informações sobre agendamento periódico."""
         message = (
             "🔄 <b>Agendamento Periódico</b>\n\n"
-            "📋 <b>Comando:</b> /schedule_recurring &lt;intervalo&gt; &lt;mensagem&gt;\n\n"
+            "📋 <b>Comando:</b> /schedule_recurring [intervalo] [mensagem]\n\n"
             "💡 <b>Exemplos:</b>\n"
             "• /schedule_recurring 30 Verificação periódica\n"
             "• /schedule_recurring 60 Backup automático\n"
