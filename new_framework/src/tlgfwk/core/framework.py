@@ -727,8 +727,15 @@ Use /help para ver os comandos disponíveis.
 
     def add_command_handler(self, command: str, handler):
         """Add a command handler."""
+        self.log_info(f"Tentando registrar comando: /{command} com handler: {handler}")
         if self.application:
-            self.application.add_handler(CommandHandler(command, handler))
+            try:
+                self.application.add_handler(CommandHandler(command, handler))
+                self.log_info(f"✅ Comando /{command} registrado com sucesso!")
+            except Exception as e:
+                self.log_error(f"❌ Erro ao registrar comando /{command}: {e}")
+        else:
+            self.log_warning(f"❌ Application não disponível para registrar comando /{command}")
 
     def command(self, command_name: str, **kwargs):
         """Decorator for registering commands."""
