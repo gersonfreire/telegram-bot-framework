@@ -586,11 +586,23 @@ Use /help para ver os comandos disponíveis.
             f"🤖 Framework v1.0.0"
         )
 
-        # Executar aplicação
-        await self.application.run_polling(
+        # Inicializar aplicação Telegram
+        await self.application.initialize()
+        await self.application.start()
+        await self.application.updater.start_polling(
             drop_pending_updates=True,
             allowed_updates=Update.ALL_TYPES
         )
+
+        # Manter o bot rodando
+        try:
+            while self._running:
+                await asyncio.sleep(1)
+        except KeyboardInterrupt:
+            self._running = False
+        finally:
+            await self.application.stop()
+            await self.application.shutdown()
 
     async def stop(self):
         """Para o bot."""
