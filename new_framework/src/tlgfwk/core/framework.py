@@ -783,21 +783,132 @@ Use /help para ver os comandos disponíveis.
             await self.application.stop()
             await self.application.shutdown()
 
-    async def stop(self):
-        """Para o bot."""
-        self._running = False
-
-        # Finalizar componentes
-        if self.plugin_manager:
-            await self.plugin_manager.unload_all_plugins()
-
-        if self.persistence_manager:
-            await self.persistence_manager.flush()
-
-        if self.application:
-            await self.application.stop()
-
         self.log_info("Bot finalizado")
+
+    @command(name="plugins", description="Listar plugins carregados", admin_only=True)
+    @admin_required_simple
+    @typing_indicator
+    async def plugins_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+        """Lista plugins carregados."""
+        if not self.plugin_manager:
+            await update.message.reply_text("❌ Sistema de plugins não disponível")
+            return
+
+        plugins = self.plugin_manager.plugins
+        if not plugins:
+            await update.message.reply_text("📭 Nenhum plugin carregado")
+            return
+
+        plugins_text = f"🔌 **Plugins Carregados ({len(plugins)}):**\n\n"
+
+        for plugin in plugins:
+            status = "✅" if plugin.enabled else "❌"
+            plugins_text += f"{status} **{plugin.name}** v{plugin.version}\n"
+            plugins_text += f"📝 {plugin.description}\n"
+            plugins_text += f"👨‍💻 {plugin.author}\n\n"
+
+        await update.message.reply_text(
+            plugins_text,
+            parse_mode=ParseMode.MARKDOWN
+        )
+
+    @command(name="plugin", description="Gerenciar plugin específico", admin_only=True)
+    @admin_required_simple
+    @typing_indicator
+    async def plugin_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+        """Gerencia plugin específico."""
+        if not self.plugin_manager:
+            await update.message.reply_text("❌ Sistema de plugins não disponível")
+            return
+
+        if not context.args:
+            await update.message.reply_text(
+                "📋 **Uso:** /plugin <ação> <nome>\n\n"
+                "**Ações disponíveis:**\n"
+                "• `info <nome>` - Informações do plugin\n"
+                "• `enable <nome>` - Ativar plugin\n"
+                "• `disable <nome>` - Desativar plugin\n"
+                "• `reload <nome>` - Recarregar plugin\n"
+                "• `list` - Listar todos os plugins"
+            )
+            return
+
+        action = context.args[0].lower()
+
+        if action == "list":
+            plugins = self.plugin_manager.plugins
+            if not plugins:
+                await update.message.reply_text("📭 Nenhum plugin carregado")
+                return
+
+            plugins_text = f"🔌 **Plugins ({len(plugins)}):**\n\n"
+            for plugin in plugins:
+                status = "✅" if plugin.enabled else "❌"
+                plugins_text += f"{status} **{plugin.name}** - {plugin.description}\n"
+
+            await update.message.reply_text(
+                plugins_text,
+                parse_mode=ParseMode.MARKDOWN
+            )
+            return
+
+        if len(context.args) < 2:
+            await update.message.reply_text("❌ Nome do plugin é obrigatório")
+            return
+
+        plugin_name = context.args[1]
+        plugin = self.plugin_manager.get_plugin(plugin_name)
+
+        if not plugin:
+            await update.message.reply_text(f"❌ Plugin '{plugin_name}' não encontrado")
+            return
+
+        if action == "info":
+            info_text = f"📋 **Informações do Plugin**\n\n"
+            info_text += f"**Nome:** {plugin.name}\n"
+            info_text += f"**Versão:** {plugin.version}\n"
+            info_text += f"**Descrição:** {plugin.description}\n"
+            info_text += f"**Autor:** {plugin.author}\n"
+            info_text += f"**Status:** {'✅ Ativo' if plugin.enabled else '❌ Inativo'}\n"
+            info_text += f"**Comandos:** {len(plugin.get_commands())}"
+
+            await update.message.reply_text(
+                info_text,
+                parse_mode=ParseMode.MARKDOWN
+            )
+
+        elif action == "enable":
+            if plugin.enabled:
+                await update.message.reply_text(f"ℹ️ Plugin '{plugin_name}' já está ativo")
+            else:
+                result = await self.plugin_manager.enable_plugin(plugin_name)
+                if result:
+                    await update.message.reply_text(f"✅ Plugin '{plugin_name}' ativado")
+                else:
+                    await update.message.reply_text(f"❌ Erro ao ativar plugin '{plugin_name}'")
+
+        elif action == "disable":
+            if not plugin.enabled:
+                await update.message.reply_text(f"ℹ️ Plugin '{plugin_name}' já está inativo")
+            else:
+                result = await self.plugin_manager.disable_plugin(plugin_name)
+                if result:
+                    await update.message.reply_text(f"✅ Plugin '{plugin_name}' desativado")
+                else:
+                    await update.message.reply_text(f"❌ Erro ao desativar plugin '{plugin_name}'")
+
+        elif action == "reload":
+            result = await self.plugin_manager.reload_plugin(plugin_name)
+            if result:
+                await update.message.reply_text(f"🔄 Plugin '{plugin_name}' recarregado")
+            else:
+                await update.message.reply_text(f"❌ Erro ao recarregar plugin '{plugin_name}'")
+
+        else:
+            await update.message.reply_text(
+                f"❌ Ação '{action}' não reconhecida\n"
+                f"Use /plugin para ver as ações disponíveis"
+            )
 
     # Handler methods expected by tests
     async def _handle_start(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
