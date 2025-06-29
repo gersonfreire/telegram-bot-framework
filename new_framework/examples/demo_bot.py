@@ -78,6 +78,7 @@ class DemoPlugin(PluginBase):
 
     async def plugin_demo_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Demonstra funcionalidades do plugin."""
+        print(f"🎯 Plugin demo command chamado por {update.effective_user.first_name}")
         user = update.effective_user
         message = (
             f"🎯 <b>Demo Plugin Funcionalidades</b>\n\n"
@@ -94,6 +95,7 @@ class DemoPlugin(PluginBase):
 
     async def plugin_info_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Mostra informações do plugin."""
+        print(f"📋 Plugin info command chamado por {update.effective_user.first_name}")
         info = (
             f"📋 <b>Informações do Plugin</b>\n\n"
             f"📦 <b>Nome:</b> {self.name}\n"
