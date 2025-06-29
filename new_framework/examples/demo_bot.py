@@ -400,7 +400,7 @@ class DemoBot(TelegramBotFramework):
             f"📈 <b>Média de Comandos/Usuário:</b> {commands_per_user:.2f}\n\n"
             f"🔌 <b>Plugins:</b>\n"
             f"• Carregados: {len(self.plugin_manager.plugins) if self.plugin_manager else 0}\n"
-            f"• Ativos: {len([p for p in self.plugin_manager.plugins.values() if p.get('enabled', False)]) if self.plugin_manager else 0}\n\n"
+            f"• Ativos: {len([p for p in self.plugin_manager.plugins.values() if p.status.value == 'loaded']) if self.plugin_manager else 0}\n\n"
             f"💾 <b>Sistema:</b>\n"
             f"• Persistência: {'✅' if self.persistence_manager else '❌'}\n"
             f"• Debug Mode: {'✅' if self.config.debug else '❌'}\n"
@@ -493,9 +493,9 @@ class DemoBot(TelegramBotFramework):
         plugins_msg = "🔌 <b>Plugins Carregados:</b>\n\n"
 
         for name, plugin_info in plugins.items():
-            status = "✅ Ativo" if plugin_info.get('enabled', False) else "❌ Inativo"
-            version = plugin_info.get('version', 'N/A')
-            description = plugin_info.get('description', 'Sem descrição')
+            status = "✅ Ativo" if plugin_info.status.value == 'loaded' else "❌ Inativo"
+            version = plugin_info.version
+            description = plugin_info.description
 
             plugins_msg += (
                 f"📦 <b>{name}</b> v{version}\n"
@@ -558,11 +558,11 @@ class DemoBot(TelegramBotFramework):
                 plugin_info = self.plugin_manager.plugins[plugin_name]
                 info_msg = (
                     f"📋 <b>Informações do Plugin: {plugin_name}</b>\n\n"
-                    f"🔢 <b>Versão:</b> {plugin_info.get('version', 'N/A')}\n"
-                    f"📝 <b>Descrição:</b> {plugin_info.get('description', 'N/A')}\n"
-                    f"🔄 <b>Status:</b> {'✅ Ativo' if plugin_info.get('enabled', False) else '❌ Inativo'}\n"
-                    f"🎯 <b>Comandos:</b> {len(plugin_info.get('commands', []))}\n"
-                    f"🔧 <b>Handlers:</b> {len(plugin_info.get('handlers', []))}"
+                    f"🔢 <b>Versão:</b> {plugin_info.version}\n"
+                    f"📝 <b>Descrição:</b> {plugin_info.description}\n"
+                    f"🔄 <b>Status:</b> {'✅ Ativo' if plugin_info.status.value == 'loaded' else '❌ Inativo'}\n"
+                    f"🎯 <b>Comandos:</b> {len(plugin_info.commands)}\n"
+                    f"🔧 <b>Handlers:</b> {len(plugin_info.handlers)}"
                 )
                 await update.message.reply_text(info_msg, parse_mode='HTML')
 
