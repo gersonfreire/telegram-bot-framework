@@ -631,21 +631,19 @@ def typing_indicator(func: Callable):
         from telegram.constants import ChatAction
 
         # Acionar status de digitação do Telegram
-        typing_action_task = asyncio.create_task(
-            context.bot.send_chat_action(
+        try:
+            await context.bot.send_chat_action(
                 chat_id=update.effective_chat.id,
                 action=ChatAction.TYPING
             )
-        )
-        try:
-            result = await func(self, update, context, *args, **kwargs)
-            return result
-        finally:
-            typing_action_task.cancel()
-            try:
-                await typing_action_task
-            except asyncio.CancelledError:
-                pass
+            # Pequeno delay para garantir que o status seja visível
+            await asyncio.sleep(0.5)
+        except Exception as e:
+            logger.warning(f"Erro ao enviar status de digitação: {e}")
+
+        # Executar o comando
+        result = await func(self, update, context, *args, **kwargs)
+        return result
 
     wrapper._shows_typing = True
     return wrapper
