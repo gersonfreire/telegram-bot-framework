@@ -168,8 +168,8 @@ class DemoBot(TelegramBotFramework):
         chat = update.effective_chat
 
         # Verificar se é admin
-        is_admin = await self.user_manager.is_admin(user.id) if self.user_manager else False
-        is_owner = await self.user_manager.is_owner(user.id) if self.user_manager else False
+        is_admin = self.user_manager.is_admin(user.id) if self.user_manager else False
+        is_owner = self.user_manager.is_owner(user.id) if self.user_manager else False
 
         welcome_msg = (
             f"🎉 <b>Bem-vindo ao Demo Bot!</b>\n\n"
@@ -272,11 +272,11 @@ class DemoBot(TelegramBotFramework):
             return
 
         # Verificar permissões
-        is_admin = await self.user_manager.is_admin(user.id)
-        is_owner = await self.user_manager.is_owner(user.id)
+        is_admin = self.user_manager.is_admin(user.id)
+        is_owner = self.user_manager.is_owner(user.id)
 
         # Obter dados do usuário
-        user_data = await self.user_manager.get_user(user.id)
+        user_data = self.user_manager.get_user(user.id)
 
         info_msg = (
             f"👤 <b>Informações do Usuário</b>\n\n"
@@ -308,7 +308,7 @@ class DemoBot(TelegramBotFramework):
                 await update.message.reply_text("❌ User Manager não disponível")
                 return
 
-            success = await self.user_manager.add_admin(user_id)
+            success = self.user_manager.add_admin(user_id)
             if success:
                 await update.message.reply_text(f"✅ Usuário {user_id} adicionado como admin!")
             else:
