@@ -276,7 +276,7 @@ class DemoBot(TelegramBotFramework):
         is_owner = self.user_manager.is_owner(user.id)
 
         # Obter dados do usuário
-        user_data = self.user_manager.get_user(user.id)
+        user_data = await self.user_manager.get_user(user.id)
 
         info_msg = (
             f"👤 <b>Informações do Usuário</b>\n\n"
