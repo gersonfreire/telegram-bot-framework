@@ -325,26 +325,81 @@ class PluginManager:
             plugin_instance: Plugin instance to register
 
         Returns:
-            True if successful, False if already registered
+            True if successful, False otherwise
         """
-        if plugin_name in self.plugins:
-            self.logger.warning(f"Plugin {plugin_name} is already registered")
+        try:
+            if plugin_name in self.plugins:
+                self.logger.warning(f"Plugin {plugin_name} is already registered")
+                return False
+
+            plugin_info = PluginInfo(
+                name=plugin_name,
+                version=getattr(plugin_instance, 'version', '1.0.0'),
+                description=getattr(plugin_instance, 'description', ''),
+                author=getattr(plugin_instance, 'author', ''),
+                dependencies=getattr(plugin_instance, 'dependencies', []),
+                status=PluginStatus.UNLOADED,
+                instance=plugin_instance
+            )
+
+            self.plugins[plugin_name] = plugin_info
+            self.loaded_plugin_instances[plugin_name] = plugin_instance
+
+            self.logger.info(f"Plugin {plugin_name} registered successfully")
+            return True
+
+        except Exception as e:
+            self.logger.error(f"Failed to register plugin {plugin_name}: {e}")
             return False
 
-        # Create plugin info
-        plugin_info = PluginInfo(
-            name=plugin_instance.name,
-            version=plugin_instance.version,
-            description=plugin_instance.description,
-            author=getattr(plugin_instance, 'author', 'Unknown'),
-            dependencies=getattr(plugin_instance, 'dependencies', []),
-            status=PluginStatus.UNLOADED,
-            instance=plugin_instance
-        )
+    def load_plugin_instance(self, plugin_instance: PluginBase) -> bool:
+        """
+        Load a plugin instance directly.
 
-        self.plugins[plugin_name] = plugin_info
-        self.logger.info(f"Plugin {plugin_name} registered successfully")
-        return True
+        Args:
+            plugin_instance: Plugin instance to load
+
+        Returns:
+            True if successful, False otherwise
+        """
+        try:
+            plugin_name = getattr(plugin_instance, 'name', plugin_instance.__class__.__name__)
+
+            # Register the plugin if not already registered
+            if plugin_name not in self.plugins:
+                plugin_info = PluginInfo(
+                    name=plugin_name,
+                    version=getattr(plugin_instance, 'version', '1.0.0'),
+                    description=getattr(plugin_instance, 'description', ''),
+                    author=getattr(plugin_instance, 'author', ''),
+                    dependencies=getattr(plugin_instance, 'dependencies', []),
+                    status=PluginStatus.LOADED,
+                    instance=plugin_instance
+                )
+                self.plugins[plugin_name] = plugin_info
+                self.loaded_plugin_instances[plugin_name] = plugin_instance
+
+            # Add to loaded plugins list
+            if plugin_name not in self.loaded_plugins:
+                self.loaded_plugins.append(plugin_name)
+
+            # Register commands with bot if available
+            if self.bot and hasattr(self.bot, 'add_command_handler') and hasattr(plugin_instance, 'get_commands'):
+                try:
+                    commands = plugin_instance.get_commands()
+                    if commands:
+                        for command_name, command_handler in commands.items():
+                            self.bot.add_command_handler(command_name, command_handler)
+                            self.logger.debug(f"Registered command '{command_name}' from plugin {plugin_name}")
+                except Exception as e:
+                    self.logger.warning(f"Failed to register commands for plugin {plugin_name}: {e}")
+
+            self.logger.info(f"Plugin instance {plugin_name} loaded successfully")
+            return True
+
+        except Exception as e:
+            self.logger.error(f"Failed to load plugin instance {plugin_name}: {e}")
+            return False
 
     async def unregister_plugin(self, plugin_name: str) -> bool:
         """

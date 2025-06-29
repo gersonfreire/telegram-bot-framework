@@ -135,6 +135,11 @@ class DemoBot(TelegramBotFramework):
             'start_time': datetime.now()
         }
 
+        # Carregar o DemoPlugin manualmente
+        self.demo_plugin = DemoPlugin()
+        if self.plugin_manager:
+            self.plugin_manager.load_plugin_instance(self.demo_plugin)
+
     # ============================================================================
     # COMANDOS BÁSICOS DE DEMONSTRAÇÃO
     # ============================================================================
