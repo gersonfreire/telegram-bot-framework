@@ -422,7 +422,7 @@ class DemoBot(TelegramBotFramework):
         broadcast_msg = f"📢 <b>Broadcast Demo:</b>\n\n{message}"
 
         try:
-            await self.broadcast_message(broadcast_msg, parse_mode='HTML')
+            self.broadcast_message(broadcast_msg, parse_mode='HTML')
             await update.message.reply_text("✅ Broadcast enviado com sucesso!")
         except Exception as e:
             await update.message.reply_text(f"❌ Erro no broadcast: {e}")
@@ -502,21 +502,21 @@ class DemoBot(TelegramBotFramework):
 
         try:
             if action == "start":
-                success = await self.plugin_manager.start_plugin(plugin_name)
+                success = self.plugin_manager.start_plugin(plugin_name)
                 if success:
                     await update.message.reply_text(f"✅ Plugin '{plugin_name}' iniciado!")
                 else:
                     await update.message.reply_text(f"❌ Erro ao iniciar plugin '{plugin_name}'")
 
             elif action == "stop":
-                success = await self.plugin_manager.stop_plugin(plugin_name)
+                success = self.plugin_manager.stop_plugin(plugin_name)
                 if success:
                     await update.message.reply_text(f"✅ Plugin '{plugin_name}' parado!")
                 else:
                     await update.message.reply_text(f"❌ Erro ao parar plugin '{plugin_name}'")
 
             elif action == "reload":
-                success = await self.plugin_manager.reload_plugin(plugin_name)
+                success = self.plugin_manager.reload_plugin(plugin_name)
                 if success:
                     await update.message.reply_text(f"✅ Plugin '{plugin_name}' recarregado!")
                 else:
