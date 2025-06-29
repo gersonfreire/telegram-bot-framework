@@ -308,11 +308,17 @@ class DemoBot(TelegramBotFramework):
                 await update.message.reply_text("❌ User Manager não disponível")
                 return
 
-            success = self.user_manager.add_admin(user_id)
-            if success:
+            # Adicionar à lista de admins na config
+            if user_id not in self.config.admin_user_ids:
+                self.config.admin_user_ids.append(user_id)
+                # Atualizar status do usuário na persistência
+                user_data = await self.user_manager.get_user(user_id)
+                if user_data:
+                    user_data["is_admin"] = True
+                    await self.user_manager.save_user(user_id, user_data)
                 await update.message.reply_text(f"✅ Usuário {user_id} adicionado como admin!")
             else:
-                await update.message.reply_text(f"❌ Erro ao adicionar usuário {user_id} como admin")
+                await update.message.reply_text(f"ℹ️ Usuário {user_id} já é admin.")
         except ValueError:
             await update.message.reply_text("❌ ID de usuário inválido")
 
