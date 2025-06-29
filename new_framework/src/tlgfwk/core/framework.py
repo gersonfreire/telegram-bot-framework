@@ -216,26 +216,30 @@ class TelegramBotFramework(LoggerMixin):
 
     async def setup_bot_commands(self):
         """Configura comandos do menu do bot."""
-        commands = []
-        registry = get_command_registry()
+        try:
+            commands = []
+            registry = get_command_registry()
 
-        # Comandos padrão
-        commands.extend([
-            BotCommand("start", "Iniciar o bot"),
-            BotCommand("help", "Mostrar ajuda"),
-            BotCommand("status", "Status do sistema"),
-        ])
+            # Comandos padrão
+            commands.extend([
+                BotCommand("start", "Iniciar o bot"),
+                BotCommand("help", "Mostrar ajuda"),
+                BotCommand("status", "Status do sistema"),
+            ])
 
-        # Comandos do registry (não-admin)
-        for cmd_name, cmd_info in registry.get_all_commands().items():
-            if not cmd_info["admin_only"] and not cmd_info["hidden"]:
-                commands.append(
-                    BotCommand(cmd_name, cmd_info["description"] or "Comando personalizado")
-                )
+            # Comandos do registry (não-admin)
+            for cmd_name, cmd_info in registry.get_all_commands().items():
+                if not cmd_info["admin_only"] and not cmd_info["hidden"]:
+                    commands.append(
+                        BotCommand(cmd_name, cmd_info["description"] or "Comando personalizado")
+                    )
 
-        # Definir comandos
-        await self.application.bot.set_my_commands(commands)
-        self.log_info(f"Configurados {len(commands)} comandos no menu")
+            # Definir comandos
+            await self.application.bot.set_my_commands(commands)
+            self.log_info(f"Configurados {len(commands)} comandos no menu")
+        except Exception as e:
+            self.log_warning(f"Não foi possível configurar comandos do bot: {e}")
+            self.log_info("Bot continuará funcionando sem comandos no menu")
 
     # Comandos padrão
 

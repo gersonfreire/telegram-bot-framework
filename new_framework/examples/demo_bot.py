@@ -789,11 +789,11 @@ def main():
     print("🚀 Iniciando Demo Bot - Framework Completo...")
     print("=" * 50)
 
-    # Verificar arquivo .env
-    env_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".env")
+    # Verificar arquivo demo.env
+    env_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "demo.env")
     if not os.path.exists(env_path):
-        print("⚠️  Arquivo .env não encontrado!")
-        print("📝 Crie um arquivo .env com as seguintes variáveis:")
+        print("⚠️  Arquivo demo.env não encontrado!")
+        print("📝 Crie um arquivo demo.env com as seguintes variáveis:")
         print("   BOT_TOKEN=seu_token_aqui")
         print("   OWNER_USER_ID=seu_id_aqui")
         print("   ADMIN_USER_IDS=id1,id2,id3")
