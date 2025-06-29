@@ -164,8 +164,11 @@ class TelegramBotFramework(LoggerMixin):
 
         # Comandos de plugins
         if self.plugin_manager:
-            self.application.add_handler(CommandHandler("plugins", self.plugins_command))
-            self.application.add_handler(CommandHandler("plugin", self.plugin_command))
+            # Registrar comandos de plugins apenas se os métodos existirem
+            if hasattr(self, 'plugins_command'):
+                self.application.add_handler(CommandHandler("plugins", self.plugins_command))
+            if hasattr(self, 'plugin_command'):
+                self.application.add_handler(CommandHandler("plugin", self.plugin_command))
 
         # Registrar comandos do registry
         self.register_decorated_commands()
