@@ -680,12 +680,26 @@ Use /help para ver os comandos disponíveis.
             user_count = 0
 
         status_text = f"📊 **{self.config.instance_name} Status**\n\n"
-        status_text += f"👥 Users: {user_count}\n"
-        status_text += f"🟢 Status: Running\n"
+        status_text += f"🟢 **Status:** {'Online' if self._running else 'Offline'}\n"
+        status_text += f"👥 **Usuários:** {user_count}\n"
 
         if self._startup_time:
             uptime = datetime.now() - self._startup_time
-            status_text += f"⏱️ Uptime: {uptime.days}d {uptime.seconds//3600}h {(uptime.seconds//60)%60}m\n"
+            days = uptime.days
+            hours, remainder = divmod(uptime.seconds, 3600)
+            minutes, _ = divmod(remainder, 60)
+            status_text += f"⏱️ **Uptime:** {days}d {hours}h {minutes}m\n"
+
+        # Informações do sistema
+        if self.plugin_manager:
+            loaded_plugins = len(self.plugin_manager.plugins) if hasattr(self.plugin_manager, 'plugins') else 0
+            status_text += f"🔌 **Plugins:** {loaded_plugins} carregados\n"
+
+        if self.persistence_manager:
+            status_text += f"💾 **Persistência:** Ativa\n"
+
+        status_text += f"🐛 **Debug:** {'Ativo' if self.config.debug else 'Inativo'}\n"
+        status_text += f"⚡ **Async:** {'Ativo' if self.config.use_async else 'Inativo'}"
 
         await update.message.reply_text(status_text, parse_mode=ParseMode.MARKDOWN)
 
