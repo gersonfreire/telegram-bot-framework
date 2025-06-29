@@ -563,7 +563,7 @@ class SchedulerBot(TelegramBotFramework):
         """Mostrar informações sobre agendamento único."""
         message = (
             "⏰ <b>Agendamento Único</b>\n\n"
-            "📋 <b>Comando:</b> /schedule_once <minutos> <mensagem>\n\n"
+            "📋 <b>Comando:</b> /schedule_once &lt;minutos&gt; &lt;mensagem&gt;\n\n"
             "💡 <b>Exemplos:</b>\n"
             "• /schedule_once 5 Lembrete importante!\n"
             "• /schedule_once 30 Reunião em 30 minutos\n"
@@ -582,7 +582,7 @@ class SchedulerBot(TelegramBotFramework):
         """Mostrar informações sobre agendamento periódico."""
         message = (
             "🔄 <b>Agendamento Periódico</b>\n\n"
-            "📋 <b>Comando:</b> /schedule_recurring <intervalo> <mensagem>\n\n"
+            "📋 <b>Comando:</b> /schedule_recurring &lt;intervalo&gt; &lt;mensagem&gt;\n\n"
             "💡 <b>Exemplos:</b>\n"
             "• /schedule_recurring 30 Verificação periódica\n"
             "• /schedule_recurring 60 Backup automático\n"
