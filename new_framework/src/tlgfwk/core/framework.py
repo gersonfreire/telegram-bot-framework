@@ -501,6 +501,78 @@ Use /help para ver os comandos disponíveis.
         )
         await update.message.reply_text(info, parse_mode='HTML')
 
+    @command(name="botrestart", description="Reiniciar o bot", admin_only=True)
+    @owner_required
+    @typing_indicator
+    async def bot_restart_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+        """Reinicia o bot."""
+        user = update.effective_user
+
+        await update.message.reply_text(
+            f"🔄 <b>Reiniciando o bot...</b>\n\n"
+            f"👤 <b>Solicitado por:</b> {user.first_name}\n"
+            f"🆔 <b>ID:</b> {user.id}\n"
+            f"⏰ <b>Horário:</b> {datetime.now().strftime('%d/%m/%Y %H:%M:%S')}",
+            parse_mode='HTML'
+        )
+
+        # Salvar estado se necessário
+        if self.persistence_manager:
+            await self.persistence_manager.flush()
+
+        # Notificar admins sobre reinicialização
+        await self.send_admin_message(
+            f"🔄 <b>Bot sendo reiniciado</b>\n"
+            f"👤 Por: {user.first_name} (ID: {user.id})\n"
+            f"⏰ {datetime.now().strftime('%d/%m/%Y %H:%M:%S')}",
+            parse_mode='HTML'
+        )
+
+        # Parar o bot (será reiniciado pelo sistema externo)
+        await self.stop()
+
+        await update.message.reply_text(
+            "✅ <b>Bot reiniciado com sucesso!</b>\n\n"
+            "🔄 O bot foi parado e será reiniciado automaticamente pelo sistema.",
+            parse_mode='HTML'
+        )
+
+    @command(name="botstop", description="Parar o bot", admin_only=True)
+    @owner_required
+    @typing_indicator
+    async def bot_stop_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+        """Para o bot."""
+        user = update.effective_user
+
+        await update.message.reply_text(
+            f"🛑 <b>Parando o bot...</b>\n\n"
+            f"👤 <b>Solicitado por:</b> {user.first_name}\n"
+            f"🆔 <b>ID:</b> {user.id}\n"
+            f"⏰ <b>Horário:</b> {datetime.now().strftime('%d/%m/%Y %H:%M:%S')}",
+            parse_mode='HTML'
+        )
+
+        # Salvar estado se necessário
+        if self.persistence_manager:
+            await self.persistence_manager.flush()
+
+        # Notificar admins sobre parada
+        await self.send_admin_message(
+            f"🛑 <b>Bot sendo parado</b>\n"
+            f"👤 Por: {user.first_name} (ID: {user.id})\n"
+            f"⏰ {datetime.now().strftime('%d/%m/%Y %H:%M:%S')}",
+            parse_mode='HTML'
+        )
+
+        # Parar o bot
+        await self.stop()
+
+        await update.message.reply_text(
+            "✅ <b>Bot parado com sucesso!</b>\n\n"
+            "🛑 O bot foi desligado e não responderá mais a comandos.",
+            parse_mode='HTML'
+        )
+
     async def unknown_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Handler para comandos não reconhecidos."""
         command = update.message.text.split()[0]
