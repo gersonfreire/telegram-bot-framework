@@ -140,6 +140,7 @@ class DemoBot(TelegramBotFramework):
     # ============================================================================
 
     @command(name="demo", description="Menu principal de demonstração")
+    @typing_indicator
     async def demo_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Menu principal de demonstração."""
         keyboard = [
@@ -162,6 +163,7 @@ class DemoBot(TelegramBotFramework):
         await update.message.reply_text(message, parse_mode='HTML', reply_markup=reply_markup)
 
     @command(name="welcome", description="Mensagem de boas-vindas personalizada")
+    @typing_indicator
     async def welcome_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Mensagem de boas-vindas personalizada."""
         user = update.effective_user
@@ -190,6 +192,7 @@ class DemoBot(TelegramBotFramework):
         self.demo_stats['users_interacted'].add(user.id)
 
     @command(name="info", description="Informações detalhadas do bot")
+    @typing_indicator
     async def info_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Informações detalhadas do bot."""
         uptime = datetime.now() - self.demo_stats['start_time']
@@ -216,6 +219,7 @@ class DemoBot(TelegramBotFramework):
 
     @command(name="admin_test", description="Teste de permissões de admin")
     @admin_required_simple
+    @typing_indicator
     async def admin_test_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Teste de permissões de admin."""
         user = update.effective_user
@@ -235,6 +239,7 @@ class DemoBot(TelegramBotFramework):
 
     @command(name="owner_test", description="Teste de permissões de owner")
     @owner_required
+    @typing_indicator
     async def owner_test_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Teste de permissões de owner."""
         user = update.effective_user
@@ -254,6 +259,7 @@ class DemoBot(TelegramBotFramework):
 
     @command(name="permission_denied", description="Demonstra mensagem de permissão negada")
     @admin_required_simple
+    @typing_indicator
     async def permission_denied_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Este comando sempre requer admin, demonstrando controle de acesso."""
         await update.message.reply_text("✅ Se você vê esta mensagem, você tem permissões de admin!")
@@ -263,6 +269,7 @@ class DemoBot(TelegramBotFramework):
     # ============================================================================
 
     @command(name="user_info", description="Informações do usuário atual")
+    @typing_indicator
     async def user_info_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Informações detalhadas do usuário atual."""
         user = update.effective_user
