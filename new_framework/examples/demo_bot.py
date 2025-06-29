@@ -658,7 +658,7 @@ class DemoBot(TelegramBotFramework):
     async def _show_plugins_demo(self, query):
         """Mostrar demonstração de plugins."""
         plugin_count = len(self.plugin_manager.plugins) if self.plugin_manager else 0
-        active_plugins = len([p for p in self.plugin_manager.plugins.values() if p.get('enabled', False)]) if self.plugin_manager else 0
+        active_plugins = len([p for p in self.plugin_manager.plugins.values() if p.status.value == 'loaded']) if self.plugin_manager else 0
 
         message = (
             f"🔌 <b>Sistema de Plugins</b>\n\n"
