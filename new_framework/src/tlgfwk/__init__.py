@@ -17,7 +17,7 @@ from .core.plugin_manager import PluginManager
 from .core.payment_manager import PaymentManager
 from .core.scheduler import JobScheduler
 from .core.decorators import (
-    command, admin_required, user_required, owner_required,
+    command, admin_required, admin_required_simple, user_required, owner_required,
     rate_limit, validate_args, typing_action, log_command
 )
 from .plugins.base import PluginBase
@@ -29,40 +29,41 @@ from .utils.crypto import CryptoUtils, EnvCrypto, generate_encryption_key, creat
 __all__ = [
     # Core framework
     "TelegramBotFramework",
-    
+
     # Configuration
     "Config",
     "ConfigError",
-    
+
     # Managers
     "UserManager",
     "PersistenceManager",
     "PluginManager",
-    "PaymentManager", 
+    "PaymentManager",
     "JobScheduler",
-    
+
     # Decorators
     "command",
-    "admin_required", 
+    "admin_required",
+    "admin_required_simple",
     "user_required",
     "owner_required",
     "rate_limit",
     "validate_args",
     "typing_action",
     "log_command",
-    
+
     # Plugin system
     "PluginBase",
-    "SystemMonitorPlugin", 
+    "SystemMonitorPlugin",
     "UserStatsPlugin",
-    
+
     # Utilities
     "get_logger",
     "setup_logging",
     "TelegramLogHandler",
     "PerformanceLogger",
     "CryptoUtils",
-    "EnvCrypto", 
+    "EnvCrypto",
     "generate_encryption_key",
     "create_secure_token",
 ]
