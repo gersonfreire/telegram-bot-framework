@@ -172,10 +172,11 @@ class PluginManager:
             except Exception as e:
                 self.logger.warning(f"Failed to start plugin {plugin_name}: {e}")
 
-            # Register plugin commands with bot
-            if bot and hasattr(bot, 'add_command_handler') and hasattr(plugin_instance, 'get_commands'):
+            # Register commands with bot if available
+            if self.bot and hasattr(self.bot, 'add_command_handler') and hasattr(plugin_instance, 'get_commands'):
                 try:
                     commands = plugin_instance.get_commands()
+                    self.logger.info(f"Plugin {plugin_name} returned commands: {commands}")
                     if commands:
                         # Handle both list of dicts and dict formats
                         if isinstance(commands, list):
@@ -183,15 +184,22 @@ class PluginManager:
                                 if isinstance(command_info, dict):
                                     command_name = command_info.get('name')
                                     command_handler = command_info.get('handler')
+                                    self.logger.info(f"Processing command: {command_name} with handler: {command_handler}")
                                     if command_name and command_handler:
-                                        bot.add_command_handler(command_name, command_handler)
-                                        self.logger.debug(f"Registered command '{command_name}' from plugin {plugin_name}")
+                                        self.bot.add_command_handler(command_name, command_handler)
+                                        self.logger.info(f"Successfully registered command '{command_name}' from plugin {plugin_name}")
+                                    else:
+                                        self.logger.warning(f"Invalid command info: {command_info}")
                         elif isinstance(commands, dict):
                             for command_name, command_handler in commands.items():
-                                bot.add_command_handler(command_name, command_handler)
-                                self.logger.debug(f"Registered command '{command_name}' from plugin {plugin_name}")
+                                self.bot.add_command_handler(command_name, command_handler)
+                                self.logger.info(f"Registered command '{command_name}' from plugin {plugin_name}")
+                    else:
+                        self.logger.warning(f"Plugin {plugin_name} returned no commands")
                 except Exception as e:
                     self.logger.warning(f"Failed to register commands for plugin {plugin_name}: {e}")
+                    import traceback
+                    self.logger.warning(f"Traceback: {traceback.format_exc()}")
 
             # Add to loaded plugins
             self.loaded_plugins.append(plugin_name)
@@ -397,6 +405,7 @@ class PluginManager:
             if self.bot and hasattr(self.bot, 'add_command_handler') and hasattr(plugin_instance, 'get_commands'):
                 try:
                     commands = plugin_instance.get_commands()
+                    self.logger.info(f"Plugin {plugin_name} returned commands: {commands}")
                     if commands:
                         # Handle both list of dicts and dict formats
                         if isinstance(commands, list):
@@ -404,15 +413,22 @@ class PluginManager:
                                 if isinstance(command_info, dict):
                                     command_name = command_info.get('name')
                                     command_handler = command_info.get('handler')
+                                    self.logger.info(f"Processing command: {command_name} with handler: {command_handler}")
                                     if command_name and command_handler:
                                         self.bot.add_command_handler(command_name, command_handler)
-                                        self.logger.debug(f"Registered command '{command_name}' from plugin {plugin_name}")
+                                        self.logger.info(f"Successfully registered command '{command_name}' from plugin {plugin_name}")
+                                    else:
+                                        self.logger.warning(f"Invalid command info: {command_info}")
                         elif isinstance(commands, dict):
                             for command_name, command_handler in commands.items():
                                 self.bot.add_command_handler(command_name, command_handler)
-                                self.logger.debug(f"Registered command '{command_name}' from plugin {plugin_name}")
+                                self.logger.info(f"Registered command '{command_name}' from plugin {plugin_name}")
+                    else:
+                        self.logger.warning(f"Plugin {plugin_name} returned no commands")
                 except Exception as e:
                     self.logger.warning(f"Failed to register commands for plugin {plugin_name}: {e}")
+                    import traceback
+                    self.logger.warning(f"Traceback: {traceback.format_exc()}")
 
             self.logger.info(f"Plugin instance {plugin_name} loaded successfully")
             return True
