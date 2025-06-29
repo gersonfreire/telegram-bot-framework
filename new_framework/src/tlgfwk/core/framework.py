@@ -20,7 +20,7 @@ from telegram.ext import (
 from telegram.constants import ParseMode
 
 from .config import Config
-from .decorators import get_command_registry, command, admin_required_simple, owner_required
+from .decorators import get_command_registry, command, admin_required_simple, owner_required, typing_indicator
 from .user_manager import UserManager
 from .plugin_manager import PluginManager
 from .persistence_manager import PersistenceManager
@@ -244,6 +244,7 @@ class TelegramBotFramework(LoggerMixin):
     # Comandos padrão
 
     @command(name="start", description="Iniciar o bot")
+    @typing_indicator
     async def start_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Comando de início."""
         user = update.effective_user
@@ -279,6 +280,7 @@ Use /help para ver os comandos disponíveis.
             )
 
     @command(name="help", description="Mostrar ajuda")
+    @typing_indicator
     async def help_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Comando de ajuda."""
         user_id = update.effective_user.id
@@ -332,6 +334,7 @@ Use /help para ver os comandos disponíveis.
 
     @command(name="config", description="Mostrar configuração", admin_only=True)
     @admin_required_simple
+    @typing_indicator
     async def config_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Mostra configuração atual."""
         config_dict = self.config.to_dict()
@@ -348,6 +351,7 @@ Use /help para ver os comandos disponíveis.
 
     @command(name="stats", description="Estatísticas do bot", admin_only=True)
     @admin_required_simple
+    @typing_indicator
     async def stats_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Mostra estatísticas do bot."""
         stats_text = "📊 **Estatísticas do Bot:**\n\n"
@@ -394,6 +398,7 @@ Use /help para ver os comandos disponíveis.
 
     @command(name="users", description="Listar usuários", admin_only=True)
     @admin_required_simple
+    @typing_indicator
     async def users_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Lista usuários registrados."""
         if not self.user_manager:
@@ -430,6 +435,7 @@ Use /help para ver os comandos disponíveis.
 
     @command(name="restart", description="Reiniciar o bot", admin_only=True)
     @owner_required
+    @typing_indicator
     async def restart_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Reinicia o bot."""
         await update.message.reply_text("🔄 Reiniciando o bot...")
@@ -448,6 +454,7 @@ Use /help para ver os comandos disponíveis.
 
     @command(name="shutdown", description="Desligar o bot", admin_only=True)
     @owner_required
+    @typing_indicator
     async def shutdown_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Desliga o bot."""
         await update.message.reply_text("🛑 Desligando o bot...")
