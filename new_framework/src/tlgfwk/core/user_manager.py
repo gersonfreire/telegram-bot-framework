@@ -206,6 +206,23 @@ class UserManager(LoggerMixin):
             if isinstance(admin_user_ids, dict):
                 return str(user_id) in admin_user_ids or user_id in admin_user_ids
             return user_id in admin_user_ids
+
+        return False
+
+    def is_owner(self, user_id: int) -> bool:
+        """
+        Verifica se um usuário é o proprietário do bot.
+
+        Args:
+            user_id: ID do usuário
+
+        Returns:
+            True se o usuário for o proprietário, False caso contrário
+        """
+        # Handle the case when config is an object with owner_user_id attribute
+        if hasattr(self.config, 'owner_user_id'):
+            return user_id == self.config.owner_user_id
+
         return False
 
     async def ban_user(self, user_id: int) -> None:
