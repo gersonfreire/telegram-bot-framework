@@ -153,6 +153,7 @@ class TelegramBotFramework(LoggerMixin):
         # Comandos básicos
         self.application.add_handler(CommandHandler("start", self.start_command))
         self.application.add_handler(CommandHandler("help", self.help_command))
+        self.application.add_handler(CommandHandler("status", self._handle_status))
 
         # Comandos administrativos
         self.application.add_handler(CommandHandler("config", self.config_command))
