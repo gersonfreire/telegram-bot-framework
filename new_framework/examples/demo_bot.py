@@ -27,7 +27,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 from tlgfwk import (
     TelegramBotFramework, command, admin_required_simple, owner_required,
-    PluginBase, CryptoUtils, generate_encryption_key, create_secure_token
+    PluginBase, CryptoUtils, generate_encryption_key, create_secure_token, typing_indicator
 )
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ContextTypes

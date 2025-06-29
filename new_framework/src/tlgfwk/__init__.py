@@ -18,7 +18,7 @@ from .core.payment_manager import PaymentManager
 from .core.scheduler import JobScheduler
 from .core.decorators import (
     command, admin_required, admin_required_simple, user_required, owner_required,
-    rate_limit, validate_args, typing_action, log_command
+    rate_limit, validate_args, typing_action, log_command, typing_indicator
 )
 from .plugins.base import PluginBase
 from .plugins.system_monitor import SystemMonitorPlugin
@@ -51,6 +51,7 @@ __all__ = [
     "validate_args",
     "typing_action",
     "log_command",
+    "typing_indicator",
 
     # Plugin system
     "PluginBase",
