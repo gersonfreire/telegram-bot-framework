@@ -59,8 +59,8 @@ class SchedulerPlugin(PluginBase):
         # Criar ID único para o job
         job_id = f"plugindemo_{user.id}_{datetime.now().timestamp()}"
         self.framework.scheduler.add_job(
-            self._send_plugin_notification,
-            'date',
+            func=self._send_plugin_notification,
+            trigger='date',
             run_date=datetime.now() + timedelta(seconds=30),
             args=[user.id, "Plugin Demo"],
             id=job_id
@@ -169,8 +169,8 @@ class SchedulerBot(TelegramBotFramework):
 
             # Agendar a tarefa
             self.scheduler.add_job(
-                self._send_scheduled_message,
-                'date',
+                func=self._send_scheduled_message,
+                trigger='date',
                 run_date=run_date,
                 args=[user.id, message, job_id],
                 id=job_id
@@ -223,8 +223,8 @@ class SchedulerBot(TelegramBotFramework):
 
             # Agendar a tarefa periódica
             self.scheduler.add_job(
-                self._send_recurring_message,
-                'interval',
+                func=self._send_recurring_message,
+                trigger='interval',
                 minutes=interval_minutes,
                 args=[user.id, message, job_id],
                 id=job_id,
