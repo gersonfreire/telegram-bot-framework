@@ -772,12 +772,12 @@ def main():
         print("💡 Use /schedule no Telegram para explorar as funcionalidades!")
 
         import asyncio
-        async def setup_and_run():
+        async def setup():
             await bot.initialize()
             await bot.plugin_manager.register_plugin(SchedulerPlugin.name, SchedulerPlugin())
             await bot.plugin_manager.load_plugin(SchedulerPlugin.name, bot, bot.config.data)
-            bot.run()
-        asyncio.run(setup_and_run())
+        asyncio.get_event_loop().run_until_complete(setup())
+        bot.run()
 
     except KeyboardInterrupt:
         print("\n⏹️  Bot parado pelo usuário")
