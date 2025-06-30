@@ -121,7 +121,8 @@ class SchedulerBot(TelegramBotFramework):
                 trigger='date',
                 run_date=run_date,
                 args=[user.id, message, job_id],
-                id=job_id
+                job_id=job_id,
+                user_id=user.id
             )
 
             # Registrar estatísticas
@@ -175,7 +176,8 @@ class SchedulerBot(TelegramBotFramework):
                 trigger='interval',
                 minutes=interval_minutes,
                 args=[user.id, message, job_id],
-                id=job_id,
+                job_id=job_id,
+                user_id=user.id,
                 replace_existing=True
             )
 
