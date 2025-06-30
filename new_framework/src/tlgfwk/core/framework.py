@@ -306,11 +306,9 @@ Use /help para ver os comandos disponíveis.
         for cmd_name, cmd_info in registry.get_all_commands().items():
             if cmd_info["hidden"]:
                 continue
-
             cmd_line = f"/{cmd_name}"
             if cmd_info["description"]:
                 cmd_line += f" - {cmd_info['description']}"
-
             if cmd_info["admin_only"]:
                 admin_commands.append(cmd_line)
             else:
@@ -324,60 +322,44 @@ Use /help para ver os comandos disponíveis.
             help_text += "**Comandos Administrativos:**\n"
             help_text += "\n".join(sorted(admin_commands)) + "\n\n"
 
-        # Comandos embutidos do framework (detectados automaticamente)
-        framework_commands = []
-        framework_admin_commands = []
-        framework_owner_commands = []
-
-        # Lista de métodos que são comandos embutidos
-        builtin_commands = [
-            ('config', 'Mostrar configuração'),
-            ('stats', 'Estatísticas do bot'),
-            ('users', 'Listar usuários'),
-            ('restart', 'Reiniciar o bot'),
-            ('shutdown', 'Desligar o bot'),
-            ('plugindemo', 'Demonstra funcionalidades do plugin'),
-            ('plugininfo', 'Mostra informações do plugin'),
-            ('botrestart', 'Reiniciar o bot'),
-            ('botstop', 'Parar o bot'),
-        ]
-
-        # Verificar permissões dos comandos embutidos
-        for cmd_name, description in builtin_commands:
-            cmd_line = f"/{cmd_name} - {description}"
-
-            # Verificar se é comando de owner (baseado nos decorators)
-            if cmd_name in ['restart', 'shutdown', 'botrestart', 'botstop']:
-                if is_owner:
-                    framework_owner_commands.append(cmd_line)
-            # Verificar se é comando de admin
-            elif cmd_name in ['config', 'stats', 'users']:
-                if is_admin:
-                    framework_admin_commands.append(cmd_line)
-            # Comandos públicos
-            else:
-                framework_commands.append(cmd_line)
-
-        if framework_commands:
+        # Comandos embutidos do framework (detectados automaticamente via introspecção)
+        import inspect
+        builtin_cmds = []
+        builtin_admin_cmds = []
+        builtin_owner_cmds = []
+        for name, method in inspect.getmembers(self, predicate=inspect.ismethod):
+            if hasattr(method, "_tlgfwk_command"):
+                meta = method._tlgfwk_command
+                desc = meta.get("description", "")
+                admin_only = meta.get("admin_only", False)
+                cmd_line = f"/{meta['name']}" + (f" - {desc}" if desc else "")
+                if meta['name'] in ["start", "help", "status"]:
+                    continue  # já listados acima
+                if admin_only and not is_admin:
+                    continue
+                if meta['name'] in ["restart", "shutdown", "botrestart", "botstop", "gitpull"]:
+                    if is_owner:
+                        builtin_owner_cmds.append(cmd_line)
+                elif admin_only:
+                    builtin_admin_cmds.append(cmd_line)
+                else:
+                    builtin_cmds.append(cmd_line)
+        if builtin_cmds:
             help_text += "**Comandos do Framework:**\n"
-            help_text += "\n".join(sorted(framework_commands)) + "\n\n"
-
-        if is_admin and framework_admin_commands:
+            help_text += "\n".join(sorted(builtin_cmds)) + "\n\n"
+        if is_admin and builtin_admin_cmds:
             help_text += "**Comandos Administrativos do Framework:**\n"
-            help_text += "\n".join(sorted(framework_admin_commands)) + "\n\n"
-
-        if is_owner and framework_owner_commands:
+            help_text += "\n".join(sorted(builtin_admin_cmds)) + "\n\n"
+        if is_owner and builtin_owner_cmds:
             help_text += "**Comandos de Controle do Bot:**\n"
-            help_text += "\n".join(sorted(framework_owner_commands)) + "\n\n"
+            help_text += "\n".join(sorted(builtin_owner_cmds)) + "\n\n"
 
         # Informações do bot
         help_text += f"🔧 Versão do Framework: 1.0.0\n"
         help_text += f"⚡ Status: {'🟢 Online' if self._running else '🔴 Offline'}\n"
-
         if self.plugin_manager:
             loaded_plugins = len(self.plugin_manager.plugins)
             help_text += f"🔌 Plugins: {loaded_plugins} carregados\n"
-
         await update.message.reply_text(
             help_text,
             parse_mode=ParseMode.MARKDOWN
@@ -623,6 +605,25 @@ Use /help para ver os comandos disponíveis.
             "🛑 O bot foi desligado e não responderá mais a comandos.",
             parse_mode='HTML'
         )
+
+    @command(name="gitpull", description="Atualizar o código fonte do bot via git pull", admin_only=True)
+    @owner_required
+    @typing_indicator
+    async def gitpull_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+        """Executa 'git pull' no diretório do projeto e retorna o resultado."""
+        import subprocess
+        from pathlib import Path
+        try:
+            repo_dir = Path(__file__).parent.parent.parent.resolve()
+            result = subprocess.run(["git", "pull"], cwd=repo_dir, capture_output=True, text=True, timeout=30)
+            output = result.stdout.strip() or result.stderr.strip() or "(sem saída)"
+            if result.returncode == 0:
+                msg = f"✅ <b>git pull executado com sucesso!</b>\n<pre>{output}</pre>"
+            else:
+                msg = f"❌ <b>Erro ao executar git pull:</b>\n<pre>{output}</pre>"
+        except Exception as e:
+            msg = f"❌ <b>Exceção ao executar git pull:</b>\n<pre>{e}</pre>"
+        await update.message.reply_text(msg, parse_mode='HTML')
 
     async def unknown_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Handler para comandos não reconhecidos."""
