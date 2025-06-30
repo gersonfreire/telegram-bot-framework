@@ -277,18 +277,18 @@ class SchedulerBot(TelegramBotFramework):
     async def cancel_all_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Cancelar todos os jobs do usuário atual."""
         user = update.effective_user
-        # Crie uma lista separada para evitar modificar o dicionário durante a iteração
-        user_jobs = [job_id for job_id, info in list(self.demo_jobs.items()) if info['user_id'] == user.id]
+        # Buscar todos os jobs do usuário diretamente do scheduler
+        user_jobs = self.scheduler.list_jobs(user_id=user.id)
 
         if not user_jobs:
             await update.message.reply_text("📭 Você não tem jobs agendados")
             return
 
         cancelled_count = 0
-        for job_id in user_jobs:
+        for job in user_jobs:
+            job_id = job.id
             try:
                 self.scheduler.remove_job(job_id)
-                # Use pop para evitar KeyError caso já tenha sido removido
                 self.demo_jobs.pop(job_id, None)
                 cancelled_count += 1
             except Exception as e:
