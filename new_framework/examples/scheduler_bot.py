@@ -106,7 +106,7 @@ class SchedulerBot(TelegramBotFramework):
         super().__init__(config_file=config_file, plugins_dir=plugins_dir, custom_config=custom_config)
 
         # Registrar manualmente o plugin SchedulerPlugin
-        self.plugin_manager.register_plugin(SchedulerPlugin())
+        self.plugin_manager.register_plugin(SchedulerPlugin.name, SchedulerPlugin())
 
         # Configurações específicas do scheduler
         self.config.data['auto_load_plugins'] = True
