@@ -120,12 +120,6 @@ class SchedulerBot(TelegramBotFramework):
         # Jobs de demonstração
         self.demo_jobs = {}
 
-    async def initialize(self, *args, **kwargs):
-        await super().initialize(*args, **kwargs)
-        await self.plugin_manager.register_plugin(SchedulerPlugin.name, SchedulerPlugin())
-        # Carregar o plugin e registrar comandos
-        await self.plugin_manager.load_plugin(SchedulerPlugin.name, self, self.config.data)
-
     # ============================================================================
     # COMANDOS BÁSICOS DE AGENDAMENTO
     # ============================================================================
@@ -776,12 +770,6 @@ def main():
         print("🤖 Bot iniciado! Pressione Ctrl+C para parar")
         print("💡 Use /schedule no Telegram para explorar as funcionalidades!")
 
-        import asyncio
-        async def setup():
-            await bot.initialize()
-            await bot.plugin_manager.register_plugin(SchedulerPlugin.name, SchedulerPlugin())
-            await bot.plugin_manager.load_plugin(SchedulerPlugin.name, bot, bot.config.data)
-        asyncio.get_event_loop().run_until_complete(setup())
         bot.run()
 
     except KeyboardInterrupt:
