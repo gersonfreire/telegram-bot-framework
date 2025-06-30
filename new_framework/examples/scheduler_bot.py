@@ -270,24 +270,24 @@ class SchedulerBot(TelegramBotFramework):
         jobs_text = f"📋 <b>Jobs Agendados ({len(jobs)}):</b>\n\n"
 
         for i, job in enumerate(jobs[:10], 1):  # Limitar a 10 jobs
-            job_info = self.demo_jobs.get(job.id, {})
+            job_info = self.demo_jobs.get(job['id'], {})
             job_type = job_info.get('type', 'unknown')
 
             if job_type == 'once':
                 run_time = job_info.get('run_date', 'N/A')
                 if isinstance(run_time, datetime):
                     run_time = run_time.strftime('%d/%m %H:%M')
-                jobs_text += f"{i}. ⏰ <b>{job.id}</b> (Único)\n"
+                jobs_text += f"{i}. ⏰ <b>{job['id']}</b> (Único)\n"
                 jobs_text += f"   📅 {run_time}\n"
             elif job_type == 'recurring':
                 interval = job_info.get('interval_minutes', 'N/A')
                 next_run = job_info.get('next_run', 'N/A')
                 if isinstance(next_run, datetime):
                     next_run = next_run.strftime('%H:%M')
-                jobs_text += f"{i}. 🔄 <b>{job.id}</b> (Periódico)\n"
+                jobs_text += f"{i}. 🔄 <b>{job['id']}</b> (Periódico)\n"
                 jobs_text += f"   ⏱️ {interval}min | Próximo: {next_run}\n"
             else:
-                jobs_text += f"{i}. ❓ <b>{job.id}</b> (Desconhecido)\n"
+                jobs_text += f"{i}. ❓ <b>{job['id']}</b> (Desconhecido)\n"
 
             jobs_text += "\n"
 
