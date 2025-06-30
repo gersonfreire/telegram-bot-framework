@@ -282,8 +282,22 @@ class SchedulerBot(TelegramBotFramework):
         # Buscar todos os jobs do usuário diretamente do scheduler
         user_jobs = self.scheduler.list_jobs(user_id=user.id)
 
+        # Fallback: se não encontrar jobs pelo user_id, tente pelo demo_jobs (para jobs antigos)
         if not user_jobs:
-            await update.message.reply_text("📭 Você não tem jobs agendados")
+            # Busca todos os jobs do demo_jobs que pertencem ao usuário
+            user_job_ids = [job_id for job_id, info in self.demo_jobs.items() if info.get('user_id') == user.id]
+            if not user_job_ids:
+                await update.message.reply_text("📭 Você não tem jobs agendados")
+                return
+            cancelled_count = 0
+            for job_id in user_job_ids:
+                try:
+                    self.scheduler.remove_job(job_id)
+                    self.demo_jobs.pop(job_id, None)
+                    cancelled_count += 1
+                except Exception as e:
+                    print(f"Erro ao cancelar job {job_id}: {e}")
+            await update.message.reply_text(f"✅ {cancelled_count} job(s) cancelado(s) com sucesso!")
             return
 
         cancelled_count = 0
