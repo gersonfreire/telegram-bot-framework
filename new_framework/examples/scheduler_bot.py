@@ -756,7 +756,6 @@ def main():
         print("=" * 60)
 
     try:
-        # Criar e executar o bot
         bot = SchedulerBot(config_file=env_path)
         print("✅ Scheduler Bot criado com sucesso!")
         print("🎯 Funcionalidades disponíveis:")
@@ -772,7 +771,13 @@ def main():
         print("🤖 Bot iniciado! Pressione Ctrl+C para parar")
         print("💡 Use /schedule no Telegram para explorar as funcionalidades!")
 
-        bot.run()
+        import asyncio
+        async def setup_and_run():
+            await bot.initialize()
+            await bot.plugin_manager.register_plugin(SchedulerPlugin.name, SchedulerPlugin())
+            await bot.plugin_manager.load_plugin(SchedulerPlugin.name, bot, bot.config.data)
+            bot.run()
+        asyncio.run(setup_and_run())
 
     except KeyboardInterrupt:
         print("\n⏹️  Bot parado pelo usuário")
