@@ -261,7 +261,7 @@ class SchedulerBot(TelegramBotFramework):
     @admin_required_simple
     async def list_jobs_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Listar todos os jobs agendados."""
-        jobs = self.scheduler.get_jobs()
+        jobs = self.scheduler.get_all_jobs()
 
         if not jobs:
             await update.message.reply_text("📭 Nenhum job agendado")
@@ -356,7 +356,7 @@ class SchedulerBot(TelegramBotFramework):
         uptime = datetime.now() - self.scheduler_stats['start_time']
         uptime_str = str(uptime).split('.')[0]
 
-        total_jobs = len(self.scheduler.get_jobs())
+        total_jobs = len(self.scheduler.get_all_jobs())
         user_jobs = len([j for j in self.demo_jobs.values() if j['user_id'] == update.effective_user.id])
 
         stats_msg = (
@@ -641,7 +641,7 @@ class SchedulerBot(TelegramBotFramework):
         """Mostrar estatísticas do scheduler."""
         uptime = datetime.now() - self.scheduler_stats['start_time']
         uptime_str = str(uptime).split('.')[0]
-        total_jobs = len(self.scheduler.get_jobs())
+        total_jobs = len(self.scheduler.get_all_jobs())
 
         message = (
             f"📈 <b>Estatísticas do Scheduler</b>\n\n"
