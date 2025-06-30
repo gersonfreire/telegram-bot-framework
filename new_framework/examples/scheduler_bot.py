@@ -737,6 +737,11 @@ class SchedulerBot(TelegramBotFramework):
 
         await update.message.reply_text(help_msg, parse_mode='HTML')
 
+    def add_command_handler(self, command_name, handler):
+        """Permite que plugins registrem comandos dinamicamente."""
+        from telegram.ext import CommandHandler
+        self.application.add_handler(CommandHandler(command_name, handler))
+
 
 def main():
     """Função principal para executar o Scheduler Bot."""
