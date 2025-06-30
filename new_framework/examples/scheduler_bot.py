@@ -123,6 +123,8 @@ class SchedulerBot(TelegramBotFramework):
     async def initialize(self, *args, **kwargs):
         await super().initialize(*args, **kwargs)
         await self.plugin_manager.register_plugin(SchedulerPlugin.name, SchedulerPlugin())
+        # Carregar o plugin e registrar comandos
+        await self.plugin_manager.load_plugin(SchedulerPlugin.name, self, self.config.data)
 
     # ============================================================================
     # COMANDOS BÁSICOS DE AGENDAMENTO
