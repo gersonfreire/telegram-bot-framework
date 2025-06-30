@@ -328,16 +328,16 @@ Use /help para ver os comandos disponíveis.
         builtin_admin_cmds = []
         builtin_owner_cmds = []
         for name, method in inspect.getmembers(self, predicate=inspect.ismethod):
-            if hasattr(method, "_tlgfwk_command"):
-                meta = method._tlgfwk_command
-                desc = meta.get("description", "")
-                admin_only = meta.get("admin_only", False)
-                cmd_line = f"/{meta['name']}" + (f" - {desc}" if desc else "")
-                if meta['name'] in ["start", "help", "status"]:
+            if hasattr(method, "_command_name"):
+                cmd_name = method._command_name
+                desc = getattr(method, "_command_description", "")
+                admin_only = getattr(method, "_command_admin_only", False)
+                cmd_line = f"/{cmd_name}" + (f" - {desc}" if desc else "")
+                if cmd_name in ["start", "help", "status"]:
                     continue  # já listados acima
                 if admin_only and not is_admin:
                     continue
-                if meta['name'] in ["restart", "shutdown", "botrestart", "botstop", "gitpull"]:
+                if cmd_name in ["restart", "shutdown", "botrestart", "botstop", "gitpull"]:
                     if is_owner:
                         builtin_owner_cmds.append(cmd_line)
                 elif admin_only:
