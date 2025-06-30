@@ -8,31 +8,25 @@ from typing import List, Dict, Any
 from tlgfwk import (
     command, admin_required_simple, owner_required
 )
+from tlgfwk.plugins.base import PluginBase
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ContextTypes
 
-# Plugin metadata
-__plugin_name__ = "scheduler_plugin"
-__description__ = "Plugin de agendamento de tarefas (únicas e periódicas) para o Telegram Bot Framework."
-__version__ = "1.0.0"
-__author__ = "Seu Nome"
-__enabled__ = True
 
-# O framework irá injetar bot, scheduler, user_manager, etc. no contexto do plugin
+class SchedulerPlugin(PluginBase):
+    name = "scheduler_plugin"
+    version = "1.0.0"
+    description = "Plugin de agendamento de tarefas (únicas e periódicas) para o Telegram Bot Framework."
+    author = "Seu Nome"
+    dependencies = []
 
-def register(bot):
-    """Função obrigatória para registrar comandos e inicializar o plugin."""
-    plugin = SchedulerPlugin(bot)
-    plugin.register_commands()
-    return plugin
-
-class SchedulerPlugin:
-    def __init__(self, bot):
+    def __init__(self, bot=None):
+        super().__init__()
         self.bot = bot
-        self.scheduler = bot.scheduler
-        self.user_manager = bot.user_manager
+        self.scheduler = getattr(bot, 'scheduler', None)
+        self.user_manager = getattr(bot, 'user_manager', None)
         self.persistence_manager = getattr(bot, 'persistence_manager', None)
-        self.config = bot.config
+        self.config = getattr(bot, 'config', None)
         self.demo_jobs = {}
         self.scheduler_stats = {
             'jobs_created': 0,
@@ -40,8 +34,18 @@ class SchedulerPlugin:
             'jobs_failed': 0,
             'start_time': datetime.now()
         }
+        if bot:
+            self.register_commands()
+
+    @classmethod
+    def register(cls, bot):
+        """Método obrigatório para registrar comandos e inicializar o plugin."""
+        plugin = cls(bot)
+        return plugin
 
     def register_commands(self):
+        if not self.bot:
+            return
         self.bot.add_command_handler("plugin_schedule", self.plugin_schedule_command)
         self.bot.add_command_handler("schedule_once", self.schedule_once_command)
         self.bot.add_command_handler("schedule_recurring", self.schedule_recurring_command)
