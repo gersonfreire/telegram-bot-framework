@@ -309,7 +309,7 @@ class JobScheduler:
             # Create job info - handle next_run_time safely
             try:
                 next_run = getattr(apscheduler_job, 'next_run_time', None)
-            except AttributeError:
+            except Exception:
                 next_run = None
 
             job_info = JobInfo(
@@ -411,7 +411,7 @@ class JobScheduler:
                 # Update next run time
                 apscheduler_job = self.scheduler.get_job(job_id)
                 if apscheduler_job:
-                    self.jobs[job_id].next_run_time = apscheduler_job.next_run_time
+                    self.jobs[job_id].next_run_time = getattr(apscheduler_job, 'next_run_time', None)
 
             self.logger.info(f"Job resumed: {job_id}")
             return True
@@ -442,7 +442,7 @@ class JobScheduler:
                 # Update next run time
                 apscheduler_job = self.scheduler.get_job(job_id)
                 if apscheduler_job:
-                    job_info.next_run_time = apscheduler_job.next_run_time
+                    job_info.next_run_time = getattr(apscheduler_job, 'next_run_time', None)
 
             self.logger.info(f"Job modified: {job_id}")
             return True
@@ -555,7 +555,7 @@ class JobScheduler:
         for job in jobs:
             apscheduler_job = self.scheduler.get_job(job.id)
             if apscheduler_job:
-                job.next_run_time = apscheduler_job.next_run_time
+                job.next_run_time = getattr(apscheduler_job, 'next_run_time', None)
 
         return jobs
 
@@ -715,7 +715,7 @@ class JobScheduler:
             # Update next run time
             apscheduler_job = self.scheduler.get_job(job_id)
             if apscheduler_job:
-                job_info.next_run_time = apscheduler_job.next_run_time
+                job_info.next_run_time = getattr(apscheduler_job, 'next_run_time', None)
             else:
                 # Job was removed or completed
                 job_info.next_run_time = None
