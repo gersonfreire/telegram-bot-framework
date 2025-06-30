@@ -30,6 +30,13 @@ from telegram.ext import ContextTypes
 
 
 class SchedulerBot(TelegramBotFramework):
+    @command(name="plugin_schedule", description="Demo do comando de plugin de agendamento")
+    async def plugin_schedule_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+        """Demonstração do comando /plugin_schedule."""
+        await update.message.reply_text(
+            "🔌 <b>Plugin Schedule</b>\n\nEste é um comando de demonstração para integração de plugins com o sistema de agendamento.\n\n\u2022 Use este comando para testar a integração de plugins que registram comandos de agendamento.\n\n💡 Exemplo de uso:\n/plugin_schedule",
+            parse_mode='HTML'
+        )
     """
     Bot de demonstração do sistema de agendamentos.
 
