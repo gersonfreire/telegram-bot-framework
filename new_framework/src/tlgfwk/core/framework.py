@@ -307,9 +307,9 @@ Use /help para ver os comandos disponíveis.
 
         # Comandos básicos
         help_text += "<b>Comandos Básicos:</b>\n"
-        help_text += "<code>/start</code> - Iniciar o bot\n"
-        help_text += "<code>/help</code> - Mostrar esta ajuda\n"
-        help_text += "<code>/status</code> - Mostrar status do bot\n\n"
+        help_text += "/start - Iniciar o bot\n"
+        help_text += "/help - Mostrar esta ajuda\n"
+        help_text += "/status - Mostrar status do bot\n\n"
 
         # Comandos do registry
         registry = get_command_registry()
@@ -319,7 +319,7 @@ Use /help para ver os comandos disponíveis.
         for cmd_name, cmd_info in registry.get_all_commands().items():
             if cmd_info["hidden"]:
                 continue
-            cmd_line = f"<code>/{cmd_name}</code>"
+            cmd_line = f"/{cmd_name}"
             if cmd_info["description"]:
                 cmd_line += f" - {cmd_info['description']}"
             if cmd_info["admin_only"]:
