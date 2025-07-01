@@ -125,15 +125,17 @@ class PluginManager:
             True if successful, False otherwise
         """
         try:
-            # Check if plugin is registered
-            if plugin_name not in self.plugins:
-                self.logger.error(f"Plugin {plugin_name} is not registered")
-                return False
-
             # Check if already loaded
             if plugin_name in self.loaded_plugins:
                 self.logger.warning(f"Plugin {plugin_name} is already loaded")
                 return True
+
+            # Check if plugin is registered, if not, try to load from file
+            if plugin_name not in self.plugins:
+                self.logger.info(f"Plugin {plugin_name} not registered, attempting to load from file")
+                if not await self._load_plugin_from_file(plugin_name):
+                    self.logger.error(f"Failed to load plugin {plugin_name} from file")
+                    return False
 
             plugin_info = self.plugins[plugin_name]
             plugin_instance = plugin_info.instance
@@ -213,6 +215,51 @@ class PluginManager:
             if plugin_name in self.plugins:
                 self.plugins[plugin_name].status = PluginStatus.ERROR
                 self.plugins[plugin_name].error_message = str(e)
+            return False
+
+    async def _load_plugin_from_file(self, plugin_name: str) -> bool:
+        """
+        Load a plugin from file and register it.
+
+        Args:
+            plugin_name: Name of the plugin to load
+
+        Returns:
+            True if successful, False otherwise
+        """
+        try:
+            # Find plugin path
+            plugin_path = self._find_plugin_path(plugin_name)
+            if not plugin_path:
+                self.logger.error(f"Plugin file not found for {plugin_name}")
+                return False
+
+            # Load module
+            module = self._load_plugin_module(plugin_name, plugin_path)
+            if not module:
+                return False
+
+            # Find plugin class
+            plugin_class = self._find_plugin_class(module, plugin_name)
+            if not plugin_class:
+                return False
+
+            # Create plugin instance
+            plugin_instance = plugin_class()
+
+            # Register plugin
+            success = await self.register_plugin(plugin_name, plugin_instance)
+            if success:
+                # Store file path for future reference
+                self.plugins[plugin_name].file_path = str(plugin_path)
+                self.logger.info(f"Plugin {plugin_name} loaded from file and registered successfully")
+                return True
+            else:
+                self.logger.error(f"Failed to register plugin {plugin_name}")
+                return False
+
+        except Exception as e:
+            self.logger.error(f"Failed to load plugin {plugin_name} from file: {e}")
             return False
 
     async def unload_plugin(self, plugin_name: str) -> bool:
@@ -307,7 +354,7 @@ class PluginManager:
 
     async def load_all_plugins(self, bot_instance=None, config=None) -> Dict[str, bool]:
         """
-        Load all registered plugins.
+        Load all discovered plugins.
 
         Args:
             bot_instance: Bot instance (optional)
@@ -316,13 +363,16 @@ class PluginManager:
         Returns:
             Dictionary of plugin names and their load status
         """
+        # Primeiro descobrir plugins disponíveis
+        discovered = self.discover_plugins()
         results = {}
 
-        for plugin_name in self.plugins.keys():
+        # Carregar plugins descobertos
+        for plugin_name in discovered:
             results[plugin_name] = await self.load_plugin(plugin_name, bot_instance, config)
 
         loaded_count = sum(1 for success in results.values() if success)
-        self.logger.info(f"Loaded {loaded_count} out of {len(self.plugins)} plugins")
+        self.logger.info(f"Loaded {loaded_count} out of {len(discovered)} discovered plugins")
         return results
 
     async def unload_all_plugins(self) -> Dict[str, bool]:
