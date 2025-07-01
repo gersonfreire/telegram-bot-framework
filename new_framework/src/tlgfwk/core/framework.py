@@ -303,13 +303,13 @@ Use /help para ver os comandos disponíveis.
         is_admin = user_id in self.config.admin_user_ids
         is_owner = user_id == self.config.owner_user_id
 
-        help_text = f"🤖 **{self.config.instance_name} - Ajuda**\n\n"
+        help_text = f"🤖 <b>{self.config.instance_name} - Ajuda</b>\n\n"
 
         # Comandos básicos
-        help_text += "**Comandos Básicos:**\n"
-        help_text += "/start - Iniciar o bot\n"
-        help_text += "/help - Mostrar esta ajuda\n"
-        help_text += "/status - Mostrar status do bot\n\n"
+        help_text += "<b>Comandos Básicos:</b>\n"
+        help_text += "<code>/start</code> - Iniciar o bot\n"
+        help_text += "<code>/help</code> - Mostrar esta ajuda\n"
+        help_text += "<code>/status</code> - Mostrar status do bot\n\n"
 
         # Comandos do registry
         registry = get_command_registry()
@@ -319,7 +319,7 @@ Use /help para ver os comandos disponíveis.
         for cmd_name, cmd_info in registry.get_all_commands().items():
             if cmd_info["hidden"]:
                 continue
-            cmd_line = f"/{cmd_name}"
+            cmd_line = f"<code>/{cmd_name}</code>"
             if cmd_info["description"]:
                 cmd_line += f" - {cmd_info['description']}"
             if cmd_info["admin_only"]:
@@ -328,55 +328,14 @@ Use /help para ver os comandos disponíveis.
                 user_commands.append(cmd_line)
 
         if user_commands:
-            help_text += "**Comandos Disponíveis:**\n"
+            help_text += "<b>Comandos Disponíveis:</b>\n"
             help_text += "\n".join(sorted(user_commands)) + "\n\n"
 
         if is_admin and admin_commands:
-            help_text += "**Comandos Administrativos:**\n"
+            help_text += "<b>Comandos Administrativos:</b>\n"
             help_text += "\n".join(sorted(admin_commands)) + "\n\n"
 
-        # Comandos embutidos do framework (detectados automaticamente via introspecção)
-        import inspect
-        builtin_cmds = []
-        builtin_admin_cmds = []
-        builtin_owner_cmds = []
-        for name, method in inspect.getmembers(self, predicate=inspect.ismethod):
-            if hasattr(method, "_command_name"):
-                cmd_name = method._command_name
-                desc = getattr(method, "_command_description", "")
-                admin_only = getattr(method, "_command_admin_only", False)
-                cmd_line = f"/{cmd_name}" + (f" - {desc}" if desc else "")
-                if cmd_name in ["start", "help", "status"]:
-                    continue  # já listados acima
-                if admin_only and not is_admin:
-                    continue
-                if cmd_name in ["restart", "shutdown", "botrestart", "botstop", "gitpull"]:
-                    if is_owner:
-                        builtin_owner_cmds.append(cmd_line)
-                elif admin_only:
-                    builtin_admin_cmds.append(cmd_line)
-                else:
-                    builtin_cmds.append(cmd_line)
-        if builtin_cmds:
-            help_text += "**Comandos do Framework:**\n"
-            help_text += "\n".join(sorted(builtin_cmds)) + "\n\n"
-        if is_admin and builtin_admin_cmds:
-            help_text += "**Comandos Administrativos do Framework:**\n"
-            help_text += "\n".join(sorted(builtin_admin_cmds)) + "\n\n"
-        if is_owner and builtin_owner_cmds:
-            help_text += "**Comandos de Controle do Bot:**\n"
-            help_text += "\n".join(sorted(builtin_owner_cmds)) + "\n\n"
-
-        # Informações do bot
-        help_text += f"🔧 Versão do Framework: 1.0.0\n"
-        help_text += f"⚡ Status: {'🟢 Online' if self._running else '🔴 Offline'}\n"
-        if self.plugin_manager:
-            loaded_plugins = len(self.plugin_manager.plugins)
-            help_text += f"🔌 Plugins: {loaded_plugins} carregados\n"
-        await update.message.reply_text(
-            help_text,
-            parse_mode=ParseMode.MARKDOWN
-        )
+        await update.message.reply_text(help_text, parse_mode='HTML')
 
     @command(name="config", description="Mostrar configuração", admin_only=True)
     @admin_required_simple
