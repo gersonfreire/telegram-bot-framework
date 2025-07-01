@@ -638,7 +638,12 @@ class JobScheduler:
             return DateTrigger(run_date=run_date)
 
         elif trigger_type == TriggerType.INTERVAL:
-            return IntervalTrigger(**config)
+            # Remover argumentos inválidos para IntervalTrigger
+            valid_args = {}
+            for key, value in config.items():
+                if key in ['weeks', 'days', 'hours', 'minutes', 'seconds', 'microseconds', 'jitter']:
+                    valid_args[key] = value
+            return IntervalTrigger(**valid_args)
 
         elif trigger_type == TriggerType.CRON:
             return CronTrigger(**config)
