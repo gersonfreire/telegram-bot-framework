@@ -11,6 +11,7 @@ from tlgfwk import (
 from tlgfwk.plugins.base import PluginBase
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ContextTypes
+import asyncio
 
 
 class SchedulerPlugin(PluginBase):
@@ -125,7 +126,7 @@ class SchedulerPlugin(PluginBase):
             # Agendar a tarefa
             print(f"⏰ DEBUG: Criando job no scheduler - job_id: {job_id}, run_date: {run_date}")
             self.scheduler.add_job(
-                func=self._send_scheduled_message,
+                func=lambda user_id, message, job_id: asyncio.create_task(self._send_scheduled_message(user_id, message, job_id)),
                 trigger='date',
                 run_date=run_date,
                 args=[user.id, message, job_id],
