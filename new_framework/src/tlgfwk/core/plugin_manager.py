@@ -288,7 +288,17 @@ class PluginManager:
         # Sort by dependencies (basic implementation)
         # TODO: Implement proper topological sort for complex dependencies
         for plugin_name in discovered:
-            results[plugin_name] = self.load_plugin(plugin_name)
+            # Use the async method with asyncio.run for each plugin
+            import asyncio
+            try:
+                # Create a new event loop for each plugin if needed
+                loop = asyncio.new_event_loop()
+                asyncio.set_event_loop(loop)
+                results[plugin_name] = loop.run_until_complete(self.load_plugin(plugin_name))
+                loop.close()
+            except Exception as e:
+                self.logger.error(f"Failed to load plugin {plugin_name}: {e}")
+                results[plugin_name] = False
 
         loaded_count = sum(1 for success in results.values() if success)
         self.logger.info(f"Loaded {loaded_count}/{len(discovered)} plugins")
