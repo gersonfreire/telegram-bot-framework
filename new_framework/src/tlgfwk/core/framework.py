@@ -147,6 +147,18 @@ class TelegramBotFramework(LoggerMixin):
         if self.plugin_manager and self.config.auto_load_plugins:
             await self.plugin_manager.load_all_plugins()
 
+            # REGISTRAR comandos dos plugins após a aplicação estar pronta
+            for plugin_info in self.plugin_manager.plugins.values():
+                plugin_instance = getattr(plugin_info, 'instance', None)
+                if plugin_instance and hasattr(plugin_instance, 'get_commands'):
+                    commands = plugin_instance.get_commands()
+                    if commands:
+                        for command in commands:
+                            command_name = command.get('name')
+                            handler = command.get('handler')
+                            if command_name and handler:
+                                self.add_command_handler(command_name, handler)
+
         # Registrar comandos do menu
         await self.setup_bot_commands()
 
