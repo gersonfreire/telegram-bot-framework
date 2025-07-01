@@ -25,8 +25,9 @@ class EchoBot(TelegramBotFramework):
         # Verificar arquivo .env na pasta examples
         env_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".env")
 
-        # Configurar pasta de plugins para usar a pasta plugins do framework
+        # Configurar pasta de plugins para usar a pasta plugins do framework (caminho absoluto)
         plugins_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "plugins")
+        plugins_dir = os.path.abspath(plugins_dir)  # Converter para caminho absoluto
 
         # Initialize with configuration from .env file and plugins directory
         super().__init__(config_file=env_path, plugins_dir=plugins_dir)
