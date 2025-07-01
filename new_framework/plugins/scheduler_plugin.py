@@ -94,6 +94,7 @@ class SchedulerPlugin(PluginBase):
     # ===================== Comandos =====================
     @command(name="plugin_schedule", description="Demo do comando de plugin de agendamento")
     async def plugin_schedule_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+        print(f"🔌 DEBUG: plugin_schedule_command chamado por {update.effective_user.first_name}")
         await update.message.reply_text(
             "🔌 <b>Plugin Schedule</b>\n\nEste é um comando de demonstração para integração de plugins com o sistema de agendamento.\n\n\u2022 Use este comando para testar a integração de plugins que registram comandos de agendamento.\n\n💡 Exemplo de uso:\n/plugin_schedule",
             parse_mode='HTML'
@@ -101,6 +102,7 @@ class SchedulerPlugin(PluginBase):
 
     @command(name="schedule_once", description="Agendar tarefa única")
     async def schedule_once_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+        print(f"⏰ DEBUG: schedule_once_command chamado por {update.effective_user.first_name}")
         if not context.args:
             await update.message.reply_text(
                 "❌ Uso: /schedule_once [minutos] [mensagem]\n"
