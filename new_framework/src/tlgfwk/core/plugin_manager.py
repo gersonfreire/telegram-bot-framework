@@ -84,12 +84,11 @@ class PluginManager:
 
     def discover_plugins(self) -> List[str]:
         """
-        Discover and register all available plugins in the plugin directory.
+        Discover all available plugins in the plugin directory.
 
         Returns:
             List of discovered plugin names
         """
-        from .plugin_manager import PluginInfo, PluginStatus
         discovered = []
 
         if not self.plugin_dir.exists():
@@ -111,38 +110,6 @@ class PluginManager:
 
         self.available_plugins = discovered
         self.logger.info(f"Discovered {len(discovered)} plugins: {discovered}")
-
-        # Register plugins in self.plugins
-        for plugin_name in discovered:
-            try:
-                plugin_path = self._find_plugin_path(plugin_name)
-                if not plugin_path:
-                    self.logger.warning(f"Could not find path for plugin {plugin_name}")
-                    continue
-                module = self._load_plugin_module(plugin_name, plugin_path)
-                if not module:
-                    self.logger.warning(f"Could not load module for plugin {plugin_name}")
-                    continue
-                plugin_class = self._find_plugin_class(module, plugin_name)
-                if not plugin_class:
-                    self.logger.warning(f"No PluginBase subclass found in plugin {plugin_name}")
-                    continue
-                # Instantiate plugin (do not pass bot yet)
-                plugin_instance = plugin_class()
-                # Register in self.plugins
-                info = PluginInfo(
-                    name=getattr(plugin_instance, 'name', plugin_name),
-                    version=getattr(plugin_instance, 'version', '0.0.0'),
-                    description=getattr(plugin_instance, 'description', ''),
-                    author=getattr(plugin_instance, 'author', ''),
-                    dependencies=getattr(plugin_instance, 'dependencies', []),
-                    status=PluginStatus.UNLOADED,
-                    instance=plugin_instance
-                )
-                self.plugins[plugin_name] = info
-                self.logger.info(f"Registered plugin: {plugin_name}")
-            except Exception as e:
-                self.logger.error(f"Failed to register plugin {plugin_name}: {e}")
         return discovered
 
     async def load_plugin(self, plugin_name: str, bot_instance=None, config=None) -> bool:
