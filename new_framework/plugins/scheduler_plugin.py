@@ -126,7 +126,7 @@ class SchedulerPlugin(PluginBase):
             # Agendar a tarefa
             print(f"⏰ DEBUG: Criando job no scheduler - job_id: {job_id}, run_date: {run_date}")
             self.scheduler.add_job(
-                func=lambda user_id, message, job_id: asyncio.create_task(self._send_scheduled_message(user_id, message, job_id)),
+                func=self._send_scheduled_message,
                 trigger='date',
                 run_date=run_date,
                 args=[user.id, message, job_id],
@@ -181,6 +181,7 @@ class SchedulerPlugin(PluginBase):
             job_id = f"recurring_{user.id}_{datetime.now().timestamp()}"
 
             # Agendar a tarefa periódica
+            print(f"🔄 DEBUG: Criando job periódico no scheduler - job_id: {job_id}, interval: {interval_minutes}")
             self.scheduler.add_job(
                 func=self._send_recurring_message,
                 trigger='interval',
@@ -190,6 +191,7 @@ class SchedulerPlugin(PluginBase):
                 user_id=user.id,
                 replace_existing=True
             )
+            print(f"✅ DEBUG: Job periódico criado com sucesso no scheduler - job_id: {job_id}")
 
             # Registrar estatísticas
             self.scheduler_stats['jobs_created'] += 1
