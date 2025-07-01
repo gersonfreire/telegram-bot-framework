@@ -129,8 +129,7 @@ class SchedulerPlugin(PluginBase):
                 func=SchedulerPlugin._send_scheduled_message,
                 trigger='date',
                 run_date=run_date,
-                args=[user.id, message, job_id],
-                kwargs={'plugin_ref': self},
+                args=[user.id, message, job_id, self],
                 job_id=job_id,
                 user_id=user.id
             )
@@ -187,8 +186,7 @@ class SchedulerPlugin(PluginBase):
                 func=SchedulerPlugin._send_recurring_message,
                 trigger='interval',
                 minutes=interval_minutes,
-                args=[user.id, message, job_id],
-                kwargs={'plugin_ref': self},
+                args=[user.id, message, job_id, self],
                 job_id=job_id,
                 user_id=user.id,
                 replace_existing=True
@@ -365,7 +363,7 @@ class SchedulerPlugin(PluginBase):
 
     # ===================== Métodos auxiliares =====================
     @staticmethod
-    def _send_scheduled_message(user_id: int, message: str, job_id: str, plugin_ref=None):
+    def _send_scheduled_message(user_id: int, message: str, job_id: str, plugin_ref):
         # Wrapper síncrono para rodar o método assíncrono no event loop
         if plugin_ref is None:
             print(f"❌ DEBUG: plugin_ref não fornecido para _send_scheduled_message")
@@ -397,7 +395,7 @@ class SchedulerPlugin(PluginBase):
             self.scheduler_stats['jobs_failed'] += 1
 
     @staticmethod
-    def _send_recurring_message(user_id: int, message: str, job_id: str, plugin_ref=None):
+    def _send_recurring_message(user_id: int, message: str, job_id: str, plugin_ref):
         if plugin_ref is None:
             print(f"❌ DEBUG: plugin_ref não fornecido para _send_recurring_message")
             return
