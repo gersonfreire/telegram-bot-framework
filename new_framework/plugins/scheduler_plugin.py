@@ -362,8 +362,16 @@ class SchedulerPlugin(PluginBase):
         await update.message.reply_text(config_msg, parse_mode='HTML')
 
     # ===================== Métodos auxiliares =====================
-    async def _send_scheduled_message(self, user_id: int, message: str, job_id: str):
-        print(f"🔔 DEBUG: _send_scheduled_message chamado - user_id: {user_id}, message: {message}, job_id: {job_id}")
+    def _send_scheduled_message(self, user_id: int, message: str, job_id: str):
+        # Wrapper síncrono para rodar o método assíncrono no event loop
+        loop = asyncio.get_event_loop()
+        if loop.is_running():
+            asyncio.run_coroutine_threadsafe(self._send_scheduled_message_async(user_id, message, job_id), loop)
+        else:
+            loop.run_until_complete(self._send_scheduled_message_async(user_id, message, job_id))
+
+    async def _send_scheduled_message_async(self, user_id: int, message: str, job_id: str):
+        print(f"🔔 DEBUG: _send_scheduled_message_async chamado - user_id: {user_id}, message: {message}, job_id: {job_id}")
         try:
             print(f"🔔 DEBUG: Tentando enviar mensagem para user_id: {user_id}")
             await self.bot.application.bot.send_message(
@@ -382,8 +390,16 @@ class SchedulerPlugin(PluginBase):
             print(f"❌ DEBUG: Traceback: {traceback.format_exc()}")
             self.scheduler_stats['jobs_failed'] += 1
 
-    async def _send_recurring_message(self, user_id: int, message: str, job_id: str):
-        print(f"🔄 DEBUG: _send_recurring_message chamado - user_id: {user_id}, message: {message}, job_id: {job_id}")
+    def _send_recurring_message(self, user_id: int, message: str, job_id: str):
+        # Wrapper síncrono para rodar o método assíncrono no event loop
+        loop = asyncio.get_event_loop()
+        if loop.is_running():
+            asyncio.run_coroutine_threadsafe(self._send_recurring_message_async(user_id, message, job_id), loop)
+        else:
+            loop.run_until_complete(self._send_recurring_message_async(user_id, message, job_id))
+
+    async def _send_recurring_message_async(self, user_id: int, message: str, job_id: str):
+        print(f"🔄 DEBUG: _send_recurring_message_async chamado - user_id: {user_id}, message: {message}, job_id: {job_id}")
         try:
             print(f"🔄 DEBUG: Tentando enviar mensagem periódica para user_id: {user_id}")
             await self.bot.application.bot.send_message(
