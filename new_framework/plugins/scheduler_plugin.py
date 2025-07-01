@@ -12,6 +12,7 @@ from tlgfwk.plugins.base import PluginBase
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ContextTypes
 import asyncio
+import functools
 
 
 class SchedulerPlugin(PluginBase):
@@ -123,10 +124,10 @@ class SchedulerPlugin(PluginBase):
             job_id = f"once_{user.id}_{datetime.now().timestamp()}"
             run_date = datetime.now() + timedelta(minutes=minutes)
 
-            # Agendar a tarefa usando método de instância
+            # Agendar a tarefa usando functools.partial para binding do self
             print(f"⏰ DEBUG: Criando job no scheduler - job_id: {job_id}, run_date: {run_date}")
             self.scheduler.add_job(
-                func=self._send_scheduled_message,
+                func=functools.partial(self._send_scheduled_message),
                 trigger='date',
                 run_date=run_date,
                 args=[user.id, message, job_id],
@@ -180,10 +181,10 @@ class SchedulerPlugin(PluginBase):
             user = update.effective_user
             job_id = f"recurring_{user.id}_{datetime.now().timestamp()}"
 
-            # Agendar a tarefa periódica usando método de instância
+            # Agendar a tarefa periódica usando functools.partial para binding do self
             print(f"🔄 DEBUG: Criando job periódico no scheduler - job_id: {job_id}, interval: {interval_minutes}")
             self.scheduler.add_job(
-                func=self._send_recurring_message,
+                func=functools.partial(self._send_recurring_message),
                 trigger='interval',
                 minutes=interval_minutes,
                 args=[user.id, message, job_id],
