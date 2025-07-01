@@ -189,11 +189,6 @@ class TelegramBotFramework(LoggerMixin):
         # Registrar comandos do registry
         self.register_decorated_commands()
 
-        # Handler para comandos não reconhecidos (deve ser registrado por último)
-        self.application.add_handler(
-            MessageHandler(filters.COMMAND, self.unknown_command)
-        )
-
         # Handler para mensagens não-comando
         self.application.add_handler(
             MessageHandler(filters.TEXT & ~filters.COMMAND, self.handle_message)
@@ -640,16 +635,6 @@ Use /help para ver os comandos disponíveis.
         except Exception as e:
             msg = f"❌ <b>Exceção ao executar git pull:</b>\n<pre>{e}</pre>"
         await update.message.reply_text(msg, parse_mode='HTML')
-
-    async def unknown_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
-        """Handler para comandos não reconhecidos."""
-        command = update.message.text.split()[0]
-
-        await update.message.reply_text(
-            f"❓ Comando `{command}` não reconhecido.\n"
-            f"Use /help para ver os comandos disponíveis.",
-            parse_mode=ParseMode.MARKDOWN
-        )
 
     async def handle_message(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Handler para mensagens que não são comandos."""
