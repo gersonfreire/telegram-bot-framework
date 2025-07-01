@@ -835,28 +835,26 @@ Use /help para ver os comandos disponíveis.
         plugins_text = f"🔌 **Plugins Carregados ({len(plugins)}):**\n\n"
 
         for plugin_name, plugin_info in plugins.items():
-            # Verificar se plugin_info é um objeto PluginInfo ou um dicionário
-            if hasattr(plugin_info, 'enabled'):
-                status = "✅" if plugin_info.enabled else "❌"
-                name = plugin_info.name
-                version = plugin_info.version
-                description = plugin_info.description
-                author = plugin_info.author
-            else:
-                # Fallback para dicionário ou string
-                status = "✅"  # Assumir que está ativo
-                name = plugin_name
-                version = "1.0.0"
+            if isinstance(plugin_info, str):
+                # Fallback para string
+                status = "✅"
+                name = plugin_info
+                version = "?"
                 description = "Plugin carregado"
                 author = "Desconhecido"
-
+            else:
+                status = "✅" if getattr(plugin_info, 'enabled', True) else "❌"
+                name = getattr(plugin_info, 'name', plugin_name)
+                version = getattr(plugin_info, 'version', "?")
+                description = getattr(plugin_info, 'description', "Plugin carregado")
+                author = getattr(plugin_info, 'author', "Desconhecido")
             plugins_text += f"{status} **{name}** v{version}\n"
             plugins_text += f"📝 {description}\n"
             plugins_text += f"👨‍💻 {author}\n\n"
 
         await update.message.reply_text(
             plugins_text,
-            parse_mode=ParseMode.MARKDOWN
+            parse_mode=ParseMode.HTML
         )
 
     @command(name="plugin", description="Gerenciar plugin específico", admin_only=True)
