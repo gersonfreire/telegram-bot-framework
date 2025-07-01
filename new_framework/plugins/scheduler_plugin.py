@@ -123,6 +123,7 @@ class SchedulerPlugin(PluginBase):
             run_date = datetime.now() + timedelta(minutes=minutes)
 
             # Agendar a tarefa
+            print(f"⏰ DEBUG: Criando job no scheduler - job_id: {job_id}, run_date: {run_date}")
             self.scheduler.add_job(
                 func=self._send_scheduled_message,
                 trigger='date',
@@ -131,6 +132,7 @@ class SchedulerPlugin(PluginBase):
                 job_id=job_id,
                 user_id=user.id
             )
+            print(f"✅ DEBUG: Job criado com sucesso no scheduler - job_id: {job_id}")
 
             # Registrar estatísticas
             self.scheduler_stats['jobs_created'] += 1
@@ -141,6 +143,7 @@ class SchedulerPlugin(PluginBase):
                 'run_date': run_date,
                 'created_at': datetime.now()
             }
+            print(f"📊 DEBUG: Job registrado em demo_jobs - job_id: {job_id}")
 
             response = (
                 f"✅ <b>Agendamento Criado!</b>\n\n"
@@ -357,32 +360,44 @@ class SchedulerPlugin(PluginBase):
 
     # ===================== Métodos auxiliares =====================
     async def _send_scheduled_message(self, user_id: int, message: str, job_id: str):
+        print(f"🔔 DEBUG: _send_scheduled_message chamado - user_id: {user_id}, message: {message}, job_id: {job_id}")
         try:
+            print(f"🔔 DEBUG: Tentando enviar mensagem para user_id: {user_id}")
             await self.bot.application.bot.send_message(
                 chat_id=user_id,
                 text=f"⏰ <b>Mensagem Agendada</b>\n\n{message}\n\n🕐 Enviada em: {datetime.now().strftime('%d/%m/%Y %H:%M:%S')}",
                 parse_mode='HTML'
             )
+            print(f"✅ DEBUG: Mensagem agendada enviada com sucesso para user_id: {user_id}")
             self.scheduler_stats['jobs_completed'] += 1
             if job_id in self.demo_jobs:
                 del self.demo_jobs[job_id]
         except Exception as e:
-            print(f"Erro ao enviar mensagem agendada: {e}")
+            print(f"❌ DEBUG: Erro ao enviar mensagem agendada: {e}")
+            print(f"❌ DEBUG: Tipo de erro: {type(e)}")
+            import traceback
+            print(f"❌ DEBUG: Traceback: {traceback.format_exc()}")
             self.scheduler_stats['jobs_failed'] += 1
 
     async def _send_recurring_message(self, user_id: int, message: str, job_id: str):
+        print(f"🔄 DEBUG: _send_recurring_message chamado - user_id: {user_id}, message: {message}, job_id: {job_id}")
         try:
+            print(f"🔄 DEBUG: Tentando enviar mensagem periódica para user_id: {user_id}")
             await self.bot.application.bot.send_message(
                 chat_id=user_id,
                 text=f"🔄 <b>Mensagem Periódica</b>\n\n{message}\n\n🕐 Enviada em: {datetime.now().strftime('%H:%M:%S')}",
                 parse_mode='HTML'
             )
+            print(f"✅ DEBUG: Mensagem periódica enviada com sucesso para user_id: {user_id}")
             self.scheduler_stats['jobs_completed'] += 1
             if job_id in self.demo_jobs:
                 interval = self.demo_jobs[job_id].get('interval_minutes', 30)
                 self.demo_jobs[job_id]['next_run'] = datetime.now() + timedelta(minutes=interval)
         except Exception as e:
-            print(f"Erro ao enviar mensagem periódica: {e}")
+            print(f"❌ DEBUG: Erro ao enviar mensagem periódica: {e}")
+            print(f"❌ DEBUG: Tipo de erro: {type(e)}")
+            import traceback
+            print(f"❌ DEBUG: Traceback: {traceback.format_exc()}")
             self.scheduler_stats['jobs_failed'] += 1
 
 # O framework deve detectar e carregar automaticamente este plugin da pasta plugins.
