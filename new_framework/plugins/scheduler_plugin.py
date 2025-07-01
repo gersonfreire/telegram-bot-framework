@@ -17,16 +17,16 @@ class SchedulerPlugin(PluginBase):
     name = "scheduler_plugin"
     version = "1.0.0"
     description = "Plugin de agendamento de tarefas (únicas e periódicas) para o Telegram Bot Framework."
-    author = "Seu Nome"
+    author = "Framework Demo"
     dependencies = []
 
-    def __init__(self, bot=None):
+    def __init__(self):
         super().__init__()
-        self.bot = bot
-        self.scheduler = getattr(bot, 'scheduler', None)
-        self.user_manager = getattr(bot, 'user_manager', None)
-        self.persistence_manager = getattr(bot, 'persistence_manager', None)
-        self.config = getattr(bot, 'config', None)
+        self.bot = None
+        self.scheduler = None
+        self.user_manager = None
+        self.persistence_manager = None
+        self.config = None
         self.demo_jobs = {}
         self.scheduler_stats = {
             'jobs_created': 0,
@@ -34,28 +34,62 @@ class SchedulerPlugin(PluginBase):
             'jobs_failed': 0,
             'start_time': datetime.now()
         }
-        if bot:
-            self.register_commands()
 
-    @classmethod
-    def register(cls, bot):
-        """Método obrigatório para registrar comandos e inicializar o plugin."""
-        plugin = cls(bot)
-        return plugin
+    async def initialize(self, bot_instance, config=None):
+        """Inicializar o plugin com a instância do bot."""
+        self.bot = bot_instance
+        self.scheduler = getattr(bot_instance, 'scheduler', None)
+        self.user_manager = getattr(bot_instance, 'user_manager', None)
+        self.persistence_manager = getattr(bot_instance, 'persistence_manager', None)
+        self.config = getattr(bot_instance, 'config', None)
 
-    def register_commands(self):
-        if not self.bot:
-            return
-        self.bot.add_command_handler("plugin_schedule", self.plugin_schedule_command)
-        self.bot.add_command_handler("schedule_once", self.schedule_once_command)
-        self.bot.add_command_handler("schedule_recurring", self.schedule_recurring_command)
-        self.bot.add_command_handler("list_jobs", self.list_jobs_command)
-        self.bot.add_command_handler("cancel_job", self.cancel_job_command)
-        self.bot.add_command_handler("cancel_all", self.cancel_all_command)
-        self.bot.add_command_handler("scheduler_stats", self.scheduler_stats_command)
-        self.bot.add_command_handler("scheduler_config", self.scheduler_config_command)
-        self.bot.add_command_handler("plugins", self.plugins_command)
-        self.bot.add_command_handler("plugin", self.plugin_command)
+        print(f"✅ Plugin {self.name} inicializado com sucesso!")
+        return True
+
+    def get_commands(self) -> List[Dict[str, Any]]:
+        """Retorna a lista de comandos do plugin para registro automático."""
+        return [
+            {
+                "name": "plugin_schedule",
+                "handler": self.plugin_schedule_command,
+                "description": "Demo do comando de plugin de agendamento"
+            },
+            {
+                "name": "schedule_once",
+                "handler": self.schedule_once_command,
+                "description": "Agendar tarefa única"
+            },
+            {
+                "name": "schedule_recurring",
+                "handler": self.schedule_recurring_command,
+                "description": "Agendar tarefa periódica"
+            },
+            {
+                "name": "list_jobs",
+                "handler": self.list_jobs_command,
+                "description": "Listar jobs agendados"
+            },
+            {
+                "name": "cancel_job",
+                "handler": self.cancel_job_command,
+                "description": "Cancelar job específico"
+            },
+            {
+                "name": "cancel_all",
+                "handler": self.cancel_all_command,
+                "description": "Cancelar todos os jobs do usuário"
+            },
+            {
+                "name": "scheduler_stats",
+                "handler": self.scheduler_stats_command,
+                "description": "Estatísticas do scheduler"
+            },
+            {
+                "name": "scheduler_config",
+                "handler": self.scheduler_config_command,
+                "description": "Configurações do scheduler"
+            }
+        ]
 
     # ===================== Comandos =====================
     @command(name="plugin_schedule", description="Demo do comando de plugin de agendamento")
@@ -318,18 +352,6 @@ class SchedulerPlugin(PluginBase):
         )
 
         await update.message.reply_text(config_msg, parse_mode='HTML')
-
-    @command(name="plugins", description="Listar plugins carregados")
-    @admin_required_simple
-    async def plugins_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
-        # ...existing code from plugins_command...
-        pass
-
-    @command(name="plugin", description="Gerenciar plugin específico")
-    @admin_required_simple
-    async def plugin_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
-        # ...existing code from plugin_command...
-        pass
 
     # ===================== Métodos auxiliares =====================
     async def _send_scheduled_message(self, user_id: int, message: str, job_id: str):
