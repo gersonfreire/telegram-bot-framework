@@ -223,15 +223,19 @@ class JobScheduler:
 
     def start(self):
         """Start the scheduler."""
+        print(f"🔧 DEBUG: Tentando iniciar scheduler - running: {self.scheduler.running}")
         if not self.scheduler.running:
             self.scheduler.start()
             self.logger.info("Job scheduler started")
+            print(f"✅ DEBUG: Scheduler iniciado com sucesso!")
 
             # Load jobs from persistent storage
             self._load_jobs_from_storage()
 
             # Register built-in maintenance jobs
             self._register_maintenance_jobs()
+        else:
+            print(f"⚠️ DEBUG: Scheduler já está rodando")
 
     def stop(self):
         """Stop the scheduler."""
@@ -653,10 +657,15 @@ class JobScheduler:
 
     def _execute_job_wrapper(self, job_id: str):
         """Wrapper for job execution with error handling and logging."""
+        print(f"🎯 DEBUG: _execute_job_wrapper chamado para job_id: {job_id}")
+
         job_info = self.jobs.get(job_id)
         if not job_info:
             self.logger.error(f"Job info not found for job: {job_id}")
+            print(f"❌ DEBUG: Job info não encontrado para job_id: {job_id}")
             return
+
+        print(f"✅ DEBUG: Job info encontrado - job_id: {job_id}, status: {job_info.status}")
 
         start_time = datetime.now()
         job_info.status = JobStatus.RUNNING

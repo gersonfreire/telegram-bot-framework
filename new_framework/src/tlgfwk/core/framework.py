@@ -721,6 +721,11 @@ Use /help para ver os comandos disponíveis.
         self._startup_time = datetime.now()
         self._running = True
 
+        # Iniciar o scheduler para executar jobs agendados
+        if self.scheduler:
+            self.scheduler.start()
+            self.log_info("Scheduler iniciado - jobs agendados serão executados")
+
         # Notificar admins sobre inicialização
         await self.send_admin_message(
             f"🚀 **{self.config.instance_name}** iniciado!\n"
@@ -743,6 +748,11 @@ Use /help para ver os comandos disponíveis.
         except KeyboardInterrupt:
             self._running = False
         finally:
+            # Parar o scheduler antes de finalizar
+            if self.scheduler:
+                self.scheduler.stop()
+                self.log_info("Scheduler parado")
+
             await self.application.stop()
             await self.application.shutdown()
 
