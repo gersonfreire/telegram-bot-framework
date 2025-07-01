@@ -126,10 +126,11 @@ class SchedulerPlugin(PluginBase):
             # Agendar a tarefa
             print(f"⏰ DEBUG: Criando job no scheduler - job_id: {job_id}, run_date: {run_date}")
             self.scheduler.add_job(
-                func=self._send_scheduled_message,
+                func=SchedulerPlugin._send_scheduled_message,
                 trigger='date',
                 run_date=run_date,
                 args=[user.id, message, job_id],
+                kwargs={'plugin_ref': self},
                 job_id=job_id,
                 user_id=user.id
             )
@@ -183,10 +184,11 @@ class SchedulerPlugin(PluginBase):
             # Agendar a tarefa periódica
             print(f"🔄 DEBUG: Criando job periódico no scheduler - job_id: {job_id}, interval: {interval_minutes}")
             self.scheduler.add_job(
-                func=self._send_recurring_message,
+                func=SchedulerPlugin._send_recurring_message,
                 trigger='interval',
                 minutes=interval_minutes,
                 args=[user.id, message, job_id],
+                kwargs={'plugin_ref': self},
                 job_id=job_id,
                 user_id=user.id,
                 replace_existing=True
@@ -362,13 +364,17 @@ class SchedulerPlugin(PluginBase):
         await update.message.reply_text(config_msg, parse_mode='HTML')
 
     # ===================== Métodos auxiliares =====================
-    def _send_scheduled_message(self, user_id: int, message: str, job_id: str):
+    @staticmethod
+    def _send_scheduled_message(user_id: int, message: str, job_id: str, plugin_ref=None):
         # Wrapper síncrono para rodar o método assíncrono no event loop
+        if plugin_ref is None:
+            print(f"❌ DEBUG: plugin_ref não fornecido para _send_scheduled_message")
+            return
         loop = asyncio.get_event_loop()
         if loop.is_running():
-            asyncio.run_coroutine_threadsafe(self._send_scheduled_message_async(user_id, message, job_id), loop)
+            asyncio.run_coroutine_threadsafe(plugin_ref._send_scheduled_message_async(user_id, message, job_id), loop)
         else:
-            loop.run_until_complete(self._send_scheduled_message_async(user_id, message, job_id))
+            loop.run_until_complete(plugin_ref._send_scheduled_message_async(user_id, message, job_id))
 
     async def _send_scheduled_message_async(self, user_id: int, message: str, job_id: str):
         print(f"🔔 DEBUG: _send_scheduled_message_async chamado - user_id: {user_id}, message: {message}, job_id: {job_id}")
@@ -390,13 +396,16 @@ class SchedulerPlugin(PluginBase):
             print(f"❌ DEBUG: Traceback: {traceback.format_exc()}")
             self.scheduler_stats['jobs_failed'] += 1
 
-    def _send_recurring_message(self, user_id: int, message: str, job_id: str):
-        # Wrapper síncrono para rodar o método assíncrono no event loop
+    @staticmethod
+    def _send_recurring_message(user_id: int, message: str, job_id: str, plugin_ref=None):
+        if plugin_ref is None:
+            print(f"❌ DEBUG: plugin_ref não fornecido para _send_recurring_message")
+            return
         loop = asyncio.get_event_loop()
         if loop.is_running():
-            asyncio.run_coroutine_threadsafe(self._send_recurring_message_async(user_id, message, job_id), loop)
+            asyncio.run_coroutine_threadsafe(plugin_ref._send_recurring_message_async(user_id, message, job_id), loop)
         else:
-            loop.run_until_complete(self._send_recurring_message_async(user_id, message, job_id))
+            loop.run_until_complete(plugin_ref._send_recurring_message_async(user_id, message, job_id))
 
     async def _send_recurring_message_async(self, user_id: int, message: str, job_id: str):
         print(f"🔄 DEBUG: _send_recurring_message_async chamado - user_id: {user_id}, message: {message}, job_id: {job_id}")
