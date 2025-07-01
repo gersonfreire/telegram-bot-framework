@@ -62,6 +62,10 @@ class TelegramBotFramework(LoggerMixin):
         else:
             self.config = Config()
 
+        # Atualizar plugins_dir se fornecido
+        if plugins_dir:
+            self.config.data['plugins_dir'] = plugins_dir
+
         # Configurar logging
         self.setup_logging()
 
