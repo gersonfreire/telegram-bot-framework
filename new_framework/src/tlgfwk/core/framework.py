@@ -834,11 +834,25 @@ Use /help para ver os comandos disponíveis.
 
         plugins_text = f"🔌 **Plugins Carregados ({len(plugins)}):**\n\n"
 
-        for plugin in plugins:
-            status = "✅" if plugin.enabled else "❌"
-            plugins_text += f"{status} **{plugin.name}** v{plugin.version}\n"
-            plugins_text += f"📝 {plugin.description}\n"
-            plugins_text += f"👨‍💻 {plugin.author}\n\n"
+        for plugin_name, plugin_info in plugins.items():
+            # Verificar se plugin_info é um objeto PluginInfo ou um dicionário
+            if hasattr(plugin_info, 'enabled'):
+                status = "✅" if plugin_info.enabled else "❌"
+                name = plugin_info.name
+                version = plugin_info.version
+                description = plugin_info.description
+                author = plugin_info.author
+            else:
+                # Fallback para dicionário ou string
+                status = "✅"  # Assumir que está ativo
+                name = plugin_name
+                version = "1.0.0"
+                description = "Plugin carregado"
+                author = "Desconhecido"
+
+            plugins_text += f"{status} **{name}** v{version}\n"
+            plugins_text += f"📝 {description}\n"
+            plugins_text += f"👨‍💻 {author}\n\n"
 
         await update.message.reply_text(
             plugins_text,
