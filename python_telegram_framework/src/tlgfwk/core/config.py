@@ -80,7 +80,7 @@ class Config:
         self.traceback_chat_id = self._get_int('TRACEBACK_CHAT_ID', required=False)
         self.debug_mode = self._get_bool('DEBUG_MODE', default=True)
         self.use_https = self._get_bool('USE_HTTPS', default=True)
-        self.num_workers = self._get_int('NUM_WORKERS', default=4)
+        self.num_workers = self._get_int('NUM_WORKERS', required=False, default=4)
         self.instance_name = os.getenv('INSTANCE_NAME', 'default-instance')
 
         if not self.bot_token:

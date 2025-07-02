@@ -51,7 +51,7 @@ class TelegramBotFramework:
             self.persistence_manager = PersistenceManager()
             self.user_manager = UserManager(self.persistence_manager, self.config)
             
-            self.plugin_manager = PluginManager(self, plugin_dir='python_telegram_framework/src/tlgfwk/plugins')
+            self.plugin_manager = PluginManager(self, plugin_dir='python_telegram_framework/src/tlgfwk/plugins/')
             
             self.scheduler = JobScheduler(self.persistence_manager)
             

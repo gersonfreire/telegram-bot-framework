@@ -48,7 +48,8 @@ class PluginManager:
     def load_plugin(self, module_name):
         """Loads a single plugin by its module name."""
         try:
-            module_path = f"{self.plugin_dir.replace('/', '.')}{module_name}"
+            # Correctly form the module path relative to the 'src' directory
+            module_path = f"tlgfwk.plugins.{module_name}"
             module = importlib.import_module(module_path)
             
             for name, obj in inspect.getmembers(module, inspect.isclass):
