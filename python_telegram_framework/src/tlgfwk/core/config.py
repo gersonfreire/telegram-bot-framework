@@ -1,5 +1,5 @@
 import os
-from dotenv import load_dotenv
+from dotenv import load_dotenv, set_key
 from cryptography.fernet import Fernet, InvalidToken
 import logging
 
@@ -136,11 +136,22 @@ class Config:
         return value in ['true', '1', 't', 'y', 'yes']
 
     def set(self, key, value):
-        """Sets a configuration value and saves it to the .env file."""
-        # For simplicity, this example doesn't write back to the .env file.
-        # A more robust implementation would update the file.
-        setattr(self, key.lower(), value)
-        logger.info(f"Configuration {key} set to {value} in memory.")
+        """
+        Sets a configuration value, saves it to the .env file, and reloads the config.
+
+        Args:
+            key (str): The configuration key to set (e.g., 'DEBUG_MODE').
+            value (str): The new value for the key.
+        """
+        try:
+            set_key(self.env_file, key, value)
+            logger.info(f"Updated {key} in {self.env_file}.")
+            # Reload the configuration to apply changes immediately
+            self._load_config()
+            logger.info("Reloaded configuration from .env file.")
+        except Exception as e:
+            logger.error(f"Failed to set configuration for {key}: {e}")
+            raise ConfigError(f"Failed to write to {self.env_file}: {e}")
 
     def encrypt_and_save(self, key, plain_text):
         """Encrypts a value and suggests how to save it to .env."""

@@ -36,19 +36,21 @@ def setup_logging(config):
         stream=sys.stdout,
     )
 
-    if config.log_chat_id and config.bot_token:
-        telegram_handler = TelegramLogHandler(config.bot_token, config.log_chat_id)
-        telegram_handler.setLevel(logging.INFO)
-        formatter = logging.Formatter('%(name)s - %(levelname)s - %(message)s')
-        telegram_handler.setFormatter(formatter)
-        logging.getLogger().addHandler(telegram_handler)
+    # Only set up Telegram handlers if debug mode is enabled
+    if config.debug_mode:
+        if config.log_chat_id and config.bot_token:
+            telegram_handler = TelegramLogHandler(config.bot_token, config.log_chat_id)
+            telegram_handler.setLevel(logging.INFO)
+            formatter = logging.Formatter('%(name)s - %(levelname)s - %(message)s')
+            telegram_handler.setFormatter(formatter)
+            logging.getLogger().addHandler(telegram_handler)
 
-    if config.traceback_chat_id and config.bot_token:
-        traceback_handler = TelegramLogHandler(config.bot_token, config.traceback_chat_id)
-        traceback_handler.setLevel(logging.ERROR)
-        formatter = logging.Formatter('```%(asctime)s\n%(levelname)s: %(message)s\n\n%(pathname)s:%(lineno)d```')
-        traceback_handler.setFormatter(formatter)
-        logging.getLogger().addHandler(traceback_handler)
+        if config.traceback_chat_id and config.bot_token:
+            traceback_handler = TelegramLogHandler(config.bot_token, config.traceback_chat_id)
+            traceback_handler.setLevel(logging.ERROR)
+            formatter = logging.Formatter('```%(asctime)s\n%(levelname)s: %(message)s\n\n%(pathname)s:%(lineno)d```')
+            traceback_handler.setFormatter(formatter)
+            logging.getLogger().addHandler(traceback_handler)
 
 def get_logger(name):
     """
