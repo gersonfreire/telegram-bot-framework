@@ -1,5 +1,6 @@
 import asyncio
 import inspect
+from telegram import BotCommand, BotCommandScope, BotCommandScopeChat
 from telegram.ext import Application, CommandHandler, MessageHandler, filters
 from .config import Config, ConfigError
 from .persistence_manager import PersistenceManager
@@ -121,10 +122,58 @@ class TelegramBotFramework:
         await update.message.reply_text("Sorry, I didn't understand that command.")
         self.logger.warning(f"User {update.effective_user.id} sent an unknown command: {update.message.text}")
 
+    async def set_bot_commands(self):
+        """Sets the bot's command list on Telegram for different user scopes."""
+        self.logger.info("Setting bot commands...")
+        
+        public_commands = []
+        admin_commands = []
+        
+        for name, metadata in self.commands.items():
+            command = BotCommand(name, metadata['description'])
+            if metadata.get('owner_only'):
+                # Owner commands are a superset of admin commands
+                admin_commands.append(command)
+            elif metadata.get('admin_only'):
+                admin_commands.append(command)
+            else:
+                public_commands.append(command)
+                admin_commands.append(command)
+
+        try:
+            # Set commands for all private chats (public commands)
+            await self.application.bot.set_my_commands(
+                commands=public_commands,
+                scope=BotCommandScope.ALL_PRIVATE_CHATS()
+            )
+            
+            # Set commands for the owner
+            await self.application.bot.set_my_commands(
+                commands=admin_commands, # Owner sees all commands
+                scope=BotCommandScopeChat(chat_id=self.config.owner_id)
+            )
+
+            # Set commands for all other admins
+            for admin_id in self.config.admin_ids:
+                if admin_id != self.config.owner_id:
+                    await self.application.bot.set_my_commands(
+                        commands=admin_commands,
+                        scope=BotCommandScopeChat(chat_id=admin_id)
+                    )
+            
+            self.logger.info("Successfully set bot commands for all scopes.")
+        except Exception as e:
+            self.logger.error(f"Failed to set bot commands: {e}")
+
     def run(self):
-        """Starts the bot."""
+        """Starts the bot and sets commands."""
         self.logger.info("Starting bot...")
         self.scheduler.start()
+        
+        # Set commands asynchronously
+        loop = asyncio.get_event_loop()
+        loop.run_until_complete(self.set_bot_commands())
+
         try:
             self.application.run_polling()
         finally:
