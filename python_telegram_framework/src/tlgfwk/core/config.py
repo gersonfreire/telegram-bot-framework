@@ -12,9 +12,35 @@ class ConfigError(Exception):
 
 class Config:
     """
-    Manages bot configuration, loading from .env files and handling encryption.
+    Manages bot configuration, loading from .env files, handling encryption,
+    and validating necessary parameters.
+
+    This class is responsible for:
+    - Loading environment variables from a specified .env file.
+    - Generating and managing an encryption key for sensitive data.
+    - Automatically creating a default .env file if one doesn't exist.
+    - Decrypting sensitive values like the bot token.
+    - Validating that all required configuration parameters are present.
+
+    Attributes:
+        env_file (str): The path to the .env file.
+        key_file (str): The path to the file storing the encryption key.
+        cipher_suite (Fernet): The Fernet instance for encryption/decryption.
+        bot_token (str): The Telegram bot token.
+        owner_id (int): The Telegram user ID of the bot owner.
+        admin_ids (list[int]): A list of Telegram user IDs for bot administrators.
+        log_chat_id (int, optional): The chat ID for sending general logs.
+        traceback_chat_id (int, optional): The chat ID for sending error tracebacks.
+        debug_mode (bool): A flag to enable or disable debug mode.
     """
     def __init__(self, env_file='.env', key_file='secret.key'):
+        """
+        Initializes the Config object.
+
+        Args:
+            env_file (str): The path to the .env file. Defaults to '.env'.
+            key_file (str): The path to the encryption key file. Defaults to 'secret.key'.
+        """
         self.env_file = env_file
         self.key_file = key_file
         self.cipher_suite = self._load_key()

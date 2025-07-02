@@ -6,6 +6,19 @@ from .user_manager import UserManager
 def command(name, description, admin_only=False, owner_only=False):
     """
     Decorator to register a command with metadata.
+
+    This decorator attaches metadata to a command handler function,
+    which is later used by the framework to register the command,
+    generate help messages, and enforce permissions.
+
+    Args:
+        name (str): The name of the command (e.g., "start").
+        description (str): A brief description of the command.
+        admin_only (bool): If True, restricts the command to admins.
+        owner_only (bool): If True, restricts the command to the owner.
+
+    Returns:
+        function: The decorated function.
     """
     def decorator(func):
         @wraps(func)

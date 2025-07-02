@@ -4,8 +4,27 @@ from ..utils.logger import get_logger
 class UserManager:
     """
     Manages user registration, tracking, and administration.
+
+    This class handles all user-related operations, including:
+    - Storing and retrieving user data.
+    - Tracking user interactions and history.
+    - Checking user roles (owner, admin).
+    - Managing the list of administrators.
+
+    Attributes:
+        persistence (PersistenceManager): The persistence manager instance.
+        config (Config): The configuration object.
+        logger (logging.Logger): The logger instance.
+        users (dict): A dictionary of user data, loaded from persistence.
     """
     def __init__(self, persistence_manager, config):
+        """
+        Initializes the UserManager.
+
+        Args:
+            persistence_manager (PersistenceManager): The persistence manager.
+            config (Config): The configuration object.
+        """
         self.persistence = persistence_manager
         self.config = config
         self.logger = get_logger(__name__)

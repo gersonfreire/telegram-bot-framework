@@ -6,8 +6,25 @@ from ..utils.logger import get_logger
 class PersistenceManager:
     """
     Manages data persistence for the bot, supporting multiple backends.
+
+    This class provides a simple interface for saving and loading data,
+    abstracting the underlying storage mechanism.
+
+    Supported backends:
+    - pickle: For serializing Python objects.
+    - json: For human-readable data storage.
+
+    Attributes:
+        storage_path (str): The directory where data files are stored.
+        logger (logging.Logger): The logger instance.
     """
     def __init__(self, storage_path='data/'):
+        """
+        Initializes the PersistenceManager.
+
+        Args:
+            storage_path (str): The path to the storage directory.
+        """
         self.storage_path = storage_path
         self.logger = get_logger(__name__)
         if not os.path.exists(self.storage_path):

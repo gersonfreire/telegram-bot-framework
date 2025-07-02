@@ -1,16 +1,48 @@
 import asyncio
+import inspect
 from telegram.ext import Application, CommandHandler, MessageHandler, filters
 from .config import Config, ConfigError
 from .persistence_manager import PersistenceManager
 from .user_manager import UserManager
+from .plugin_manager import PluginManager
+from .scheduler import JobScheduler
+from .decorators import command
 from ..utils.logger import setup_logging, get_logger
 
 class TelegramBotFramework:
     """
     The main class for the Telegram Bot Framework.
-    It initializes the bot, sets up handlers, and runs the application.
+
+    This class orchestrates all the components of the framework, including:
+    - Configuration loading (`Config`)
+    - Logging (`setup_logging`)
+    - Data persistence (`PersistenceManager`)
+    - User management (`UserManager`)
+    - Plugin management (`PluginManager`)
+    - Job scheduling (`JobScheduler`)
+    - Command registration and handling
+
+    It initializes the `python-telegram-bot` Application and registers
+    both built-in and plugin-provided command handlers.
+
+    Attributes:
+        config (Config): The configuration object.
+        logger (logging.Logger): The logger instance for the framework.
+        persistence_manager (PersistenceManager): The manager for data persistence.
+        user_manager (UserManager): The manager for user data.
+        plugin_manager (PluginManager): The manager for plugins.
+        scheduler (JobScheduler): The manager for scheduled jobs.
+        application (Application): The `python-telegram-bot` Application instance.
+        commands (dict): A dictionary of registered commands and their metadata.
     """
     def __init__(self, env_file='.env', key_file='secret.key'):
+        """
+        Initializes the TelegramBotFramework.
+
+        Args:
+            env_file (str): Path to the .env file.
+            key_file (str): Path to the encryption key file.
+        """
         try:
             self.config = Config(env_file=env_file, key_file=key_file)
             setup_logging(self.config)
@@ -19,8 +51,15 @@ class TelegramBotFramework:
             self.persistence_manager = PersistenceManager()
             self.user_manager = UserManager(self.persistence_manager, self.config)
             
+            self.plugin_manager = PluginManager(self, plugin_dir='python_telegram_framework/src/tlgfwk/plugins')
+            
+            self.scheduler = JobScheduler(self.persistence_manager)
+            
             self.application = Application.builder().token(self.config.bot_token).build()
-            self._register_default_handlers()
+            self.commands = {}
+            self._register_commands()
+            self.plugin_manager.load_plugins()
+            self.application.add_handler(MessageHandler(filters.COMMAND, self.unknown_command))
 
         except ConfigError as e:
             print(f"Configuration Error: {e}")
@@ -30,12 +69,16 @@ class TelegramBotFramework:
             print(f"An unexpected error occurred during initialization: {e}")
             exit(1)
 
-    def _register_default_handlers(self):
-        """Registers the default command and message handlers."""
-        self.application.add_handler(CommandHandler("start", self.start))
-        self.application.add_handler(CommandHandler("help", self.help_command))
-        self.application.add_handler(MessageHandler(filters.COMMAND, self.unknown_command))
+    def _register_commands(self):
+        """Registers all methods decorated with @command."""
+        for name, method in inspect.getmembers(self, predicate=inspect.ismethod):
+            if hasattr(method, '_command_metadata'):
+                metadata = method._command_metadata
+                self.commands[metadata['name']] = metadata
+                self.application.add_handler(CommandHandler(metadata['name'], method))
+                self.logger.info(f"Registered command: /{metadata['name']}")
 
+    @command("start", "Starts the bot and registers the user.")
     async def start(self, update, context):
         """Handler for the /start command."""
         user = update.effective_user
@@ -48,11 +91,28 @@ class TelegramBotFramework:
         )
         self.logger.info(f"User {user.id} ({user.username}) started the bot.")
 
+    @command("help", "Shows this help message.")
     async def help_command(self, update, context):
         """Handler for the /help command."""
         self.user_manager.record_interaction(update.effective_user.id, '/help')
-        # This will be expanded later to list all registered commands.
-        await update.message.reply_text("This is a placeholder for the help command.")
+        
+        is_admin = self.user_manager.is_admin(update.effective_user.id)
+        
+        help_text = "Available commands:\n\n"
+        sorted_commands = sorted(self.commands.items())
+
+        for name, metadata in sorted_commands:
+            if metadata.get('owner_only') and not self.user_manager.is_owner(update.effective_user.id):
+                continue
+            if metadata.get('admin_only') and not is_admin:
+                continue
+            
+            help_text += f"/{name} - {metadata['description']}"
+            if metadata.get('admin_only') or metadata.get('owner_only'):
+                help_text += " (Admin)"
+            help_text += "\n"
+
+        await update.message.reply_text(help_text)
         self.logger.info(f"User {update.effective_user.id} requested help.")
 
     async def unknown_command(self, update, context):
@@ -64,8 +124,12 @@ class TelegramBotFramework:
     def run(self):
         """Starts the bot."""
         self.logger.info("Starting bot...")
-        self.application.run_polling()
-        self.logger.info("Bot has been stopped.")
+        self.scheduler.start()
+        try:
+            self.application.run_polling()
+        finally:
+            self.scheduler.shutdown()
+            self.logger.info("Bot has been stopped.")
 
 if __name__ == '__main__':
     # This allows running the framework directly for testing purposes.
