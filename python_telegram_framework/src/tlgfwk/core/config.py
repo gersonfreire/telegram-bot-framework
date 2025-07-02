@@ -78,7 +78,7 @@ class Config:
         self.admin_ids = self._get_int_list('ADMIN_IDS')
         self.log_chat_id = self._get_int('LOG_CHAT_ID', required=False)
         self.traceback_chat_id = self._get_int('TRACEBACK_CHAT_ID', required=False)
-        self.debug_mode = self._get_bool('DEBUG_MODE', default=True)
+        self.debug_mode = self._get_bool('DEBUG_MODE', default=False)
         self.use_https = self._get_bool('USE_HTTPS', default=True)
         self.num_workers = self._get_int('NUM_WORKERS', required=False, default=4)
         self.instance_name = os.getenv('INSTANCE_NAME', 'default-instance')
@@ -118,9 +118,14 @@ class Config:
         value = os.getenv(key)
         if not value:
             if required:
-                return default or []
+                raise ConfigError(f"{key} is a required configuration.")
             return default or []
         try:
+            # Return an empty list if the value is present but empty
+            if not value.strip():
+                if required:
+                    raise ConfigError(f"{key} is a required configuration but is empty.")
+                return []
             return [int(item.strip()) for item in value.split(',')]
         except ValueError:
             raise ConfigError(f"Configuration {key} must be a comma-separated list of integers.")
