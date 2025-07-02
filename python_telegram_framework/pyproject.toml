@@ -1,0 +1,43 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "python-telegram-framework"
+version = "0.1.0"
+authors = [
+  { name="Gerson Freire", email="gerson.freire@gmail.com" },
+]
+description = "A comprehensive framework for building Telegram bots on top of python-telegram-bot."
+readme = "README.md"
+requires-python = ">=3.8"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Intended Audience :: Developers",
+    "Topic :: Software Development :: Libraries :: Application Frameworks",
+]
+dependencies = [
+    "python-telegram-bot[ext, job-queue]~=21.0",
+    "python-dotenv~=1.0.0",
+    "cryptography~=42.0.5",
+    "APScheduler~=3.10.4",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-asyncio",
+    "black",
+    "isort",
+    "flake8"
+]
+
+[project.urls]
+"Homepage" = "https://github.com/gersonfreire/python-telegram-framework"
+"Bug Tracker" = "https://github.com/gersonfreire/python-telegram-framework/issues"
+
+[tool.setuptools]
+packages = ["tlgfwk"]
+package-dir = {"" = "src"}
