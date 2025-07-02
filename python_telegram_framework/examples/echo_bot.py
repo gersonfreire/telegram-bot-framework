@@ -7,19 +7,19 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..',
 from tlgfwk import TelegramBotFramework
 
 if __name__ == "__main__":
-    # Create a dummy .env file for testing
-    with open('.env', 'w') as f:
-        f.write("BOT_TOKEN=YOUR_TELEGRAM_BOT_TOKEN\n")
-        f.write("OWNER_ID=123456789\n")
+    # This bot requires a .env file in the same directory
+    # with the following content:
+    # BOT_TOKEN=YOUR_TELEGRAM_BOT_TOKEN
+    # OWNER_ID=YOUR_TELEGRAM_USER_ID
+
+    if not os.path.exists(os.path.join(os.path.dirname(__file__), '.env')):
+        print("Error: .env file not found in the examples directory.")
+        print("Please create a .env file with your BOT_TOKEN and OWNER_ID.")
+        sys.exit(1)
 
     try:
-        bot = TelegramBotFramework()
+        # When running from the 'examples' directory, the .env file is in the right place.
+        bot = TelegramBotFramework(env_file=os.path.join(os.path.dirname(__file__), '.env'))
         bot.run()
     except Exception as e:
         print(f"Failed to run the bot: {e}")
-    finally:
-        # Clean up the dummy .env file
-        if os.path.exists('.env'):
-            os.remove('.env')
-        if os.path.exists('secret.key'):
-            os.remove('secret.key')
