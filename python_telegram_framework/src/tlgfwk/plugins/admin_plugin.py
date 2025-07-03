@@ -2,11 +2,11 @@ import logging
 from telegram import Update
 from telegram.ext import ContextTypes
 from tlgfwk.core.decorators import command
-from tlgfwk.core.plugin_manager import BasePlugin
+from .base import PluginBase
 
 logger = logging.getLogger(__name__)
 
-class AdminPlugin(BasePlugin):
+class AdminPlugin(PluginBase):
     """
     A plugin for administrative commands, restricted to the bot owner.
     """

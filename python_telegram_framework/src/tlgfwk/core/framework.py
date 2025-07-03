@@ -144,7 +144,7 @@ class TelegramBotFramework:
             # Set commands for all private chats (public commands)
             await self.application.bot.set_my_commands(
                 commands=public_commands,
-                scope=BotCommandScope.ALL_PRIVATE_CHATS()
+                scope=BotCommandScope.ALL_PRIVATE_CHATS
             )
             
             # Set commands for the owner
