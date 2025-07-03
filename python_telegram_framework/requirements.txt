@@ -1,4 +1,0 @@
-python-telegram-bot>=21.0
-python-dotenv
-cryptography
-apscheduler
