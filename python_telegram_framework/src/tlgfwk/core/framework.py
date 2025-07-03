@@ -49,7 +49,7 @@ class TelegramBotFramework:
             setup_logging(self.config)
             self.logger = get_logger(__name__)
 
-            self.persistence_manager = PersistenceManager()
+            self.persistence_manager = PersistenceManager(self.config)
             self.user_manager = UserManager(self.persistence_manager, self.config)
             
             self.plugin_manager = PluginManager(self, plugin_dir='python_telegram_framework/src/tlgfwk/plugins/')

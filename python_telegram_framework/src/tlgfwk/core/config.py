@@ -82,6 +82,7 @@ class Config:
         self.use_https = self._get_bool('USE_HTTPS', default=True)
         self.num_workers = self._get_int('NUM_WORKERS', required=False, default=4)
         self.instance_name = os.getenv('INSTANCE_NAME', 'default-instance')
+        self.persistence_backend = os.getenv('PERSISTENCE_BACKEND', 'pickle').lower()
 
         if not self.bot_token:
             raise ConfigError("BOT_TOKEN is a required configuration.")
