@@ -94,3 +94,37 @@ class AdminPlugin(BasePlugin):
         if len(message) > 4096:
             message = message[:4090] + "\n..."
         await update.message.reply_text(message, parse_mode='Markdown')
+
+    @command("plugins", description="List all loaded plugins.", owner_only=True)
+    async def list_plugins_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+        """
+        Handles the /plugins command.
+        """
+        loaded_plugins = self.framework.plugin_manager.loaded_plugins
+        if not loaded_plugins:
+            await update.message.reply_text("No plugins are currently loaded.")
+            return
+
+        message = "Loaded Plugins:\n"
+        for name, instance in loaded_plugins.items():
+            message += f"- `{name}` (`{instance.__class__.__name__}`)\n"
+        
+        await update.message.reply_text(message, parse_mode='Markdown')
+
+    @command("reload", description="Reload a specific plugin.", owner_only=True)
+    async def reload_plugin_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+        """
+        Handles the /reload command.
+        Usage: /reload <plugin_name>
+        """
+        if not context.args:
+            await update.message.reply_text("Usage: `/reload <plugin_name>`", parse_mode='Markdown')
+            return
+
+        plugin_name = context.args[0]
+        if self.framework.plugin_manager.reload_plugin(plugin_name):
+            await update.message.reply_text(f"Plugin `{plugin_name}` reloaded successfully.", parse_mode='Markdown')
+            # After reloading, it's a good practice to update the command list
+            await self.framework.set_bot_commands()
+        else:
+            await update.message.reply_text(f"Failed to reload plugin `{plugin_name}`. Check logs for details.", parse_mode='Markdown')
