@@ -19,7 +19,7 @@ if __name__ == "__main__":
 
     try:
         # When running from the 'examples' directory, the .env file is in the right place.
-        bot = TelegramBotFramework(env_file=os.path.join(os.path.dirname(__file__), '.env'))
+        bot = TelegramBotFramework(env_file=os.path.join(os.path.dirname(__file__), '.env'), send_startup_messages=True)
         bot.run()
     except Exception as e:
         print(f"Failed to run the bot: {e}")
