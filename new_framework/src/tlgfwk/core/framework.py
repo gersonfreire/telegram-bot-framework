@@ -997,8 +997,21 @@ Use /help para ver os comandos disponíveis.
         self.log_info(f"Tentando registrar comando: /{command} com handler: {handler}")
         if self.application:
             try:
-                self.application.add_handler(CommandHandler(command, handler))
-                self.log_info(f"✅ Comando /{command} registrado com sucesso!")
+                # Check if this is a plugin handler (has __self__ attribute)
+                if hasattr(handler, '__self__') and handler.__self__ != self:
+                    # This is a plugin method, create a wrapper to preserve context
+                    plugin_instance = handler.__self__
+
+                    async def plugin_wrapper(update: Update, context: ContextTypes.DEFAULT_TYPE):
+                        # Call the plugin method with the plugin instance as self
+                        return await handler(update, context)
+
+                    self.application.add_handler(CommandHandler(command, plugin_wrapper))
+                    self.log_info(f"✅ Comando /{command} registrado com sucesso (plugin handler)!")
+                else:
+                    # This is a regular bot method
+                    self.application.add_handler(CommandHandler(command, handler))
+                    self.log_info(f"✅ Comando /{command} registrado com sucesso!")
             except Exception as e:
                 self.log_error(f"❌ Erro ao registrar comando /{command}: {e}")
         else:

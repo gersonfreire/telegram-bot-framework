@@ -9,6 +9,7 @@ import asyncio
 import os
 import sys
 from pathlib import Path
+from datetime import datetime
 
 # Add the src directory to the path so we can import the framework
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
@@ -34,6 +35,14 @@ class EchoBot(TelegramBotFramework):
 
         # Garantir que o carregamento automático de plugins está habilitado
         self.config.data['auto_load_plugins'] = True
+
+        # Initialize scheduler_stats for plugin compatibility
+        self.scheduler_stats = {
+            'jobs_created': 0,
+            'jobs_completed': 0,
+            'jobs_failed': 0,
+            'start_time': datetime.now()
+        }
 
     def setup_handlers(self):
         """Set up custom message handlers."""
