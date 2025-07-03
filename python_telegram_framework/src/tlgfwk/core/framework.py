@@ -184,15 +184,25 @@ class TelegramBotFramework:
             )
 
             admin_ids = set([self.config.owner_id] + self.config.admin_ids)
+            success_count = 0
             for admin_id in admin_ids:
-                await self.application.bot.send_message(
-                    chat_id=admin_id,
-                    text=message,
-                    parse_mode='Markdown'
-                )
-            self.logger.info("Startup notifications sent successfully.")
+                try:
+                    await self.application.bot.send_message(
+                        chat_id=admin_id,
+                        text=message,
+                        parse_mode='Markdown'
+                    )
+                    success_count += 1
+                except Exception as e:
+                    self.logger.error(f"Failed to send startup notification to admin {admin_id}: {e}")
+            
+            if success_count > 0:
+                self.logger.info(f"Startup notifications sent to {success_count}/{len(admin_ids)} admins.")
+            else:
+                self.logger.warning("Could not send startup notification to any admin.")
+
         except Exception as e:
-            self.logger.error(f"Failed to send startup notification: {e}")
+            self.logger.error(f"Failed to prepare startup notification: {e}")
 
     def run(self):
         """Starts the bot, sets commands, and sends startup notifications."""
