@@ -1,5 +1,7 @@
 import asyncio
 import inspect
+import socket
+import sys
 from telegram import BotCommand, BotCommandScope, BotCommandScopeChat
 from telegram.ext import Application, CommandHandler, MessageHandler, filters
 from .config import Config, ConfigError
@@ -165,14 +167,42 @@ class TelegramBotFramework:
         except Exception as e:
             self.logger.error(f"Failed to set bot commands: {e}")
 
+    async def send_startup_notification(self):
+        """Sends a notification to all admins when the bot starts."""
+        self.logger.info("Sending startup notification to admins...")
+        try:
+            bot_user = await self.application.bot.get_me()
+            hostname = socket.gethostname()
+            script_path = os.path.abspath(sys.argv[0])
+            
+            message = (
+                f"🚀 **Bot Started** 🚀\n\n"
+                f"**Bot Name:** `{bot_user.full_name}`\n"
+                f"**Username:** `@{bot_user.username}`\n"
+                f"**Host:** `{hostname}`\n"
+                f"**Script:** `{script_path}`"
+            )
+
+            admin_ids = set([self.config.owner_id] + self.config.admin_ids)
+            for admin_id in admin_ids:
+                await self.application.bot.send_message(
+                    chat_id=admin_id,
+                    text=message,
+                    parse_mode='Markdown'
+                )
+            self.logger.info("Startup notifications sent successfully.")
+        except Exception as e:
+            self.logger.error(f"Failed to send startup notification: {e}")
+
     def run(self):
-        """Starts the bot and sets commands."""
+        """Starts the bot, sets commands, and sends startup notifications."""
         self.logger.info("Starting bot...")
         self.scheduler.start()
         
-        # Set commands asynchronously
+        # Perform async setup tasks
         loop = asyncio.get_event_loop()
         loop.run_until_complete(self.set_bot_commands())
+        loop.run_until_complete(self.send_startup_notification())
 
         try:
             self.application.run_polling()
