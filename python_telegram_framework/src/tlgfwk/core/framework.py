@@ -194,6 +194,7 @@ class TelegramBotFramework:
                         text=message,
                         parse_mode='Markdown'
                     )
+                    self.logger.info(f"Successfully sent startup notification to admin {admin_id}.")
                     success_count += 1
                 except Exception as e:
                     self.logger.error(f"Failed to send startup notification to admin {admin_id}: {e}")
