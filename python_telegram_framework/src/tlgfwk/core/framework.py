@@ -184,6 +184,8 @@ class TelegramBotFramework:
             )
 
             admin_ids = set([self.config.owner_id] + self.config.admin_ids)
+            self.logger.info(f"Attempting to send startup notification to admin IDs: {list(admin_ids)}")
+            
             success_count = 0
             for admin_id in admin_ids:
                 try:
