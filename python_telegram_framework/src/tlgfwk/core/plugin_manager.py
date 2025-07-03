@@ -3,7 +3,7 @@ import inspect
 import os
 from telegram.ext import CommandHandler
 from ..utils.logger import get_logger
-from .plugin_manager import BasePlugin
+from ..plugins.base import PluginBase
 
 class PluginManager:
     """
@@ -38,7 +38,7 @@ class PluginManager:
             importlib.reload(module)  # For hot-reloading
 
             for name, obj in inspect.getmembers(module, inspect.isclass):
-                if issubclass(obj, BasePlugin) and obj is not BasePlugin:
+                if issubclass(obj, PluginBase) and obj is not PluginBase:
                     plugin_instance = obj(self.framework)
                     self.loaded_plugins[module_name] = plugin_instance
                     self._register_plugin_commands(plugin_instance)
