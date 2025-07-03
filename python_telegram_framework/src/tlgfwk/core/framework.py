@@ -58,7 +58,12 @@ class TelegramBotFramework:
             
             self.scheduler = JobScheduler(self.persistence_manager)
             
-            self.application = Application.builder().token(self.config.bot_token).build()
+            self.application = (
+                Application.builder()
+                .token(self.config.bot_token)
+                .post_init(self.post_init)
+                .build()
+            )
             self.commands = {}
             self._register_commands()
             self.plugin_manager.load_plugins()
@@ -167,9 +172,17 @@ class TelegramBotFramework:
         except Exception as e:
             self.logger.error(f"Failed to set bot commands: {e}")
 
+    async def post_init(self, application: Application):
+        """
+        Coroutine to run tasks after the application is initialized.
+        This is the recommended way to run setup tasks.
+        """
+        await self.set_bot_commands()
+        await self.send_startup_notification()
+
     async def send_startup_notification(self):
         """Sends a notification to all admins when the bot starts."""
-        self.logger.info("Sending startup notification to admins...")
+        self.logger.info("Preparing startup notification...")
         try:
             bot_user = await self.application.bot.get_me()
             hostname = socket.gethostname()
@@ -208,15 +221,10 @@ class TelegramBotFramework:
             self.logger.error(f"Failed to prepare startup notification: {e}")
 
     def run(self):
-        """Starts the bot, sets commands, and sends startup notifications."""
+        """Starts the bot."""
         self.logger.info("Starting bot...")
         self.scheduler.start()
         
-        # Perform async setup tasks
-        loop = asyncio.get_event_loop()
-        loop.run_until_complete(self.set_bot_commands())
-        loop.run_until_complete(self.send_startup_notification())
-
         try:
             self.application.run_polling()
         finally:
