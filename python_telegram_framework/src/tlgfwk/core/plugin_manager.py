@@ -70,3 +70,39 @@ class PluginManager:
                 handler = CommandHandler(command_name, method)
                 self.framework.application.add_handler(handler)
                 self.logger.info(f"Registered command: /{command_name}")
+
+    def unload_plugin(self, module_name):
+        """Unloads a single plugin and removes its commands."""
+        if module_name not in self.loaded_plugins:
+            self.logger.error(f"Plugin {module_name} is not loaded.")
+            return False
+
+        plugin_instance = self.loaded_plugins.pop(module_name)
+        
+        # Get all commands associated with this plugin instance
+        plugin_commands = []
+        for _, method in inspect.getmembers(plugin_instance, predicate=inspect.ismethod):
+            if hasattr(method, '_command_metadata'):
+                plugin_commands.append(method._command_metadata['name'])
+
+        # Remove handlers and commands
+        if plugin_commands:
+            current_handlers = self.framework.application.handlers.get(0, [])
+            self.framework.application.handlers[0] = [
+                h for h in current_handlers
+                if not (isinstance(h, CommandHandler) and any(cmd in h.commands for cmd in plugin_commands))
+            ]
+            for cmd_name in plugin_commands:
+                self.framework.commands.pop(cmd_name, None)
+                self.logger.info(f"Unregistered command: /{cmd_name}")
+
+        self.logger.info(f"Unloaded plugin: {module_name}")
+        return True
+
+    def reload_plugin(self, module_name):
+        """Reloads a single plugin by its module name."""
+        self.logger.info(f"Attempting to reload plugin: {module_name}")
+        if self.unload_plugin(module_name):
+            self.load_plugin(module_name)
+            return True
+        return False
