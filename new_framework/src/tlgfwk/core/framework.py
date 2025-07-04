@@ -44,7 +44,8 @@ class TelegramBotFramework(LoggerMixin):
         self,
         config_file: Optional[str] = None,
         plugins_dir: Optional[str] = None,
-        custom_config: Optional[Dict[str, Any]] = None
+        custom_config: Optional[Dict[str, Any]] = None,
+        cli_args: Optional[list] = None
     ):
         """
         Inicializa o framework.
@@ -53,10 +54,21 @@ class TelegramBotFramework(LoggerMixin):
             config_file: Caminho para arquivo de configuração (.env)
             plugins_dir: Diretório dos plugins
             custom_config: Configurações customizadas
+            cli_args: Lista de argumentos de linha de comando (opcional)
         """
+        # Verifica se foi passado --env=arquivo.env nos argumentos de linha de comando
+        env_file_from_cli = None
+        if cli_args:
+            for arg in cli_args:
+                if arg.startswith('--env='):
+                    env_file_from_cli = arg.split('=', 1)[1]
+                    break
+
         # Carregar configuração
         if custom_config:
             self.config = custom_config if isinstance(custom_config, Config) else Config(**custom_config)
+        elif env_file_from_cli:
+            self.config = Config.from_env(env_file_from_cli)
         elif config_file:
             self.config = Config.from_env(config_file)
         else:
