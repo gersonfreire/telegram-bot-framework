@@ -22,7 +22,7 @@ from telegram.ext import ContextTypes
 class EchoBot(TelegramBotFramework):
     """Simple echo bot that responds to messages."""
 
-    def __init__(self):
+    def __init__(self, cli_args=None):
         # Verificar arquivo .env na pasta examples
         env_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".env")
 
@@ -30,8 +30,8 @@ class EchoBot(TelegramBotFramework):
         plugins_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "plugins")
         plugins_dir = os.path.abspath(plugins_dir)  # Converter para caminho absoluto
 
-        # Initialize with configuration from .env file and plugins directory
-        super().__init__(config_file=env_path, plugins_dir=plugins_dir)
+        # Initialize with configuration from .env file and plugins directory, and opcionalmente cli_args
+        super().__init__(config_file=env_path, plugins_dir=plugins_dir, cli_args=cli_args)
 
         # Garantir que o carregamento automático de plugins está habilitado
         self.config.data['auto_load_plugins'] = True
@@ -117,8 +117,9 @@ def main():
         return
 
     try:
-        # Create and run the bot
-        bot = EchoBot()
+        import sys
+        # Create and run the bot, repassando sys.argv[1:]
+        bot = EchoBot(cli_args=sys.argv[1:])
 
         # Setup handlers
         bot.setup_handlers()
