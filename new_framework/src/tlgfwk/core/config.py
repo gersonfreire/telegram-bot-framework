@@ -349,6 +349,11 @@ class Config:
         return self.data.get('admin_user_ids', [])
     
     @property
+    def admin_ids(self) -> List[int]:
+        """Get the admin user IDs (alias for admin_user_ids)."""
+        return self.admin_user_ids
+    
+    @property
     def log_chat_id(self) -> Optional[int]:
         """Get the log chat ID."""
         return self.data.get('log_chat_id')
@@ -393,6 +398,14 @@ class Config:
     @property
     def plugins_dir(self):
         return self.data.get('plugins_dir', 'plugins')
+    
+    @property
+    def auto_load_plugins(self):
+        return self.data.get('auto_load_plugins', True)
+    
+    @property
+    def traceback_chat_id(self):
+        return self.data.get('traceback_chat_id')
     
     # Property setters
     @debug.setter

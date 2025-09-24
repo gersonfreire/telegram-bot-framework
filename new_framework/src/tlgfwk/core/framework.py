@@ -451,6 +451,106 @@ Use /help para ver os comandos disponíveis.
         # Parar aplicação
         await self.stop()
     
+    async def plugins_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+        """Comando para listar plugins disponíveis."""
+        user_id = update.effective_user.id
+        
+        if not self.user_manager.is_admin(user_id):
+            await update.message.reply_text("❌ Acesso negado")
+            return
+        
+        if not self.plugin_manager:
+            await update.message.reply_text("❌ Sistema de plugins não disponível")
+            return
+        
+        plugins_info = self.plugin_manager.list_plugins()
+        
+        if not plugins_info:
+            await update.message.reply_text("📦 Nenhum plugin encontrado")
+            return
+        
+        text = "📦 **Plugins Disponíveis:**\n\n"
+        for plugin_info in plugins_info:
+            status = "✅" if plugin_info.name in self.plugin_manager.loaded_plugins else "❌"
+            text += f"{status} `{plugin_info.name}`"
+            if plugin_info.description:
+                text += f" - {plugin_info.description}"
+            text += "\n"
+        
+        text += "\n💡 Use `/plugin <nome>` para gerenciar um plugin específico"
+        
+        await update.message.reply_text(text, parse_mode=ParseMode.MARKDOWN)
+    
+    async def plugin_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+        """Comando para gerenciar plugins específicos."""
+        user_id = update.effective_user.id
+        
+        if not self.user_manager.is_admin(user_id):
+            await update.message.reply_text("❌ Acesso negado")
+            return
+        
+        if not self.plugin_manager:
+            await update.message.reply_text("❌ Sistema de plugins não disponível")
+            return
+        
+        if not context.args:
+            await update.message.reply_text(
+                "❓ Uso: `/plugin <nome> [ação]`\n"
+                "Ações: `load`, `unload`, `reload`, `info`"
+            )
+            return
+        
+        plugin_name = context.args[0]
+        action = context.args[1] if len(context.args) > 1 else "info"
+        
+        try:
+            if action == "load":
+                success = await self.plugin_manager.load_plugin(plugin_name)
+                if success:
+                    await update.message.reply_text(f"✅ Plugin `{plugin_name}` carregado")
+                else:
+                    await update.message.reply_text(f"❌ Erro ao carregar plugin `{plugin_name}`")
+            
+            elif action == "unload":
+                success = await self.plugin_manager.unload_plugin(plugin_name)
+                if success:
+                    await update.message.reply_text(f"✅ Plugin `{plugin_name}` descarregado")
+                else:
+                    await update.message.reply_text(f"❌ Erro ao descarregar plugin `{plugin_name}`")
+            
+            elif action == "reload":
+                success = self.plugin_manager.reload_plugin(plugin_name)
+                if success:
+                    await update.message.reply_text(f"✅ Plugin `{plugin_name}` recarregado")
+                else:
+                    await update.message.reply_text(f"❌ Erro ao recarregar plugin `{plugin_name}`")
+            
+            elif action == "info":
+                plugin_info = self.plugin_manager.get_plugin_info(plugin_name)
+                if plugin_info:
+                    text = f"📦 **Plugin: {plugin_name}**\n\n"
+                    text += f"**Status:** {'✅ Carregado' if plugin_info.get('loaded', False) else '❌ Descarregado'}\n"
+                    if plugin_info.get('description'):
+                        text += f"**Descrição:** {plugin_info['description']}\n"
+                    if plugin_info.get('version'):
+                        text += f"**Versão:** {plugin_info['version']}\n"
+                    if plugin_info.get('author'):
+                        text += f"**Autor:** {plugin_info['author']}\n"
+                    
+                    await update.message.reply_text(text, parse_mode=ParseMode.MARKDOWN)
+                else:
+                    await update.message.reply_text(f"❌ Plugin `{plugin_name}` não encontrado")
+            
+            else:
+                await update.message.reply_text(
+                    f"❓ Ação `{action}` não reconhecida\n"
+                    "Ações válidas: `load`, `unload`, `reload`, `info`"
+                )
+        
+        except Exception as e:
+            self.log_error(f"Erro no comando plugin: {e}")
+            await update.message.reply_text(f"❌ Erro: {str(e)}")
+    
     async def unknown_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Handler para comandos não reconhecidos."""
         command = update.message.text.split()[0]
